@@ -1,150 +1,96 @@
 package com.byaffe.learningking.controllers;
 
-import org.byaffe.systems.api.models.BaseQueryParamModel;
+import com.byaffe.learningking.models.Article;
+import com.byaffe.learningking.models.Member;
+import com.byaffe.learningking.models.courses.ArticleType;
+import com.byaffe.learningking.models.courses.Company;
+import com.byaffe.learningking.models.courses.PublicationStatus;
+import com.byaffe.learningking.services.ArticleService;
+import com.byaffe.learningking.services.CompanyService;
+import com.byaffe.learningking.services.impl.ArticleServiceImpl;
+import com.byaffe.learningking.shared.api.ResponseList;
+import com.byaffe.learningking.shared.utils.ApplicationContextProvider;
 import com.googlecode.genericdao.search.Search;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.byaffe.systems.models.Member;
+import org.byaffe.systems.api.models.ApiUserModel;
+import org.byaffe.systems.api.models.BaseQueryParamModel;
+import org.byaffe.systems.core.services.*;
+import org.byaffe.systems.models.LookUpValue;
+import org.byaffe.systems.models.LookupType;
+import org.byaffe.systems.models.courses.*;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.byaffe.systems.api.constants.ApiUtils;
-import org.byaffe.systems.api.models.ApiUserModel;
-import org.byaffe.systems.core.services.ArticleService;
-import org.byaffe.systems.core.services.CompanyService;
-import org.byaffe.systems.core.services.CourseCategoryService;
-import org.byaffe.systems.core.services.LookUpService;
-import org.byaffe.systems.core.services.MemberService;
-import org.byaffe.systems.core.services.impl.ArticleServiceImpl;
-import org.byaffe.systems.models.Article;
-import org.byaffe.systems.models.LookUpValue;
-import org.byaffe.systems.models.LookupType;
-import org.byaffe.systems.models.courses.ArticleType;
-import org.byaffe.systems.models.courses.CategoryType;
-import org.byaffe.systems.models.courses.Company;
-import org.byaffe.systems.models.courses.CourseAcademyType;
-import org.byaffe.systems.models.courses.CourseCategory;
-import org.byaffe.systems.models.courses.PublicationStatus;
-import org.sers.webutils.model.utils.SortField;
-import org.sers.webutils.server.core.utils.ApplicationContextProvider;
 import org.sers.webutils.model.RecordStatus;
 import org.sers.webutils.model.exception.OperationFailedException;
-com.byaffe.learningking.shared.exceptions.ValidationFailedException;
+import org.sers.webutils.model.utils.SortField;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.*;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
+import javax.xml.bind.ValidationException;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
- *
  * @author Ray Gdhrt
  */
-@Path("/v1/articles")
+
+@Slf4j
+@RestController
+@RequestMapping("/v1/articles")
 public class ApiArticleService {
 
-    @GET
-    @Path("/")
-    @Produces("application/json")
-    @Consumes("application/json")
-    public Response getArticles(@Context HttpServletRequest request, @Context UriInfo uriInfo) throws JSONException {
-        JSONObject result = new JSONObject();
+    @PostMapping("/")
+    public ResponseEntity<ResponseList<Article>> getArticles(
+            @RequestParam String searchTerm,
+            @RequestParam int offset, @RequestParam int limit,
+            @RequestParam String sortBy, @RequestParam Boolean sortDescending,
+            @RequestParam String type, @RequestParam Boolean featured,
+            @RequestParam Long categoryId, @RequestParam String academy,
+            @RequestParam Long companyId) throws ValidationException {
+        Search search = ArticleServiceImpl.generateSearchTermsForArticles(searchTerm).addFilterEqual("publicationStatus", PublicationStatus.ACTIVE);
 
-        try {
-            JSONArray articles = new JSONArray();
-            Member member = (Member) request.getAttribute(HttpConstants.MEMBER_OBJECT_ATTRIBUTE);
-            if (member == null) {
-                return ApiUtils.composeFailureMessage("User not found", 401);
-            }
-            BaseQueryParamModel queryParamModel = new BaseQueryParamModel().buildFromQueryParams(uriInfo);
-            Search search = ArticleServiceImpl.generateSearchTermsForArticles(queryParamModel.getSearchTerm(), null)
-                    .addFilterEqual("publicationStatus", PublicationStatus.ACTIVE);
-
-            if (StringUtils.isNotBlank(queryParamModel.getType())) {
-                ArticleType articleType = ArticleType.valueOf(queryParamModel.getType());
-
-                if (StringUtils.isBlank(queryParamModel.getCompanyId()) && articleType.equals(ArticleType.COOPORATE_JOURNEL)) {
-                    return ApiUtils.composeFailureMessage("Company Id is required for coporate journels", 400);
-                }
-                search.addFilterEqual("type", articleType);
-
-            }
-
-            if (StringUtils.isNotBlank(queryParamModel.getAcademy())) {
-                CourseAcademyType academyType = CourseAcademyType.valueOf(queryParamModel.getAcademy());
-                if (academyType != null) {
-                    search.addFilterEqual("category.academy", academyType);
-                } else {
-                    return ApiUtils.composeFailureMessage("Unknown academy type supplied", 400);
-                }
-
-            }
-            if (StringUtils.isNotBlank(queryParamModel.getCategoryId())) {
-                search.addFilterEqual("category.id", queryParamModel.getCategoryId());
-            }
-
-            if (StringUtils.isNotBlank(queryParamModel.getCompanyId())) {
-                search.addFilterEqual("type", ArticleType.COOPORATE_JOURNEL);
-                if (member.getInterestNames() != null && member.getInterestNames().isEmpty()) {
-                    search.addFilterIn("category.name", member.getInterestNames());
-                } else {
-                    Company company = ApplicationContextProvider.getBean(CompanyService.class).getInstanceByID(queryParamModel.getCompanyId());
-                    if (company != null) {
-                        search.addFilterEqual("areaOfBusiness", company.getAreaOfBusiness());
-                    }
+        if (StringUtils.isNotEmpty(type)) {
+            search.addFilterEqual("type", ArticleType.valueOf(type));
+        }
+        if (StringUtils.isNotEmpty(type)) {
+            search.addFilterEqual("category.academy", academy);
+        }
+        if (categoryId > 0) {
+            search.addFilterEqual("category.id", categoryId);
+        }
+        if (featured != null) {
+            search.addFilterEqual("isFeatured", featured);
+        }
+        if (StringUtils.isNotBlank(sortBy)) {
+            search.addSort(sortBy, sortDescending);
+        }
+        if (companyId > 0) {
+            Member member = new Member();
+            search.addFilterEqual("type", ArticleType.COOPORATE_JOURNEL);
+            if (member.getInterestNames() != null && member.getInterestNames().isEmpty()) {
+                search.addFilterIn("category.name", member.getInterestNames());
+            } else {
+                Company company = ApplicationContextProvider.getBean(CompanyService.class).getInstanceByID(companyId);
+                if (company != null) {
+                    search.addFilterEqual("areaOfBusiness", company.getAreaOfBusiness());
                 }
             }
-
-            if (queryParamModel.getFeatured() != null) {
-                search.addFilterEqual("isFeatured", queryParamModel.getFeatured());
-            }
-
-            if (StringUtils.isNotBlank(queryParamModel.getSortBy())) {
-                search.addSort(queryParamModel.getSortBy(), queryParamModel.getSortDescending());
-            }
-
-            for (Article article : ApplicationContextProvider.getBean(ArticleService.class).getInstances(search, queryParamModel.getOffset(), queryParamModel.getLimit())) {
-                JSONArray testimonialArray = new JSONArray();
-
-                articles.put(new JSONObject(article)
-                        .put("id", article.getId())
-                        .put("category", new JSONObject()
-                                .put("name", article.getCategory().getName())
-                                .put("academy", article.getCategory().getAcademy())
-                                .put("imageUrl", article.getCategory().getImageUrl())
-                                .put("id", article.getCategory().getId())
-                        )
-                        .put("testimonials", testimonialArray)
-                        .put("coverImageUrl", article.getCoverImageUrl())
-                        .put("title", article.getTitle())
-                        .put("description", article.getDescription())
-                        .put("publicationStatus", article.getPublicationStatus())
-                );
-            }
-            result.put("articles", articles);
-            result.put(ApiUtils.STATUS_PARAM, ApiUtils.SUCCESSFUL_TOKEN);
-            result.put(ApiUtils.RESPONSE_PARAM, ApiUtils.SUCCESSFUL_RESPONSE_VALUE);
-            return ApiUtils.buidResponse(200, result);
-        } catch (Exception e) {
-            e.printStackTrace();
-            result.put(ApiUtils.STATUS_PARAM, ApiUtils.FAILURE_TOKEN);
-            result.put(ApiUtils.RESPONSE_PARAM, e.getMessage());
-            return ApiUtils.buidResponse(500, result);
         }
 
+        List<Article> articles = ApplicationContextProvider.getBean(ArticleService.class).getInstances(search, offset, limit))
+        return ResponseEntity.ok().body(new ResponseList<>(articles, articles.size(), offset, limit));
     }
 
-    @GET
-    @Path("/by-categories")
-    @Produces("application/json")
-    @Consumes("application/json")
+
+    @GetMapping("/by-categories")
     public Response getArticlesByCategories(@Context HttpServletRequest request, @Context UriInfo uriInfo) throws JSONException {
         JSONObject result = new JSONObject();
 

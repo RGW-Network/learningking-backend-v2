@@ -20,7 +20,6 @@ import com.byaffe.learningking.utilities.CustomAppUtils;
 import com.byaffe.learningking.utilities.EmailService;
 import com.googlecode.genericdao.search.Search;
 import org.apache.commons.lang3.StringUtils;
-import org.sers.webutils.server.core.security.service.impl.ApiAuthenticationHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -155,8 +154,8 @@ public class MemberServiceImpl extends GenericServiceImpl<Member> implements Mem
     @Override
     public Member doLogin(String username, String password) throws ValidationFailedException {
 
-        User userAccount = ApplicationContextProvider.getBean(ApiAuthenticationHandler.class)
-                .getWebPortalUser(username, password);
+        User userAccount = ApplicationContextProvider.getBean(UserService.class)
+                .authenticateUser(username, password);
 
         if (userAccount == null) {
             throw new ValidationFailedException("User not found or bad credentials");
@@ -257,6 +256,11 @@ public class MemberServiceImpl extends GenericServiceImpl<Member> implements Mem
     }
 
     @Override
+    public void delete(Member member) throws ValidationFailedException {
+
+    }
+
+    @Override
     public boolean isDeletable(Member entity) throws OperationFailedException {
         return true;
 
@@ -336,7 +340,7 @@ public class MemberServiceImpl extends GenericServiceImpl<Member> implements Mem
         user.setLastName(member.getLastName());
         user.setEmailAddress(member.getEmailAddress());
         user.setPassword(member.getClearTextPassword());
-        user.addRole(ApplicationContextProvider.getBean(UserService.class).getRoleByRoleName(AppUtils.NORMAL_USER_ROLE_NAME));
+        user.addRole(ApplicationContextProvider.getBean(UserService.class).getRoleByName(AppUtils.NORMAL_USER_ROLE_NAME));
         user.setApiPassword(member.getClearTextPassword());
         member.setClearTextPassword(null);
         member.setUserAccount(ApplicationContextProvider.getBean(UserService.class).saveUser(user));
@@ -354,7 +358,7 @@ public class MemberServiceImpl extends GenericServiceImpl<Member> implements Mem
         user.setEmailAddress(member.getEmailAddress());
         user.setPassword(password);
         UserService userService = ApplicationContextProvider.getBean(UserService.class);
-        user.addRole(userService.getRoleByRoleName(AppUtils.STUDENT_ROLE_NAME));
+        user.addRole(userService.getRoleByName(AppUtils.STUDENT_ROLE_NAME));
 
         return ApplicationContextProvider.getBean(UserService.class).saveUser(user);
 
@@ -366,7 +370,7 @@ public class MemberServiceImpl extends GenericServiceImpl<Member> implements Mem
         user.setRecordStatus(RecordStatus.ACTIVE_LOCKED);
 
         UserService userService = ApplicationContextProvider.getBean(UserService.class);
-        user.removeRole(userService.getRoleByRoleName(AppUtils.STUDENT_ROLE_NAME));
+        user.removeRole(userService.getRoleByName(AppUtils.STUDENT_ROLE_NAME));
 
         return userService.saveUser(user);
 
@@ -378,7 +382,7 @@ public class MemberServiceImpl extends GenericServiceImpl<Member> implements Mem
         user.setRecordStatus(RecordStatus.ACTIVE);
 
         UserService userService = ApplicationContextProvider.getBean(UserService.class);
-        user.addRole(userService.getRoleByRoleName(AppUtils.STUDENT_ROLE_NAME));
+        user.addRole(userService.getRoleByName(AppUtils.STUDENT_ROLE_NAME));
 
         return userService.saveUser(user);
 

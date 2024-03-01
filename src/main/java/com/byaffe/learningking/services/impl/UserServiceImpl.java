@@ -340,6 +340,15 @@ return userRepository.save(user);
     }
 
     @Override
+    public User authenticateUser(String username, String password) {
+        AuthDTO authDTO =new AuthDTO();
+        authDTO.setPassword(password);
+        authDTO.setPassword(password);
+        authDTO.setRememberMe(false);
+        return null;
+    }
+
+    @Override
     public User getUserByUsername(String username) {
         return userRepository.searchUnique(new Search().addFilterEqual("username",username).setMaxResults(1));
     }

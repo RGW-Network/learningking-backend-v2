@@ -4,8 +4,8 @@
  */
 package com.byaffe.learningking.services.flutterwave;
 
-import org.byaffe.systems.core.utilities.AppUtils;
 import com.byaffe.learningking.models.payments.PaymentPrefixes;
+import com.byaffe.learningking.utilities.AppUtils;
 
 
 /**

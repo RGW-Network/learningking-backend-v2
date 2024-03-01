@@ -10,11 +10,13 @@ import com.byaffe.learningking.shared.constants.RecordStatus;
 import com.byaffe.learningking.shared.exceptions.OperationFailedException;
 import com.byaffe.learningking.shared.exceptions.ValidationFailedException;
 import com.byaffe.learningking.shared.utils.ApplicationContextProvider;
+import com.byaffe.learningking.shared.utils.CustomSearchUtils;
 import com.googlecode.genericdao.search.Search;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -117,8 +119,15 @@ public class ArticleServiceImpl extends GenericServiceImpl<Article> implements A
 
     }
 
-  
 
+    public static Search generateSearchTermsForArticles(String searchTerm) {
+        com.googlecode.genericdao.search.Search search = CustomSearchUtils.generateSearchTerms(searchTerm,
+                Arrays.asList("value",
+                        "postalCode",
+                        "currencyCode"));
+
+        return search;
+    }
 
 
     @Override

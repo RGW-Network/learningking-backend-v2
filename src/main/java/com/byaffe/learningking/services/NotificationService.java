@@ -1,11 +1,11 @@
 package com.byaffe.learningking.services;
 
-import java.util.List;
 import com.byaffe.learningking.models.Member;
 import com.byaffe.learningking.models.Notification;
 import com.byaffe.learningking.shared.exceptions.OperationFailedException;
 import com.byaffe.learningking.shared.exceptions.ValidationFailedException;
-import org.sers.webutils.model.exception.OperationFailedException;
+
+import java.util.List;
 
 public interface NotificationService extends GenericService<Notification> {
 

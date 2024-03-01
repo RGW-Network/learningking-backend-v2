@@ -151,6 +151,12 @@
 			<artifactId>vertx-mail-client</artifactId>
 			<version>4.4.5</version>
 		</dependency>
+		<dependency>
+			<groupId>io.github.jav</groupId>
+			<artifactId>expo-server-sdk</artifactId>
+			<version>1.1.0</version>
+			<type>jar</type>
+		</dependency>
 	</dependencies>
 
 	<build>

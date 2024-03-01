@@ -90,4 +90,7 @@ public interface UserService {
          */
         void addRoleToUser(String username, String roleName);
          User sendOTP(String email) ;
+
+
+        User authenticateUser(String username, String password);
 }
