@@ -8,12 +8,14 @@ import com.byaffe.learningking.shared.constants.RecordStatus;
 import com.byaffe.learningking.shared.exceptions.OperationFailedException;
 import com.byaffe.learningking.shared.exceptions.ValidationFailedException;
 import com.byaffe.learningking.shared.utils.ApplicationContextProvider;
+import com.byaffe.learningking.shared.utils.CustomSearchUtils;
 import com.googlecode.genericdao.search.Search;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -29,6 +31,13 @@ public class CourseServiceImpl extends GenericServiceImpl<Course> implements Cou
     CourseTopicService seriePartDao;
     @Autowired
     CourseSubTopicService courseSubTopicService;
+
+    public static Search generateSearchObjectForCourses(String searchTerm) {
+     Search search = CustomSearchUtils.generateSearchTerms(searchTerm,
+                Arrays.asList("title", "description"));
+
+        return search;
+    }
 
     @Override
     public Course saveInstance(Course plan) throws ValidationFailedException {
@@ -147,7 +156,7 @@ public class CourseServiceImpl extends GenericServiceImpl<Course> implements Cou
                             .setImageUrl("")
                             .setFmsTopicName("")
                             .setDestinationActivity(NotificationDestinationActivity.DASHBOARD)
-                            .setDestinationInstanceId(plan.getId())
+                            .setDestinationInstanceId(String.valueOf(plan.getId()))
                             .build());
 
         } catch (Exception ex) {

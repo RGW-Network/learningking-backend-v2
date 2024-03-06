@@ -1,5 +1,7 @@
 package com.byaffe.learningking.controllers;
 
+import com.byaffe.learningking.config.SessionDTO;
+import com.byaffe.learningking.models.Member;
 import com.byaffe.learningking.shared.models.User;
 
 /**
@@ -14,14 +16,39 @@ public class UserDetailsContext {
         // Add a private constructor to hide the implicit public one.
     }
 
-    private static ThreadLocal<User> bearerToken = new InheritableThreadLocal<>();
-
-    public static User getLoggedInUser() {
-        return bearerToken.get();
-    }
+    private static ThreadLocal<SessionDTO> bearerToken = new InheritableThreadLocal<>();
 
     public static void setLoggedInUser(User id) {
-        bearerToken.set(id);
+        SessionDTO  dto= bearerToken.get();
+        if(dto==null){
+            dto= new SessionDTO();
+        }
+        dto.setLoggedInUser(id);
+        bearerToken.set(dto);
+    }
+    public static User getLoggedInUser() {
+
+        SessionDTO sessionDTO=bearerToken.get();
+        if(sessionDTO!=null){
+            return sessionDTO.getLoggedInUser();
+        }
+        return null;
+    }
+
+    public static void setLoggedInMember(Member id) {
+        SessionDTO  dto= bearerToken.get();
+        if(dto==null){
+            dto= new SessionDTO();
+        }
+        dto.setLoggedInMember(id);
+        bearerToken.set(dto);
+    }
+    public static Member getLoggedInMember() {
+        SessionDTO sessionDTO=bearerToken.get();
+        if(sessionDTO!=null){
+            return sessionDTO.getLoggedInMember();
+        }
+        return null;
     }
 
     public static void clear() {
