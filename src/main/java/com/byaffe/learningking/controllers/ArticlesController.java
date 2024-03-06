@@ -1,6 +1,6 @@
 package com.byaffe.learningking.controllers;
 
-import com.byaffe.learningking.controllers.models.ArticlesFilterDTO;
+import com.byaffe.learningking.controllers.dtos.ArticlesFilterDTO;
 import com.byaffe.learningking.models.Article;
 import com.byaffe.learningking.models.Member;
 import com.byaffe.learningking.models.courses.ArticleType;
@@ -29,7 +29,7 @@ import java.util.List;
 @Slf4j
 @RestController
 @RequestMapping("/v1/articles")
-public class ApiArticleService {
+public class ArticlesController {
 
     @PostMapping("/")
     public ResponseEntity<ResponseList<Article>> getArticles(

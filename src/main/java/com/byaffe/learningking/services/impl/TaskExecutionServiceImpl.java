@@ -1,6 +1,6 @@
 package com.byaffe.learningking.services.impl;
 
-import com.byaffe.learningking.controllers.UserDetailsContext;
+import com.byaffe.learningking.shared.security.UserDetailsContext;
 import com.byaffe.learningking.daos.TaskDao;
 import com.byaffe.learningking.daos.TaskExecutionDao;
 import com.byaffe.learningking.dtos.TaskExecutionRequestDTO;

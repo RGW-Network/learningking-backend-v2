@@ -1,4 +1,4 @@
-package com.byaffe.learningking.controllers.models;
+package com.byaffe.learningking.controllers.dtos;
 
 import com.byaffe.learningking.models.courses.CourseSubTopic;
 import com.byaffe.learningking.models.courses.CourseTopic;

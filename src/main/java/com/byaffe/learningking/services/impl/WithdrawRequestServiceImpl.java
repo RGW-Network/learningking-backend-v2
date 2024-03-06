@@ -1,6 +1,6 @@
 package com.byaffe.learningking.services.impl;
 
-import com.byaffe.learningking.controllers.UserDetailsContext;
+import com.byaffe.learningking.shared.security.UserDetailsContext;
 import com.byaffe.learningking.daos.WithdrawRequestDao;
 import com.byaffe.learningking.dtos.WithdrawRequestDTO;
 import com.byaffe.learningking.models.WithdrawRequest;

@@ -1,8 +1,6 @@
-package com.byaffe.learningking.controllers.models;
+package com.byaffe.learningking.controllers.dtos;
 
-import com.byaffe.learningking.models.courses.Course;
 import com.byaffe.learningking.models.courses.CourseCategory;
-import com.byaffe.learningking.models.courses.Testimonial;
 import lombok.Data;
 
 import java.util.List;

@@ -1,6 +1,6 @@
 package com.byaffe.learningking.controllers;
 
-import com.byaffe.learningking.controllers.models.UserRequestDTO;
+import com.byaffe.learningking.controllers.dtos.UserRequestDTO;
 import com.byaffe.learningking.dtos.AuthDTO;
 import com.byaffe.learningking.dtos.FullUserDTO;
 import com.byaffe.learningking.dtos.UserDTO;

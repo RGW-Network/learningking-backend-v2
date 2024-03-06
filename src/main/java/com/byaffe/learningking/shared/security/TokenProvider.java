@@ -6,7 +6,6 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.byaffe.learningking.services.UserService;
-import com.byaffe.learningking.controllers.UserDetailsContext;
 import com.byaffe.learningking.dtos.UserDTO;
 import com.byaffe.learningking.shared.models.User;
 import lombok.Data;

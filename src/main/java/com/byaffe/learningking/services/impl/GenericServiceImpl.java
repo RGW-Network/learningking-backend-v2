@@ -3,7 +3,7 @@
  */
 package com.byaffe.learningking.services.impl;
 
-import com.byaffe.learningking.controllers.UserDetailsContext;
+import com.byaffe.learningking.shared.security.UserDetailsContext;
 import com.byaffe.learningking.services.GenericService;
 import com.byaffe.learningking.shared.constants.RecordStatus;
 import com.byaffe.learningking.shared.dao.BaseDAOImpl;

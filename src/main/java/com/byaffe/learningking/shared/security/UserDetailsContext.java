@@ -1,4 +1,4 @@
-package com.byaffe.learningking.controllers;
+package com.byaffe.learningking.shared.security;
 
 import com.byaffe.learningking.config.SessionDTO;
 import com.byaffe.learningking.models.Member;

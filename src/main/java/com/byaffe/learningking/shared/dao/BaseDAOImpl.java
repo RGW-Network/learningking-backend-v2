@@ -6,7 +6,7 @@ import com.byaffe.learningking.shared.models.User;
 import com.googlecode.genericdao.dao.jpa.GenericDAOImpl;
 import com.googlecode.genericdao.search.MetadataUtil;
 import com.googlecode.genericdao.search.jpa.JPASearchProcessor;
-import com.byaffe.learningking.controllers.UserDetailsContext;
+import com.byaffe.learningking.shared.security.UserDetailsContext;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
