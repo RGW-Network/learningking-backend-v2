@@ -141,7 +141,6 @@ public class CoursesController {
             lessonsArray.add(lessonDto);
         }
 
-        List<Testimonial> testimonialArray = new ArrayList<>(course.getTestimonials());
         double rattings = 1;
         try {
             rattings = ApplicationContextProvider.getBean(CourseRatingService.class).getTotalCourseRatings(course) / 5;
@@ -153,7 +152,7 @@ public class CoursesController {
         courseObj.setAverageRating(rattings / 5);
         courseObj.setProgress(courseService.getProgress(subscription.getCurrentSubTopic()));
         //     .put("ratingsCount", ApplicationContextProvider.getBean(CourseRatingService.class).getRatingsCount(course))
-        courseObj.setTestimonials(testimonialArray);
+        courseObj.setTestimonials(course.getTestimonials());
         responseDTO.setSubscription(subscription);
         responseDTO.setLessons(lessonsArray.stream().map(r -> (LessonResponseDTO) r).collect(Collectors.toList()));
         responseDTO.setNumberOfLessons(lessons.size());

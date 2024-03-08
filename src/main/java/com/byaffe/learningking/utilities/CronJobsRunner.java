@@ -1,12 +1,12 @@
 package com.byaffe.learningking.utilities;
-
-import java.util.Date;
-import org.byaffe.systems.core.services.PaymentService;
-import org.byaffe.systems.core.services.SubscriptionPlanPaymentService;
-import org.sers.webutils.server.core.utils.ApplicationContextProvider;
+import com.byaffe.learningking.services.PaymentService;
+import com.byaffe.learningking.services.SubscriptionPlanPaymentService;
+import com.byaffe.learningking.shared.utils.ApplicationContextProvider;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Date;
 
 /**
  *

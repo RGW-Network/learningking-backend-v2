@@ -76,7 +76,7 @@ public class CompanyServiceImpl extends GenericServiceImpl<Company> implements C
                             .setImageUrl("")
                             .setFmsTopicName("")
                             .setDestinationActivity(NotificationDestinationActivity.DASHBOARD)
-                            .setDestinationInstanceId(plan.getId())
+                            .setDestinationInstanceId(String.valueOf(plan.getId()))
                             .build()
                     );
 
@@ -137,7 +137,7 @@ public class CompanyServiceImpl extends GenericServiceImpl<Company> implements C
         }
         CompanyCourse existsOnCompany = getCompanyCourse(companyCourse.getCompany(), companyCourse.getCourse());
 
-        if (existsOnCompany != null && !existsOnCompany.getId().equalsIgnoreCase(companyCourse.getId())) {
+        if (existsOnCompany != null && !existsOnCompany.getId().equals(companyCourse.getId())) {
             throw new ValidationFailedException("Course Exists on this Company");
         }
        
@@ -164,7 +164,7 @@ public class CompanyServiceImpl extends GenericServiceImpl<Company> implements C
                             .setImageUrl("")
                             .setFmsTopicName("")
                             .setDestinationActivity(NotificationDestinationActivity.DASHBOARD)
-                            .setDestinationInstanceId(plan.getId())
+                            .setDestinationInstanceId(String.valueOf(plan.getId()))
                             .build()
                     );
 
@@ -221,7 +221,7 @@ public class CompanyServiceImpl extends GenericServiceImpl<Company> implements C
 
         CompanyMember existsOnCompany = getCompanyMember(companyCourse.getCompany(), companyCourse.getMember());
 
-        if (existsOnCompany != null && !existsOnCompany.getId().equalsIgnoreCase(companyCourse.getId())) {
+        if (existsOnCompany != null && !existsOnCompany.getId().equals(companyCourse.getId())) {
             throw new ValidationFailedException("member exists on this company");
         }
        

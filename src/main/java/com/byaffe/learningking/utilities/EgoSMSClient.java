@@ -5,15 +5,10 @@
  */
 package com.byaffe.learningking.utilities;
 
+import com.byaffe.learningking.shared.exceptions.ValidationFailedException;
 import com.google.gson.Gson;
-import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.ClientResponse;
-import com.sun.jersey.api.client.WebResource;
-import com.sun.jersey.api.client.WebResource.Builder;
-import com.sun.jersey.api.client.config.DefaultClientConfig;
 import java.io.IOException;
 import java.util.Set;
-import javax.ws.rs.core.MediaType;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
@@ -23,7 +18,6 @@ import org.apache.http.util.EntityUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.sers.webutils.model.exception.ValidationFailedException;
 
 /**
  *
@@ -102,7 +96,6 @@ public class EgoSMSClient {
      * @param requestJson
      * @return
      * @throws IOException
-     * @throws org.sers.webutils.model.exception.ValidationFailedException
      * @throws org.json.JSONException
      */
     public static EgoResponse sendEgoSmsMessages(String BASE_URL, JSONObject requestJson) throws IOException, ValidationFailedException, JSONException {
@@ -158,34 +151,34 @@ public class EgoSMSClient {
 
     }
 
-    public static EgoResponse fetchEgosmsBalance(String BASE_URL, String username, String password) throws ValidationFailedException {
-        final JSONObject egoSmsDetails = new JSONObject();
-        final Gson gson = new Gson();
-        EgoResponse balanceResponse = null;
-
-        try {
-            egoSmsDetails.put("method", "Balance");
-            egoSmsDetails.put("userdata",
-                    new JSONObject().put("username", username)
-                            .put("password", password));
-            WebResource resource = Client.create(new DefaultClientConfig())
-                    .resource(BASE_URL + "/api/v1/json/");
-            final Builder webResource = resource.accept(MediaType.APPLICATION_JSON);
-            webResource.type(MediaType.APPLICATION_JSON);
-            ClientResponse clientResponse = webResource.post(ClientResponse.class, egoSmsDetails.toString());
-            String stringResponse = clientResponse.getEntity(String.class);
-            if (clientResponse.getStatus() == 200) {
-
-                balanceResponse = gson.fromJson(stringResponse, EgoResponse.class);
-                System.out.println("Account balance " + balanceResponse.getBalance());
-                return balanceResponse;
-            } else {
-                throw new ValidationFailedException("Invalid Ego Credential");
-            }
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        return balanceResponse;
-    }
+//    public static EgoResponse fetchEgosmsBalance(String BASE_URL, String username, String password) throws ValidationFailedException {
+//        final JSONObject egoSmsDetails = new JSONObject();
+//        final Gson gson = new Gson();
+//        EgoResponse balanceResponse = null;
+//
+//        try {
+//            egoSmsDetails.put("method", "Balance");
+//            egoSmsDetails.put("userdata",
+//                    new JSONObject().put("username", username)
+//                            .put("password", password));
+//            WebResource resource = Client.create(new DefaultClientConfig())
+//                    .resource(BASE_URL + "/api/v1/json/");
+//            final Builder webResource = resource.accept(MediaType.APPLICATION_JSON);
+//            webResource.type(MediaType.APPLICATION_JSON);
+//            ClientResponse clientResponse = webResource.post(ClientResponse.class, egoSmsDetails.toString());
+//            String stringResponse = clientResponse.getEntity(String.class);
+//            if (clientResponse.getStatus() == 200) {
+//
+//                balanceResponse = gson.fromJson(stringResponse, EgoResponse.class);
+//                System.out.println("Account balance " + balanceResponse.getBalance());
+//                return balanceResponse;
+//            } else {
+//                throw new ValidationFailedException("Invalid Ego Credential");
+//            }
+//        } catch (JSONException e) {
+//            e.printStackTrace();
+//        }
+//        return balanceResponse;
+//    }
 
 }

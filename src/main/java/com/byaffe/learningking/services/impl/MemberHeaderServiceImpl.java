@@ -61,7 +61,7 @@ public class MemberHeaderServiceImpl implements MemberHeaderService {
         user.setLastName(member.getLastName());
         user.setEmailAddress(member.getEmailAddress());
         user.setPassword(member.getClearTextPassword());
-        user.addRole(ApplicationContextProvider.getBean(UserService.class).getRoleByRoleName(AppUtils.NORMAL_USER_ROLE_NAME));
+        user.addRole(ApplicationContextProvider.getBean(UserService.class).getRoleByName(AppUtils.NORMAL_USER_ROLE_NAME));
         user.setApiPassword(member.getClearTextPassword());
         user = userService.saveUser(user);
 

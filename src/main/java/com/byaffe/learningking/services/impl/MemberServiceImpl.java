@@ -15,9 +15,9 @@ import com.byaffe.learningking.shared.exceptions.OperationFailedException;
 import com.byaffe.learningking.shared.exceptions.ValidationFailedException;
 import com.byaffe.learningking.shared.models.User;
 import com.byaffe.learningking.shared.utils.ApplicationContextProvider;
+import com.byaffe.learningking.shared.utils.MailService;
 import com.byaffe.learningking.utilities.AppUtils;
 import com.byaffe.learningking.utilities.CustomAppUtils;
-import com.byaffe.learningking.utilities.EmailService;
 import com.googlecode.genericdao.search.Search;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -215,11 +215,11 @@ public class MemberServiceImpl extends GenericServiceImpl<Member> implements Mem
                     html = html.replace("{code}", newMember.getLastEmailVerificationCode());
 
 
-                    new EmailService().sendMail(newMember.getEmailAddress(), "Learningking Email Verification",
+                    ApplicationContextProvider.getBean(MailService.class).sendEmail(newMember.getEmailAddress(), "Learningking Email Verification",
                             html);
 
                 } else {
-                    new EmailService().sendMail(newMember.getEmailAddress(), "Learningking Email Verification",
+                    ApplicationContextProvider.getBean(MailService.class).sendEmail(newMember.getEmailAddress(), "Learningking Email Verification",
                             "<p>Verify your Learningking Email address with this code</p><h1><strong>" + newMember.getLastEmailVerificationCode() + "</strong></h1>");
                 }
             }
@@ -281,7 +281,7 @@ public class MemberServiceImpl extends GenericServiceImpl<Member> implements Mem
             public void run() {
                 try {
 
-                    new EmailService().sendMail(savedMember.getEmailAddress(), "AAPU account blocking", blockNotes);
+                ApplicationContextProvider.getBean(MailService.class).sendEmail(savedMember.getEmailAddress(), "AAPU account blocking", blockNotes);
 
                 } catch (Exception ex) {
                     Logger.getLogger(MemberServiceImpl.class.getName()).log(Level.SEVERE, null, ex);
@@ -307,7 +307,7 @@ public class MemberServiceImpl extends GenericServiceImpl<Member> implements Mem
             public void run() {
                 try {
 
-                    new EmailService().sendMail(savedMember.getEmailAddress(), "AAPU account activation", unblockNotes);
+                    ApplicationContextProvider.getBean(MailService.class).sendEmail(savedMember.getEmailAddress(), "AAPU account activation", unblockNotes);
 
                 } catch (Exception ex) {
                     Logger.getLogger(MemberServiceImpl.class.getName()).log(Level.SEVERE, null, ex);

@@ -14,10 +14,9 @@ import com.byaffe.learningking.shared.constants.RecordStatus;
 import com.byaffe.learningking.shared.exceptions.OperationFailedException;
 import com.byaffe.learningking.shared.exceptions.ValidationFailedException;
 import com.byaffe.learningking.shared.utils.ApplicationContextProvider;
+import com.byaffe.learningking.shared.utils.MailService;
 import com.byaffe.learningking.utilities.AppUtils;
-import com.byaffe.learningking.utilities.EmailService;
 import com.googlecode.genericdao.search.Search;
-import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -59,7 +58,7 @@ public class SubscriptionServiceImpl extends GenericServiceImpl<Subscription> im
                 ApplicationContextProvider.getBean(MemberService.class).saveInstance(member);
                 subscription.setStatus(SubscriptionStatus.STOPPED);
                 saveInstance(subscription);
-                 new EmailService().sendMail(subscription.getMember().getEmailAddress(), "AAPU Subscription expired", "Your annual subscription has expired. Please renew for continued access to the AAPU services. Thank you");
+                ApplicationContextProvider.getBean(MailService.class).sendEmail(subscription.getMember().getEmailAddress(), "AAPU Subscription expired", "Your annual subscription has expired. Please renew for continued access to the AAPU services. Thank you");
                        
             } catch (ValidationFailedException | OperationFailedException ex) {
                 Logger.getLogger(SubscriptionServiceImpl.class.getName()).log(Level.SEVERE, null, ex);
@@ -141,9 +140,9 @@ public class SubscriptionServiceImpl extends GenericServiceImpl<Subscription> im
                         
                         html = html.replace("{fullName}", savedSubscription.getMember().composeFullName());
                         html = html.replace("{transactionID}", savedSubscription.getPayment().getTransactionId());
-                        new EmailService().sendMail(savedSubscription.getMember().getEmailAddress(), "AAPU Subscription", html);
+                        ApplicationContextProvider.getBean(MailService.class).sendEmail(savedSubscription.getMember().getEmailAddress(), "AAPU Subscription", html);
                     } else {
-                        new EmailService().sendMail(savedSubscription.getMember().getEmailAddress(), "AAPU Subscription", "Your subscription has been recieved");
+                        ApplicationContextProvider.getBean(MailService.class).sendEmail(savedSubscription.getMember().getEmailAddress(), "AAPU Subscription", "Your subscription has been recieved");
                         
                     }
                 } catch (Exception ex) {
@@ -208,8 +207,8 @@ public class SubscriptionServiceImpl extends GenericServiceImpl<Subscription> im
                 try {
                     
                     System.out.println("Sending email...");
-                    
-                    new EmailService().sendMail(savedSubscription.getMember().getEmailAddress(), "AAPU Subscription", "Congratulations,<br>Your annual subscription has been successfully extended to " + savedSubscription.getEndDate());
+
+                    ApplicationContextProvider.getBean(MailService.class).sendEmail(savedSubscription.getMember().getEmailAddress(), "AAPU Subscription", "Congratulations,<br>Your annual subscription has been successfully extended to " + savedSubscription.getEndDate());
                     
                 } catch (Exception ex) {
                     Logger.getLogger(SubscriptionServiceImpl.class.getName()).log(Level.SEVERE, null, ex);

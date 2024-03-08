@@ -6,15 +6,17 @@ import com.byaffe.learningking.models.courses.Testimonial;
 import lombok.Data;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Data
 public class CourseResponseDTO extends Course {
 
 
     private boolean enrolled;
-    private List<Testimonial> testimonials =new ArrayList<>();
-    private List<CourseLesson> lessons =new ArrayList<>();
+    private Set<Testimonial> testimonials =new HashSet<>();
+    private Set<CourseLesson> lessons =new HashSet<>();
     private int numberOfLessons;
     private double averageRating;
     private int ratingsCount;
