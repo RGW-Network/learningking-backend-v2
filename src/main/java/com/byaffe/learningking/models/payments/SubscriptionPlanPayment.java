@@ -1,6 +1,6 @@
 package com.byaffe.learningking.models.payments;
 
-import com.byaffe.learningking.models.Member;
+import com.byaffe.learningking.models.Student;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.persistence.*;
@@ -12,7 +12,7 @@ public class SubscriptionPlanPayment extends BasePayment {
 
     private static final long serialVersionUID = 1L;
     private SubscriptionPlan subscriptionPlan;
-    private Member subscriber;
+    private Student subscriber;
 
   
     /**
@@ -33,14 +33,14 @@ public class SubscriptionPlanPayment extends BasePayment {
      */
     @OneToOne
     @JoinColumn(name = "subscriber")
-    public Member getSubscriber() {
+    public Student getSubscriber() {
         return subscriber;
     }
 
     /**
      * @param subscriber the subscriber to set
      */
-    public void setSubscriber(Member subscriber) {
+    public void setSubscriber(Student subscriber) {
         this.subscriber = subscriber;
     }
 

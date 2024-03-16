@@ -1,6 +1,6 @@
 package com.byaffe.learningking.services.impl;
 
-import com.byaffe.learningking.models.Member;
+import com.byaffe.learningking.models.Student;
 import com.byaffe.learningking.models.MemberPendingNotification;
 import com.byaffe.learningking.models.Notification;
 import com.byaffe.learningking.services.PendingNotificationService;
@@ -28,8 +28,8 @@ public class PendingNotificationServiceImpl extends GenericServiceImpl<MemberPen
     }
 
     @Override
-    public MemberPendingNotification addNotification(Member member, Notification notification) throws ValidationFailedException, OperationFailedException {
-     if(member==null){
+    public MemberPendingNotification addNotification(Student student, Notification notification) throws ValidationFailedException, OperationFailedException {
+     if(student ==null){
          throw  new ValidationFailedException("Missing Member");
      }
      
@@ -37,7 +37,7 @@ public class PendingNotificationServiceImpl extends GenericServiceImpl<MemberPen
           throw  new ValidationFailedException("Missing Notication");
      }
         
-        return super.save(new MemberPendingNotification(member, notification) );
+        return super.save(new MemberPendingNotification(student, notification) );
     
     }
 
@@ -54,9 +54,9 @@ public class PendingNotificationServiceImpl extends GenericServiceImpl<MemberPen
     }
 
     @Override
-    public void removeAllNotifications(Member member) throws ValidationFailedException, OperationFailedException {
+    public void removeAllNotifications(Student student) throws ValidationFailedException, OperationFailedException {
       
-    super.deleteInstances(new Search().addFilterEqual("member", member));
+    super.deleteInstances(new Search().addFilterEqual("member", student));
     }
 
    

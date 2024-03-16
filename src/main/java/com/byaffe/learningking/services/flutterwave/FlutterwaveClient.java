@@ -5,7 +5,7 @@
  */
 package com.byaffe.learningking.services.flutterwave;
 
-import com.byaffe.learningking.models.Member;
+import com.byaffe.learningking.models.Student;
 import com.byaffe.learningking.models.SystemSetting;
 import com.byaffe.learningking.models.payments.BasePayment;
 import com.byaffe.learningking.services.SystemSettingService;
@@ -40,7 +40,7 @@ public class FlutterwaveClient {
 
     }
 
-    public <T extends BasePayment> FlutterReponse requestPaymentInitiation(T payment, Member member) throws IOException {
+    public <T extends BasePayment> FlutterReponse requestPaymentInitiation(T payment, Student student) throws IOException {
         initSettings();
         FluterwaveRequest fluterwaveRequest = new FluterwaveRequest()
                 .addAmount(String.valueOf(payment.getAmount()))
@@ -49,9 +49,9 @@ public class FlutterwaveClient {
                 .addPaymentOptions(FLUTTERWAVE_PAYMENT_TYPES)
                 .addRedirectUrl(systemSetting.getFlutterwaveReditectUrl())
                 .addCustomer(new Customer()
-                        .addEmail(member.getEmailAddress())
-                        .addPhonenumber(member.getPhoneNumber())
-                        .addName(member.composeFullName()))
+                        .addEmail(student.getUserAccount().getEmailAddress())
+                        .addPhonenumber(student.getUserAccount().getPhoneNumber())
+                        .addName(student.getFullName()))
                 .addCustomizations(new Customizations()
                         .addLogo(systemSetting.getSystemLogoUrl())
                         .addTitle(payment.getTitle())

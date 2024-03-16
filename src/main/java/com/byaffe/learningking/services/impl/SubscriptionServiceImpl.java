@@ -4,7 +4,7 @@ import com.byaffe.learningking.constants.AccountStatus;
 import com.byaffe.learningking.constants.SubscriptionStatus;
 import com.byaffe.learningking.constants.TemplateType;
 import com.byaffe.learningking.models.EmailTemplate;
-import com.byaffe.learningking.models.Member;
+import com.byaffe.learningking.models.Student;
 import com.byaffe.learningking.models.Payment;
 import com.byaffe.learningking.models.Subscription;
 import com.byaffe.learningking.services.EmailTemplateService;
@@ -51,11 +51,11 @@ public class SubscriptionServiceImpl extends GenericServiceImpl<Subscription> im
                 .addFilterLessOrEqual("endDate", new Date()), 0, 0);
         
         for (Subscription subscription : endingSubscriptions) {
-            Member member = subscription.getMember();
-            member.setAccountStatus(AccountStatus.Active);
+            Student student = subscription.getMember();
+            student.setAccountStatus(AccountStatus.Active);
             
             try {
-                ApplicationContextProvider.getBean(MemberService.class).saveInstance(member);
+                ApplicationContextProvider.getBean(MemberService.class).saveInstance(student);
                 subscription.setStatus(SubscriptionStatus.STOPPED);
                 saveInstance(subscription);
                 ApplicationContextProvider.getBean(MailService.class).sendEmail(subscription.getMember().getEmailAddress(), "AAPU Subscription expired", "Your annual subscription has expired. Please renew for continued access to the AAPU services. Thank you");
@@ -74,11 +74,11 @@ public class SubscriptionServiceImpl extends GenericServiceImpl<Subscription> im
                 .addFilterLessOrEqual("startDate", new Date()), 0, 0);
         
         for (Subscription subscription : upcomingSubscriptions) {
-            Member member = subscription.getMember();
-            member.setAccountStatus(AccountStatus.Active);
+            Student student = subscription.getMember();
+            student.setAccountStatus(AccountStatus.Active);
             
             try {
-                ApplicationContextProvider.getBean(MemberService.class).saveInstance(member);
+                ApplicationContextProvider.getBean(MemberService.class).saveInstance(student);
                 subscription.setStatus(SubscriptionStatus.ACTIVE);
                 saveInstance(subscription);
             } catch (ValidationFailedException | OperationFailedException ex) {
@@ -90,10 +90,10 @@ public class SubscriptionServiceImpl extends GenericServiceImpl<Subscription> im
     }
     
     @Override
-    public Subscription getActiveSubscription(Member member) {
+    public Subscription getActiveSubscription(Student student) {
         
         Search search = new Search()
-                .addFilterEqual("member", member)
+                .addFilterEqual("member", student)
                 .addFilterEqual("status", SubscriptionStatus.ACTIVE);
         return super.searchUnique(search);
         
@@ -118,10 +118,10 @@ public class SubscriptionServiceImpl extends GenericServiceImpl<Subscription> im
         subscription.setEndDate(subscription.getStartDate().plusDays( 365));
         subscription.setStatus(SubscriptionStatus.ACTIVE);
         final Subscription savedSubscription = subscription = super.save(subscription);
-        Member member = savedSubscription.getMember();
-        member.setAccountStatus(AccountStatus.Active);
+        Student student = savedSubscription.getMember();
+        student.setAccountStatus(AccountStatus.Active);
         try {
-            ApplicationContextProvider.getBean(MemberService.class).quickSave(member);
+            ApplicationContextProvider.getBean(MemberService.class).quickSave(student);
         } catch (ValidationFailedException ex) {
             Logger.getLogger(SubscriptionServiceImpl.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -156,8 +156,8 @@ public class SubscriptionServiceImpl extends GenericServiceImpl<Subscription> im
     }
     
     @Override
-    public Subscription extendSubscription(Member member, LocalDate startDate, byte[] attachment) {
-        if (member == null|| attachment==null) {
+    public Subscription extendSubscription(Student student, LocalDate startDate, byte[] attachment) {
+        if (student == null|| attachment==null) {
             return null;
         }
         Subscription subscription = new Subscription();
@@ -166,7 +166,7 @@ public class SubscriptionServiceImpl extends GenericServiceImpl<Subscription> im
         subscription.setStatus(SubscriptionStatus.ACTIVE);
         
         //Find existing active subscription
-        Subscription existingActiveSubscription = getActiveSubscription(member);
+        Subscription existingActiveSubscription = getActiveSubscription(student);
         if (existingActiveSubscription != null) {
             
             //Check if exixting subscription is not due
@@ -182,7 +182,7 @@ public class SubscriptionServiceImpl extends GenericServiceImpl<Subscription> im
             }
         }
         
-        subscription.setMember(member);
+        subscription.setMember(student);
         subscription.setPayment(null);
         System.out.println("Starting first save...");
         subscription = super.save(subscription);
@@ -194,9 +194,9 @@ public class SubscriptionServiceImpl extends GenericServiceImpl<Subscription> im
         
         final Subscription savedSubscription =  super.save(subscription);
         
-        member.setAccountStatus(AccountStatus.Active);
+        student.setAccountStatus(AccountStatus.Active);
         try {
-            ApplicationContextProvider.getBean(MemberService.class).quickSave(member);
+            ApplicationContextProvider.getBean(MemberService.class).quickSave(student);
         } catch (ValidationFailedException ex) {
             Logger.getLogger(SubscriptionServiceImpl.class.getName()).log(Level.SEVERE, null, ex);
         }

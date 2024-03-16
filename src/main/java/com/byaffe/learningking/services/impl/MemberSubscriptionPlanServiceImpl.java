@@ -1,6 +1,6 @@
 package com.byaffe.learningking.services.impl;
 
-import com.byaffe.learningking.models.Member;
+import com.byaffe.learningking.models.Student;
 import com.byaffe.learningking.models.courses.Course;
 import com.byaffe.learningking.models.courses.CourseSubscription;
 import com.byaffe.learningking.models.payments.*;
@@ -128,9 +128,9 @@ public class MemberSubscriptionPlanServiceImpl extends GenericServiceImpl<Member
 
 
     @Override
-    public MemberSubscriptionPlan getInstance(Member member, SubscriptionPlan plan) throws ValidationFailedException {
+    public MemberSubscriptionPlan getInstance(Student student, SubscriptionPlan plan) throws ValidationFailedException {
         return super.searchUnique(
-                new Search().addFilterEqual("member", member)
+                new Search().addFilterEqual("member", student)
                         .addFilterEqual("subscriptionPlan", plan)
                         .addFilterEqual("status", SubscriptionPlanStatus.ACTIVE)
                         .addFilterEqual("recordStatus", RecordStatus.ACTIVE)

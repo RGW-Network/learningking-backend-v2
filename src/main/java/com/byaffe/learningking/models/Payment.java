@@ -34,7 +34,7 @@ public class Payment extends BaseEntity {
     private String message;
     private int status;
 
-    private Member member;
+    private Student student;
     private PaymentReasonType reasonType;
 
     @Column(name = "phoneNumber")
@@ -149,12 +149,12 @@ public class Payment extends BaseEntity {
 
     @ManyToOne
     @JoinColumn(name = "member_id")
-    public Member getMember() {
-        return member;
+    public Student getMember() {
+        return student;
     }
 
-    public void setMember(Member member) {
-        this.member = member;
+    public void setMember(Student student) {
+        this.student = student;
     }
 
     @Enumerated(EnumType.STRING)

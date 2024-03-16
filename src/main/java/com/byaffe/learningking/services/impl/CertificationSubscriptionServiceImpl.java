@@ -1,6 +1,6 @@
 package com.byaffe.learningking.services.impl;
 
-import com.byaffe.learningking.models.Member;
+import com.byaffe.learningking.models.Student;
 import com.byaffe.learningking.models.ReadStatus;
 import com.byaffe.learningking.models.courses.Certification;
 import com.byaffe.learningking.models.courses.CertificationCourse;
@@ -47,14 +47,14 @@ public class CertificationSubscriptionServiceImpl extends BaseDAOImpl<Certificat
     }
 
     @Override
-    public CertificationSubscription createSubscription(Certification course, Member member) {
-        CertificationSubscription exists = getSubscription(member, course);
+    public CertificationSubscription createSubscription(Certification course, Student student) {
+        CertificationSubscription exists = getSubscription(student, course);
 
         if (exists == null) {
 
             CertificationSubscription subscription = new CertificationSubscription();
             subscription.setCertification(course);
-            subscription.setMember(member);
+            subscription.setMember(student);
             subscription.setCompletedCourses(1);
             return super.merge(subscription);
         }
@@ -62,8 +62,8 @@ public class CertificationSubscriptionServiceImpl extends BaseDAOImpl<Certificat
     }
 
     @Override
-    public List<CertificationSubscription> getSubscriptions(Member member) {
-        return super.searchByPropertyEqual("member", member, RecordStatus.ACTIVE); //To change body of generated methods, choose Tools | Templates.
+    public List<CertificationSubscription> getSubscriptions(Student student) {
+        return super.searchByPropertyEqual("member", student, RecordStatus.ACTIVE); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
@@ -90,30 +90,30 @@ public class CertificationSubscriptionServiceImpl extends BaseDAOImpl<Certificat
     }
 
     @Override
-    public CertificationSubscription createSubscription(Member member, Certification course) throws ValidationFailedException {
+    public CertificationSubscription createSubscription(Student student, Certification course) throws ValidationFailedException {
 
-        if (course.isIsPaid() || course.getCost() > 0) {
+        if (course.isPaid() || course.getCost() > 0) {
             throw new ValidationFailedException("This is a paid Certification");
         }
-        return createActualSubscription(member, course);
+        return createActualSubscription(student, course);
     }
 
-    private CertificationSubscription createActualSubscription(Member member, Certification course) {
+    private CertificationSubscription createActualSubscription(Student student, Certification course) {
 
         CertificationSubscription courseSubscription = new CertificationSubscription();
-        courseSubscription.setMember(member);
+        courseSubscription.setMember(student);
         courseSubscription.setCertification(course);
         courseSubscription.setReadStatus(ReadStatus.Inprogress);
         return super.save(courseSubscription);
     }
 
     @Override
-    public CertificationSubscription getSubscription(Member member, Certification course) {
-        if (member == null || course == null) {
+    public CertificationSubscription getSubscription(Student student, Certification course) {
+        if (student == null || course == null) {
             return null;
         }
 
-        Search search = new Search().addFilterEqual("member", member)
+        Search search = new Search().addFilterEqual("member", student)
                 .addFilterEqual("certification", course);
         try {
             return super.searchUnique(search);
@@ -135,11 +135,11 @@ public class CertificationSubscriptionServiceImpl extends BaseDAOImpl<Certificat
     }
 
     @Override
-    public void completeCertificationCourse(Member member, Course course) throws ValidationFailedException {
+    public void completeCertificationCourse(Student student, Course course) throws ValidationFailedException {
         if (course == null || course.isNew()) {
             throw new ValidationFailedException("Missing course");
         }
-        List<CertificationSubscription> certificationSubscriptions = getSubscriptions(member);
+        List<CertificationSubscription> certificationSubscriptions = getSubscriptions(student);
 
         if (certificationSubscriptions != null &&! certificationSubscriptions.isEmpty()) {
            

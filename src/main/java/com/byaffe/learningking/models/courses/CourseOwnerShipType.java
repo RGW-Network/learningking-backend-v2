@@ -11,7 +11,13 @@ package com.byaffe.learningking.models.courses;
  * @author Ray Gdhrt
  */
 public enum CourseOwnerShipType {
-     OPEN,
-    COMPANY_ONLY,
+     OPEN(0,"Open"),
+    COMPANY_ONLY(1,"Company Only");
+private int id;
+private String displayName;
+    CourseOwnerShipType(int id, String name){
+        this.id=id;
+        this.displayName=name;
+    }
     
 }

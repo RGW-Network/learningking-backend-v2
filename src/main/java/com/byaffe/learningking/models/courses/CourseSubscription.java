@@ -17,7 +17,7 @@ import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
-import com.byaffe.learningking.models.Member;
+import com.byaffe.learningking.models.Student;
 import com.byaffe.learningking.models.ReadStatus;
 import com.byaffe.learningking.models.payments.MemberSubscriptionPlan;
 import com.byaffe.learningking.shared.models.BaseEntity;
@@ -29,9 +29,9 @@ import com.byaffe.learningking.shared.models.BaseEntity;
 @Entity
 @Table(name="course_subscriptions")
 public class CourseSubscription extends BaseEntity {
-    private Member member;
+    private Student student;
     private Course course;
-      private CourseSubTopic currentSubTopic;
+      private CourseTopic currentSubTopic;
        private MemberSubscriptionPlan memberSubscriptionPlan;
     private int currentTopic=1;
     private int currentLesson=1;
@@ -43,12 +43,12 @@ public class CourseSubscription extends BaseEntity {
 
     @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "member_id")  
-    public Member getMember() {
-        return member;
+    public Student getMember() {
+        return student;
     }
 
-    public void setMember(Member member) {
-        this.member = member;
+    public void setMember(Student student) {
+        this.student = student;
     }
 
      @ManyToOne(cascade = CascadeType.ALL)
@@ -75,11 +75,11 @@ public class CourseSubscription extends BaseEntity {
 
       @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "course_sub_topic_id")
-  public CourseSubTopic getCurrentSubTopic() {
+  public CourseTopic getCurrentSubTopic() {
         return currentSubTopic;
     }
 
-    public void setCurrentSubTopic(CourseSubTopic currentSubTopic) {
+    public void setCurrentSubTopic(CourseTopic currentSubTopic) {
         this.currentSubTopic = currentSubTopic;
     }
 

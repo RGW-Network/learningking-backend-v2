@@ -1,8 +1,8 @@
 package com.byaffe.learningking.services;
 
 import java.time.LocalDate;
-import java.util.Date;
-import com.byaffe.learningking.models.Member;
+
+import com.byaffe.learningking.models.Student;
 import com.byaffe.learningking.models.Payment;
 import com.byaffe.learningking.models.Subscription;
 
@@ -24,19 +24,19 @@ public interface SubscriptionService extends GenericService<Subscription> {
     
      /**
      * 
-     * @param member
+     * @param student
      * @return 
      */
-    public Subscription getActiveSubscription(Member member);
+    public Subscription getActiveSubscription(Student student);
     
     /**
      * 
-     * @param member
+     * @param student
      * @param startDate
      * @param attachment
      * @return 
      */
-    public Subscription extendSubscription(Member member, LocalDate startDate, byte[] attachment) ;
+    public Subscription extendSubscription(Student student, LocalDate startDate, byte[] attachment) ;
    
     /**
      * 

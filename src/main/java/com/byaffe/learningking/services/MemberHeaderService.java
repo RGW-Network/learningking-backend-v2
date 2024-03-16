@@ -1,9 +1,9 @@
 package com.byaffe.learningking.services;
 
-import com.byaffe.learningking.models.Member;
+import com.byaffe.learningking.models.Student;
 
 /**
- * Responsible for CRUD operations on {@link Member}
+ * Responsible for CRUD operations on {@link Student}
  *
  * @author Ray Gdhrt
  *
@@ -12,7 +12,7 @@ import com.byaffe.learningking.models.Member;
 public interface MemberHeaderService  {
 
     
-       Member activateMemberAccount(String username, String code) throws Exception ;
+       Student activateMemberAccount(String username, String code) throws Exception ;
 
     
 }

@@ -1,6 +1,6 @@
 package com.byaffe.learningking.services.impl;
 
-import com.byaffe.learningking.models.Member;
+import com.byaffe.learningking.models.Student;
 import com.byaffe.learningking.models.NotificationBuilder;
 import com.byaffe.learningking.models.NotificationDestinationActivity;
 import com.byaffe.learningking.models.courses.*;
@@ -160,7 +160,7 @@ public class CompanyServiceImpl extends GenericServiceImpl<Company> implements C
             ApplicationContextProvider.getBean(NotificationService.class).sendNotificationsToAllMembers(
                     new NotificationBuilder()
                             .setTitle("New Company added")
-                            .setDescription(plan.getMember().composeFullName())
+                            .setDescription(plan.getMember().getFullName())
                             .setImageUrl("")
                             .setFmsTopicName("")
                             .setDestinationActivity(NotificationDestinationActivity.DASHBOARD)
@@ -190,10 +190,10 @@ public class CompanyServiceImpl extends GenericServiceImpl<Company> implements C
     }
 
     @Override
-    public CompanyMember getCompanyMember(Company company, Member member) {
+    public CompanyMember getCompanyMember(Company company, Student student) {
         Search search = new Search();
         search.addFilterEqual("company", company);
-        search.addFilterEqual("member", member);
+        search.addFilterEqual("member", student);
         search.addFilterEqual("recordStatus", RecordStatus.ACTIVE);
 
         return  companyMemberDao.searchUnique(search);

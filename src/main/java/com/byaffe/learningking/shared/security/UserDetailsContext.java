@@ -1,7 +1,7 @@
 package com.byaffe.learningking.shared.security;
 
 import com.byaffe.learningking.config.SessionDTO;
-import com.byaffe.learningking.models.Member;
+import com.byaffe.learningking.models.Student;
 import com.byaffe.learningking.shared.models.User;
 
 /**
@@ -35,7 +35,7 @@ public class UserDetailsContext {
         return null;
     }
 
-    public static void setLoggedInMember(Member id) {
+    public static void setLoggedInMember(Student id) {
         SessionDTO  dto= bearerToken.get();
         if(dto==null){
             dto= new SessionDTO();
@@ -43,7 +43,7 @@ public class UserDetailsContext {
         dto.setLoggedInMember(id);
         bearerToken.set(dto);
     }
-    public static Member getLoggedInMember() {
+    public static Student getLoggedInMember() {
         SessionDTO sessionDTO=bearerToken.get();
         if(sessionDTO!=null){
             return sessionDTO.getLoggedInMember();

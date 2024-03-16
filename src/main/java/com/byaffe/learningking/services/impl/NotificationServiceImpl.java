@@ -2,7 +2,7 @@ package com.byaffe.learningking.services.impl;
 
 import com.byaffe.learningking.constants.AccountStatus;
 import com.byaffe.learningking.constants.NotificationTopics;
-import com.byaffe.learningking.models.Member;
+import com.byaffe.learningking.models.Student;
 import com.byaffe.learningking.models.Notification;
 import com.byaffe.learningking.services.MemberService;
 import com.byaffe.learningking.services.NotificationService;
@@ -46,13 +46,13 @@ public class NotificationServiceImpl extends GenericServiceImpl<Notification> im
 
     @Transactional(propagation = Propagation.NEVER)
     @Override
-    public void sendFCMNotificationToCustomMembers(Notification notification, String topicId, List<Member> members) throws ValidationFailedException, OperationFailedException {
+    public void sendFCMNotificationToCustomMembers(Notification notification, String topicId, List<Student> students) throws ValidationFailedException, OperationFailedException {
 
         if (notification.isNew()) {
             notification = saveNotification(notification);
         }
 
-        if (topicId == null && (members == null || members.isEmpty())) {
+        if (topicId == null && (students == null || students.isEmpty())) {
             throw new ValidationFailedException("Missing firebase topicId and Members. Pleas supply one of them");
 
         }
@@ -65,12 +65,12 @@ public class NotificationServiceImpl extends GenericServiceImpl<Notification> im
             MemberService memberService = ApplicationContextProvider.getBean(MemberService.class);
 
             System.out.println("Its for RGW...");
-            for (Member member : memberService.getMembers(new Search()
+            for (Student student : memberService.getMembers(new Search()
                     .addFilterEqual("status", AccountStatus.Active)
                     .addFilterEqual("recordStatus", RecordStatus.ACTIVE), 0, 0)) {
-                pendingNotificationService.addNotification(member, notification);
+                pendingNotificationService.addNotification(student, notification);
             }
-            AppUtils.sendDirectNotifications(notification.getTitle(), notification.getDescription(), null, members, notification.getDestinationActivity(), notification.getDestinationInstanceId());
+            AppUtils.sendDirectNotifications(notification.getTitle(), notification.getDescription(), null, students, notification.getDestinationActivity(), notification.getDestinationInstanceId());
         }
 
         return;
@@ -86,10 +86,10 @@ public class NotificationServiceImpl extends GenericServiceImpl<Notification> im
         MemberService memberService = ApplicationContextProvider.getBean(MemberService.class);
 
         System.out.println("Its for RGW...");
-        for (Member member : memberService.getMembers(new Search()
+        for (Student student : memberService.getMembers(new Search()
                 .addFilterEqual("accountStatus", AccountStatus.Active)
                 .addFilterEqual("recordStatus", RecordStatus.ACTIVE), 0, 0)) {
-            pendingNotificationService.addNotification(member, notification);
+            pendingNotificationService.addNotification(student, notification);
         }
 
         AppUtils.sendNotificationToTopic(NotificationTopics.GENERAL_TOPIC, notification.getTitle(), notification.getDescription(), notification.getDestinationActivity(), notification.getDestinationInstanceId());
@@ -101,13 +101,13 @@ public class NotificationServiceImpl extends GenericServiceImpl<Notification> im
     }
 
     @Override
-    public void sendNotificationsToMember(Notification notification, Member member, boolean fireNow) throws ValidationFailedException, OperationFailedException {
+    public void sendNotificationsToMember(Notification notification, Student student, boolean fireNow) throws ValidationFailedException, OperationFailedException {
 
         if (notification.isNew()) {
             notification = saveNotification(notification);
         }
 
-        pendingNotificationService.addNotification(member, notification);
+        pendingNotificationService.addNotification(student, notification);
         final Notification savedNotification = notification;
         if (fireNow) {
             new Thread(
@@ -117,7 +117,7 @@ public class NotificationServiceImpl extends GenericServiceImpl<Notification> im
                     AppUtils.sendDirectNotifications(savedNotification.getTitle(),
                             savedNotification.getDescription(),
                             null,
-                            new ArrayList<>(Arrays.asList(member)),
+                            new ArrayList<>(Arrays.asList(student)),
                             savedNotification.getDestinationActivity(),
                             savedNotification.getDestinationInstanceId());
 

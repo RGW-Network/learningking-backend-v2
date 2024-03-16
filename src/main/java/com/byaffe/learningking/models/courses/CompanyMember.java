@@ -1,6 +1,6 @@
 package com.byaffe.learningking.models.courses;
 
-import com.byaffe.learningking.models.Member;
+import com.byaffe.learningking.models.Student;
 import com.byaffe.learningking.shared.models.BaseEntity;
 
 import javax.persistence.*;
@@ -11,7 +11,7 @@ public class CompanyMember extends BaseEntity {
 
     private static final long serialVersionUID = 1L;
     private String entryCode;
-    private Member member;
+    private Student student;
     private Company company;
     private PublicationStatus publicationStatus=PublicationStatus.ACTIVE;
 
@@ -37,12 +37,12 @@ public class CompanyMember extends BaseEntity {
 
     @ManyToOne
      @JoinColumn(name = "member_id")
-    public Member getMember() {
-        return member;
+    public Student getMember() {
+        return student;
     }
 
-    public void setMember(Member member) {
-        this.member = member;
+    public void setMember(Student student) {
+        this.student = student;
     }
 
      @OneToOne

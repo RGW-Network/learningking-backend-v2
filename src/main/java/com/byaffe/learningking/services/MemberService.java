@@ -1,6 +1,6 @@
 package com.byaffe.learningking.services;
 
-import com.byaffe.learningking.models.Member;
+import com.byaffe.learningking.models.Student;
 import com.byaffe.learningking.shared.exceptions.OperationFailedException;
 import com.byaffe.learningking.shared.exceptions.ValidationFailedException;
 import com.byaffe.learningking.shared.models.User;
@@ -9,31 +9,31 @@ import com.googlecode.genericdao.search.Search;
 import java.util.List;
 
 /**
- * Responsible for CRUD operations on {@link Member}
+ * Responsible for CRUD operations on {@link Student}
  *
  * @author Ray Gdhrt
  *
  */
-public interface MemberService extends GenericService<Member> {
+public interface MemberService extends GenericService<Student> {
 
     /**
      * Adds a member to the database.
      *
-     * @param member
+     * @param student
      * @return
      * @throws ValidationFailedException if the following attributes are blank:
      * name, phoneNumber
      */
-    Member quickSave(Member member) throws ValidationFailedException;
+    Student quickSave(Student student) throws ValidationFailedException;
 
     /**
      * Adds a member to the database outside the spring security context.
      *
-     * @param member
+     * @param student
      * @return
      * @throws ValidationFailedException
      */
-    Member saveOutsideContext(Member member) throws ValidationFailedException;
+    Student saveOutsideContext(Student student) throws ValidationFailedException;
 
    
     /**
@@ -43,7 +43,7 @@ public interface MemberService extends GenericService<Member> {
      * @param limit
      * @return
      */
-    List<Member> getMembers(Search search, int offset, int limit);
+    List<Student> getMembers(Search search, int offset, int limit);
 
     /**
      * Counts a list of members that match the specified search criteria
@@ -59,36 +59,36 @@ public interface MemberService extends GenericService<Member> {
      * @param memberId
      * @return
      */
-    Member getMemberById(String memberId);
+    Student getMemberById(String memberId);
 
     /**
      * Deactivates a member along with all he data associated to it. This member
      * will never be accessible on the UI
      *
-     * @param member
+     * @param student
      * @throws ValidationFailedException
      */
-    void delete(Member member) throws ValidationFailedException;
+    void delete(Student student) throws ValidationFailedException;
     
     /**
      * Deactivates a member along with all he data associated to it. This member
      * will never be accessible on the UI
      *
-     * @param member
+     * @param student
      * @throws ValidationFailedException
      */
-    void block(Member member,String blockNotes) throws ValidationFailedException,OperationFailedException;
+    void block(Student student, String blockNotes) throws ValidationFailedException,OperationFailedException;
 
-     void unblock(Member member, String unblockNotes) throws ValidationFailedException, OperationFailedException;
+     void unblock(Student student, String unblockNotes) throws ValidationFailedException, OperationFailedException;
     /**
      * Gets a member that matches the specified identifier
      *
      * @param phoneNumber
      * @return
      */
-    Member getMemberByPhoneNumber(String phoneNumber);
+    Student getMemberByPhoneNumber(String phoneNumber);
     
-       Member activateMemberAccount(String username, String code) throws Exception ;
+       Student activateMemberAccount(String username, String code) throws Exception ;
 
     /**
      * Gets a member that matches the specified identifier
@@ -96,18 +96,18 @@ public interface MemberService extends GenericService<Member> {
      * @param user
      * @return
      */
-    Member getMemberByUserAccount(User user);
+    Student getMemberByUserAccount(User user);
 
  
-    Member getMemberByUsername(String email) ;
+    Student getMemberByUsername(String email) ;
     /**
      *
      * @param email
      * @return
      */
-    Member getMemberByEmail(String email);
+    Student getMemberByEmail(String email);
     
-     Member doRegister(String firstName, String lastName, String username, String password) throws ValidationFailedException ;
+     Student doRegister(String firstName, String lastName, String username, String password) throws ValidationFailedException ;
 
     
     /**
@@ -117,5 +117,5 @@ public interface MemberService extends GenericService<Member> {
      * @return
      * @throws ValidationFailedException 
      */
-     Member doLogin(String username, String password) throws ValidationFailedException ;
+     Student doLogin(String username, String password) throws ValidationFailedException ;
 }

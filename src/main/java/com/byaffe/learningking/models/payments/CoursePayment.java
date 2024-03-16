@@ -7,7 +7,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
-import com.byaffe.learningking.models.Member;
+import com.byaffe.learningking.models.Student;
 import com.byaffe.learningking.models.courses.Course;
 import org.apache.commons.lang3.StringUtils;
 
@@ -20,7 +20,7 @@ public class CoursePayment extends BasePayment {
 
     private Course course;
 
-    private Member subscriber;
+    private Student subscriber;
 
   
     /**
@@ -41,14 +41,14 @@ public class CoursePayment extends BasePayment {
      */
     @OneToOne
     @JoinColumn(name = "subscriber")
-    public Member getSubscriber() {
+    public Student getSubscriber() {
         return subscriber;
     }
 
     /**
      * @param subscriber the subscriber to set
      */
-    public void setSubscriber(Member subscriber) {
+    public void setSubscriber(Student subscriber) {
         this.subscriber = subscriber;
     }
 

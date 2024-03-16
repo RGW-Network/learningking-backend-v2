@@ -1,7 +1,7 @@
 package com.byaffe.learningking.services.impl;
 
 import com.byaffe.learningking.constants.TransactionStatus;
-import com.byaffe.learningking.models.Member;
+import com.byaffe.learningking.models.Student;
 import com.byaffe.learningking.models.NotificationBuilder;
 import com.byaffe.learningking.models.NotificationDestinationActivity;
 import com.byaffe.learningking.models.SystemSetting;
@@ -20,7 +20,6 @@ import com.byaffe.learningking.shared.utils.ApplicationContextProvider;
 import com.google.gson.Gson;
 import com.googlecode.genericdao.search.Search;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,7 +27,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.IOException;
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -167,13 +165,13 @@ public class PaymentServiceImpl extends GenericServiceImpl<CoursePayment> implem
     }
 
     @Override
-    public CoursePayment initiatePayment(Course course, Member member) throws IOException, OperationFailedException, ValidationFailedException {
+    public CoursePayment initiatePayment(Course course, Student student) throws IOException, OperationFailedException, ValidationFailedException {
 
         if (course == null) {
             throw new ValidationFailedException("Course Not Found");
         }
 
-        CourseSubscription memberCourse = ApplicationContextProvider.getBean(CourseSubscriptionService.class).getSerieSubscription(member, course);
+        CourseSubscription memberCourse = ApplicationContextProvider.getBean(CourseSubscriptionService.class).getSerieSubscription(student, course);
         if (memberCourse != null) {
             throw new ValidationFailedException("You already purchased this course. Go to My-Courses to view your course.");
         }
@@ -184,7 +182,7 @@ public class PaymentServiceImpl extends GenericServiceImpl<CoursePayment> implem
 
         }
         CoursePayment newPayment = new CoursePayment();
-        newPayment.setSubscriber(member);
+        newPayment.setSubscriber(student);
         newPayment.setCourse(course);
 
         //set currency and amounts
@@ -194,7 +192,7 @@ public class PaymentServiceImpl extends GenericServiceImpl<CoursePayment> implem
 
        
         //make flutterwave request
-        FlutterReponse flutterReponse = new FlutterwaveClient().requestPaymentInitiation(newPayment, member);
+        FlutterReponse flutterReponse = new FlutterwaveClient().requestPaymentInitiation(newPayment, student);
 
         if (StringUtils.isNotBlank(flutterReponse.data.link)) {
             newPayment.setStatus(TransactionStatus.LINK_GENERATED);

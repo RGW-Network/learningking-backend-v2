@@ -1,6 +1,6 @@
 package com.byaffe.learningking.services;
 
-import com.byaffe.learningking.models.Member;
+import com.byaffe.learningking.models.Student;
 import com.byaffe.learningking.models.courses.*;
 import com.byaffe.learningking.shared.exceptions.ValidationFailedException;
 import com.googlecode.genericdao.search.Search;
@@ -32,7 +32,7 @@ public interface CompanyService  extends GenericService<Company> {
     
      public List<CompanyMember> getCompanyMembers(Search search, int offset, int limit);
 
-    public CompanyMember getCompanyMember(Company company, Member member);
+    public CompanyMember getCompanyMember(Company company, Student student);
 
     public void delete(CompanyMember companyMember);
 

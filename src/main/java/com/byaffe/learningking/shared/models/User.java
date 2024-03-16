@@ -13,6 +13,7 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
 @Data
 @NoArgsConstructor
@@ -70,13 +71,16 @@ public class User extends BaseEntity {
     private Set<Role> roles;
 
 
-
-
     @Temporal(TemporalType.DATE)
     @Column(name = "date_of_last_password_change", nullable = true)
-    private Date dateOfLastPasswordChange;
+    private LocalDate  dateOfLastPasswordChange;
     private boolean changePassword;
 
+    @Temporal(TemporalType.DATE)
+    @Column(name = "last_login_date", nullable = true)
+    private LocalDateTime lastLoginDate;
+    @Column(name = "last_login_identifier", nullable = true)
+    private String lastLoginIdentifier;
 
     @Column(name = "api_locked", columnDefinition = "bit default 0")
     private boolean apiLocked;

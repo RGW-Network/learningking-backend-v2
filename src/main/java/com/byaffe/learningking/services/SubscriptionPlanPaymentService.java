@@ -1,6 +1,6 @@
 package com.byaffe.learningking.services;
 
-import com.byaffe.learningking.models.Member;
+import com.byaffe.learningking.models.Student;
 import com.byaffe.learningking.models.Payment;
 import com.byaffe.learningking.models.payments.SubscriptionPlan;
 import com.byaffe.learningking.models.payments.SubscriptionPlanPayment;
@@ -20,7 +20,7 @@ public interface SubscriptionPlanPaymentService extends GenericService<Subscript
     
 
     SubscriptionPlanPayment createNewPaymentInstanceWithTransactionId(SubscriptionPlanPayment payment);
-     SubscriptionPlanPayment initiatePayment(SubscriptionPlan subscriptionplan, Member member)throws IOException, OperationFailedException, ValidationFailedException ;
+     SubscriptionPlanPayment initiatePayment(SubscriptionPlan subscriptionplan, Student student)throws IOException, OperationFailedException, ValidationFailedException ;
     
     /**
      *

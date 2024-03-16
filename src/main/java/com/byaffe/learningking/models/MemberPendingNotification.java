@@ -19,26 +19,26 @@ public class MemberPendingNotification extends BaseEntity {
      */
     private static final long serialVersionUID = 1L;
 
-    private Member member;
+    private Student student;
 
     private Notification notification;
 
     public MemberPendingNotification() {
     }
 
-    public MemberPendingNotification(Member member, Notification notification) {
-        this.member = member;
+    public MemberPendingNotification(Student student, Notification notification) {
+        this.student = student;
         this.notification = notification;
     }
 
     @ManyToOne
     @JoinColumn(name = "member_id")
-    public Member getMember() {
-        return member;
+    public Student getMember() {
+        return student;
     }
 
-    public void setMember(Member member) {
-        this.member = member;
+    public void setMember(Student student) {
+        this.student = student;
     }
 
     @ManyToOne

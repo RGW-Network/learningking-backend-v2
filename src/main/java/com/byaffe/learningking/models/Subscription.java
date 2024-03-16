@@ -10,7 +10,6 @@ import com.byaffe.learningking.shared.models.BaseEntity;
 
 import javax.persistence.*;
 import java.time.LocalDate;
-import java.util.Date;
 
 /**
  *
@@ -24,18 +23,18 @@ public class Subscription extends BaseEntity {
     private LocalDate endDate;
     private int duration = 365;
     private Payment payment;
-    private Member member;
+    private Student student;
     private String attachmentUrl;
     private SubscriptionStatus status = SubscriptionStatus.ACTIVE;
 
     @ManyToOne
     @JoinColumn(name = "member_id")
-    public Member getMember() {
-        return member;
+    public Student getMember() {
+        return student;
     }
 
-    public void setMember(Member member) {
-        this.member = member;
+    public void setMember(Student student) {
+        this.student = student;
     }
 
     @Temporal(javax.persistence.TemporalType.DATE)

@@ -1,6 +1,6 @@
 package com.byaffe.learningking.services;
 
-import com.byaffe.learningking.models.Member;
+import com.byaffe.learningking.models.Student;
 import com.byaffe.learningking.models.Notification;
 import com.byaffe.learningking.shared.exceptions.OperationFailedException;
 import com.byaffe.learningking.shared.exceptions.ValidationFailedException;
@@ -25,11 +25,11 @@ public interface NotificationService extends GenericService<Notification> {
      *
      * @param notification
      * @param topicId
-     * @param members
+     * @param students
      * @throws ValidationFailedException
      * @throws OperationFailedException
      */
-    void sendFCMNotificationToCustomMembers(Notification notification, String topicId, List<Member> members) throws ValidationFailedException, OperationFailedException;
+    void sendFCMNotificationToCustomMembers(Notification notification, String topicId, List<Student> students) throws ValidationFailedException, OperationFailedException;
 
     /**
      *
@@ -55,11 +55,11 @@ public interface NotificationService extends GenericService<Notification> {
     /**
      *
      * @param notification
-     * @param member
+     * @param student
      * @param fireNow
      * @throws ValidationFailedException
      * @throws OperationFailedException
      */
-    void sendNotificationsToMember(Notification notification, Member member, boolean fireNow) throws ValidationFailedException, OperationFailedException;
+    void sendNotificationsToMember(Notification notification, Student student, boolean fireNow) throws ValidationFailedException, OperationFailedException;
 
 }

@@ -16,7 +16,7 @@ import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
-import com.byaffe.learningking.models.Member;
+import com.byaffe.learningking.models.Student;
 import com.byaffe.learningking.shared.models.BaseEntity;
 
 /**
@@ -27,7 +27,7 @@ import com.byaffe.learningking.shared.models.BaseEntity;
 @Table(name = "member_subscription_plans")
 public class MemberSubscriptionPlan extends BaseEntity {
 
-    private Member member;
+    private Student student;
     private SubscriptionPlan subscriptionPlan;
     private Date activatedOn;
     private Date depletedOn;
@@ -38,12 +38,12 @@ public class MemberSubscriptionPlan extends BaseEntity {
 
     @ManyToOne
     @JoinColumn(name = "member_id")
-    public Member getMember() {
-        return member;
+    public Student getMember() {
+        return student;
     }
 
-    public void setMember(Member member) {
-        this.member = member;
+    public void setMember(Student student) {
+        this.student = student;
     }
 
     @ManyToOne

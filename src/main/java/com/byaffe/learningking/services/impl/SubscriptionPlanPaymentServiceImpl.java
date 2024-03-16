@@ -1,7 +1,7 @@
 package com.byaffe.learningking.services.impl;
 
 import com.byaffe.learningking.constants.TransactionStatus;
-import com.byaffe.learningking.models.Member;
+import com.byaffe.learningking.models.Student;
 import com.byaffe.learningking.models.NotificationBuilder;
 import com.byaffe.learningking.models.NotificationDestinationActivity;
 import com.byaffe.learningking.models.SystemSetting;
@@ -20,7 +20,6 @@ import com.byaffe.learningking.shared.utils.ApplicationContextProvider;
 import com.google.gson.Gson;
 import com.googlecode.genericdao.search.Search;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,7 +27,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.IOException;
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -160,13 +158,13 @@ public class SubscriptionPlanPaymentServiceImpl extends GenericServiceImpl<Subsc
     }
 
     @Override
-    public SubscriptionPlanPayment initiatePayment(SubscriptionPlan subscriptionplan, Member member) throws IOException, OperationFailedException, ValidationFailedException {
+    public SubscriptionPlanPayment initiatePayment(SubscriptionPlan subscriptionplan, Student student) throws IOException, OperationFailedException, ValidationFailedException {
 
         if (subscriptionplan == null) {
             throw new ValidationFailedException("SubscriptionPlan Not Found");
         }
 
-        MemberSubscriptionPlan memberSubscriptionPlan = ApplicationContextProvider.getBean(MemberSubscriptionPlanService.class).getInstance(member, subscriptionplan);
+        MemberSubscriptionPlan memberSubscriptionPlan = ApplicationContextProvider.getBean(MemberSubscriptionPlanService.class).getInstance(student, subscriptionplan);
         if (memberSubscriptionPlan != null) {
             throw new ValidationFailedException("You already purchased this subscriptionplan. Go to My-SubscriptionPlans to view your subscriptionplan.");
         }
@@ -177,7 +175,7 @@ public class SubscriptionPlanPaymentServiceImpl extends GenericServiceImpl<Subsc
 
         }
         SubscriptionPlanPayment newPayment = new SubscriptionPlanPayment();
-        newPayment.setSubscriber(member);
+        newPayment.setSubscriber(student);
         newPayment.setSubscriptionPlan(subscriptionplan);
 
         //set currency and amounts
@@ -186,7 +184,7 @@ public class SubscriptionPlanPaymentServiceImpl extends GenericServiceImpl<Subsc
         newPayment.setTitle("Payment For " + subscriptionplan.getName());
 
         //make flutterwave request
-        FlutterReponse flutterReponse = new FlutterwaveClient().requestPaymentInitiation(newPayment, member);
+        FlutterReponse flutterReponse = new FlutterwaveClient().requestPaymentInitiation(newPayment, student);
 
         if (StringUtils.isNotBlank(flutterReponse.data.link)) {
             newPayment.setStatus(TransactionStatus.LINK_GENERATED);

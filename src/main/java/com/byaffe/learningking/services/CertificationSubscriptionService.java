@@ -1,7 +1,7 @@
 package com.byaffe.learningking.services;
 
 import java.util.List;
-import com.byaffe.learningking.models.Member;
+import com.byaffe.learningking.models.Student;
 import com.byaffe.learningking.models.courses.Certification;
 import com.byaffe.learningking.models.courses.CertificationSubscription;
 import com.byaffe.learningking.models.courses.Course;
@@ -11,42 +11,42 @@ public interface CertificationSubscriptionService extends GenericService<Certifi
 
     /**
      *
-     * @param member
+     * @param student
      * @param certification
      * @return
      */
-    CertificationSubscription getSubscription(Member member, Certification certification);
+    CertificationSubscription getSubscription(Student student, Certification certification);
     
     /**
      * 
-     * @param member
+     * @param student
      * @param course
      * @throws ValidationFailedException 
      */
-   public void completeCertificationCourse(Member member, Course course) throws ValidationFailedException;
+   public void completeCertificationCourse(Student student, Course course) throws ValidationFailedException;
   
     /**
      *
-     * @param member
+     * @param student
      * @param certification
      * @return
      * @throws ValidationFailedException
      */
-    CertificationSubscription createSubscription(Member member, Certification certification) throws ValidationFailedException;
+    CertificationSubscription createSubscription(Student student, Certification certification) throws ValidationFailedException;
 
     /**
      *
-     * @param member
+     * @param student
      * @return
      */
-    List<CertificationSubscription> getSubscriptions(Member member);
+    List<CertificationSubscription> getSubscriptions(Student student);
 
     /**
      *
      * @param certification
-     * @param member
+     * @param student
      * @return
      */
-    CertificationSubscription createSubscription(Certification certification, Member member);
+    CertificationSubscription createSubscription(Certification certification, Student student);
 
 }

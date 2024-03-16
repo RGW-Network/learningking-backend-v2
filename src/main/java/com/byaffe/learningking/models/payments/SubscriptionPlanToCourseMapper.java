@@ -15,8 +15,7 @@ import com.byaffe.learningking.shared.models.BaseEntity;
  * @author Ray Gdhrt
  */
 @Entity
-@Table(name = "subscription_plans_to_course_mapping",
-uniqueConstraints={@UniqueConstraint(columnNames = {"subscription_plan_id" , "course_id"})})
+@Table(name = "subscription_plans_to_course_mapping")
 public class SubscriptionPlanToCourseMapper extends BaseEntity {
 
     private SubscriptionPlan subscriptionPlan;

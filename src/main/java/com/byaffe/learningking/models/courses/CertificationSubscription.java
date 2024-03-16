@@ -17,7 +17,7 @@ import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
-import com.byaffe.learningking.models.Member;
+import com.byaffe.learningking.models.Student;
 import com.byaffe.learningking.models.ReadStatus;
 import com.byaffe.learningking.shared.models.BaseEntity;
 
@@ -28,7 +28,7 @@ import com.byaffe.learningking.shared.models.BaseEntity;
 @Entity
 @Table(name="certification_subscriptions")
 public class CertificationSubscription extends BaseEntity {
-    private Member member;
+    private Student student;
     private Certification certification;
     private int completedCourses=0;
     private Date dateCompleted;
@@ -38,12 +38,12 @@ public class CertificationSubscription extends BaseEntity {
 
     @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "member_id")  
-    public Member getMember() {
-        return member;
+    public Student getMember() {
+        return student;
     }
 
-    public void setMember(Member member) {
-        this.member = member;
+    public void setMember(Student student) {
+        this.student = student;
     }
 
     @ManyToOne(cascade = CascadeType.ALL)

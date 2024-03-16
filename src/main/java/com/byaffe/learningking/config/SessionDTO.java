@@ -1,11 +1,11 @@
 package com.byaffe.learningking.config;
 
-import com.byaffe.learningking.models.Member;
+import com.byaffe.learningking.models.Student;
 import com.byaffe.learningking.shared.models.User;
 
 public class SessionDTO {
     private User loggedInUser;
-    private Member loggedInMember;
+    private Student loggedInStudent;
 
     public User getLoggedInUser() {
         return loggedInUser;
@@ -15,11 +15,11 @@ public class SessionDTO {
         this.loggedInUser = loggedInUser;
     }
 
-    public Member getLoggedInMember() {
-        return loggedInMember;
+    public Student getLoggedInMember() {
+        return loggedInStudent;
     }
 
-    public void setLoggedInMember(Member loggedInMember) {
-        this.loggedInMember = loggedInMember;
+    public void setLoggedInMember(Student loggedInStudent) {
+        this.loggedInStudent = loggedInStudent;
     }
 }

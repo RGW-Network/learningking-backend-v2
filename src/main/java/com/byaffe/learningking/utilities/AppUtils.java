@@ -1,6 +1,6 @@
 package com.byaffe.learningking.utilities;
 
-import com.byaffe.learningking.models.Member;
+import com.byaffe.learningking.models.Student;
 import com.byaffe.learningking.models.NotificationDestinationActivity;
 import com.byaffe.learningking.models.NotificationTopic;
 import com.byaffe.learningking.services.NotificationTopicService;
@@ -211,20 +211,20 @@ public class AppUtils {
      * @param title
      * @param description
      * @param iconUrl
-     * @param members
+     * @param students
      * @param destinationActivity
      * @param entityId 
      */
     public static void sendDirectNotifications(String title, String description,
-                                               String iconUrl, List<Member> members, NotificationDestinationActivity destinationActivity,
+                                               String iconUrl, List<Student> students, NotificationDestinationActivity destinationActivity,
                                                String entityId) {
         System.out.println("Started Expo service..");
 
         List<String> deviceIds = new ArrayList<>();
-        for (Member member : members) {
-            if (StringUtils.isNotBlank(member.getDeviceId()) && PushClient.isExponentPushToken(member.getDeviceId())) {
-                deviceIds.add(member.getDeviceId());
-                System.out.println("Added Token >>>>>>>>>>>>>>>" + member.getDeviceId());
+        for (Student student : students) {
+            if (StringUtils.isNotBlank(student.getDeviceId()) && PushClient.isExponentPushToken(student.getDeviceId())) {
+                deviceIds.add(student.getDeviceId());
+                System.out.println("Added Token >>>>>>>>>>>>>>>" + student.getDeviceId());
             }
         }
         System.err.println(">>>>>>>>>>>>>>>>>>>>Got device IDs>>>>>>>>>" + new Gson().toJson(deviceIds));
