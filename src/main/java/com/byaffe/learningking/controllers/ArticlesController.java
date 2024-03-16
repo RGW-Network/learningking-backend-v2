@@ -2,9 +2,10 @@ package com.byaffe.learningking.controllers;
 
 import com.byaffe.learningking.controllers.dtos.ArticlesFilterDTO;
 import com.byaffe.learningking.models.Article;
-import com.byaffe.learningking.models.Member;
+import com.byaffe.learningking.models.Student;
 import com.byaffe.learningking.models.courses.ArticleType;
 import com.byaffe.learningking.models.courses.Company;
+import com.byaffe.learningking.models.courses.CourseAcademyType;
 import com.byaffe.learningking.models.courses.PublicationStatus;
 import com.byaffe.learningking.services.ArticleService;
 import com.byaffe.learningking.services.CompanyService;
@@ -15,10 +16,7 @@ import com.googlecode.genericdao.search.Search;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -31,31 +29,31 @@ import java.util.List;
 @RequestMapping("/v1/articles")
 public class ArticlesController {
 
-    @PostMapping("/")
+    @GetMapping("/")
     public ResponseEntity<ResponseList<Article>> getArticles(
-            @RequestParam ArticlesFilterDTO filterDTO) {
+             ArticlesFilterDTO filterDTO) {
         Search search = ArticleServiceImpl.generateSearchTermsForArticles(filterDTO.searchTerm).addFilterEqual("publicationStatus", PublicationStatus.ACTIVE);
 
-        if (StringUtils.isNotEmpty(filterDTO.searchTerm)) {
+        if (StringUtils.isNotEmpty(filterDTO.type)) {
             search.addFilterEqual("type", ArticleType.valueOf(filterDTO.type));
         }
-        if (StringUtils.isNotEmpty(filterDTO.type)) {
-            search.addFilterEqual("category.academy", filterDTO.academy);
+        if (StringUtils.isNotEmpty(filterDTO.academy)) {
+            search.addFilterEqual("category.academy", CourseAcademyType.valueOf(filterDTO.academy));
         }
         if (filterDTO.categoryId > 0) {
             search.addFilterEqual("category.id", filterDTO.categoryId);
         }
         if (filterDTO.featured != null) {
-            search.addFilterEqual("isFeatured", filterDTO.featured);
+            search.addFilterEqual("featured", filterDTO.featured);
         }
         if (StringUtils.isNotBlank(filterDTO.sortBy)) {
             search.addSort(filterDTO.sortBy, filterDTO.sortDescending);
         }
         if (filterDTO.companyId > 0) {
-            Member member = new Member();
+            Student student = new Student();
             search.addFilterEqual("type", ArticleType.COOPORATE_JOURNEL);
-            if (member.getInterestNames() != null && member.getInterestNames().isEmpty()) {
-                search.addFilterIn("category.name", member.getInterestNames());
+            if (student.getInterestNames() != null && student.getInterestNames().isEmpty()) {
+                search.addFilterIn("category.name", student.getInterestNames());
             } else {
                 Company company = ApplicationContextProvider.getBean(CompanyService.class).getInstanceByID(filterDTO.companyId);
                 if (company != null) {
