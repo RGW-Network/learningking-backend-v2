@@ -70,13 +70,11 @@ public class User extends BaseEntity {
             @JoinColumn(name = "role_id")})
     private Set<Role> roles;
 
-
-    @Temporal(TemporalType.DATE)
     @Column(name = "date_of_last_password_change", nullable = true)
     private LocalDate  dateOfLastPasswordChange;
     private boolean changePassword;
 
-    @Temporal(TemporalType.DATE)
+
     @Column(name = "last_login_date", nullable = true)
     private LocalDateTime lastLoginDate;
     @Column(name = "last_login_identifier", nullable = true)

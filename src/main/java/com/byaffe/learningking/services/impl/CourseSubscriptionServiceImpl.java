@@ -21,8 +21,7 @@ import java.util.List;
 @Repository
 public class CourseSubscriptionServiceImpl extends BaseDAOImpl<CourseSubscription> implements CourseSubscriptionService {
 
-    @Autowired
-    CourseService courseService;
+
 
     @Autowired
     CourseLessonService courseLessonService;
@@ -101,7 +100,7 @@ public class CourseSubscriptionServiceImpl extends BaseDAOImpl<CourseSubscriptio
 
     private CourseSubscription createActualSubscription(Student member, Course course) {
         CourseSubscription courseSubscription = new CourseSubscription();
-        CourseSubTopic firstSubTopic = null;
+        CourseLecture firstSubTopic = null;
         try {
             firstSubTopic = ApplicationContextProvider.getBean(CourseService.class).getFirstSubTopic(course);
         } catch (ValidationFailedException ex) {
@@ -120,7 +119,7 @@ public class CourseSubscriptionServiceImpl extends BaseDAOImpl<CourseSubscriptio
     @Override
     public CourseSubscription createActualSubscription(Course course, StudentSubscriptionPlan memberSubscriptionPlan) throws ValidationFailedException {
         CourseSubscription courseSubscription = new CourseSubscription();
-        CourseSubTopic firstSubTopic = null;
+        CourseLecture firstSubTopic = null;
         try {
             firstSubTopic = ApplicationContextProvider.getBean(CourseService.class).getFirstSubTopic(course);
         } catch (ValidationFailedException ex) {
@@ -173,7 +172,7 @@ public class CourseSubscriptionServiceImpl extends BaseDAOImpl<CourseSubscriptio
     }
 
     @Override
-    public CourseSubscription completeSubTopic(Student member, CourseSubTopic subTopic) throws ValidationFailedException {
+    public CourseSubscription completeSubTopic(Student member, CourseLecture subTopic) throws ValidationFailedException {
         if (subTopic == null || subTopic.isNew()) {
             throw new ValidationFailedException("Missing subTopic");
         }
@@ -194,7 +193,7 @@ public class CourseSubscriptionServiceImpl extends BaseDAOImpl<CourseSubscriptio
 
         }
 
-        List<CourseSubTopic> subTopics = courseSubTopicService.getInstances(
+        List<CourseLecture> subTopics = courseSubTopicService.getInstances(
                 new Search()
                         .addSortAsc("position")
                         .addFilterEqual("courseTopic", subTopic.getCourseTopic())
@@ -220,7 +219,7 @@ public class CourseSubscriptionServiceImpl extends BaseDAOImpl<CourseSubscriptio
         if (nextTopic != null) {
             //get first subtopic for this next topic
 
-            CourseSubTopic nextSubTopic = courseSubTopicService.getFirstSubTopic(nextTopic);
+            CourseLecture nextSubTopic = courseSubTopicService.getFirstSubTopic(nextTopic);
             courseSubscription.setCurrentSubTopic(nextSubTopic);
             courseSubscription = saveInstance(courseSubscription);
             return courseSubscription;
@@ -237,7 +236,7 @@ public class CourseSubscriptionServiceImpl extends BaseDAOImpl<CourseSubscriptio
         //Next lessson exists
         if (nextLesson != null) {
             //Fetch first sub-topic in next lesson
-            CourseSubTopic nextSubTopicInLesson = courseSubTopicService.getFirstSubTopic(nextLesson);
+            CourseLecture nextSubTopicInLesson = courseSubTopicService.getFirstSubTopic(nextLesson);
             courseSubscription.setCurrentSubTopic(nextSubTopicInLesson);
             courseSubscription = saveInstance(courseSubscription);
             return courseSubscription;

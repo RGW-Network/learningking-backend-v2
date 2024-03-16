@@ -31,7 +31,7 @@ import com.byaffe.learningking.shared.models.BaseEntity;
 public class CourseSubscription extends BaseEntity {
     private Student student;
     private Course course;
-      private CourseSubTopic currentSubTopic;
+      private CourseLecture currentSubTopic;
        private StudentSubscriptionPlan memberSubscriptionPlan;
     private int currentTopic=1;
     private int currentLesson=1;
@@ -75,11 +75,11 @@ public class CourseSubscription extends BaseEntity {
 
       @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "course_sub_topic_id")
-  public CourseSubTopic getCurrentSubTopic() {
+  public CourseLecture getCurrentSubTopic() {
         return currentSubTopic;
     }
 
-    public void setCurrentSubTopic(CourseSubTopic currentSubTopic) {
+    public void setCurrentSubTopic(CourseLecture currentSubTopic) {
         this.currentSubTopic = currentSubTopic;
     }
 

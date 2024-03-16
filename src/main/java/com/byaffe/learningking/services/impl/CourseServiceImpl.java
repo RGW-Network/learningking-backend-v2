@@ -1,5 +1,6 @@
 package com.byaffe.learningking.services.impl;
 
+import com.byaffe.learningking.dtos.courses.CourseRequestDTO;
 import com.byaffe.learningking.models.NotificationBuilder;
 import com.byaffe.learningking.models.NotificationDestinationActivity;
 import com.byaffe.learningking.models.courses.*;
@@ -11,6 +12,7 @@ import com.byaffe.learningking.shared.utils.ApplicationContextProvider;
 import com.byaffe.learningking.shared.utils.CustomSearchUtils;
 import com.googlecode.genericdao.search.Search;
 import org.apache.commons.lang3.StringUtils;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,7 +30,7 @@ public class CourseServiceImpl extends GenericServiceImpl<Course> implements Cou
     CourseSubscriptionService memberPlanDao;
 
     @Autowired
-    CourseTopicService seriePartDao;
+    ModelMapper modelMapper;
     @Autowired
     CourseSubTopicService courseSubTopicService;
 
@@ -38,7 +40,10 @@ public class CourseServiceImpl extends GenericServiceImpl<Course> implements Cou
 
         return search;
     }
-
+    @Override
+    public Course saveInstance(CourseRequestDTO plan) throws ValidationFailedException{
+        return saveInstance(modelMapper.map(plan,Course.class));
+    }
     @Override
     public Course saveInstance(Course plan) throws ValidationFailedException {
 
@@ -66,11 +71,11 @@ public class CourseServiceImpl extends GenericServiceImpl<Course> implements Cou
     }
 
     @Override
-    public float getProgress(CourseSubTopic currentSubTopic) {
+    public float getProgress(CourseLecture currentSubTopic) {
         if (currentSubTopic == null) {
             return 0;
         }
-        List<CourseSubTopic> allSubTopics = courseSubTopicService.getInstances(new Search()
+        List<CourseLecture> allSubTopics = courseSubTopicService.getInstances(new Search()
                 .addSortAsc("position")
                 .addFilterEqual("publicationStatus", PublicationStatus.ACTIVE)
                 .addFilterEqual("recordStatus", RecordStatus.ACTIVE)
@@ -84,7 +89,7 @@ public class CourseServiceImpl extends GenericServiceImpl<Course> implements Cou
     }
 
     @Override
-    public CourseSubTopic getFirstSubTopic(Course course) throws ValidationFailedException {
+    public CourseLecture getFirstSubTopic(Course course) throws ValidationFailedException {
         List<CourseLesson> lessons = ApplicationContextProvider.getBean(CourseLessonService.class)
                 .getInstances(new Search()
                         .addFilterEqual("course", course)
@@ -103,7 +108,7 @@ public class CourseServiceImpl extends GenericServiceImpl<Course> implements Cou
 
         }
         CourseTopic firstTopic = topics.get(0);
-        List<CourseSubTopic> subTopics = ApplicationContextProvider.getBean(CourseSubTopicService.class)
+        List<CourseLecture> subTopics = ApplicationContextProvider.getBean(CourseSubTopicService.class)
                 .getInstances(new Search()
                         .addFilterEqual("courseTopic", firstTopic)
                         .addSortAsc("position"), 0, 1);

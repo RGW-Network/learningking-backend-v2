@@ -1,7 +1,8 @@
 package com.byaffe.learningking.services.impl;
 
+import com.byaffe.learningking.daos.CourseLectureDao;
 import com.byaffe.learningking.models.courses.CourseLesson;
-import com.byaffe.learningking.models.courses.CourseSubTopic;
+import com.byaffe.learningking.models.courses.CourseLecture;
 import com.byaffe.learningking.models.courses.CourseTopic;
 import com.byaffe.learningking.models.courses.PublicationStatus;
 import com.byaffe.learningking.services.CourseSubTopicService;
@@ -20,7 +21,7 @@ import java.util.List;
 public class CourseTopicServiceImpl extends BaseDAOImpl<CourseTopic> implements CourseTopicService {
 
     @Autowired
-    CourseSubTopicService courseSubTopicService;
+    CourseLectureDao courseLectureDao;
 
     @Override
     public CourseTopic saveInstance(CourseTopic seriesPart) throws ValidationFailedException {
@@ -39,15 +40,15 @@ public class CourseTopicServiceImpl extends BaseDAOImpl<CourseTopic> implements 
     }
 
     @Override
-    public float getProgress(CourseSubTopic currentSubTopic) {
+    public float getProgress(CourseLecture currentSubTopic) {
         if (currentSubTopic==null) {
             return 0;
         }
-        List<CourseSubTopic> allSubTopics = courseSubTopicService.getInstances(new Search()
+        List<CourseLecture> allSubTopics = courseLectureDao.search(new Search()
                  .addSortAsc("position")
                 .addFilterEqual("publicationStatus", PublicationStatus.ACTIVE)
                 .addFilterEqual("recordStatus", RecordStatus.ACTIVE)
-                .addFilterEqual("courseTopic", currentSubTopic.getCourseTopic()), 0, 0);
+                .addFilterEqual("courseTopic", currentSubTopic.getCourseTopic()));
 if (allSubTopics.isEmpty()) {
             return 0;
         }

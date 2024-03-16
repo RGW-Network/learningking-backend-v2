@@ -59,7 +59,7 @@ public class StudentHeaderServiceImpl implements StudentHeaderService {
         user.setUsername(student.getProspectUsername());
         user.setFirstName(student.getProspectFirstName());
         user.setLastName(student.getProspectLastName());
-        user.setEmailAddress(student.getProspectEmail());
+        user.setEmailAddress(student.getProspectEmailAddress());
         user.setPassword(student.getProspectPassword());
         user.addRole(ApplicationContextProvider.getBean(UserService.class).getRoleByName(AppUtils.NORMAL_USER_ROLE_NAME));
         user.setApiPassword(student.getProspectPassword());

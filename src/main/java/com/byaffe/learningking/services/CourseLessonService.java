@@ -2,7 +2,7 @@ package com.byaffe.learningking.services;
 
 import com.byaffe.learningking.models.courses.Course;
 import com.byaffe.learningking.models.courses.CourseLesson;
-import com.byaffe.learningking.models.courses.CourseSubTopic;
+import com.byaffe.learningking.models.courses.CourseLecture;
 
 public interface CourseLessonService extends GenericService<CourseLesson> {
 
@@ -12,5 +12,5 @@ public interface CourseLessonService extends GenericService<CourseLesson> {
      * @return
      */
     public CourseLesson getFirstLesson(Course course);
- public float getProgress(CourseSubTopic currentSubTopic);
+ public float getProgress(CourseLecture currentSubTopic);
 }

@@ -1,8 +1,9 @@
 package com.byaffe.learningking.services;
 
+import com.byaffe.learningking.dtos.courses.CourseRequestDTO;
 import com.byaffe.learningking.models.Communication;
 import com.byaffe.learningking.models.courses.Course;
-import com.byaffe.learningking.models.courses.CourseSubTopic;
+import com.byaffe.learningking.models.courses.CourseLecture;
 import com.byaffe.learningking.shared.exceptions.ValidationFailedException;
 
 /**
@@ -13,7 +14,7 @@ import com.byaffe.learningking.shared.exceptions.ValidationFailedException;
  */
 public interface CourseService  extends GenericService<Course> {
 
-    
+     Course saveInstance(CourseRequestDTO plan) throws ValidationFailedException;
 
     /**
      *
@@ -43,14 +44,14 @@ public interface CourseService  extends GenericService<Course> {
      * @return
      * @throws ValidationFailedException 
      */
-     CourseSubTopic getFirstSubTopic(Course course) throws ValidationFailedException;
+     CourseLecture getFirstSubTopic(Course course) throws ValidationFailedException;
      
      /**
       * 
       * @param currentSubTopic
       * @return 
       */
-     float getProgress(CourseSubTopic currentSubTopic);
+     float getProgress(CourseLecture currentSubTopic);
     
 
 }

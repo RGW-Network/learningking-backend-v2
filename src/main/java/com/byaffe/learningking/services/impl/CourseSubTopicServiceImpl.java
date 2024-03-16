@@ -13,7 +13,7 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public class CourseSubTopicServiceImpl
-        extends GenericServiceImpl<CourseSubTopic> implements CourseSubTopicService {
+        extends GenericServiceImpl<CourseLecture> implements CourseSubTopicService {
 
     @Autowired
     CourseTopicService courseTopicService;
@@ -21,23 +21,23 @@ public class CourseSubTopicServiceImpl
     CourseLessonService courseLessonService;
 
     @Override
-    public boolean isDeletable(CourseSubTopic entity) throws OperationFailedException {
+    public boolean isDeletable(CourseLecture entity) throws OperationFailedException {
         return true;
     }
 
     @Override
-    public CourseSubTopic saveInstance(CourseSubTopic instance) throws ValidationFailedException, OperationFailedException {
+    public CourseLecture saveInstance(CourseLecture instance) throws ValidationFailedException, OperationFailedException {
         return super.save(instance);
     }
 
     @Override
-    public CourseSubTopic getFirstSubTopic(CourseLesson courseLesson) {
+    public CourseLecture getFirstSubTopic(CourseLesson courseLesson) {
         CourseTopic firstCourseTopic = courseTopicService.getFirstTopic(courseLesson);
         return getFirstSubTopic(firstCourseTopic);
     }
 
     @Override
-    public CourseSubTopic getFirstSubTopic(CourseTopic courseTopic) {
+    public CourseLecture getFirstSubTopic(CourseTopic courseTopic) {
         return super.searchUnique(new Search()
                 .addFilterEqual("courseTopic", courseTopic)
                 .addFilterEqual("recordStatus", RecordStatus.ACTIVE)
@@ -49,7 +49,7 @@ public class CourseSubTopicServiceImpl
     }
 
     @Override
-    public CourseSubTopic getFirstSubTopic(Course course) {
+    public CourseLecture getFirstSubTopic(Course course) {
         CourseLesson firstCourseLesson = courseLessonService.getFirstLesson(course);
         CourseTopic firstCourseTopic = courseTopicService.getFirstTopic(firstCourseLesson);
         return getFirstSubTopic(firstCourseTopic);

@@ -7,6 +7,7 @@ import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 
@@ -28,10 +29,8 @@ public class Communication extends BaseEntity {
     private CommunicationType communicationType;
     private boolean emailsSent = false;
     private boolean smsSent = false;
-    @Temporal(TemporalType.DATE)
-    private Date scheduleDate;
-    @Temporal(TemporalType.TIME)
-    private Date scheduleTime;
+    private LocalDateTime scheduleDate;
+    private LocalDateTime scheduleTime;
     private int sentEmails;
     private int sentPhones;
 

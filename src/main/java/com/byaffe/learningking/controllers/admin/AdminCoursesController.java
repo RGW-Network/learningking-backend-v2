@@ -105,56 +105,8 @@ Course course=ApplicationContextProvider.getBean(CourseService.class).saveInstan
     }
 
 
-    @GetMapping("/lessons/{id}")
-    public ResponseEntity<ResponseObject<LessonResponseDTO>> getLessonById(@PathVariable("id") Long id) throws JSONException {
-        LessonResponseDTO result = new LessonResponseDTO();
-        Student student = new Student();
+   
 
-        CourseLesson lesson = ApplicationContextProvider.getBean(CourseLessonService.class).getInstanceByID(id);
-        if (lesson == null) {
-            throw new ValidationFailedException("Lesson not found");
-        }
-        result = (LessonResponseDTO) lesson;
-        CourseTopicService courseSubTopicService = ApplicationContextProvider.getBean(CourseTopicService.class);
-        List<CourseLecture> topics = courseSubTopicService.getInstances(new Search()
-                .addFilterEqual("recordStatus", RecordStatus.ACTIVE)
-                .addFilterEqual("courseLesson", lesson), 0, 0);
-        CourseSubscription subscription = ApplicationContextProvider.getBean(CourseSubscriptionService.class).getSerieSubscription(student, lesson.getCourse());
-
-        for (CourseLecture topic : topics) {
-            CourseLectureResponseDTO topicJSONObject = (CourseLectureResponseDTO) topic;
-            topicJSONObject.setProgress(courseSubTopicService.getProgress(subscription.getCurrentSubTopic()));
-            result.getTopics().add(topicJSONObject);
-        }
-        result.setIsPreview(lesson.getPosition() == 1);
-        result.setProgress(ApplicationContextProvider.getBean(CourseLessonService.class).getProgress(subscription.getCurrentSubTopic()));
-        return ResponseEntity.ok().body(new ResponseObject<>(result));
-    }
-
-
-    @GetMapping("/topic/{id}")
-    public ResponseEntity<ResponseObject<CourseLectureResponseDTO>> getTopicById(@PathVariable("id") Long id) throws JSONException {
-        CourseLectureResponseDTO result = new CourseLectureResponseDTO();
-        Student student = new Student();
-
-        CourseLecture topic = ApplicationContextProvider.getBean(CourseTopicService.class).getInstanceByID(id);
-        if (topic == null) {
-            throw new ValidationFailedException("Topic not found");
-        }
-        List<CourseTopic> subTopics = ApplicationContextProvider.getBean(CourseSubTopicService.class
-        ).getInstances(new Search()
-                .addFilterEqual("recordStatus", RecordStatus.ACTIVE)
-                .addFilterEqual("courseTopic", topic), 0, 0);
-        CourseSubscription subscription = ApplicationContextProvider.getBean(CourseSubscriptionService.class).getSerieSubscription(student, topic.getCourseTopic().getCourseLesson().getCourse());
-
-        for (CourseTopic subTopic : subTopics) {
-            CourseTopicResponseDTO jSONObject = (CourseTopicResponseDTO) (subTopic);
-            result.getSubTopics().add(jSONObject);
-        }
-        result.setProgress(ApplicationContextProvider.getBean(CourseTopicService.class).getProgress(subscription.getCurrentSubTopic()));
-        return ResponseEntity.ok().body(new ResponseObject<>(result));
-
-    }
 
 
     @PostMapping("/enroll/{id}")
@@ -217,7 +169,7 @@ Course course=ApplicationContextProvider.getBean(CourseService.class).saveInstan
     @PostMapping("/subtopics/complete/{id}")
     public ResponseEntity<CourseSubscription> completeSubTopic(@PathVariable("id") Long id) throws JSONException {
         Student student = UserDetailsContext.getLoggedInStudent();
-        CourseSubTopic  topic = ApplicationContextProvider.getBean(CourseSubTopicService.class).getInstanceByID(id);
+        CourseLecture topic = ApplicationContextProvider.getBean(CourseSubTopicService.class).getInstanceByID(id);
         if (topic == null) {
             throw new ValidationFailedException("Topic  Not Found");
         }

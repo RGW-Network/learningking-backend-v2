@@ -2,15 +2,15 @@ package com.byaffe.learningking.services;
 
 import com.byaffe.learningking.models.courses.Course;
 import com.byaffe.learningking.models.courses.CourseLesson;
-import com.byaffe.learningking.models.courses.CourseSubTopic;
+import com.byaffe.learningking.models.courses.CourseLecture;
 import com.byaffe.learningking.models.courses.CourseTopic;
 
-public interface CourseSubTopicService extends GenericService<CourseSubTopic> {
+public interface CourseSubTopicService extends GenericService<CourseLecture> {
 
-    CourseSubTopic getFirstSubTopic(CourseLesson courseLesson);
+    CourseLecture getFirstSubTopic(CourseLesson courseLesson);
     
-    CourseSubTopic getFirstSubTopic(CourseTopic courseTopic);
+    CourseLecture getFirstSubTopic(CourseTopic courseTopic);
     
-    CourseSubTopic getFirstSubTopic(Course course);
+    CourseLecture getFirstSubTopic(Course course);
     
 }

@@ -10,8 +10,8 @@ import java.util.Set;
 
 @Data
 @Entity
-@Table(name = "course_sub_topics")
-public class CourseSubTopic extends BaseEntity {
+@Table(name = "course_lectures")
+public class CourseLecture extends BaseEntity {
     private static final long serialVersionUID = 1L;
 
     @Column(name = "title", length = 100)
@@ -75,7 +75,7 @@ public class CourseSubTopic extends BaseEntity {
 
     @Override
     public boolean equals(Object object) {
-        return object instanceof CourseSubTopic && (super.getId() != null) ? super.getId().equals(((CourseSubTopic) object).getId())
+        return object instanceof CourseLecture && (super.getId() != null) ? super.getId().equals(((CourseLecture) object).getId())
                 : (object == this);
     }
 
