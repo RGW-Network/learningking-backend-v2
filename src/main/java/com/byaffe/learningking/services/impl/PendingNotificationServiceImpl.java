@@ -1,7 +1,7 @@
 package com.byaffe.learningking.services.impl;
 
 import com.byaffe.learningking.models.Student;
-import com.byaffe.learningking.models.MemberPendingNotification;
+import com.byaffe.learningking.models.StudentPendingNotification;
 import com.byaffe.learningking.models.Notification;
 import com.byaffe.learningking.services.PendingNotificationService;
 import com.byaffe.learningking.shared.exceptions.OperationFailedException;
@@ -15,40 +15,40 @@ import java.util.List;
 
 @Service
 @Transactional
-public class PendingNotificationServiceImpl extends GenericServiceImpl<MemberPendingNotification> implements PendingNotificationService {
+public class PendingNotificationServiceImpl extends GenericServiceImpl<StudentPendingNotification> implements PendingNotificationService {
 
     @Override
-    public boolean isDeletable(MemberPendingNotification entity) throws OperationFailedException {
+    public boolean isDeletable(StudentPendingNotification entity) throws OperationFailedException {
      return true;
     }
 
     @Override
-    public MemberPendingNotification saveInstance(MemberPendingNotification instance) throws ValidationFailedException, OperationFailedException {
+    public StudentPendingNotification saveInstance(StudentPendingNotification instance) throws ValidationFailedException, OperationFailedException {
         throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
 
     @Override
-    public MemberPendingNotification addNotification(Student student, Notification notification) throws ValidationFailedException, OperationFailedException {
+    public StudentPendingNotification addNotification(Student student, Notification notification) throws ValidationFailedException, OperationFailedException {
      if(student ==null){
-         throw  new ValidationFailedException("Missing Member");
+         throw  new ValidationFailedException("Missing Student");
      }
      
      if(notification==null){
           throw  new ValidationFailedException("Missing Notication");
      }
         
-        return super.save(new MemberPendingNotification(student, notification) );
+        return super.save(new StudentPendingNotification(student, notification) );
     
     }
 
     @Override
-    public void removeNotification(MemberPendingNotification notification) throws ValidationFailedException, OperationFailedException {
+    public void removeNotification(StudentPendingNotification notification) throws ValidationFailedException, OperationFailedException {
       super.deleteInstance(notification);
     
     }
 
     @Override
-    public void removeNotifications(List<MemberPendingNotification> notifications) throws ValidationFailedException, OperationFailedException {
+    public void removeNotifications(List<StudentPendingNotification> notifications) throws ValidationFailedException, OperationFailedException {
         throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
    
     }

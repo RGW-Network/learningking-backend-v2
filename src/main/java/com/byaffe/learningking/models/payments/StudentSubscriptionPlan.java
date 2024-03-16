@@ -25,7 +25,7 @@ import com.byaffe.learningking.shared.models.BaseEntity;
  */
 @Entity
 @Table(name = "member_subscription_plans")
-public class MemberSubscriptionPlan extends BaseEntity {
+public class StudentSubscriptionPlan extends BaseEntity {
 
     private Student student;
     private SubscriptionPlan subscriptionPlan;
@@ -38,11 +38,11 @@ public class MemberSubscriptionPlan extends BaseEntity {
 
     @ManyToOne
     @JoinColumn(name = "member_id")
-    public Student getMember() {
+    public Student getStudent() {
         return student;
     }
 
-    public void setMember(Student student) {
+    public void setStudent(Student student) {
         this.student = student;
     }
 
@@ -116,8 +116,8 @@ public class MemberSubscriptionPlan extends BaseEntity {
 
     @Override
     public boolean equals(Object object) {
-        return object instanceof MemberSubscriptionPlan && (super.getId() != null)
-                ? super.getId().equals(((MemberSubscriptionPlan) object).getId())
+        return object instanceof StudentSubscriptionPlan && (super.getId() != null)
+                ? super.getId().equals(((StudentSubscriptionPlan) object).getId())
                 : (object == this);
     }
 

@@ -35,7 +35,7 @@ public class CertificationSubscriptionServiceImpl extends BaseDAOImpl<Certificat
 
     @Override
     public CertificationSubscription saveInstance(CertificationSubscription subscription) throws ValidationFailedException {
-        CertificationSubscription exists = getSubscription(subscription.getMember(), subscription.getCertification());
+        CertificationSubscription exists = getSubscription(subscription.getStudent(), subscription.getCertification());
 
         if (exists != null && !exists.getId().equals(subscription.getId())) {
             subscription.setId(exists.getId());
@@ -54,7 +54,7 @@ public class CertificationSubscriptionServiceImpl extends BaseDAOImpl<Certificat
 
             CertificationSubscription subscription = new CertificationSubscription();
             subscription.setCertification(course);
-            subscription.setMember(student);
+            subscription.setStudent(student);
             subscription.setCompletedCourses(1);
             return super.merge(subscription);
         }
@@ -101,7 +101,7 @@ public class CertificationSubscriptionServiceImpl extends BaseDAOImpl<Certificat
     private CertificationSubscription createActualSubscription(Student student, Certification course) {
 
         CertificationSubscription courseSubscription = new CertificationSubscription();
-        courseSubscription.setMember(student);
+        courseSubscription.setStudent(student);
         courseSubscription.setCertification(course);
         courseSubscription.setReadStatus(ReadStatus.Inprogress);
         return super.save(courseSubscription);

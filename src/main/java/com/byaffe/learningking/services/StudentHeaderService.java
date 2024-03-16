@@ -9,10 +9,10 @@ import com.byaffe.learningking.models.Student;
  *
  */
 
-public interface MemberHeaderService  {
+public interface StudentHeaderService  {
 
     
-       Student activateMemberAccount(String username, String code) throws Exception ;
+       Student activateStudentAccount(String username, String code) throws Exception ;
 
     
 }

@@ -22,12 +22,12 @@ public class ApiCompanyService {
 //
 //        try {
 //            JSONArray companyJSONArray = new JSONArray();
-//            Member member = (Member) request.getAttribute(HttpConstants.MEMBER_OBJECT_ATTRIBUTE);
+//            Student member = (Student) request.getAttribute(HttpConstants.MEMBER_OBJECT_ATTRIBUTE);
 //            if (member == null) {
 //                return ApiUtils.composeFailureMessage("User not found", 401);
 //            }
 //            BaseQueryParamModel queryParamModel = new BaseQueryParamModel().buildFromQueryParams(uriInfo);
-//            Search search = CompanyServiceImpl.generateSearchTermsForCompanyMembers(queryParamModel.getSearchTerm(), null, null)
+//            Search search = CompanyServiceImpl.generateSearchTermsForCompanyStudents(queryParamModel.getSearchTerm(), null, null)
 //                    .addFilterEqual("recordStatus", RecordStatus.ACTIVE)
 //                    .addFilterEqual("member", member);
 //            if (queryParamModel.getCategoryId() != null) {
@@ -38,16 +38,16 @@ public class ApiCompanyService {
 //                search.addSort(queryParamModel.getSortBy(), queryParamModel.getSortDescending());
 //            }
 //
-//            for (CompanyMember companyMember : ApplicationContextProvider.getBean(CompanyService.class).getCompanyMembers(search, queryParamModel.getOffset(), queryParamModel.getLimit())) {
+//            for (CompanyStudent companyStudent : ApplicationContextProvider.getBean(CompanyService.class).getCompanyStudents(search, queryParamModel.getOffset(), queryParamModel.getLimit())) {
 //                companyJSONArray.put(new JSONObject()
-//                        .put("id", companyMember.getCompany().getId())
-//                        .put("companyName", companyMember.getCompany().getName())
-//                         .put("coverImageUrl", companyMember.getCompany().getCoverImageUrl())
-//                         .put("emailAddress", companyMember.getCompany().getEmailAddress())
-//                         .put("areaOfBusiness", new JSONObject(companyMember.getCompany().getAreaOfBusiness()))
-//                         .put("website", companyMember.getCompany().getWebsite())
-//                        .put("dateAdded", companyMember.getDateCreated())
-//                        .put("recordStatus", companyMember.getRecordStatus().name())
+//                        .put("id", companyStudent.getCompany().getId())
+//                        .put("companyName", companyStudent.getCompany().getName())
+//                         .put("coverImageUrl", companyStudent.getCompany().getCoverImageUrl())
+//                         .put("emailAddress", companyStudent.getCompany().getEmailAddress())
+//                         .put("areaOfBusiness", new JSONObject(companyStudent.getCompany().getAreaOfBusiness()))
+//                         .put("website", companyStudent.getCompany().getWebsite())
+//                        .put("dateAdded", companyStudent.getDateCreated())
+//                        .put("recordStatus", companyStudent.getRecordStatus().name())
 //                );
 //
 //            }
@@ -70,7 +70,7 @@ public class ApiCompanyService {
 //    @Consumes("application/json")
 //    public Response getCompanyDetails(@Context HttpServletRequest request, @PathParam("id") String id) throws JSONException {
 //        JSONObject result = new JSONObject();
-//        Member member = (Member) request.getAttribute(HttpConstants.MEMBER_OBJECT_ATTRIBUTE);
+//        Student member = (Student) request.getAttribute(HttpConstants.MEMBER_OBJECT_ATTRIBUTE);
 //        if (member == null) {
 //            return ApiUtils.composeFailureMessage("User not found", 401);
 //        } else {

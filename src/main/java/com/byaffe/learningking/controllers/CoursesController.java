@@ -2,7 +2,7 @@ package com.byaffe.learningking.controllers;
 
 import com.byaffe.learningking.controllers.constants.ApiUtils;
 import com.byaffe.learningking.controllers.dtos.*;
-import com.byaffe.learningking.models.Member;
+import com.byaffe.learningking.models.Student;
 import com.byaffe.learningking.models.courses.*;
 import com.byaffe.learningking.services.*;
 import com.byaffe.learningking.services.impl.CourseServiceImpl;
@@ -69,7 +69,7 @@ public class CoursesController {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            CourseSubscription subscription = ApplicationContextProvider.getBean(CourseSubscriptionService.class).getSerieSubscription(UserDetailsContext.getLoggedInMember(), course);
+            CourseSubscription subscription = ApplicationContextProvider.getBean(CourseSubscriptionService.class).getSerieSubscription(UserDetailsContext.getLoggedInStudent(), course);
 
             dto.setEnrolled(subscription != null);
             dto.setNumberOfLessons(lessonsCount);
@@ -104,7 +104,7 @@ public class CoursesController {
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-                CourseSubscription subscription = ApplicationContextProvider.getBean(CourseSubscriptionService.class).getSerieSubscription(UserDetailsContext.getLoggedInMember(), course);
+                CourseSubscription subscription = ApplicationContextProvider.getBean(CourseSubscriptionService.class).getSerieSubscription(UserDetailsContext.getLoggedInStudent(), course);
                 dto.setEnrolled(subscription != null);
                 dto.setNumberOfLessons(lessonsCount);
                 dto.setAverageRating((rattings / 5));
@@ -121,7 +121,7 @@ public class CoursesController {
 
     @GetMapping("/{id}")
     public ResponseEntity<ResponseObject<CourseDetailsResponseDTO>> getCourseDetails(@PathVariable("id") Long id) throws JSONException {
-        Member member = new Member();
+        Student member = new Student();
         List<LessonResponseDTO> lessonsArray = new ArrayList<>();
         CourseService courseService = ApplicationContextProvider.getBean(CourseService.class);
         Course course = courseService.getInstanceByID(id);
@@ -165,7 +165,7 @@ public class CoursesController {
     @GetMapping("/lessons/{id}")
     public ResponseEntity<ResponseObject<LessonResponseDTO>> getLessons(@PathVariable("id") Long id) throws JSONException {
         LessonResponseDTO result = new LessonResponseDTO();
-        Member member = new Member();
+        Student member = new Student();
 
         CourseLesson lesson = ApplicationContextProvider.getBean(CourseLessonService.class).getInstanceByID(id);
         if (lesson == null) {
@@ -192,7 +192,7 @@ public class CoursesController {
     @GetMapping("/topic/{id}")
     public ResponseEntity<ResponseObject<CourseTopicResponseDTO>> getTopicById(@PathVariable("id") Long id) throws JSONException {
         CourseTopicResponseDTO result = new CourseTopicResponseDTO();
-        Member member = new Member();
+        Student member = new Student();
 
         CourseTopic topic = ApplicationContextProvider.getBean(CourseTopicService.class).getInstanceByID(id);
         if (topic == null) {
@@ -217,7 +217,7 @@ public class CoursesController {
     @PostMapping("/enroll/{id}")
     public ResponseEntity<ResponseObject<EnrollCourseResponseDTO>> enroll(@PathVariable("id") Long id) throws JSONException {
         EnrollCourseResponseDTO result = new EnrollCourseResponseDTO();
-        Member member = UserDetailsContext.getLoggedInMember();
+        Student member = UserDetailsContext.getLoggedInStudent();
         CourseService courseService = ApplicationContextProvider.getBean(CourseService.class);
         Course courseSerie = courseService.getInstanceByID(id);
         if (courseSerie == null) {
@@ -233,12 +233,12 @@ public class CoursesController {
 
     @PostMapping("/rating")
     public ResponseEntity<ResponseObject<CourseRating>> rateCourse(@RequestBody CourseRatingDTO courseRatingDTO) throws JSONException {
-        Member member = UserDetailsContext.getLoggedInMember();
+        Student member = UserDetailsContext.getLoggedInStudent();
         CourseService courseService = ApplicationContextProvider.getBean(CourseService.class);
         Course course = courseService.getInstanceByID(courseRatingDTO.getCourseId());
         CourseRating courseRating = new CourseRating();
         courseRating.setCourse(course);
-        courseRating.setMember(member);
+        courseRating.setStudent(member);
         courseRating.setReviewText(courseRatingDTO.getRatingText());
         courseRating.setStarsCount(courseRatingDTO.getStars());
         courseRating = ApplicationContextProvider.getBean(CourseRatingService.class).saveInstance(courseRating);
@@ -261,7 +261,7 @@ public class CoursesController {
             CourseRatingResponseDTO dto = new CourseRatingResponseDTO();
             dto.setStars(courseRating.getStarsCount());
             dto.setDateCreated(ApiUtils.ENGLISH_DATE_FORMAT.format(courseRating.getDateCreated()));
-            dto.setMemberFullName(courseRating.getMember().composeFullName());
+            dto.setMemberFullName(courseRating.getStudent().getFullName());
             dto.setRatingText(courseRating.getReviewText());
             ratings.add(dto);
 
@@ -273,7 +273,7 @@ public class CoursesController {
 
     @PostMapping("/subtopics/complete/{id}")
     public ResponseEntity<CourseSubscription> completeSubTopic(@PathVariable("id") Long id) throws JSONException {
-        Member member = UserDetailsContext.getLoggedInMember();
+        Student member = UserDetailsContext.getLoggedInStudent();
         CourseSubTopic topic = ApplicationContextProvider.getBean(CourseSubTopicService.class).getInstanceByID(id);
         if (topic == null) {
             throw new ValidationFailedException("Topic  Not Found");
@@ -285,7 +285,7 @@ public class CoursesController {
 
 
     @GetMapping("/mycourses")
-    public ResponseEntity<List<CourseResponseDTO>> getMemberCourses(@RequestParam ArticlesFilterDTO queryParamModel) throws JSONException {
+    public ResponseEntity<List<CourseResponseDTO>> getStudentCourses(@RequestParam ArticlesFilterDTO queryParamModel) throws JSONException {
 
         Search search = CourseServiceImpl.generateSearchObjectForCourses(queryParamModel.getSearchTerm())
                 .addFilterEqual("recordStatus", RecordStatus.ACTIVE);
@@ -319,7 +319,7 @@ public class CoursesController {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            CourseSubscription subscription = ApplicationContextProvider.getBean(CourseSubscriptionService.class).getSerieSubscription(UserDetailsContext.getLoggedInMember(), course.getCourse());
+            CourseSubscription subscription = ApplicationContextProvider.getBean(CourseSubscriptionService.class).getSerieSubscription(UserDetailsContext.getLoggedInStudent(), course.getCourse());
 
             dto.setEnrolled(subscription != null);
             dto.setNumberOfLessons(lessonsCount);

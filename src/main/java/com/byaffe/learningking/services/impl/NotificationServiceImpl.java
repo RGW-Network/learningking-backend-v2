@@ -4,7 +4,7 @@ import com.byaffe.learningking.constants.AccountStatus;
 import com.byaffe.learningking.constants.NotificationTopics;
 import com.byaffe.learningking.models.Student;
 import com.byaffe.learningking.models.Notification;
-import com.byaffe.learningking.services.MemberService;
+import com.byaffe.learningking.services.StudentService;
 import com.byaffe.learningking.services.NotificationService;
 import com.byaffe.learningking.services.PendingNotificationService;
 import com.byaffe.learningking.shared.constants.RecordStatus;
@@ -46,14 +46,14 @@ public class NotificationServiceImpl extends GenericServiceImpl<Notification> im
 
     @Transactional(propagation = Propagation.NEVER)
     @Override
-    public void sendFCMNotificationToCustomMembers(Notification notification, String topicId, List<Student> students) throws ValidationFailedException, OperationFailedException {
+    public void sendFCMNotificationToCustomStudents(Notification notification, String topicId, List<Student> students) throws ValidationFailedException, OperationFailedException {
 
         if (notification.isNew()) {
             notification = saveNotification(notification);
         }
 
         if (topicId == null && (students == null || students.isEmpty())) {
-            throw new ValidationFailedException("Missing firebase topicId and Members. Pleas supply one of them");
+            throw new ValidationFailedException("Missing firebase topicId and Students. Pleas supply one of them");
 
         }
 
@@ -62,10 +62,10 @@ public class NotificationServiceImpl extends GenericServiceImpl<Notification> im
         if (topicId != null) {
             AppUtils.sendNotificationToTopic("", notification.getTitle(), notification.getDescription(), notification.getDestinationActivity(), notification.getDestinationInstanceId());
         } else {
-            MemberService memberService = ApplicationContextProvider.getBean(MemberService.class);
+            StudentService memberService = ApplicationContextProvider.getBean(StudentService.class);
 
             System.out.println("Its for RGW...");
-            for (Student student : memberService.getMembers(new Search()
+            for (Student student : memberService.getStudents(new Search()
                     .addFilterEqual("status", AccountStatus.Active)
                     .addFilterEqual("recordStatus", RecordStatus.ACTIVE), 0, 0)) {
                 pendingNotificationService.addNotification(student, notification);
@@ -78,15 +78,15 @@ public class NotificationServiceImpl extends GenericServiceImpl<Notification> im
     }
 
     @Override
-    public void sendNotificationsToAllMembers(Notification notification) throws ValidationFailedException, OperationFailedException {
+    public void sendNotificationsToAllStudents(Notification notification) throws ValidationFailedException, OperationFailedException {
         System.out.println("Sending created notification...");
         if (notification.isNew()) {
             notification = saveNotification(notification);
         }
-        MemberService memberService = ApplicationContextProvider.getBean(MemberService.class);
+        StudentService memberService = ApplicationContextProvider.getBean(StudentService.class);
 
         System.out.println("Its for RGW...");
-        for (Student student : memberService.getMembers(new Search()
+        for (Student student : memberService.getStudents(new Search()
                 .addFilterEqual("accountStatus", AccountStatus.Active)
                 .addFilterEqual("recordStatus", RecordStatus.ACTIVE), 0, 0)) {
             pendingNotificationService.addNotification(student, notification);
@@ -96,12 +96,12 @@ public class NotificationServiceImpl extends GenericServiceImpl<Notification> im
     }
  
     @Override
-    public void sendNotificationsToChurchMembers(Notification notification) throws ValidationFailedException, OperationFailedException {
+    public void sendNotificationsToChurchStudents(Notification notification) throws ValidationFailedException, OperationFailedException {
 
     }
 
     @Override
-    public void sendNotificationsToMember(Notification notification, Student student, boolean fireNow) throws ValidationFailedException, OperationFailedException {
+    public void sendNotificationsToStudent(Notification notification, Student student, boolean fireNow) throws ValidationFailedException, OperationFailedException {
 
         if (notification.isNew()) {
             notification = saveNotification(notification);

@@ -19,7 +19,7 @@ public class ApiPaymentService {
 //        JSONObject result = new JSONObject();
 //
 //        try {
-//            Member member = (Member) request.getAttribute(HttpConstants.MEMBER_OBJECT_ATTRIBUTE);
+//            Student member = (Student) request.getAttribute(HttpConstants.MEMBER_OBJECT_ATTRIBUTE);
 //            if (member == null) {
 //                return ApiUtils.composeFailureMessage("User with that username does not");
 //            }
@@ -59,14 +59,14 @@ public class ApiPaymentService {
 //        JSONObject result = new JSONObject();
 //
 //        try {
-//            Member member = (Member) request.getAttribute(HttpConstants.MEMBER_OBJECT_ATTRIBUTE);
+//            Student member = (Student) request.getAttribute(HttpConstants.MEMBER_OBJECT_ATTRIBUTE);
 //            if (member == null) {
 //                return ApiUtils.composeFailureMessage("User with that username does not");
 //            }
 //            if (apiPaymentModel == null) {
 //                return ApiUtils.composeFailureMessage("No data specified");
 //            }
-//            if (StringUtils.isBlank(apiPaymentModel.getMemberSubscriptionId())) {
+//            if (StringUtils.isBlank(apiPaymentModel.getStudentSubscriptionId())) {
 //                return ApiUtils.composeFailureMessage("memberSubscriptionId id is missing");
 //            }
 //
@@ -78,16 +78,16 @@ public class ApiPaymentService {
 //                return ApiUtils.composeFailureMessage("Course not found");
 //            }
 //
-//            MemberSubscriptionPlan memberSubscriptionPlan = ApplicationContextProvider.getBean(MemberSubscriptionPlanService.class).getInstanceByID(apiPaymentModel.getMemberSubscriptionId());
+//            StudentSubscriptionPlan memberSubscriptionPlan = ApplicationContextProvider.getBean(StudentSubscriptionPlanService.class).getInstanceByID(apiPaymentModel.getStudentSubscriptionId());
 //            if (memberSubscriptionPlan == null || !memberSubscriptionPlan.getStatus().equals(SubscriptionPlanStatus.ACTIVE)) {
-//                return ApiUtils.composeFailureMessage("Member Subscription not found");
+//                return ApiUtils.composeFailureMessage("Student Subscription not found");
 //            }
 //
 //            if (!memberSubscriptionPlan.getStatus().equals(SubscriptionPlanStatus.ACTIVE)) {
-//                return ApiUtils.composeFailureMessage("Member Subscription expired/depleted");
+//                return ApiUtils.composeFailureMessage("Student Subscription expired/depleted");
 //            }
 //
-//            CourseSubscription courseSubscription = ApplicationContextProvider.getBean(MemberSubscriptionPlanService.class).payBySubscription(course, memberSubscriptionPlan);
+//            CourseSubscription courseSubscription = ApplicationContextProvider.getBean(StudentSubscriptionPlanService.class).payBySubscription(course, memberSubscriptionPlan);
 //            //compose response
 //            result.put("courseSubscription", new JSONObject(courseSubscription)
 //                    .put("id", courseSubscription.getId())
@@ -114,7 +114,7 @@ public class ApiPaymentService {
 //        JSONObject result = new JSONObject();
 //
 //        try {
-//            Member member = (Member) request.getAttribute(HttpConstants.MEMBER_OBJECT_ATTRIBUTE);
+//            Student member = (Student) request.getAttribute(HttpConstants.MEMBER_OBJECT_ATTRIBUTE);
 //            if (member == null) {
 //                return ApiUtils.composeFailureMessage("User with that username does not");
 //            }
@@ -154,7 +154,7 @@ public class ApiPaymentService {
 //        JSONObject result = new JSONObject();
 //
 //        try {
-//            Member member = (Member) request.getAttribute(HttpConstants.MEMBER_OBJECT_ATTRIBUTE);
+//            Student member = (Student) request.getAttribute(HttpConstants.MEMBER_OBJECT_ATTRIBUTE);
 //            if (member == null) {
 //                return ApiUtils.composeFailureMessage("User with that username does not");
 //            }
@@ -199,17 +199,17 @@ public class ApiPaymentService {
 //        JSONObject result = new JSONObject();
 //
 //        try {
-//            Member member = (Member) request.getAttribute(HttpConstants.MEMBER_OBJECT_ATTRIBUTE);
+//            Student member = (Student) request.getAttribute(HttpConstants.MEMBER_OBJECT_ATTRIBUTE);
 //            if (member == null) {
 //                return ApiUtils.composeFailureMessage("User with that username does not");
 //            }
-//            List<MemberSubscriptionPlan> plans = ApplicationContextProvider.getBean(MemberSubscriptionPlanService.class).getInstances(
+//            List<StudentSubscriptionPlan> plans = ApplicationContextProvider.getBean(StudentSubscriptionPlanService.class).getInstances(
 //                    new Search().addFilterEqual("recordStatus", RecordStatus.ACTIVE)
 //                            .addFilterEqual("status", SubscriptionPlanStatus.ACTIVE),
 //                    0, 0);
 //
 //            JSONArray plansArray = new JSONArray();
-//            for (MemberSubscriptionPlan plan : plans) {
+//            for (StudentSubscriptionPlan plan : plans) {
 //                plansArray.put(new JSONObject()
 //                        .put("id", plan.getId())
 //                        .put("cost", String.valueOf(plan.getCost()))
@@ -221,7 +221,7 @@ public class ApiPaymentService {
 //                                .put("name", plan.getSubscriptionPlan().getName())
 //                        )
 //                        .put("member", new JSONObject()
-//                                .put("id", plan.getMember().getId())
+//                                .put("id", plan.getStudent().getId())
 //                        )
 //                );
 //

@@ -9,7 +9,7 @@ package com.byaffe.learningking.constants;
  *
  * @author Ray Gdhrt
  */
-public enum MemberRegistrationType {
+public enum StudentRegistrationType {
     SYSTEM,
     MANUAL;
 

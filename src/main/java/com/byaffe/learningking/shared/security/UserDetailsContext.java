@@ -35,18 +35,18 @@ public class UserDetailsContext {
         return null;
     }
 
-    public static void setLoggedInMember(Student id) {
+    public static void setLoggedInStudent(Student id) {
         SessionDTO  dto= bearerToken.get();
         if(dto==null){
             dto= new SessionDTO();
         }
-        dto.setLoggedInMember(id);
+        dto.setLoggedInStudent(id);
         bearerToken.set(dto);
     }
-    public static Student getLoggedInMember() {
+    public static Student getLoggedInStudent() {
         SessionDTO sessionDTO=bearerToken.get();
         if(sessionDTO!=null){
-            return sessionDTO.getLoggedInMember();
+            return sessionDTO.getLoggedInStudent();
         }
         return null;
     }

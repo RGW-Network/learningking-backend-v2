@@ -14,7 +14,7 @@ import java.util.List;
  * @author Ray Gdhrt
  *
  */
-public interface MemberService extends GenericService<Student> {
+public interface StudentService extends GenericService<Student> {
 
     /**
      * Adds a member to the database.
@@ -43,7 +43,7 @@ public interface MemberService extends GenericService<Student> {
      * @param limit
      * @return
      */
-    List<Student> getMembers(Search search, int offset, int limit);
+    List<Student> getStudents(Search search, int offset, int limit);
 
     /**
      * Counts a list of members that match the specified search criteria
@@ -51,7 +51,7 @@ public interface MemberService extends GenericService<Student> {
      * @param search
      * @return
      */
-    int countMembers(Search search);
+    int countStudents(Search search);
 
     /**
      * Gets a member that matches the specified identifier
@@ -59,7 +59,7 @@ public interface MemberService extends GenericService<Student> {
      * @param memberId
      * @return
      */
-    Student getMemberById(String memberId);
+    Student getStudentById(String memberId);
 
     /**
      * Deactivates a member along with all he data associated to it. This member
@@ -86,9 +86,9 @@ public interface MemberService extends GenericService<Student> {
      * @param phoneNumber
      * @return
      */
-    Student getMemberByPhoneNumber(String phoneNumber);
+    Student getStudentByPhoneNumber(String phoneNumber);
     
-       Student activateMemberAccount(String username, String code) throws Exception ;
+       Student activateStudentAccount(String username, String code) throws Exception ;
 
     /**
      * Gets a member that matches the specified identifier
@@ -96,16 +96,16 @@ public interface MemberService extends GenericService<Student> {
      * @param user
      * @return
      */
-    Student getMemberByUserAccount(User user);
+    Student getStudentByUserAccount(User user);
 
  
-    Student getMemberByUsername(String email) ;
+    Student getStudentByUsername(String email) ;
     /**
      *
      * @param email
      * @return
      */
-    Student getMemberByEmail(String email);
+    Student getStudentByEmail(String email);
     
      Student doRegister(String firstName, String lastName, String username, String password) throws ValidationFailedException ;
 

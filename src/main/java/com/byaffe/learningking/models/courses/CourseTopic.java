@@ -21,20 +21,18 @@ import com.byaffe.learningking.shared.models.BaseEntity;
 public class CourseTopic extends BaseEntity {
 
     private static final long serialVersionUID = 1L;
+    @Column(name = "title", length = 100)
     private String title;
-    private String body;
+    @Column(name = "full_description",columnDefinition = "TEXT" )
+    private String description;
     private int position = 1;
     private boolean isLast = false;
     private boolean isFirst = false;
-    private Set<ExternalResource> externalLinks;
-    private String coverImageUrl;
-    private String videoUrl;
-    private String audioUrl;
+
     private PublicationStatus publicationStatus;
     private CourseLesson courseLesson;
- private String fullDescription;
 
-      @Column(name = "full_description",columnDefinition = "TEXT" )
+
     public String getFullDescription() {
         return fullDescription;
     }
@@ -44,7 +42,7 @@ public class CourseTopic extends BaseEntity {
     }
      
      
-    @Column(name = "title", length = 100)
+
     public String getTitle() {
         return title;
     }

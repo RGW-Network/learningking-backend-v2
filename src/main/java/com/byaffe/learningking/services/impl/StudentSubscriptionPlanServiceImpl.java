@@ -5,7 +5,7 @@ import com.byaffe.learningking.models.courses.Course;
 import com.byaffe.learningking.models.courses.CourseSubscription;
 import com.byaffe.learningking.models.payments.*;
 import com.byaffe.learningking.services.CourseSubscriptionService;
-import com.byaffe.learningking.services.MemberSubscriptionPlanService;
+import com.byaffe.learningking.services.StudentSubscriptionPlanService;
 import com.byaffe.learningking.services.SubscriptionPlanToCategoryMapperService;
 import com.byaffe.learningking.services.SubscriptionPlanToCourseMapperService;
 import com.byaffe.learningking.shared.constants.RecordStatus;
@@ -20,7 +20,7 @@ import java.util.Date;
 
 @Service
 @Transactional
-public class MemberSubscriptionPlanServiceImpl extends GenericServiceImpl<MemberSubscriptionPlan> implements MemberSubscriptionPlanService {
+public class StudentSubscriptionPlanServiceImpl extends GenericServiceImpl<StudentSubscriptionPlan> implements StudentSubscriptionPlanService {
   @Autowired
   SubscriptionPlanToCourseMapperService subscriptionPlanToCourseMapperService;
   
@@ -31,17 +31,17 @@ public class MemberSubscriptionPlanServiceImpl extends GenericServiceImpl<Member
     CourseSubscriptionService courseSubscriptionService;
 
     @Override
-    public boolean isDeletable(MemberSubscriptionPlan entity) throws OperationFailedException {
+    public boolean isDeletable(StudentSubscriptionPlan entity) throws OperationFailedException {
         return true;
     }
 
     @Override
-    public MemberSubscriptionPlan saveInstance(MemberSubscriptionPlan instance) throws ValidationFailedException, OperationFailedException {
+    public StudentSubscriptionPlan saveInstance(StudentSubscriptionPlan instance) throws ValidationFailedException, OperationFailedException {
         if (instance == null) {
             throw new ValidationFailedException("Null object");
         }
 
-        if (instance.getMember() == null) {
+        if (instance.getStudent() == null) {
             throw new ValidationFailedException("Invalid member");
         }
         if (instance.getSubscriptionPlan() == null) {
@@ -53,11 +53,11 @@ public class MemberSubscriptionPlanServiceImpl extends GenericServiceImpl<Member
     }
 
     @Override
-    public MemberSubscriptionPlan activate(SubscriptionPlanPayment planPayment) throws ValidationFailedException {
+    public StudentSubscriptionPlan activate(SubscriptionPlanPayment planPayment) throws ValidationFailedException {
 
-        MemberSubscriptionPlan memberSubscriptionPlan = new MemberSubscriptionPlan();
+        StudentSubscriptionPlan memberSubscriptionPlan = new StudentSubscriptionPlan();
         memberSubscriptionPlan.setSubscriptionPlan(planPayment.getSubscriptionPlan());
-        memberSubscriptionPlan.setMember(planPayment.getSubscriber());
+        memberSubscriptionPlan.setStudent(planPayment.getSubscriber());
         memberSubscriptionPlan.setActivatedOn(new Date());
         memberSubscriptionPlan.setDurationInMonths(planPayment.getSubscriptionPlan().getDurationInMonths());
         memberSubscriptionPlan.setCost(planPayment.getAmount());
@@ -67,7 +67,7 @@ public class MemberSubscriptionPlanServiceImpl extends GenericServiceImpl<Member
     }
 
     @Override
-    public CourseSubscription payBySubscription(Course course, MemberSubscriptionPlan planPayment) throws ValidationFailedException {
+    public CourseSubscription payBySubscription(Course course, StudentSubscriptionPlan planPayment) throws ValidationFailedException {
         SubscriptionPlan subscriptionPlan = planPayment.getSubscriptionPlan();
 
         if (subscriptionPlan.getContentRestrictionType().equals(SubscriptionContentRestrictionType.OPEN_ANY_COURSE)) {
@@ -104,14 +104,14 @@ public class MemberSubscriptionPlanServiceImpl extends GenericServiceImpl<Member
     }
 
     @Override
-    public MemberSubscriptionPlan expire(MemberSubscriptionPlan plan) {
+    public StudentSubscriptionPlan expire(StudentSubscriptionPlan plan) {
         plan.setExpiredOn(new Date());
         plan.setStatus(SubscriptionPlanStatus.EXPIRED);
         return super.save(plan);
     }
 
     @Override
-    public MemberSubscriptionPlan deplete(MemberSubscriptionPlan plan) {
+    public StudentSubscriptionPlan deplete(StudentSubscriptionPlan plan) {
         plan.setDepletedOn(new Date());
         plan.setStatus(SubscriptionPlanStatus.DEPLETED);
         return super.save(plan);
@@ -128,7 +128,7 @@ public class MemberSubscriptionPlanServiceImpl extends GenericServiceImpl<Member
 
 
     @Override
-    public MemberSubscriptionPlan getInstance(Student student, SubscriptionPlan plan) throws ValidationFailedException {
+    public StudentSubscriptionPlan getInstance(Student student, SubscriptionPlan plan) throws ValidationFailedException {
         return super.searchUnique(
                 new Search().addFilterEqual("member", student)
                         .addFilterEqual("subscriptionPlan", plan)

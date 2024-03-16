@@ -2,12 +2,12 @@ package com.byaffe.learningking.services;
 
 import java.util.List;
 import com.byaffe.learningking.models.Student;
-import com.byaffe.learningking.models.MemberPendingNotification;
+import com.byaffe.learningking.models.StudentPendingNotification;
 import com.byaffe.learningking.models.Notification;
 import com.byaffe.learningking.shared.exceptions.OperationFailedException;
 import com.byaffe.learningking.shared.exceptions.ValidationFailedException;
 
-public interface PendingNotificationService extends GenericService<MemberPendingNotification> {
+public interface PendingNotificationService extends GenericService<StudentPendingNotification> {
 
     /**
      *
@@ -15,7 +15,7 @@ public interface PendingNotificationService extends GenericService<MemberPending
      * @param notification
      * @return
      */
-    MemberPendingNotification addNotification(Student student, Notification notification)
+    StudentPendingNotification addNotification(Student student, Notification notification)
             throws ValidationFailedException, OperationFailedException;
 
     /**
@@ -25,7 +25,7 @@ public interface PendingNotificationService extends GenericService<MemberPending
      * @throws ValidationFailedException
      * @throws OperationFailedException 
      */
-    void removeNotification(MemberPendingNotification notification)
+    void removeNotification(StudentPendingNotification notification)
             throws ValidationFailedException, OperationFailedException;
     
     /**
@@ -35,7 +35,7 @@ public interface PendingNotificationService extends GenericService<MemberPending
      * @throws ValidationFailedException
      * @throws OperationFailedException 
      */
-    void removeNotifications(List<MemberPendingNotification> notifications)
+    void removeNotifications(List<StudentPendingNotification> notifications)
             throws ValidationFailedException, OperationFailedException;
     
     /**

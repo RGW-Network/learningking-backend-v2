@@ -15,11 +15,11 @@ public class SessionDTO {
         this.loggedInUser = loggedInUser;
     }
 
-    public Student getLoggedInMember() {
+    public Student getLoggedInStudent() {
         return loggedInStudent;
     }
 
-    public void setLoggedInMember(Student loggedInStudent) {
+    public void setLoggedInStudent(Student loggedInStudent) {
         this.loggedInStudent = loggedInStudent;
     }
 }

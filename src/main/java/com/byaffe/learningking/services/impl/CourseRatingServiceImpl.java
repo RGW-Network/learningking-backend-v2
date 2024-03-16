@@ -22,7 +22,7 @@ public class CourseRatingServiceImpl extends GenericServiceImpl<CourseRating> im
     @Override
     public CourseRating saveInstance(CourseRating instance) throws ValidationFailedException, OperationFailedException {
 
-        if (instance.getMember()==null) {
+        if (instance.getStudent()==null) {
             throw new ValidationFailedException("Missing member");
         }
         if (instance.getCourse()==null) {

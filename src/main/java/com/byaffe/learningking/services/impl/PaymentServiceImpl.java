@@ -117,7 +117,7 @@ public class PaymentServiceImpl extends GenericServiceImpl<CoursePayment> implem
                         payment.setStatus(TransactionStatus.SUCESSFULL);
                         saveInstance(payment);
                         ApplicationContextProvider.getBean(NotificationService.class)
-                                .sendNotificationsToMember(
+                                .sendNotificationsToStudent(
                                         new NotificationBuilder()
                                                 .setTitle("Course Payment")
                                                 .setDescription("Your payment for " + payment.getCourse().getTitle() + " has been recieved")

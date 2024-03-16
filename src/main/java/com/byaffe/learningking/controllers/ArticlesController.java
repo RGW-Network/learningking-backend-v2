@@ -73,7 +73,7 @@ public class ArticlesController {
 //
 //        try {
 //            BaseQueryParamModel queryParamModel = new BaseQueryParamModel().buildFromQueryParams(uriInfo);
-//            Member member = (Member) request.getAttribute(HttpConstants.MEMBER_OBJECT_ATTRIBUTE);
+//            Student member = (Student) request.getAttribute(HttpConstants.MEMBER_OBJECT_ATTRIBUTE);
 //
 //            if (member == null) {
 //                return ApiUtils.composeFailureMessage("User not found", 401);
@@ -135,7 +135,7 @@ public class ArticlesController {
 //    @Consumes("application/json")
 //    public Response getArticleDetails(@Context HttpServletRequest request, @PathParam("id") String id) throws JSONException {
 //        JSONObject result = new JSONObject();
-//        Member member = (Member) request.getAttribute(HttpConstants.MEMBER_OBJECT_ATTRIBUTE);
+//        Student member = (Student) request.getAttribute(HttpConstants.MEMBER_OBJECT_ATTRIBUTE);
 //        if (member == null) {
 //            return ApiUtils.composeFailureMessage("User not found", 401);
 //        } else {
@@ -250,7 +250,7 @@ public class ArticlesController {
 //    public Response updateInterests(@Context HttpServletRequest request, ApiUserModel apiSecurity) throws JSONException {
 //        JSONObject result = new JSONObject();
 //        try {
-//            Member member = (Member) request.getAttribute(HttpConstants.MEMBER_OBJECT_ATTRIBUTE);
+//            Student member = (Student) request.getAttribute(HttpConstants.MEMBER_OBJECT_ATTRIBUTE);
 //            if (member == null) {
 //                return ApiUtils.composeFailureMessage("User with that username does not exist", 401);
 //            }
@@ -259,13 +259,13 @@ public class ArticlesController {
 //                return ApiUtils.composeFailureMessage("No data specified");
 //            }
 //            member.setInterestNames(apiSecurity.getInterests());
-//            Member savedMember = ApplicationContextProvider.getBean(MemberService.class).saveInstance(member);
+//            Student savedStudent = ApplicationContextProvider.getBean(StudentService.class).saveInstance(member);
 //
-//            result.put("interests", savedMember.getInterestNames());
+//            result.put("interests", savedStudent.getInterestNames());
 //            result.put(ApiUtils.STATUS_PARAM, ApiUtils.SUCCESSFUL_TOKEN);
 //            return Response.status(200).entity("" + result).build();
 //        } catch (JSONException | OperationFailedException | ValidationFailedException ex) {
-//            Logger.getLogger(ApiMemberService.class.getName()).log(Level.WARNING, null, ex);
+//            Logger.getLogger(ApiStudentService.class.getName()).log(Level.WARNING, null, ex);
 //
 //            return ApiUtils.composeFailureMessage(ex.getMessage());
 //

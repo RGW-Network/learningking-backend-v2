@@ -7,7 +7,7 @@ import javax.persistence.*;
 
 @Entity
 @Table(name = "company_members")
-public class CompanyMember extends BaseEntity {
+public class CompanyStudent extends BaseEntity {
 
     private static final long serialVersionUID = 1L;
     private String entryCode;
@@ -37,11 +37,11 @@ public class CompanyMember extends BaseEntity {
 
     @ManyToOne
      @JoinColumn(name = "member_id")
-    public Student getMember() {
+    public Student getStudent() {
         return student;
     }
 
-    public void setMember(Student student) {
+    public void setStudent(Student student) {
         this.student = student;
     }
 
@@ -58,7 +58,7 @@ public class CompanyMember extends BaseEntity {
     
     @Override
     public boolean equals(Object object) {
-        return object instanceof CompanyMember && (super.getId() != null) ? super.getId().equals(((CompanyMember) object).getId())
+        return object instanceof CompanyStudent && (super.getId() != null) ? super.getId().equals(((CompanyStudent) object).getId())
                 : (object == this);
     }
 

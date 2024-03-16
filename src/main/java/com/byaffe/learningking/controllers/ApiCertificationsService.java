@@ -118,7 +118,7 @@ public class ApiCertificationsService {
 //    @Consumes("application/json")
 //    public Response getCertificationDetails(@Context HttpServletRequest request, @PathParam("id") String id) throws JSONException {
 //        JSONObject result = new JSONObject();
-//        Member member = (Member) request.getAttribute(HttpConstants.MEMBER_OBJECT_ATTRIBUTE);
+//        Student member = (Student) request.getAttribute(HttpConstants.MEMBER_OBJECT_ATTRIBUTE);
 //        if (member == null) {
 //            return ApiUtils.composeFailureMessage("User not found", 401);
 //        } else {
@@ -175,7 +175,7 @@ public class ApiCertificationsService {
 //    @Consumes("application/json")
 //    public Response enrollForCertification(@Context HttpServletRequest request, @PathParam("id") String id) throws JSONException {
 //        JSONObject result = new JSONObject();
-//        Member member = (Member) request.getAttribute(HttpConstants.MEMBER_OBJECT_ATTRIBUTE);
+//        Student member = (Student) request.getAttribute(HttpConstants.MEMBER_OBJECT_ATTRIBUTE);
 //
 //        if (member == null) {
 //            return ApiUtils.composeFailureMessage("User not found", 401);
@@ -209,10 +209,10 @@ public class ApiCertificationsService {
 //    @Path("/mycertifications")
 //    @Produces("application/json")
 //    @Consumes("application/json")
-//    public Response getMemberCertification(@Context HttpServletRequest request, @Context UriInfo uriInfo) throws JSONException {
+//    public Response getStudentCertification(@Context HttpServletRequest request, @Context UriInfo uriInfo) throws JSONException {
 //        JSONObject result = new JSONObject();
 //        JSONArray courses = new JSONArray();
-//        Member member = (Member) request.getAttribute(HttpConstants.MEMBER_OBJECT_ATTRIBUTE);
+//        Student member = (Student) request.getAttribute(HttpConstants.MEMBER_OBJECT_ATTRIBUTE);
 //        try {
 //            BaseQueryParamModel queryParamModel = new BaseQueryParamModel().buildFromQueryParams(uriInfo);
 //            Search search = CourseSubscriptionServiceImpl.generateSearchTermsForSubscriptions(queryParamModel.getSearchTerm(), member, null, null)

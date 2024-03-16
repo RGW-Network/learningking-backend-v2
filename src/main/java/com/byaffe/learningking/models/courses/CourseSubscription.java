@@ -19,7 +19,7 @@ import javax.persistence.TemporalType;
 
 import com.byaffe.learningking.models.Student;
 import com.byaffe.learningking.models.ReadStatus;
-import com.byaffe.learningking.models.payments.MemberSubscriptionPlan;
+import com.byaffe.learningking.models.payments.StudentSubscriptionPlan;
 import com.byaffe.learningking.shared.models.BaseEntity;
 
 /**
@@ -31,8 +31,8 @@ import com.byaffe.learningking.shared.models.BaseEntity;
 public class CourseSubscription extends BaseEntity {
     private Student student;
     private Course course;
-      private CourseTopic currentSubTopic;
-       private MemberSubscriptionPlan memberSubscriptionPlan;
+      private CourseSubTopic currentSubTopic;
+       private StudentSubscriptionPlan memberSubscriptionPlan;
     private int currentTopic=1;
     private int currentLesson=1;
     private Date dateCompleted;
@@ -43,21 +43,21 @@ public class CourseSubscription extends BaseEntity {
 
     @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "member_id")  
-    public Student getMember() {
+    public Student getStudent() {
         return student;
     }
 
-    public void setMember(Student student) {
+    public void setStudent(Student student) {
         this.student = student;
     }
 
      @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "member_subscription_plan_id")  
-    public MemberSubscriptionPlan getMemberSubscriptionPlan() {
+    public StudentSubscriptionPlan getStudentSubscriptionPlan() {
         return memberSubscriptionPlan;
     }
 
-    public void setMemberSubscriptionPlan(MemberSubscriptionPlan memberSubscriptionPlan) {
+    public void setStudentSubscriptionPlan(StudentSubscriptionPlan memberSubscriptionPlan) {
         this.memberSubscriptionPlan = memberSubscriptionPlan;
     }
     
@@ -75,11 +75,11 @@ public class CourseSubscription extends BaseEntity {
 
       @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "course_sub_topic_id")
-  public CourseTopic getCurrentSubTopic() {
+  public CourseSubTopic getCurrentSubTopic() {
         return currentSubTopic;
     }
 
-    public void setCurrentSubTopic(CourseTopic currentSubTopic) {
+    public void setCurrentSubTopic(CourseSubTopic currentSubTopic) {
         this.currentSubTopic = currentSubTopic;
     }
 

@@ -129,7 +129,7 @@ public enum ProfessionValue {
     Barista("Barista"),
     Bioinformatics_Scientist("Bioinformatics Scientist"),
     Biomedical_Engineer("Biomedical Engineer"),
-    Board_Member("Board Member"),
+    Board_Student("Board Student"),
     Business_Analyst("Business Analyst"),
     Captain_("naval"),
     Cashier("Cashier"),

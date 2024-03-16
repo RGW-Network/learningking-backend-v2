@@ -37,11 +37,11 @@ public class CourseRating extends BaseEntity {
 
     @ManyToOne
     @JoinColumn(name = "member_id")
-    public Student getMember() {
+    public Student getStudent() {
         return student;
     }
 
-    public void setMember(Student student) {
+    public void setStudent(Student student) {
         this.student = student;
     }
 

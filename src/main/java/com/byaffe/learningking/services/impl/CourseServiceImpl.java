@@ -149,7 +149,7 @@ public class CourseServiceImpl extends GenericServiceImpl<Course> implements Cou
         Course savedDevotionPlan = super.save(plan);
         try {
 
-            ApplicationContextProvider.getBean(NotificationService.class).sendNotificationsToAllMembers(
+            ApplicationContextProvider.getBean(NotificationService.class).sendNotificationsToAllStudents(
                     new NotificationBuilder()
                             .setTitle("New Courses added")
                             .setDescription(plan.getTitle())

@@ -160,7 +160,7 @@ Course course=ApplicationContextProvider.getBean(CourseService.class).saveInstan
     @PostMapping("/enroll/{id}")
     public ResponseEntity<ResponseObject<EnrollCourseResponseDTO>> enroll(@PathVariable("id") Long id) throws JSONException {
         EnrollCourseResponseDTO result = new EnrollCourseResponseDTO();
-        Student student = UserDetailsContext.getLoggedInMember();
+        Student student = UserDetailsContext.getLoggedInStudent();
         CourseService courseService = ApplicationContextProvider.getBean(CourseService.class);
         Course courseSerie = courseService.getInstanceByID(id);
         if (courseSerie == null) {
@@ -176,12 +176,12 @@ Course course=ApplicationContextProvider.getBean(CourseService.class).saveInstan
 
     @PostMapping("/rating")
     public ResponseEntity<ResponseObject<CourseRating>> rateCourse(@RequestBody CourseRatingDTO courseRatingDTO) throws JSONException {
-        Student student = UserDetailsContext.getLoggedInMember();
+        Student student = UserDetailsContext.getLoggedInStudent();
         CourseService courseService = ApplicationContextProvider.getBean(CourseService.class);
         Course course = courseService.getInstanceByID(courseRatingDTO.getCourseId());
         CourseRating courseRating = new CourseRating();
         courseRating.setCourse(course);
-        courseRating.setMember(student);
+        courseRating.setStudent(student);
         courseRating.setReviewText(courseRatingDTO.getRatingText());
         courseRating.setStarsCount(courseRatingDTO.getStars());
         courseRating = ApplicationContextProvider.getBean(CourseRatingService.class).saveInstance(courseRating);
@@ -204,7 +204,7 @@ Course course=ApplicationContextProvider.getBean(CourseService.class).saveInstan
             CourseRatingResponseDTO dto = new CourseRatingResponseDTO();
             dto.setStars(courseRating.getStarsCount());
             dto.setDateCreated(ApiUtils.ENGLISH_DATE_FORMAT.format(courseRating.getDateCreated()));
-            dto.setMemberFullName(courseRating.getMember().getFullName());
+            dto.setMemberFullName(courseRating.getStudent().getFullName());
             dto.setRatingText(courseRating.getReviewText());
             ratings.add(dto);
 
@@ -216,8 +216,8 @@ Course course=ApplicationContextProvider.getBean(CourseService.class).saveInstan
 
     @PostMapping("/subtopics/complete/{id}")
     public ResponseEntity<CourseSubscription> completeSubTopic(@PathVariable("id") Long id) throws JSONException {
-        Student student = UserDetailsContext.getLoggedInMember();
-        CourseTopic topic = ApplicationContextProvider.getBean(CourseSubTopicService.class).getInstanceByID(id);
+        Student student = UserDetailsContext.getLoggedInStudent();
+        CourseSubTopic  topic = ApplicationContextProvider.getBean(CourseSubTopicService.class).getInstanceByID(id);
         if (topic == null) {
             throw new ValidationFailedException("Topic  Not Found");
         }
@@ -228,7 +228,7 @@ Course course=ApplicationContextProvider.getBean(CourseService.class).saveInstan
 
 
     @GetMapping("/mycourses")
-    public ResponseEntity<List<CourseResponseDTO>> getMemberCourses(@RequestParam ArticlesFilterDTO queryParamModel) throws JSONException {
+    public ResponseEntity<List<CourseResponseDTO>> getStudentCourses(@RequestParam ArticlesFilterDTO queryParamModel) throws JSONException {
 
         Search search = CourseServiceImpl.generateSearchObjectForCourses(queryParamModel.getSearchTerm())
                 .addFilterEqual("recordStatus", RecordStatus.ACTIVE);
@@ -262,7 +262,7 @@ Course course=ApplicationContextProvider.getBean(CourseService.class).saveInstan
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            CourseSubscription subscription = ApplicationContextProvider.getBean(CourseSubscriptionService.class).getSerieSubscription(UserDetailsContext.getLoggedInMember(), course.getCourse());
+            CourseSubscription subscription = ApplicationContextProvider.getBean(CourseSubscriptionService.class).getSerieSubscription(UserDetailsContext.getLoggedInStudent(), course.getCourse());
 
             dto.setEnrolled(subscription != null);
             dto.setNumberOfLessons(lessonsCount);

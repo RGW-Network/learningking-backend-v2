@@ -1,13 +1,13 @@
 package com.byaffe.learningking.services;
 
 import java.util.List;
-import com.byaffe.learningking.models.Member;
+import com.byaffe.learningking.models.Student;
 import com.byaffe.learningking.models.courses.Course;
 import com.byaffe.learningking.models.courses.CourseSubTopic;
 import com.byaffe.learningking.models.courses.CourseSubscription;
 import com.byaffe.learningking.models.courses.CourseTopic;
 import com.byaffe.learningking.models.payments.CoursePayment;
-import com.byaffe.learningking.models.payments.MemberSubscriptionPlan;
+import com.byaffe.learningking.models.payments.StudentSubscriptionPlan;
 import com.byaffe.learningking.shared.exceptions.ValidationFailedException;
 
 public interface CourseSubscriptionService extends GenericService<CourseSubscription> {
@@ -18,8 +18,8 @@ public interface CourseSubscriptionService extends GenericService<CourseSubscrip
      * @param serie
      * @return 
      */
-    CourseSubscription getSerieSubscription(Member member, Course serie);
-    CourseSubscription createSubscription(Member member, Course serie)throws ValidationFailedException;
+    CourseSubscription getSerieSubscription(Student member, Course serie);
+    CourseSubscription createSubscription(Student member, Course serie)throws ValidationFailedException;
      CourseSubscription createSubscription(CoursePayment coursePayment)throws ValidationFailedException;
     
       /**
@@ -30,17 +30,17 @@ public interface CourseSubscriptionService extends GenericService<CourseSubscrip
      * @return 
      * @throws ValidationFailedException
      */
-    CourseSubscription completeSubTopic(Member member,CourseSubTopic courseTopic)throws ValidationFailedException;
+    CourseSubscription completeSubTopic(Student member,CourseSubTopic courseTopic)throws ValidationFailedException;
 
     /**
      * 
      * @param member
      * @return 
      */
- List<CourseSubscription> getPlansForMember(Member member);
+ List<CourseSubscription> getPlansForStudent(Student member);
  
-   CourseSubscription createSubscription(Course course, Member member) ;
+   CourseSubscription createSubscription(Course course, Student member) ;
    
-  CourseSubscription createActualSubscription(Course course, MemberSubscriptionPlan memberSubscriptionPlan) throws ValidationFailedException ;
+  CourseSubscription createActualSubscription(Course course, StudentSubscriptionPlan memberSubscriptionPlan) throws ValidationFailedException ;
     
 }

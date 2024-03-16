@@ -30,16 +30,16 @@ public interface CompanyService  extends GenericService<Company> {
     public void saveCompanyCourse(CompanyCourse companyCourse) throws ValidationFailedException;
    
     
-     public List<CompanyMember> getCompanyMembers(Search search, int offset, int limit);
+     public List<CompanyStudent> getCompanyStudents(Search search, int offset, int limit);
 
-    public CompanyMember getCompanyMember(Company company, Student student);
+    public CompanyStudent getCompanyStudent(Company company, Student student);
 
-    public void delete(CompanyMember companyMember);
+    public void delete(CompanyStudent companyStudent);
 
-    public void saveCompanyMember(CompanyMember companyMember) throws ValidationFailedException;
-     public CompanyMember activate(CompanyMember plan) throws ValidationFailedException ;
+    public void saveCompanyStudent(CompanyStudent companyStudent) throws ValidationFailedException;
+     public CompanyStudent activate(CompanyStudent plan) throws ValidationFailedException ;
 
-    public CompanyMember deActivate(CompanyMember plan);
+    public CompanyStudent deActivate(CompanyStudent plan);
    
 
 }

@@ -9,9 +9,9 @@ import java.util.logging.Logger;
 @Slf4j
 @RestController
 @RequestMapping("/v1/member")
-public class ApiMemberService {
+public class ApiStudentService {
 
-    private static final Logger LOGGER = Logger.getLogger(ApiMemberService.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(ApiStudentService.class.getName());
 //   @POST
 //    @Path("/updateDeviceID")
 //    @Produces("application/json")
@@ -19,7 +19,7 @@ public class ApiMemberService {
 //    public Response updateDeviceID(@Context HttpServletRequest request, ApiUserModel apiSecurity) throws JSONException {
 //        JSONObject result = new JSONObject();
 //        try {
-//            Member member = (Member) request.getAttribute(HttpConstants.MEMBER_OBJECT_ATTRIBUTE);
+//            Student member = (Student) request.getAttribute(HttpConstants.MEMBER_OBJECT_ATTRIBUTE);
 //            if (member == null) {
 //                return ApiUtils.composeFailureMessage("User with that username does not exist");
 //            }
@@ -28,7 +28,7 @@ public class ApiMemberService {
 //                return ApiUtils.composeFailureMessage("No data specified");
 //            }
 //            member.setDeviceId(apiSecurity.getDeviceId());
-//            Member savedMember = ApplicationContextProvider.getBean(MemberService.class).saveInstance(member);
+//            Student savedStudent = ApplicationContextProvider.getBean(StudentService.class).saveInstance(member);
 //
 //            System.err.println("Device ID>>>>>>>>>.."+apiSecurity.getDeviceId());
 //
@@ -36,7 +36,7 @@ public class ApiMemberService {
 //            result.put(ApiUtils.STATUS_PARAM, ApiUtils.SUCCESSFUL_TOKEN);
 //            return Response.status(200).entity("" + result).build();
 //        } catch (Exception ex) {
-//            Logger.getLogger(ApiMemberService.class.getName()).log(Level.WARNING, null, ex);
+//            Logger.getLogger(ApiStudentService.class.getName()).log(Level.WARNING, null, ex);
 //
 //            return ApiUtils.composeFailureMessage(ex.getMessage());
 //
@@ -52,7 +52,7 @@ public class ApiMemberService {
 //    public Response getInterests(@Context HttpServletRequest request) throws JSONException {
 //        JSONObject result = new JSONObject();
 //        try {
-//            Member member = (Member) request.getAttribute(HttpConstants.MEMBER_OBJECT_ATTRIBUTE);
+//            Student member = (Student) request.getAttribute(HttpConstants.MEMBER_OBJECT_ATTRIBUTE);
 //            if (member == null) {
 //                return ApiUtils.composeFailureMessage("User with that username does not exist");
 //            }
@@ -61,7 +61,7 @@ public class ApiMemberService {
 //            result.put(ApiUtils.STATUS_PARAM, ApiUtils.SUCCESSFUL_TOKEN);
 //            return Response.status(200).entity("" + result).build();
 //        } catch (Exception ex) {
-//            Logger.getLogger(ApiMemberService.class.getName()).log(Level.WARNING, null, ex);
+//            Logger.getLogger(ApiStudentService.class.getName()).log(Level.WARNING, null, ex);
 //
 //            return ApiUtils.composeFailureMessage(ex.getMessage());
 //
@@ -81,7 +81,7 @@ public class ApiMemberService {
 //
 //        try{
 //        JSONObject result = new JSONObject();
-//        Member member = (Member) request.getAttribute(HttpConstants.MEMBER_OBJECT_ATTRIBUTE);
+//        Student member = (Student) request.getAttribute(HttpConstants.MEMBER_OBJECT_ATTRIBUTE);
 //        if (member == null) {
 //            return ApiUtils.composeFailureMessage("User with that username does not exist");
 //        }
@@ -98,12 +98,12 @@ public class ApiMemberService {
 //        memberObj.put("phoneNumber", member.getPhoneNumber());
 //
 //        JSONObject settingsObject = new JSONObject();
-////        MemberSettings memberSettings = ApplicationContextProvider.getBean(MemberService.class).getMemberSettings(member);
+////        StudentSettings memberSettings = ApplicationContextProvider.getBean(StudentService.class).getStudentSettings(member);
 ////        if (memberSettings == null) {
 ////
-////            memberSettings = new MemberSettings();
-////            memberSettings.setMember(member);
-////            memberSettings = ApplicationContextProvider.getBean(MemberService.class).save(memberSettings);
+////            memberSettings = new StudentSettings();
+////            memberSettings.setStudent(member);
+////            memberSettings = ApplicationContextProvider.getBean(StudentService.class).save(memberSettings);
 ////        }
 ////        if (memberSettings != null) {
 ////            settingsObject.put("devotionTime", memberSettings.getDevotionTime())
@@ -143,13 +143,13 @@ public class ApiMemberService {
 //            return ApiUtils.composeFailureMessage("Missing username");
 //        }
 //
-//        Member member = ApplicationContextProvider.getBean(MemberService.class).getMemberByEmail(apiSecurity.getUsername());
+//        Student member = ApplicationContextProvider.getBean(StudentService.class).getStudentByEmail(apiSecurity.getUsername());
 //
 //        if (member == null || member.getAccountStatus() == null || !AccountStatus.Active.equals(member.getAccountStatus())) {
 //            return ApiUtils.composeFailureMessage("No active User account found for username");
 //        }
 //        member.setLastEmailVerificationCode(AppUtils.generateOTP(6));
-//        member = ApplicationContextProvider.getBean(MemberService.class).saveInstance(member);
+//        member = ApplicationContextProvider.getBean(StudentService.class).saveInstance(member);
 //        if (settingService.getAppSetting()!= null && member.getLastEmailVerificationCode() != null) {
 //            EmailTemplate emailTemplate = emailTemplateService.getEmailTemplateByType(TemplateType.RESET_PASSWORD);
 //
@@ -166,7 +166,7 @@ public class ApiMemberService {
 //                    new EmailService().sendMail(member.getEmailAddress(), "Revival Gateway", html);
 //
 //            }
-//            CustomLogger.log(ApiMemberService.class, CustomLogger.LogSeverity.LEVEL_DEBUG,
+//            CustomLogger.log(ApiStudentService.class, CustomLogger.LogSeverity.LEVEL_DEBUG,
 //                    "Token " + member.getLastEmailVerificationCode());
 //            result.put(ApiUtils.STATUS_PARAM, ApiUtils.SUCCESSFUL_TOKEN);
 //            result.put(ApiUtils.RESPONSE_PARAM, "Check your email for password reset code.");
@@ -182,7 +182,7 @@ public class ApiMemberService {
 //    @Consumes("application/json")
 //    public Response verifyResetCode(@Context HttpServletRequest request, ApiUserModel apiSecurity) throws JSONException {
 //        JSONObject result = new JSONObject();
-//        Member member = ApplicationContextProvider.getBean(MemberService.class).getMemberByEmail(apiSecurity.getUsername());
+//        Student member = ApplicationContextProvider.getBean(StudentService.class).getStudentByEmail(apiSecurity.getUsername());
 //        if (member == null) {
 //            return ApiUtils.composeFailureMessage("Authenticated user not found");
 //        }
@@ -205,7 +205,7 @@ public class ApiMemberService {
 //        if (apiSecurity == null || apiSecurity.getPassword() == null) {
 //            return ApiUtils.composeFailureMessage("Missing new password", 401);
 //        }
-//        Member member = ApplicationContextProvider.getBean(MemberService.class).getMemberByEmail(apiSecurity.getUsername());
+//        Student member = ApplicationContextProvider.getBean(StudentService.class).getStudentByEmail(apiSecurity.getUsername());
 //        if (member == null) {
 //            return ApiUtils.composeFailureMessage("Authenticated user not found");
 //        }
@@ -215,7 +215,7 @@ public class ApiMemberService {
 //        }
 //        try {
 //            member.setClearTextPassword(apiSecurity.getPassword());
-//            ApplicationContextProvider.getBean(MemberService.class).saveInstance(member);
+//            ApplicationContextProvider.getBean(StudentService.class).saveInstance(member);
 //            result.put(ApiUtils.STATUS_PARAM, ApiUtils.SUCCESSFUL_TOKEN);
 //            result.put(ApiUtils.RESPONSE_PARAM, "Password is successfully updated");
 //            return Response.status(200).entity("" + result).build();
@@ -231,7 +231,7 @@ public class ApiMemberService {
 //    @Consumes("application/json")
 //    public Response resetPasswordInternal(@Context HttpServletRequest request, ApiUserModel apiSecurity) throws JSONException {
 //        JSONObject result = new JSONObject();
-//        Member member = (Member) request.getAttribute(HttpConstants.MEMBER_OBJECT_ATTRIBUTE);
+//        Student member = (Student) request.getAttribute(HttpConstants.MEMBER_OBJECT_ATTRIBUTE);
 //        if (member == null) {
 //            return ApiUtils.composeFailureMessage("Authenticated active member account not found", 401);
 //        }
@@ -274,7 +274,7 @@ public class ApiMemberService {
 //    @Consumes("application/json")
 //    public Response updateUserProfile(@Context HttpServletRequest request, ApiUserModel apiUserModel) throws JSONException {
 //        JSONObject result = new JSONObject();
-//        Member member = (Member) request.getAttribute(HttpConstants.MEMBER_OBJECT_ATTRIBUTE);
+//        Student member = (Student) request.getAttribute(HttpConstants.MEMBER_OBJECT_ATTRIBUTE);
 //        if (apiUserModel == null) {
 //            return ApiUtils.composeFailureMessage("No details supplied not found");
 //        }
@@ -311,17 +311,17 @@ public class ApiMemberService {
 //            }
 //
 //            if (StringUtils.isNotBlank(apiUserModel.getCountryName())) {
-//               // member.setCountry(ApplicationContextProvider.getBean(MemberService.class).getCountryByName(apiUserModel.getCountryName()));
+//               // member.setCountry(ApplicationContextProvider.getBean(StudentService.class).getCountryByName(apiUserModel.getCountryName()));
 //            }
 //
 //
-//            member = ApplicationContextProvider.getBean(MemberService.class).saveInstance(member);
+//            member = ApplicationContextProvider.getBean(StudentService.class).saveInstance(member);
 //
 //            member.setCountry(member.getCountry());
 //            member.setFirstName(member.getFirstName());
 //            member.setLastName(member.getLastName());
 //
-//            ApplicationContextProvider.getBean(MemberService.class).saveInstance(member);
+//            ApplicationContextProvider.getBean(StudentService.class).saveInstance(member);
 //
 //            JSONObject memberObj = new JSONObject();
 //            memberObj.put("id", member.getId());

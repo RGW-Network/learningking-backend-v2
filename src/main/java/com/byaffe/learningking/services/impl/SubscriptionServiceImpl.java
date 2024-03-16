@@ -8,7 +8,7 @@ import com.byaffe.learningking.models.Student;
 import com.byaffe.learningking.models.Payment;
 import com.byaffe.learningking.models.Subscription;
 import com.byaffe.learningking.services.EmailTemplateService;
-import com.byaffe.learningking.services.MemberService;
+import com.byaffe.learningking.services.StudentService;
 import com.byaffe.learningking.services.SubscriptionService;
 import com.byaffe.learningking.shared.constants.RecordStatus;
 import com.byaffe.learningking.shared.exceptions.OperationFailedException;
@@ -51,14 +51,14 @@ public class SubscriptionServiceImpl extends GenericServiceImpl<Subscription> im
                 .addFilterLessOrEqual("endDate", new Date()), 0, 0);
         
         for (Subscription subscription : endingSubscriptions) {
-            Student student = subscription.getMember();
+            Student student = subscription.getStudent();
             student.setAccountStatus(AccountStatus.Active);
             
             try {
-                ApplicationContextProvider.getBean(MemberService.class).saveInstance(student);
+                ApplicationContextProvider.getBean(StudentService.class).saveInstance(student);
                 subscription.setStatus(SubscriptionStatus.STOPPED);
                 saveInstance(subscription);
-                ApplicationContextProvider.getBean(MailService.class).sendEmail(subscription.getMember().getEmailAddress(), "AAPU Subscription expired", "Your annual subscription has expired. Please renew for continued access to the AAPU services. Thank you");
+                ApplicationContextProvider.getBean(MailService.class).sendEmail(subscription.getStudent().getProspectEmailAddress(), "AAPU Subscription expired", "Your annual subscription has expired. Please renew for continued access to the AAPU services. Thank you");
                        
             } catch (ValidationFailedException | OperationFailedException ex) {
                 Logger.getLogger(SubscriptionServiceImpl.class.getName()).log(Level.SEVERE, null, ex);
@@ -74,11 +74,11 @@ public class SubscriptionServiceImpl extends GenericServiceImpl<Subscription> im
                 .addFilterLessOrEqual("startDate", new Date()), 0, 0);
         
         for (Subscription subscription : upcomingSubscriptions) {
-            Student student = subscription.getMember();
+            Student student = subscription.getStudent();
             student.setAccountStatus(AccountStatus.Active);
             
             try {
-                ApplicationContextProvider.getBean(MemberService.class).saveInstance(student);
+                ApplicationContextProvider.getBean(StudentService.class).saveInstance(student);
                 subscription.setStatus(SubscriptionStatus.ACTIVE);
                 saveInstance(subscription);
             } catch (ValidationFailedException | OperationFailedException ex) {
@@ -101,27 +101,27 @@ public class SubscriptionServiceImpl extends GenericServiceImpl<Subscription> im
     
     @Override
     public Subscription createNewSubscription(Payment payment) {
-        if (payment == null || payment.getMember() == null) {
+        if (payment == null || payment.getStudent() == null) {
             return null;
         }
         Subscription subscription = new Subscription();
-        Subscription existingActiveSubscription = getActiveSubscription(payment.getMember());
+        Subscription existingActiveSubscription = getActiveSubscription(payment.getStudent());
         subscription.setStartDate(LocalDate.now());
         if (existingActiveSubscription != null) {
             subscription.setStartDate(existingActiveSubscription.getEndDate().plusDays( 1));
             
         }
         
-        subscription.setMember(payment.getMember());
+        subscription.setStudent(payment.getStudent());
         subscription.setPayment(payment);
         
         subscription.setEndDate(subscription.getStartDate().plusDays( 365));
         subscription.setStatus(SubscriptionStatus.ACTIVE);
         final Subscription savedSubscription = subscription = super.save(subscription);
-        Student student = savedSubscription.getMember();
+        Student student = savedSubscription.getStudent();
         student.setAccountStatus(AccountStatus.Active);
         try {
-            ApplicationContextProvider.getBean(MemberService.class).quickSave(student);
+            ApplicationContextProvider.getBean(StudentService.class).quickSave(student);
         } catch (ValidationFailedException ex) {
             Logger.getLogger(SubscriptionServiceImpl.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -138,11 +138,11 @@ public class SubscriptionServiceImpl extends GenericServiceImpl<Subscription> im
                     if (emailTemplate != null) {
                         String html = emailTemplate.getTemplate();
                         
-                        html = html.replace("{fullName}", savedSubscription.getMember().composeFullName());
+                        html = html.replace("{fullName}", savedSubscription.getStudent().getFullName());
                         html = html.replace("{transactionID}", savedSubscription.getPayment().getTransactionId());
-                        ApplicationContextProvider.getBean(MailService.class).sendEmail(savedSubscription.getMember().getEmailAddress(), "AAPU Subscription", html);
+                        ApplicationContextProvider.getBean(MailService.class).sendEmail(savedSubscription.getStudent().getProspectEmailAddress(), "AAPU Subscription", html);
                     } else {
-                        ApplicationContextProvider.getBean(MailService.class).sendEmail(savedSubscription.getMember().getEmailAddress(), "AAPU Subscription", "Your subscription has been recieved");
+                        ApplicationContextProvider.getBean(MailService.class).sendEmail(savedSubscription.getStudent().getProspectEmailAddress(), "AAPU Subscription", "Your subscription has been recieved");
                         
                     }
                 } catch (Exception ex) {
@@ -182,7 +182,7 @@ public class SubscriptionServiceImpl extends GenericServiceImpl<Subscription> im
             }
         }
         
-        subscription.setMember(student);
+        subscription.setStudent(student);
         subscription.setPayment(null);
         System.out.println("Starting first save...");
         subscription = super.save(subscription);
@@ -196,7 +196,7 @@ public class SubscriptionServiceImpl extends GenericServiceImpl<Subscription> im
         
         student.setAccountStatus(AccountStatus.Active);
         try {
-            ApplicationContextProvider.getBean(MemberService.class).quickSave(student);
+            ApplicationContextProvider.getBean(StudentService.class).quickSave(student);
         } catch (ValidationFailedException ex) {
             Logger.getLogger(SubscriptionServiceImpl.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -208,7 +208,7 @@ public class SubscriptionServiceImpl extends GenericServiceImpl<Subscription> im
                     
                     System.out.println("Sending email...");
 
-                    ApplicationContextProvider.getBean(MailService.class).sendEmail(savedSubscription.getMember().getEmailAddress(), "AAPU Subscription", "Congratulations,<br>Your annual subscription has been successfully extended to " + savedSubscription.getEndDate());
+                    ApplicationContextProvider.getBean(MailService.class).sendEmail(savedSubscription.getStudent().getProspectEmailAddress(), "AAPU Subscription", "Congratulations,<br>Your annual subscription has been successfully extended to " + savedSubscription.getEndDate());
                     
                 } catch (Exception ex) {
                     Logger.getLogger(SubscriptionServiceImpl.class.getName()).log(Level.SEVERE, null, ex);

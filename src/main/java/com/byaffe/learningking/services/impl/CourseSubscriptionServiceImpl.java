@@ -1,11 +1,11 @@
 package com.byaffe.learningking.services.impl;
 
 import com.byaffe.learningking.constants.TransactionStatus;
-import com.byaffe.learningking.models.Member;
+import com.byaffe.learningking.models.Student;
 import com.byaffe.learningking.models.ReadStatus;
 import com.byaffe.learningking.models.courses.*;
 import com.byaffe.learningking.models.payments.CoursePayment;
-import com.byaffe.learningking.models.payments.MemberSubscriptionPlan;
+import com.byaffe.learningking.models.payments.StudentSubscriptionPlan;
 import com.byaffe.learningking.services.*;
 import com.byaffe.learningking.shared.constants.RecordStatus;
 import com.byaffe.learningking.shared.dao.BaseDAOImpl;
@@ -35,7 +35,7 @@ public class CourseSubscriptionServiceImpl extends BaseDAOImpl<CourseSubscriptio
 
     @Override
     public CourseSubscription saveInstance(CourseSubscription subscription) throws ValidationFailedException {
-        CourseSubscription exists = getSerieSubscription(subscription.getMember(), subscription.getCourse());
+        CourseSubscription exists = getSerieSubscription(subscription.getStudent(), subscription.getCourse());
 
         if (exists != null && !exists.getId().equals(subscription.getId())) {
             subscription.setId(exists.getId());
@@ -47,14 +47,14 @@ public class CourseSubscriptionServiceImpl extends BaseDAOImpl<CourseSubscriptio
     }
 
     @Override
-    public CourseSubscription createSubscription(Course course, Member member) {
+    public CourseSubscription createSubscription(Course course, Student member) {
         CourseSubscription exists = getSerieSubscription(member, course);
 
         if (exists == null) {
 
             CourseSubscription subscription = new CourseSubscription();
             subscription.setCourse(course);
-            subscription.setMember(member);
+            subscription.setStudent(member);
             subscription.setCurrentLesson(1);
             subscription.setCurrentTopic(1);
             return super.merge(subscription);
@@ -63,7 +63,7 @@ public class CourseSubscriptionServiceImpl extends BaseDAOImpl<CourseSubscriptio
     }
 
     @Override
-    public List<CourseSubscription> getPlansForMember(Member member) {
+    public List<CourseSubscription> getPlansForStudent(Student member) {
         return super.searchByPropertyEqual("member", member, RecordStatus.ACTIVE); //To change body of generated methods, choose Tools | Templates.
     }
 
@@ -91,15 +91,15 @@ public class CourseSubscriptionServiceImpl extends BaseDAOImpl<CourseSubscriptio
     }
 
     @Override
-    public CourseSubscription createSubscription(Member member, Course course) throws ValidationFailedException {
+    public CourseSubscription createSubscription(Student member, Course course) throws ValidationFailedException {
 
-        if (course.isIsPaid() || course.getCost() > 0) {
+        if (course.isPaid() || course.getCost() > 0) {
             throw new ValidationFailedException("This is a paid Course");
         }
         return createActualSubscription(member, course);
     }
 
-    private CourseSubscription createActualSubscription(Member member, Course course) {
+    private CourseSubscription createActualSubscription(Student member, Course course) {
         CourseSubscription courseSubscription = new CourseSubscription();
         CourseSubTopic firstSubTopic = null;
         try {
@@ -107,7 +107,7 @@ public class CourseSubscriptionServiceImpl extends BaseDAOImpl<CourseSubscriptio
         } catch (ValidationFailedException ex) {
             courseSubscription.setLastErrorMessage(ex.getMessage());
         } finally {
-            courseSubscription.setMember(member);
+            courseSubscription.setStudent(member);
             courseSubscription.setCourse(course);
             courseSubscription.setCurrentSubTopic(firstSubTopic);
             courseSubscription.setCurrentTopic(1);
@@ -118,7 +118,7 @@ public class CourseSubscriptionServiceImpl extends BaseDAOImpl<CourseSubscriptio
     }
 
     @Override
-    public CourseSubscription createActualSubscription(Course course, MemberSubscriptionPlan memberSubscriptionPlan) throws ValidationFailedException {
+    public CourseSubscription createActualSubscription(Course course, StudentSubscriptionPlan memberSubscriptionPlan) throws ValidationFailedException {
         CourseSubscription courseSubscription = new CourseSubscription();
         CourseSubTopic firstSubTopic = null;
         try {
@@ -126,8 +126,8 @@ public class CourseSubscriptionServiceImpl extends BaseDAOImpl<CourseSubscriptio
         } catch (ValidationFailedException ex) {
             courseSubscription.setLastErrorMessage(ex.getMessage());
         } finally {
-            courseSubscription.setMember(memberSubscriptionPlan.getMember());
-            courseSubscription.setMemberSubscriptionPlan(memberSubscriptionPlan);
+            courseSubscription.setStudent(memberSubscriptionPlan.getStudent());
+            courseSubscription.setStudentSubscriptionPlan(memberSubscriptionPlan);
             courseSubscription.setCourse(course);
             courseSubscription.setCurrentSubTopic(firstSubTopic);
             courseSubscription.setCurrentTopic(1);
@@ -146,7 +146,7 @@ public class CourseSubscriptionServiceImpl extends BaseDAOImpl<CourseSubscriptio
     }
 
     @Override
-    public CourseSubscription getSerieSubscription(Member member, Course course) {
+    public CourseSubscription getSerieSubscription(Student member, Course course) {
         if (member == null || course == null) {
             return null;
         }
@@ -173,7 +173,7 @@ public class CourseSubscriptionServiceImpl extends BaseDAOImpl<CourseSubscriptio
     }
 
     @Override
-    public CourseSubscription completeSubTopic(Member member, CourseSubTopic subTopic) throws ValidationFailedException {
+    public CourseSubscription completeSubTopic(Student member, CourseSubTopic subTopic) throws ValidationFailedException {
         if (subTopic == null || subTopic.isNew()) {
             throw new ValidationFailedException("Missing subTopic");
         }

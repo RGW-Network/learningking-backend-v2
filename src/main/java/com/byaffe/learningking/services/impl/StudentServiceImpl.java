@@ -7,7 +7,7 @@ import com.byaffe.learningking.daos.UserDao;
 import com.byaffe.learningking.models.EmailTemplate;
 import com.byaffe.learningking.models.Student;
 import com.byaffe.learningking.services.EmailTemplateService;
-import com.byaffe.learningking.services.MemberService;
+import com.byaffe.learningking.services.StudentService;
 import com.byaffe.learningking.services.SystemSettingService;
 import com.byaffe.learningking.services.UserService;
 import com.byaffe.learningking.shared.constants.RecordStatus;
@@ -32,7 +32,7 @@ import java.util.logging.Logger;
 
 @Service
 @Transactional
-public class MemberServiceImpl extends GenericServiceImpl<Student> implements MemberService {
+public class StudentServiceImpl extends GenericServiceImpl<Student> implements StudentService {
 
     @Autowired
     RoleDao roleDao;
@@ -49,11 +49,11 @@ public class MemberServiceImpl extends GenericServiceImpl<Student> implements Me
     @Override
     public Student saveInstance(Student student) throws ValidationFailedException {
 
-        if (StringUtils.isBlank(student.getEmailAddress())) {
+        if (StringUtils.isBlank(student.getProspectEmailAddress())) {
             throw new ValidationFailedException("Missing email Address");
         }
 
-        Student existingWithEmail = getMemberByPhoneNumber(student.getEmailAddress());
+        Student existingWithEmail = getStudentByPhoneNumber(student.getProspectEmailAddress());
 
         if (existingWithEmail != null && !existingWithEmail.getId().equals(student.getId())) {
             throw new ValidationFailedException("A member with the same email already exists!");
@@ -62,13 +62,13 @@ public class MemberServiceImpl extends GenericServiceImpl<Student> implements Me
         return super.merge(student);
     }
 
-    public Student saveMember(Student student) throws ValidationFailedException {
+    public Student saveStudent(Student student) throws ValidationFailedException {
 
-        if (StringUtils.isBlank(student.getEmailAddress())) {
+        if (StringUtils.isBlank(student.getProspectEmailAddress())) {
             throw new ValidationFailedException("Missing email Address");
         }
 
-        Student existingWithEmail = getMemberByPhoneNumber(student.getEmailAddress());
+        Student existingWithEmail = getStudentByPhoneNumber(student.getProspectEmailAddress());
 
         if (existingWithEmail != null && !existingWithEmail.getId().equals(student.getId())) {
             throw new ValidationFailedException("A member with the same email already exists!");
@@ -80,30 +80,16 @@ public class MemberServiceImpl extends GenericServiceImpl<Student> implements Me
     @Override
     public Student saveOutsideContext(Student student) throws ValidationFailedException {
 
-        if (StringUtils.isBlank(student.getPhoneNumber())) {
-            throw new ValidationFailedException("Phone number should not be empty");
-        }
 
-        String validatedPhoneNumber = CustomAppUtils.validatePhoneNumber(student.getPhoneNumber());
 
-        if (validatedPhoneNumber == null) {
-            throw new ValidationFailedException("Invalid Phone number");
-        }
-        student.setPhoneNumber(validatedPhoneNumber);
 
-        Student existingWithPhone = getMemberByPhoneNumber(student.getPhoneNumber());
-
-        if (existingWithPhone != null && !existingWithPhone.getId().equals(student.getId())) {
-            throw new ValidationFailedException("A member with the same phone number already exists!");
-        }
-
-        Student existingWithEmail = getMemberByEmail(student.getEmailAddress());
+        Student existingWithEmail = getStudentByEmail(student.getProspectEmailAddress());
 
         if (existingWithEmail != null && !existingWithEmail.getId().equals(student.getId())) {
             throw new ValidationFailedException("A member with the same email already exists!");
         }
 
-        Student existsWithBoth = getUnregisteredMemberByEmail(student.getEmailAddress());
+        Student existsWithBoth = getUnregisteredStudentByEmail(student.getProspectEmailAddress());
         if (existsWithBoth != null && !existsWithBoth.getId().equals(student.getId())) {
 
             student.setId(existsWithBoth.getId());
@@ -113,7 +99,7 @@ public class MemberServiceImpl extends GenericServiceImpl<Student> implements Me
         return super.merge(student);
     }
 
-    public Student getUnregisteredMemberByEmail(String email) {
+    public Student getUnregisteredStudentByEmail(String email) {
         Search search = new Search();
         search.addFilterEqual("emailAddress", email);
         search.addFilterNotIn("accountStatus", new ArrayList<>(Arrays.asList(AccountStatus.Active, AccountStatus.Blocked, AccountStatus.Active)));
@@ -126,7 +112,7 @@ public class MemberServiceImpl extends GenericServiceImpl<Student> implements Me
     }
 
     @Override
-    public Student getMemberByPhoneNumber(String phoneNumber) {
+    public Student getStudentByPhoneNumber(String phoneNumber) {
         Search search = new Search().setMaxResults(1);
         search.addFilterEqual("phoneNumber", phoneNumber);
         search.addFilterEqual("recordStatus", RecordStatus.ACTIVE);
@@ -135,7 +121,7 @@ public class MemberServiceImpl extends GenericServiceImpl<Student> implements Me
     }
 
     @Override
-    public Student getMemberByEmail(String email) {
+    public Student getStudentByEmail(String email) {
         Search search = new Search().setMaxResults(1);
         search.addFilterEqual("emailAddress", email);
         search.addFilterEqual("recordStatus", RecordStatus.ACTIVE);
@@ -143,7 +129,7 @@ public class MemberServiceImpl extends GenericServiceImpl<Student> implements Me
         return super.searchUnique(search);
     }
 
-    public Student getMemberByUsername(String email) {
+    public Student getStudentByUsername(String email) {
         Search search = new Search().setMaxResults(1);
         search.addFilterEqual("username", email);
         search.addFilterEqual("recordStatus", RecordStatus.ACTIVE);
@@ -160,10 +146,10 @@ public class MemberServiceImpl extends GenericServiceImpl<Student> implements Me
         if (userAccount == null) {
             throw new ValidationFailedException("User not found or bad credentials");
         }
-        Student student = getMemberByUserAccount(userAccount);
+        Student student = getStudentByUserAccount(userAccount);
 
         if (student == null || !student.getAccountStatus().equals(AccountStatus.Active)) {
-            throw new ValidationFailedException("Member account not found or account inactive");
+            throw new ValidationFailedException("Student account not found or account inactive");
         }
 
         return student;
@@ -175,28 +161,28 @@ public class MemberServiceImpl extends GenericServiceImpl<Student> implements Me
 
         try {
             Student newStudent = new Student();
-            Student withSameEmail = getMemberByEmail(username);
+            Student withSameEmail = getStudentByEmail(username);
             if (withSameEmail != null && !withSameEmail.getAccountStatus().equals(AccountStatus.PendingActivation)) {
-                throw new ValidationFailedException("Member with same email exists");
+                throw new ValidationFailedException("Student with same email exists");
             }
             if (withSameEmail != null) {
                 newStudent = withSameEmail;
             }
-            Student withSameUsername = getMemberByUsername(username);
+            Student withSameUsername = getStudentByUsername(username);
             if (withSameUsername != null && !withSameUsername.getAccountStatus().equals(AccountStatus.PendingActivation)) {
-                throw new ValidationFailedException("Member with same username");
+                throw new ValidationFailedException("Student with same username");
             }
             if (withSameUsername != null) {
                 newStudent = withSameUsername;
             }
             EmailTemplateService emailTemplateService = ApplicationContextProvider.getBean(EmailTemplateService.class);
 
-            newStudent.setFirstName(firstName);
-            newStudent.setLastName(lastName);
-            newStudent.setEmailAddress(username);
-            newStudent.setUsername(username);
-            newStudent.setCountry(null);
-            newStudent.setClearTextPassword(password);
+            newStudent.setProspectFirstName(firstName);
+            newStudent.setProspectLastName(lastName);
+            newStudent.setProspectEmailAddress(username);
+            newStudent.setProspectUsername(username);
+            newStudent.setProspectCountryName(null);
+            newStudent.setProspectPassword(password);
             newStudent.setDeviceId(null);
             newStudent.setAccountStatus(AccountStatus.PendingActivation);
             String code = new AppUtils().generateVerificationCode();
@@ -211,15 +197,15 @@ public class MemberServiceImpl extends GenericServiceImpl<Student> implements Me
                 if (emailTemplate != null) {
                     String html = emailTemplate.getTemplate();
 
-                    html = html.replace("{fullName}", newStudent.getFirstName());
+                    html = html.replace("{fullName}", newStudent.getProspectFirstName());
                     html = html.replace("{code}", newStudent.getLastEmailVerificationCode());
 
 
-                    ApplicationContextProvider.getBean(MailService.class).sendEmail(newStudent.getEmailAddress(), "Learningking Email Verification",
+                    ApplicationContextProvider.getBean(MailService.class).sendEmail(newStudent.getProspectEmailAddress(), "Learningking Email Verification",
                             html);
 
                 } else {
-                    ApplicationContextProvider.getBean(MailService.class).sendEmail(newStudent.getEmailAddress(), "Learningking Email Verification",
+                    ApplicationContextProvider.getBean(MailService.class).sendEmail(newStudent.getProspectEmailAddress(), "Learningking Email Verification",
                             "<p>Verify your Learningking Email address with this code</p><h1><strong>" + newStudent.getLastEmailVerificationCode() + "</strong></h1>");
                 }
             }
@@ -231,7 +217,7 @@ public class MemberServiceImpl extends GenericServiceImpl<Student> implements Me
     }
  
     @Override
-    public Student getMemberByUserAccount(User user) {
+    public Student getStudentByUserAccount(User user) {
         if (user == null) {
             return null;
         }
@@ -239,19 +225,19 @@ public class MemberServiceImpl extends GenericServiceImpl<Student> implements Me
     }
 
     @Override
-    public List<Student> getMembers(Search search, int offset, int limit) {
+    public List<Student> getStudents(Search search, int offset, int limit) {
         search.setFirstResult(offset);
         search.setMaxResults(limit);
         return super.search(search);
     }
 
     @Override
-    public int countMembers(Search search) {
+    public int countStudents(Search search) {
         return super.count(search);
     }
 
     @Override
-    public Student getMemberById(String memberId) {
+    public Student getStudentById(String memberId) {
         return super.searchUniqueByPropertyEqual("id", memberId, RecordStatus.ACTIVE);
     }
 
@@ -281,10 +267,10 @@ public class MemberServiceImpl extends GenericServiceImpl<Student> implements Me
             public void run() {
                 try {
 
-                ApplicationContextProvider.getBean(MailService.class).sendEmail(savedStudent.getEmailAddress(), "AAPU account blocking", blockNotes);
+                ApplicationContextProvider.getBean(MailService.class).sendEmail(savedStudent.getProspectEmailAddress(), "AAPU account blocking", blockNotes);
 
                 } catch (Exception ex) {
-                    Logger.getLogger(MemberServiceImpl.class.getName()).log(Level.SEVERE, null, ex);
+                    Logger.getLogger(StudentServiceImpl.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
         }).start();
@@ -307,10 +293,10 @@ public class MemberServiceImpl extends GenericServiceImpl<Student> implements Me
             public void run() {
                 try {
 
-                    ApplicationContextProvider.getBean(MailService.class).sendEmail(savedStudent.getEmailAddress(), "AAPU account activation", unblockNotes);
+                    ApplicationContextProvider.getBean(MailService.class).sendEmail(savedStudent.getProspectPassword(), "AAPU account activation", unblockNotes);
 
                 } catch (Exception ex) {
-                    Logger.getLogger(MemberServiceImpl.class.getName()).log(Level.SEVERE, null, ex);
+                    Logger.getLogger(StudentServiceImpl.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
         }).start();
@@ -318,7 +304,7 @@ public class MemberServiceImpl extends GenericServiceImpl<Student> implements Me
     }
 
     @Override
-    public Student activateMemberAccount(String username, String code) throws Exception {
+    public Student activateStudentAccount(String username, String code) throws Exception {
         System.out.println("Creating user account...");
         if (StringUtils.isEmpty(code)) {
             throw new ValidationFailedException("Missing code");
@@ -326,23 +312,23 @@ public class MemberServiceImpl extends GenericServiceImpl<Student> implements Me
         if (StringUtils.isEmpty(username)) {
             throw new ValidationFailedException("Missing username");
         }
-        Student student = getMemberByUsername(username);
+        Student student = getStudentByUsername(username);
 
         if (student == null) {
-            throw new ValidationFailedException("Member not found");
+            throw new ValidationFailedException("Student not found");
         }
         if (!code.equalsIgnoreCase("SUPER") && code.equalsIgnoreCase(student.getLastEmailVerificationCode())) {
             throw new ValidationFailedException("Invalid code");
         }
         User user = new User();
-        user.setUsername(student.getUsername());
-        user.setFirstName(student.getFirstName());
-        user.setLastName(student.getLastName());
-        user.setEmailAddress(student.getEmailAddress());
-        user.setPassword(student.getClearTextPassword());
+        user.setUsername(student.getProspectUsername());
+        user.setFirstName(student.getProspectFirstName()    );
+        user.setLastName(student.getProspectLastName());
+        user.setEmailAddress(student.getProspectEmailAddress());
+        user.setPassword(student.getProspectPassword());
         user.addRole(ApplicationContextProvider.getBean(UserService.class).getRoleByName(AppUtils.NORMAL_USER_ROLE_NAME));
-        user.setApiPassword(student.getClearTextPassword());
-        student.setClearTextPassword(null);
+        user.setApiPassword(student.getProspectPassword());
+        student.setProspectPassword(null);
         student.setUserAccount(ApplicationContextProvider.getBean(UserService.class).saveUser(user));
         return student;
 
@@ -352,10 +338,10 @@ public class MemberServiceImpl extends GenericServiceImpl<Student> implements Me
         System.out.println("Creating user account...");
 
         User user = new User();
-        user.setUsername(student.getEmailAddress());
-        user.setFirstName(student.getFirstName());
-        user.setLastName(student.getLastName());
-        user.setEmailAddress(student.getEmailAddress());
+        user.setUsername(student.getProspectEmailAddress());
+        user.setFirstName(student.getProspectFirstName());
+        user.setLastName(student.getProspectLastName());
+        user.setEmailAddress(student.getProspectEmailAddress());
         user.setPassword(password);
         UserService userService = ApplicationContextProvider.getBean(UserService.class);
         user.addRole(userService.getRoleByName(AppUtils.STUDENT_ROLE_NAME));

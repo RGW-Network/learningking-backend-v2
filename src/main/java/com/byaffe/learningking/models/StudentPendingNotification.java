@@ -12,7 +12,7 @@ import com.byaffe.learningking.shared.models.BaseEntity;
 @Entity
 @Table(name = "member_pending_notifications")
 @Inheritance(strategy = InheritanceType.JOINED)
-public class MemberPendingNotification extends BaseEntity {
+public class StudentPendingNotification extends BaseEntity {
 
     /**
      *
@@ -23,21 +23,21 @@ public class MemberPendingNotification extends BaseEntity {
 
     private Notification notification;
 
-    public MemberPendingNotification() {
+    public StudentPendingNotification() {
     }
 
-    public MemberPendingNotification(Student student, Notification notification) {
+    public StudentPendingNotification(Student student, Notification notification) {
         this.student = student;
         this.notification = notification;
     }
 
     @ManyToOne
     @JoinColumn(name = "member_id")
-    public Student getMember() {
+    public Student getStudent() {
         return student;
     }
 
-    public void setMember(Student student) {
+    public void setStudent(Student student) {
         this.student = student;
     }
 
@@ -53,7 +53,7 @@ public class MemberPendingNotification extends BaseEntity {
 
     @Override
     public boolean equals(Object object) {
-        return object instanceof MemberPendingNotification && (super.getId() != null) ? super.getId().equals(((MemberPendingNotification) object).getId())
+        return object instanceof StudentPendingNotification && (super.getId() != null) ? super.getId().equals(((StudentPendingNotification) object).getId())
                 : (object == this);
     }
 

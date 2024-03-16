@@ -5,7 +5,7 @@ import com.byaffe.learningking.models.NotificationBuilder;
 import com.byaffe.learningking.models.NotificationDestinationActivity;
 import com.byaffe.learningking.models.courses.*;
 import com.byaffe.learningking.services.CompanyCourseDao;
-import com.byaffe.learningking.services.CompanyMemberDao;
+import com.byaffe.learningking.services.CompanyStudentDao;
 import com.byaffe.learningking.services.CompanyService;
 import com.byaffe.learningking.services.NotificationService;
 import com.byaffe.learningking.shared.constants.RecordStatus;
@@ -30,7 +30,7 @@ public class CompanyServiceImpl extends GenericServiceImpl<Company> implements C
     CompanyCourseDao companyCourseDao;
     
     @Autowired
-    CompanyMemberDao companyMemberDao;
+    CompanyStudentDao companyStudentDao;
 
     @Override
     public Company saveInstance(Company instance) throws ValidationFailedException, OperationFailedException {
@@ -69,7 +69,7 @@ public class CompanyServiceImpl extends GenericServiceImpl<Company> implements C
         Company savedDevotionPlan = super.save(plan);
         try {
 
-            ApplicationContextProvider.getBean(NotificationService.class).sendNotificationsToAllMembers(
+            ApplicationContextProvider.getBean(NotificationService.class).sendNotificationsToAllStudents(
                     new NotificationBuilder()
                             .setTitle("New Company added")
                             .setDescription(plan.getName())
@@ -151,16 +151,16 @@ public class CompanyServiceImpl extends GenericServiceImpl<Company> implements C
     }
     
      @Override
-    public CompanyMember activate(CompanyMember plan) throws ValidationFailedException {
+    public CompanyStudent activate(CompanyStudent plan) throws ValidationFailedException {
         plan.setPublicationStatus(PublicationStatus.ACTIVE);
 
-        CompanyMember savedDevotionPlan = companyMemberDao.save(plan);
+        CompanyStudent savedDevotionPlan = companyStudentDao.save(plan);
         try {
 
-            ApplicationContextProvider.getBean(NotificationService.class).sendNotificationsToAllMembers(
+            ApplicationContextProvider.getBean(NotificationService.class).sendNotificationsToAllStudents(
                     new NotificationBuilder()
                             .setTitle("New Company added")
-                            .setDescription(plan.getMember().getFullName())
+                            .setDescription(plan.getStudent().getFullName())
                             .setImageUrl("")
                             .setFmsTopicName("")
                             .setDestinationActivity(NotificationDestinationActivity.DASHBOARD)
@@ -175,41 +175,41 @@ public class CompanyServiceImpl extends GenericServiceImpl<Company> implements C
     }
 
     @Override
-    public CompanyMember deActivate(CompanyMember plan) {
+    public CompanyStudent deActivate(CompanyStudent plan) {
         plan.setPublicationStatus(PublicationStatus.INACTIVE);
-        return companyMemberDao.save(plan);
+        return companyStudentDao.save(plan);
     }
 
     
     @Override
-      public List<CompanyMember> getCompanyMembers(Search search, int offset, int limit) {
+      public List<CompanyStudent> getCompanyStudents(Search search, int offset, int limit) {
        search.setMaxResults(limit);
        search.setFirstResult(offset);
 
-        return companyMemberDao.search(search);
+        return companyStudentDao.search(search);
     }
 
     @Override
-    public CompanyMember getCompanyMember(Company company, Student student) {
+    public CompanyStudent getCompanyStudent(Company company, Student student) {
         Search search = new Search();
         search.addFilterEqual("company", company);
         search.addFilterEqual("member", student);
         search.addFilterEqual("recordStatus", RecordStatus.ACTIVE);
 
-        return  companyMemberDao.searchUnique(search);
+        return  companyStudentDao.searchUnique(search);
     }
 
     @Override
-    public void delete(CompanyMember companyCourse) {
+    public void delete(CompanyStudent companyCourse) {
 
         companyCourse.setRecordStatus(RecordStatus.DELETED);
 
-        companyMemberDao.save(companyCourse);
+        companyStudentDao.save(companyCourse);
     }
 
     @Override
-    public void saveCompanyMember(CompanyMember companyCourse) throws ValidationFailedException {
-        if (companyCourse.getMember() == null) {
+    public void saveCompanyStudent(CompanyStudent companyCourse) throws ValidationFailedException {
+        if (companyCourse.getStudent() == null) {
             throw new ValidationFailedException("Missing member account");
 
         }
@@ -219,13 +219,13 @@ public class CompanyServiceImpl extends GenericServiceImpl<Company> implements C
 
         }
 
-        CompanyMember existsOnCompany = getCompanyMember(companyCourse.getCompany(), companyCourse.getMember());
+        CompanyStudent existsOnCompany = getCompanyStudent(companyCourse.getCompany(), companyCourse.getStudent());
 
         if (existsOnCompany != null && !existsOnCompany.getId().equals(companyCourse.getId())) {
             throw new ValidationFailedException("member exists on this company");
         }
        
-        companyMemberDao.save(companyCourse);
+        companyStudentDao.save(companyCourse);
     }
 
 

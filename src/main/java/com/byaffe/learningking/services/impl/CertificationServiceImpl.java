@@ -63,7 +63,7 @@ public class CertificationServiceImpl extends GenericServiceImpl<Certification> 
         Certification savedDevotionPlan = super.save(plan);
         try {
 
-            ApplicationContextProvider.getBean(NotificationService.class).sendNotificationsToAllMembers(
+            ApplicationContextProvider.getBean(NotificationService.class).sendNotificationsToAllStudents(
                     new NotificationBuilder()
                             .setTitle("New Certification added")
                             .setDescription(plan.getTitle())

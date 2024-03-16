@@ -86,7 +86,7 @@ public class ArticleServiceImpl extends GenericServiceImpl<Article> implements A
         Article savedDevotionPlan = super.save(plan);
         try {
 
-            ApplicationContextProvider.getBean(NotificationService.class).sendNotificationsToAllMembers(
+            ApplicationContextProvider.getBean(NotificationService.class).sendNotificationsToAllStudents(
                     new NotificationBuilder()
                             .setTitle("New Articles added")
                             .setDescription(plan.getTitle())

@@ -55,8 +55,8 @@ public class Student extends BaseEntity {
     private String prospectFirstName;
     @Column(name = "prospect_last_name")
     private String prospectLastName;
-    @Column(name = "prospect_email")
-    private String prospectLastEmail;
+    @Column(name = "prospect_email_address")
+    private String prospectEmailAddress;
     @Column(name = "prospect_username")
     private String prospectUsername;
     @JsonIgnore

@@ -5,7 +5,7 @@ import com.byaffe.learningking.models.Student;
 import com.byaffe.learningking.models.NotificationBuilder;
 import com.byaffe.learningking.models.NotificationDestinationActivity;
 import com.byaffe.learningking.models.SystemSetting;
-import com.byaffe.learningking.models.payments.MemberSubscriptionPlan;
+import com.byaffe.learningking.models.payments.StudentSubscriptionPlan;
 import com.byaffe.learningking.models.payments.PaymentPrefixes;
 import com.byaffe.learningking.models.payments.SubscriptionPlan;
 import com.byaffe.learningking.models.payments.SubscriptionPlanPayment;
@@ -112,10 +112,10 @@ public class SubscriptionPlanPaymentServiceImpl extends GenericServiceImpl<Subsc
                     payment.setStatus(TransactionStatus.SUCESSFULL);
                     payment = saveInstance(payment);
                     try {
-                        ApplicationContextProvider.getBean(MemberSubscriptionPlanService.class).activate(payment);
+                        ApplicationContextProvider.getBean(StudentSubscriptionPlanService.class).activate(payment);
 
                         ApplicationContextProvider.getBean(NotificationService.class)
-                                .sendNotificationsToMember(
+                                .sendNotificationsToStudent(
                                         new NotificationBuilder()
                                                 .setTitle("Payment Successfull")
                                                 .setDescription("Your payment for " + payment.getSubscriptionPlan().getName() + " has been recieved")
@@ -164,7 +164,7 @@ public class SubscriptionPlanPaymentServiceImpl extends GenericServiceImpl<Subsc
             throw new ValidationFailedException("SubscriptionPlan Not Found");
         }
 
-        MemberSubscriptionPlan memberSubscriptionPlan = ApplicationContextProvider.getBean(MemberSubscriptionPlanService.class).getInstance(student, subscriptionplan);
+        StudentSubscriptionPlan memberSubscriptionPlan = ApplicationContextProvider.getBean(StudentSubscriptionPlanService.class).getInstance(student, subscriptionplan);
         if (memberSubscriptionPlan != null) {
             throw new ValidationFailedException("You already purchased this subscriptionplan. Go to My-SubscriptionPlans to view your subscriptionplan.");
         }

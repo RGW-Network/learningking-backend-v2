@@ -29,7 +29,7 @@ public interface NotificationService extends GenericService<Notification> {
      * @throws ValidationFailedException
      * @throws OperationFailedException
      */
-    void sendFCMNotificationToCustomMembers(Notification notification, String topicId, List<Student> students) throws ValidationFailedException, OperationFailedException;
+    void sendFCMNotificationToCustomStudents(Notification notification, String topicId, List<Student> students) throws ValidationFailedException, OperationFailedException;
 
     /**
      *
@@ -37,7 +37,7 @@ public interface NotificationService extends GenericService<Notification> {
      * @throws ValidationFailedException
      * @throws OperationFailedException
      */
-    void sendNotificationsToAllMembers(Notification notification) throws ValidationFailedException, OperationFailedException;
+    void sendNotificationsToAllStudents(Notification notification) throws ValidationFailedException, OperationFailedException;
 
     /**
      *
@@ -45,7 +45,7 @@ public interface NotificationService extends GenericService<Notification> {
      * @throws ValidationFailedException
      * @throws OperationFailedException
      */
-    void sendNotificationsToChurchMembers(Notification notification) throws ValidationFailedException, OperationFailedException;
+    void sendNotificationsToChurchStudents(Notification notification) throws ValidationFailedException, OperationFailedException;
 
     /**
      *
@@ -60,6 +60,6 @@ public interface NotificationService extends GenericService<Notification> {
      * @throws ValidationFailedException
      * @throws OperationFailedException
      */
-    void sendNotificationsToMember(Notification notification, Student student, boolean fireNow) throws ValidationFailedException, OperationFailedException;
+    void sendNotificationsToStudent(Notification notification, Student student, boolean fireNow) throws ValidationFailedException, OperationFailedException;
 
 }
