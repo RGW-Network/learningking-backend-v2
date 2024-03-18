@@ -9,15 +9,14 @@ import java.util.logging.Logger;
 @Slf4j
 @RestController
 @RequestMapping("/v1/member")
-public class ApiStudentService {
+public  class ApiStudentService {
 
     private static final Logger LOGGER = Logger.getLogger(ApiStudentService.class.getName());
 //   @POST
 //    @Path("/updateDeviceID")
 //    @Produces("application/json")
 //    @Consumes("application/json")
-//    public Response updateDeviceID(@Context HttpServletRequest request, ApiUserModel apiSecurity) throws JSONException {
-//        JSONObject result = new JSONObject();
+ //        JSONObject result = new JSONObject();
 //        try {
 //            Student member = (Student) request.getAttribute(HttpConstants.MEMBER_OBJECT_ATTRIBUTE);
 //            if (member == null) {

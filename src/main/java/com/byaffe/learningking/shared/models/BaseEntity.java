@@ -125,19 +125,19 @@ public class BaseEntity implements Auditable {
         this.recordStatus = recordStatus;
     }
 
-    public long getCreatedById() {
+    public Long getCreatedById() {
         return createdById;
     }
 
-    public void setCreatedById(long createdById) {
+    public void setCreatedById(Long createdById) {
         this.createdById = createdById;
     }
 
-    public long getChangedById() {
+    public Long getChangedById() {
         return changedById;
     }
 
-    public void setChangedById(long changedById) {
+    public void setChangedById(Long changedById) {
         this.changedById = changedById;
     }
 

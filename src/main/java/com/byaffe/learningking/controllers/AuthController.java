@@ -1,6 +1,7 @@
 package com.byaffe.learningking.controllers;
 
 import com.byaffe.learningking.dtos.*;
+import com.byaffe.learningking.services.StudentService;
 import com.byaffe.learningking.services.UserService;
 import com.byaffe.learningking.shared.api.BaseResponse;
 import com.byaffe.learningking.shared.security.TokenProvider;
@@ -28,6 +29,9 @@ public class AuthController {
     @Autowired
     UserService userService;
 
+    @Autowired
+    StudentService studentService;
+
     /**
      * Endpoint to register a microservice
      *
@@ -40,38 +44,6 @@ public class AuthController {
         TokenProvider.TokenPair tokenPair = tokenProvider.createToken(user, authDTO.isRememberMe());
         return ResponseEntity.ok().body(new FullUserDTO(user, tokenPair));
     }
-
-    @PostMapping("/login-with-google")
-    public ResponseEntity<FullUserDTO> loginWithGoogle(@RequestBody AuthDTO authDTO) throws ValidationException {
-        UserDTO user = userService.authenticateUser(authDTO);
-        TokenProvider.TokenPair tokenPair = tokenProvider.createToken(user, authDTO.isRememberMe());
-        return ResponseEntity.ok().body(new FullUserDTO(user, tokenPair));
-    }
-    @PostMapping("/register")
-    public ResponseEntity<BaseResponse> register(@RequestBody UserRegistrationRequestDTO userDTO) throws ValidationException {
-
-        userService.registerUser(userDTO);
-        return ResponseEntity.ok().body(new BaseResponse("Check your email for an OTP",true));
-    }
-    @PostMapping("/verify-otp")
-    public ResponseEntity<BaseResponse> verifyOtp(@RequestBody UserEmailVerificationRequestDTO userDTO) throws ValidationException {
-        userService.verifyOTP(userDTO.emailAddress, userDTO.getOtp());
-        return ResponseEntity.ok().body(new BaseResponse("Verified OTP Successfully",true));
-    }
-    @PostMapping("/send-otp")
-    public ResponseEntity<BaseResponse> sendOtp(@RequestBody UserEmailVerificationRequestDTO userDTO) throws ValidationException {
-        userService.sendOTP(userDTO.emailAddress);
-        return ResponseEntity.ok().body(new BaseResponse("Verified OTP Successfully",true));
-    }
-
-    @PostMapping("/register-with-google")
-    public ResponseEntity<FullUserDTO> registerWithGoogle(@RequestBody AuthDTO authDTO) throws ValidationException {
-        UserDTO user = userService.authenticateUser(authDTO);
-        TokenProvider.TokenPair tokenPair = tokenProvider.createToken(user, authDTO.isRememberMe());
-        return ResponseEntity.ok().body(new FullUserDTO(user, tokenPair));
-    }
-
-    //Build get members
     @PostMapping("/refresh/token")
     public ResponseEntity<TokenProvider.TokenPair> getRefreshToken(HttpServletRequest request, HttpServletResponse response) throws ValidationException {
         String authorisationHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
@@ -83,4 +55,45 @@ public class AuthController {
             throw new ValidationException("Missing Refresh Token");
         }
     }
+
+    @PostMapping("/student/register")
+    public ResponseEntity<BaseResponse> registerStudent(@RequestBody UserRegistrationRequestDTO userDTO) throws ValidationException {
+
+        studentService.saveStudent(userDTO);
+        return ResponseEntity.ok().body(new BaseResponse("Check your email for an OTP",true));
+    }
+
+
+    @PostMapping("/student/verify-otp")
+    public ResponseEntity<BaseResponse> verifyOtp(@RequestBody UserEmailVerificationRequestDTO userDTO) throws Exception {
+        studentService.activateStudentAccount(userDTO.emailAddress, userDTO.getOtp());
+        return ResponseEntity.ok().body(new BaseResponse("Verified OTP Successfully",true));
+    }
+
+
+    @PostMapping("/student/resend-otp")
+    public ResponseEntity<BaseResponse> sendOtp(@RequestBody UserEmailVerificationRequestDTO userDTO) throws ValidationException {
+        studentService.sendOTP(userDTO.emailAddress);
+        return ResponseEntity.ok().body(new BaseResponse("Verified OTP Successfully",true));
+    }
+
+
+//    @PostMapping("/instructor/register")
+//    public ResponseEntity<BaseResponse> registerInstructor(@RequestBody UserRegistrationRequestDTO userDTO) throws ValidationException {
+//        throw  new UnsupportedOperationException();
+//    }
+//    @PostMapping("/register-with-google")
+//    public ResponseEntity<FullUserDTO> registerWithGoogle(@RequestBody AuthDTO authDTO) throws ValidationException {
+//        UserDTO user = userService.authenticateUser(authDTO);
+//        TokenProvider.TokenPair tokenPair = tokenProvider.createToken(user, authDTO.isRememberMe());
+//        return ResponseEntity.ok().body(new FullUserDTO(user, tokenPair));
+//    }
+//    @PostMapping("/login-with-google")
+//    public ResponseEntity<FullUserDTO> loginWithGoogle(@RequestBody AuthDTO authDTO) throws ValidationException {
+//        UserDTO user = userService.authenticateUser(authDTO);
+//        TokenProvider.TokenPair tokenPair = tokenProvider.createToken(user, authDTO.isRememberMe());
+//        return ResponseEntity.ok().body(new FullUserDTO(user, tokenPair));
+//    }
+    //Build get members
+
 }

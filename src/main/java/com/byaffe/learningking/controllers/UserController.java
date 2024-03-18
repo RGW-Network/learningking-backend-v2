@@ -49,18 +49,6 @@ public class UserController {
 
     }
 
-    /**
-     * Endpoint to register a microservice
-     *
-     * @return
-     */
-    @PutMapping("/{id}")
-    public ResponseEntity<UserDTO> updateUser(@PathVariable(value = "id") long id, @RequestBody UserDTO userDTO) throws ValidationException {
-        userDTO.id = id;
-        User user = userService.updateUser(userDTO);
-        return ResponseEntity.ok().body(UserDTO.fromModel(user));
-
-    }
 
     @GetMapping("/{id}")
     public ResponseEntity<UserDTO> userById(@PathVariable(value = "id") long id) throws ValidationException {
@@ -71,13 +59,7 @@ public class UserController {
 
     }
 
-    @GetMapping("/{id}/balance")
-    public ResponseEntity<Double> userBalance(@PathVariable(value = "id") long id) throws ValidationException {
-        creditService.updateUserCredit(id);
-        User user = userService.getUserById(id);
-        return ResponseEntity.ok().body(user.getBalance());
 
-    }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<BaseResponse> deleteUser(@PathVariable(value = "id", required = true) long id) throws ValidationException {
@@ -119,18 +101,6 @@ public class UserController {
         return ResponseEntity.ok().body(new ResponseList<>(roles, 10, offset, limit));
     }
 
-    /**
-     * Endpoint to register a microservice
-     *
-     * @return
-     */
-    @PutMapping("/roles/{id}")
-    public ResponseEntity<RoleDTO> updateRole(@PathVariable(value = "id") long id, @RequestBody RoleDTO dto) throws ValidationException {
-        dto.setId(id);
-        Role savedRole = userService.saveRole(dto);
-        return ResponseEntity.ok().body(RoleDTO.fromRole(savedRole));
-
-    }
 
     @DeleteMapping("/roles/{id}")
     public ResponseEntity<BaseResponse> deleteRole(@PathVariable(value = "id", required = true) long id) throws ValidationException {

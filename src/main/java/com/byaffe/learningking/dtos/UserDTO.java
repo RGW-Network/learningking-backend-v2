@@ -1,5 +1,6 @@
 package com.byaffe.learningking.dtos;
 
+import com.byaffe.learningking.models.Student;
 import com.byaffe.learningking.shared.api.BaseDTO;
 import com.byaffe.learningking.shared.constants.PermissionConstant;
 import com.byaffe.learningking.shared.models.User;
@@ -24,10 +25,12 @@ public class UserDTO extends BaseDTO {
     public String countryName;
     public long countryId;
     public boolean isSuperAdmin;
-    public Double walletBalance;
+    public boolean isStudent;
+    public Student studentDetails;
+    public boolean isInstructor;
     public List<PermissionConstant> permissions;
     public Double balance;
-    public static UserDTO fromModel(User model, Double walletBalance) {
+    public static UserDTO fromModel(User model, Student student, Student instructor) {
         UserDTO dto = new UserDTO();
         //Attributes to be set here
         dto.username = model.getUsername();
@@ -36,13 +39,12 @@ public class UserDTO extends BaseDTO {
         dto.phoneNumber = model.getPhoneNumber();
         dto.lastName = model.getLastName();
         dto.roles = model.getRoles().stream().map(r->RoleDTO.fromRole(r)).collect(Collectors.toList());
-        if(walletBalance!=null) {
-            dto.balance = model.getBalance();
-        }
+
         dto.isSuperAdmin = (model.hasAdministrativePrivileges());
 
-        if(walletBalance!=null){
-            dto.setWalletBalance(walletBalance);
+        if(student!=null){
+            dto.setStudent(true);
+            dto.setStudentDetails(student);
         }
 
 
@@ -68,7 +70,6 @@ public class UserDTO extends BaseDTO {
         dto.roles = model.getRoles().stream().map(r->RoleDTO.fromRole(r)).collect(Collectors.toList());
         dto.isSuperAdmin = (model.hasAdministrativePrivileges());
 dto.setBalance(model.getBalance());
-dto.setWalletBalance(model.getBalance());
 
 
         dto.setId(model.getId());

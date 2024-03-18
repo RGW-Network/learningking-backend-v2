@@ -1,5 +1,6 @@
 package com.byaffe.learningking.services;
 
+import com.byaffe.learningking.dtos.UserRegistrationRequestDTO;
 import com.byaffe.learningking.models.Student;
 import com.byaffe.learningking.shared.exceptions.OperationFailedException;
 import com.byaffe.learningking.shared.exceptions.ValidationFailedException;
@@ -25,17 +26,15 @@ public interface StudentService extends GenericService<Student> {
      * name, phoneNumber
      */
     Student quickSave(Student student) throws ValidationFailedException;
+    Student saveStudent(UserRegistrationRequestDTO dto) throws ValidationFailedException;
+
 
     /**
-     * Adds a member to the database outside the spring security context.
      *
-     * @param student
+     * @param email
      * @return
-     * @throws ValidationFailedException
      */
-    Student saveOutsideContext(Student student) throws ValidationFailedException;
-
-   
+     Student sendOTP(String email);
     /**
      * Gets a list of members that match the specified search criteria
      *

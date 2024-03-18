@@ -15,13 +15,13 @@ import java.time.LocalDateTime;
 public interface Auditable extends Serializable {
 
 
-    public long getCreatedById();
+    public Long getCreatedById();
 
-    public void setCreatedById(long createdById);
+    public void setCreatedById(Long createdById);
 
-    public long getChangedById();
+    public Long getChangedById();
 
-    public void setChangedById(long changedById);
+    public void setChangedById(Long changedById);
 
     public String getCreatedByUsername() ;
 

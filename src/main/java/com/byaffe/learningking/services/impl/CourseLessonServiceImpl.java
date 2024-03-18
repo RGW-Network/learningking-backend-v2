@@ -54,7 +54,7 @@ public class CourseLessonServiceImpl extends GenericServiceImpl<CourseLesson> im
             return 0;
         }
         int currentPosition = allSubTopics.indexOf(currentSubTopic) + 1;//the +1 caters for zero based indexing
-        return currentPosition * 100 / allSubTopics.size();
+        return (float) (currentPosition * 100) / allSubTopics.size();
 
     }
 

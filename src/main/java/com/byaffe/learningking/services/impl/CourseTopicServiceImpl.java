@@ -1,11 +1,10 @@
 package com.byaffe.learningking.services.impl;
 
 import com.byaffe.learningking.daos.CourseLectureDao;
-import com.byaffe.learningking.models.courses.CourseLesson;
 import com.byaffe.learningking.models.courses.CourseLecture;
+import com.byaffe.learningking.models.courses.CourseLesson;
 import com.byaffe.learningking.models.courses.CourseTopic;
 import com.byaffe.learningking.models.courses.PublicationStatus;
-import com.byaffe.learningking.services.CourseSubTopicService;
 import com.byaffe.learningking.services.CourseTopicService;
 import com.byaffe.learningking.shared.constants.RecordStatus;
 import com.byaffe.learningking.shared.dao.BaseDAOImpl;
@@ -53,7 +52,7 @@ if (allSubTopics.isEmpty()) {
             return 0;
         }
         int currentPosition = allSubTopics.indexOf(currentSubTopic) + 1;//the +1 caters for zero based indexing
-        return currentPosition * 100 / allSubTopics.size();
+        return (float) (currentPosition * 100) / allSubTopics.size();
 
     }
 

@@ -23,12 +23,12 @@ import java.util.Date;
 @Component
 public class TokenProvider {
     private Algorithm algorithm;
-    private String TOKEN_CIPHER = "JABUYA_TOKEN_CIPHER";
-    private String TOKEN_ISSURER = "jabuyasystems.com";
+    private String TOKEN_CIPHER = "LEARNINGKING_APP";
+    private String TOKEN_ISSURER = "lk.systems.com";
     private static  final String PERMISSIONS_KEY="permissions";
-    private static long ACCESS_TOKEN_DURATION = 1 * 86400000l;// 1 days;
-    private static long REFRESH_TOKEN_DURATION = 90 * 86400000l;// 90 days;
-    private static long REMEMBER_ME_ACCESS_TOKEN_DURATION = 7 * 86400000l;// 7 days;
+    private static long ACCESS_TOKEN_DURATION = 86400000L;// 1 days;
+    private static long REFRESH_TOKEN_DURATION = 90 * 86400000L;// 90 days;
+    private static long REMEMBER_ME_ACCESS_TOKEN_DURATION = 7 * 86400000L;// 7 days;
 
     @Autowired
     UserService userService;

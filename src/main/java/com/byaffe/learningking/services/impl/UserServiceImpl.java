@@ -1,6 +1,8 @@
 package com.byaffe.learningking.services.impl;
 
 import com.byaffe.learningking.dtos.UserRegistrationRequestDTO;
+import com.byaffe.learningking.models.Student;
+import com.byaffe.learningking.services.StudentDao;
 import com.byaffe.learningking.shared.exceptions.ValidationFailedException;
 import com.byaffe.learningking.shared.utils.MailService;
 import com.googlecode.genericdao.search.Search;
@@ -46,7 +48,7 @@ public class UserServiceImpl implements UserService {
     RoleDao roleRepository;
 
     @Autowired
-    TaskCreatorDao shopOwnerDao;
+    StudentDao studentDao;
 
     @Autowired
     TaskDoerDao shopAttendantDao;
@@ -238,8 +240,9 @@ public class UserServiceImpl implements UserService {
         if (!PassEncTech4.verifyUserPassword(authDTO.getPassword(), user.getPassword())) {
             throw new ValidationException("Invalid Username or Password");
         }
+        Student student= studentDao.searchUnique(new Search().addFilterEqual("userAccount",user));
 
-        return UserDTO.fromModel(user, user.getBalance());
+        return UserDTO.fromModel(user,student,null);
     }
 
     @Override
@@ -263,13 +266,13 @@ public class UserServiceImpl implements UserService {
             throw new ValidationException("Passwords don't match");
         }
 
-//        if (dto.countryId==null||dto.countryId>0) {
-//            throw new ValidationException("Missing country");
-//        }
-//        Country country= countryDao.getReference(dto.countryId);
-//        if (country==null) {
-//            throw new ValidationException("Invalid country");
-//        }
+        if (dto.countryId==null||dto.countryId>0) {
+            throw new ValidationException("Missing country");
+        }
+        Country country= countryDao.getReference(dto.countryId);
+        if (country==null) {
+            throw new ValidationException("Invalid country");
+        }
         User existEWithUserName=getUserByUsername(dto.getEmailAddress());
         if (existEWithUserName != null) {
             if(existEWithUserName.getRecordStatus().equals(RecordStatus.ACTIVE_LOCKED)) {

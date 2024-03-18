@@ -10,6 +10,7 @@ public class UserRegistrationRequestDTO {
     public String password;
     public String confirmPassword;
     public Long countryId;
+    public String countryName;
 
 
 
