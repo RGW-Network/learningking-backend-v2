@@ -2,6 +2,8 @@ package com.byaffe.learningking.config;
 
 import com.byaffe.learningking.shared.security.TokenProvider;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.GenericFilterBean;
 
@@ -39,21 +41,21 @@ public class JWTFilter extends GenericFilterBean {
             httpServletResponse.setStatus(200);
             return;
         }
-    //    if (FilterUtils.allowedAuth(httpServletRequest.getRequestURI())) {
+       if (FilterUtils.allowedAuth(httpServletRequest.getRequestURI())) {
             filterChain.doFilter(httpServletRequest, httpServletResponse);
-//        } else {
-//            try {
-//                String authorisationHeader = httpServletRequest.getHeader(HttpHeaders.AUTHORIZATION);
-//                String accessToken = authorisationHeader.substring("Bearer ".length());
-//                tokenProvider.validateToken(accessToken);
-//                filterChain.doFilter(httpServletRequest, httpServletResponse);
-//            } catch (Exception ex) {
-//                httpServletResponse.setHeader("error", ex.getMessage());
-//                httpServletResponse.setStatus(HttpStatus.UNAUTHORIZED.value());
-//                httpServletResponse.sendError(HttpStatus.UNAUTHORIZED.value(), ex.getMessage());
-//
-//            }
-//
-//        }
+        } else {
+            try {
+                String authorisationHeader = httpServletRequest.getHeader(HttpHeaders.AUTHORIZATION);
+                String accessToken = authorisationHeader.substring("Bearer ".length());
+                tokenProvider.validateToken(accessToken);
+                filterChain.doFilter(httpServletRequest, httpServletResponse);
+            } catch (Exception ex) {
+                httpServletResponse.setHeader("error", ex.getMessage());
+                httpServletResponse.setStatus(HttpStatus.UNAUTHORIZED.value());
+                httpServletResponse.sendError(HttpStatus.UNAUTHORIZED.value(), ex.getMessage());
+
+            }
+
+        }
     }
 }
