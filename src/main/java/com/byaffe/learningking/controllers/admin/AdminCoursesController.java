@@ -131,35 +131,4 @@ Course course=ApplicationContextProvider.getBean(CourseService.class).saveInstan
     }
 
 
-    @GetMapping("/categories")
-    public ResponseEntity<JSONObject> getTopics(@RequestParam ArticlesFilterDTO queryParamModel) throws JSONException {
-        JSONObject result = new JSONObject();
-
-        Search search = new Search().addFilterEqual("recordStatus", RecordStatus.ACTIVE);
-        if (StringUtils.isNotBlank(queryParamModel.getSortBy())) {
-            search.addSort(queryParamModel.getSortBy(), queryParamModel.getSortDescending());
-        }
-        if (StringUtils.isNotBlank(queryParamModel.getType())) {
-            CourseAcademyType academyType = CourseAcademyType.valueOf(queryParamModel.getType());
-            search.addFilterEqual("academy", academyType);
-        }
-        JSONArray topics = new JSONArray();
-        for (CourseCategory topic : ApplicationContextProvider.getBean(CourseCategoryService.class).getInstances(search, queryParamModel.getOffset(), queryParamModel.getLimit())) {
-            int count = ApplicationContextProvider.getBean(CourseService.class).countInstances(new Search().addFilterEqual("recordStatus", RecordStatus.ACTIVE).addFilterEqual("category", topic));
-            topics.put(
-                    new JSONObject()
-                            .put("id", topic.getId())
-                            .put("academy", topic.getAcademy())
-                            .put("name", topic.getName())
-                            .put("colorCode", topic.getColorCode())
-                            .put("imageUrl", topic.getImageUrl())
-                            .put("coursesCount", count)
-            );
-        }
-        //topics= ApiUtils.sortJsonArray(topics, "seriesCount",false);
-
-        result.put("courseCategories", topics);
-        return ResponseEntity.ok().body((result));
-    }
-
 }

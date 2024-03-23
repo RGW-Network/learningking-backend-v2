@@ -13,9 +13,9 @@ import useShowModalDialog from '@/app/components/ShowModalHook';
 import { BaseApiServiceImpl } from '@/app/api/BaseApiServiceImpl';
 import { MessageUtils } from '@/app/utils/MessageUtils';
 
-import * as constants from '../../../constants/Constants';
+import * as constants from '../../constants/Constants';
 
-import * as labels from '../../../constants/Labels';
+import * as labels from '../../constants/Labels';
 import { isNotEmpty, replaceWithUnderscore, toReadableDate } from '@/app/utils/Utils';
 import { getFilterComponent } from '@/app/components/Filters';
 import { filtersHeadertemplate } from '@/app/components/FiltersPanelHeader';
@@ -85,7 +85,7 @@ const UsersView = () => {
         setIsLoading(true);
         let searchParameters: any = getQueryParameters();
 
-        new BaseApiServiceImpl('/api/v1/users')
+        new BaseApiServiceImpl('/v1/users')
             .getRequestWithJsonResponse(searchParameters)
             .then(async (response) => {
                 setIsLoading(false);

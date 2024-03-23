@@ -15,24 +15,29 @@ const AppMenu = () => {
                 {
                     label: 'Courses',
                     icon: 'pi pi-fw pi-table',
-                    to: '/uikit/table'
+                    to: '/courses'
                 },
                 {
                     label: 'Categories',
                     icon: 'pi pi-fw pi-list',
-                    to: '/uikit/list'
+                    to: '/course-categories'
                 }
             ]
         },
         {
+            label: 'Categories',
+            icon: 'pi pi-fw pi-cog',
+            to: '/categories'
+        },
+        {
             label: 'Lookups',
             icon: 'pi pi-fw pi-cog',
-            to: '/pages/lookups'
+            to: '/lookups'
         },
         {
             label: 'Users',
             icon: 'pi pi-home',
-            to: '/pages/users'
+            to: '/users'
         },
 
         {
@@ -42,7 +47,7 @@ const AppMenu = () => {
                 {
                     label: 'List',
                     icon: 'pi pi-fw pi-list',
-                    to: '/pages/users'
+                    to: '/users'
                 }
             ]
         },

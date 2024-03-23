@@ -18,7 +18,7 @@ const Lockscreen: Page = () => {
     return (
         <div className={classNames('surface-ground h-screen w-screen flex align-items-center justify-content-center', { 'p-input-filled': filledInput })}>
             <div className="surface-card py-7 px-5 sm:px-7 shadow-2 flex flex-column w-11 sm:w-30rem" style={{ borderRadius: '14px' }}>
-                <h1 className="font-bold text-2xl mt-0 mb-2">VERONA</h1>
+                <h1 className="font-bold text-2xl mt-0 mb-2">LEARNINGKING</h1>
                 <p className="text-color-secondary mb-4">Welcome back!</p>
 
                 <div className="flex align-items-center justify-content-between mb-4">

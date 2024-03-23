@@ -68,56 +68,32 @@ export const RECORD_STATUSES = [
     { id: '-1', value: 'Deactivated' }
 ];
 
-export const FUNDRAISING_PLAN_TYPES = [
+export const CATEGORY_TYPES_ENUM = [
+    {
+        id: 0,
+        name: 'Course'
+    },
     {
         id: 1,
-        name: 'Open'
+        name: 'Certification'
     },
     {
         id: 2,
-        name: 'Fixed Value'
-    },
-    {
-        id: 4,
-        name: 'Recurring and Fixed'
+        name: 'Article'
     }
 ];
 
-export const PAYMENT_FREQUENCIES = [
+export const ACADEMIES_ENUM = [
+    {
+        id: 0,
+        name: 'Proffessional'
+    },
     {
         id: 1,
-        name: 'WEEKLY'
-    },
-    {
-        id: 2,
-        name: 'BI_WEEKLY'
-    },
-    {
-        id: 3,
-        name: 'MONTHLY'
-    },
-    {
-        id: 4,
-        name: 'YEARLY'
+        name: 'Wealthy Minds'
     }
 ];
 export const LOOKUP_YPES = [
-    {
-        id: 1,
-        name: 'Prayer Request Types'
-    },
-    {
-        id: 2,
-        name: 'Testimony Types'
-    },
-    {
-        id: 3,
-        name: 'Salutations'
-    },
-    {
-        id: 4,
-        name: 'Prophecy Types'
-    },
     {
         id: 5,
         name: 'Occupation Types'

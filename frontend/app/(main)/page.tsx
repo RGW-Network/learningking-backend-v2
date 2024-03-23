@@ -819,11 +819,11 @@ function Dashboard() {
                                     <ul className="list-none p-0 m-0">
                                         <li className="flex align-items-center justify-content-start mb-2">
                                             <img src="/demo/images/dashboard/bg-detail.svg" alt="bg" className="w-2rem" />
-                                            <span className="font-bold ml-2">01.Verona-Remastered.fig</span>
+                                            <span className="font-bold ml-2">01.Learningking-Remastered.fig</span>
                                         </li>
                                         <li className="flex align-items-center justify-content-start">
                                             <img src="/demo/images/dashboard/bg-detail.svg" alt="bg" className="w-2rem" />
-                                            <span className="font-bold ml-2">02.Verona-Marketing.fig</span>
+                                            <span className="font-bold ml-2">02.Learningking-Marketing.fig</span>
                                         </li>
                                     </ul>
                                 </div>

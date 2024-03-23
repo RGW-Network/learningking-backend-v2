@@ -27,6 +27,11 @@ public class Course extends BaseEntity {
     @CollectionTable(name="what_you_will_learn", joinColumns=@JoinColumn(name="course_id"))
     @Column(name="outcome")
     private List<String> whatYouWillLearn;
+
+    @ElementCollection (fetch = FetchType.EAGER)
+    @CollectionTable(name="course_tags", joinColumns=@JoinColumn(name="course_id"))
+    @Column(name="tags")
+    private List<String> tags;
     private String guidelineVideoUrl;
     private String welcomeRemarks;
     private String certificateTemplate;
@@ -39,7 +44,7 @@ public class Course extends BaseEntity {
     private CourseOwnerShipType ownershipType = CourseOwnerShipType.OPEN;
     @ManyToOne(optional = true)
     @JoinColumn(name = "owning_company")
-    private Company Company;
+    private Company company;
     @Enumerated(EnumType.STRING)
     private CourseAcademyType academy;
     private boolean isFeatured;

@@ -9,35 +9,46 @@ import { InputText } from 'primereact/inputtext';
 import { classNames } from 'primereact/utils';
 import React, { useRef, useState } from 'react';
 import type { Demo } from '@/types';
+import { InputTextarea } from 'primereact/inputtextarea';
+import { BaseApiServiceImpl } from '@/app/api/BaseApiServiceImpl';
+import { MessageUtils } from '@/app/utils/MessageUtils';
 
-function NewProduct() {
-    const colorOptions = [
-        { name: 'Black', background: 'bg-gray-900' },
-        { name: 'Orange', background: 'bg-orange-500' },
-        { name: 'Navy', background: 'bg-blue-500' }
-    ];
-
-    const [product, setProduct] = useState<Demo.Product>({
-        name: '',
-        price: '',
-        code: '',
-        sku: '',
-        status: 'Draft',
+function CourseForm() {
+    const [course, setCourse] = useState<any>({
+        title: '',
+        description: '',
+        coverImageUrl: '',
+        welcomeVideoUrl: '',
+        guidelineVideoUrl: '',
+        publicationStatus: 'Draft',
         tags: ['Nike', 'Sneaker'],
         category: 'Sneakers',
-        colors: [],
+        certificateTemplate: [],
         stock: 'Sneakers',
-        inStock: true,
-        description: '',
-        images: []
+        ownershipType: true,
+        isFeatured: true,
+        isPaid: true,
+        cost: true,
+        fullDescription: true,
+        academy: '',
+        company: []
     });
 
-    const [selectedCategory, setSelectedCategory] = useState(product.category);
-    const [selectedStock, setSelectedStock] = useState(product.category);
+    const [categories, setCategories] = useState(course.category);
+    const [selectedStock, setSelectedStock] = useState(course.category);
     const categoryOptions = ['Sneakers', 'Apparel', 'Socks'];
 
     const fileUploader = useRef<FileUpload>(null);
-
+    const fetchRecordsFromServer = () => {
+        new BaseApiServiceImpl('/v1/categories')
+            .getRequestWithJsonResponse({})
+            .then(async (response) => {
+                setCategories(response?.records);
+            })
+            .catch((error) => {
+                MessageUtils.showErrorMessage('Categories', error.message);
+            });
+    };
     const chipTemplate = (tag: string) => {
         return (
             <React.Fragment>
@@ -60,27 +71,12 @@ function NewProduct() {
     };
 
     const onChipRemove = (item: string) => {
-        const newTags = (product.tags as string[])?.filter((i) => i !== item);
-        setProduct((prevState) => ({ ...prevState, tags: newTags }));
-    };
-
-    const onColorSelect = (colorName: string, i: number) => {
-        if ((product.colors as string[])?.indexOf(colorName) !== -1) {
-            (product.colors as string[]).splice((product.colors as string[]).indexOf(colorName), 1);
-            setProduct((prevState) => ({
-                ...prevState,
-                colors: (prevState.colors as string[]).filter((color) => color !== colorName)
-            }));
-        } else {
-            setProduct((prevState) => ({
-                ...prevState,
-                colors: [...(prevState.colors as string[]), colorName]
-            }));
-        }
+        const newTags = (course.tags as string[])?.filter((i) => i !== item);
+        setCourse((prevState: any) => ({ ...prevState, tags: newTags }));
     };
 
     const onUpload = (event: FileUploadUploadEvent | FileUploadSelectEvent) => {
-        setProduct((prevState) => ({ ...prevState, images: event.files }));
+        setCourse((prevState: any) => ({ ...prevState, images: event.files }));
     };
 
     const onFileUploadClick = () => {
@@ -133,32 +129,32 @@ function NewProduct() {
 
     return (
         <div className="card">
-            <span className="block text-900 font-bold text-xl mb-4">Create Product</span>
+            <span className="block text-900 font-bold text-xl mb-4">Create Course</span>
             <div className="grid grid-nogutter flex-wrap gap-3 p-fluid">
                 <div className="col-12 lg:col-8">
                     <div className="grid formgrid">
                         <div className="col-12 field">
                             <InputText
                                 type="text"
-                                value={product.name}
+                                value={course.title}
                                 onChange={(e) =>
-                                    setProduct((prevState) => ({
+                                    setCourse((prevState: any) => ({
                                         ...prevState,
-                                        name: e.target.value
+                                        title: e.target.value
                                     }))
                                 }
-                                placeholder="Product Name"
+                                placeholder="Course title"
                             />
                         </div>
                         <div className="col-12 lg:col-4 field">
                             <InputText
                                 type="text"
                                 placeholder="Price"
-                                value={product.price?.toString()}
+                                value={course.cost?.toString()}
                                 onChange={(e) =>
-                                    setProduct((prevState) => ({
+                                    setCourse((prevState: any) => ({
                                         ...prevState,
-                                        price: parseFloat(e.target.value) || undefined
+                                        cost: parseFloat(e.target.value) || undefined
                                     }))
                                 }
                             />
@@ -166,12 +162,12 @@ function NewProduct() {
                         <div className="col-12 lg:col-4 field">
                             <InputText
                                 type="text"
-                                placeholder="Product Code"
-                                value={product.code}
+                                placeholder="welcomeVideoUrl"
+                                value={course.welcomeVideoUrl}
                                 onChange={(e) =>
-                                    setProduct((prevState) => ({
+                                    setCourse((prevState: any) => ({
                                         ...prevState,
-                                        code: e.target.value
+                                        welcomeVideoUrl: e.target.value
                                     }))
                                 }
                             />
@@ -179,18 +175,21 @@ function NewProduct() {
                         <div className="col-12 lg:col-4 field">
                             <InputText
                                 type="text"
-                                placeholder="Product SKU"
-                                value={product.sku as string}
+                                placeholder="guidelineVideoUrl"
+                                value={course.guidelineVideoUrl as string}
                                 onChange={(e) =>
-                                    setProduct((prevState) => ({
+                                    setCourse((prevState: any) => ({
                                         ...prevState,
-                                        sku: e.target.value
+                                        guidelineVideoUrl: e.target.value
                                     }))
                                 }
                             />
                         </div>
                         <div className="col-12 field">
-                            <Editor value={product.description} style={{ height: '250px' }}></Editor>
+                            <InputTextarea value={course.description} style={{ height: '250px' }}></InputTextarea>
+                        </div>
+                        <div className="col-12 field">
+                            <Editor value={course.fullDescription} style={{ height: '250px' }}></Editor>
                         </div>
                         <div className="col-12 field">
                             <FileUpload
@@ -201,7 +200,7 @@ function NewProduct() {
                                 emptyTemplate={emptyTemplate}
                                 onUpload={onUpload}
                                 customUpload={true}
-                                multiple
+                                multiple={false}
                                 onSelect={onUpload}
                                 accept="image/*"
                                 auto
@@ -217,7 +216,7 @@ function NewProduct() {
                         <div className="p-3">
                             <div className="bg-gray-100 py-2 px-3 flex align-items-center border-round">
                                 <span className="text-black-alpha-90 font-bold mr-3">Status:</span>
-                                <span className="text-black-alpha-60 font-semibold">{product.status as string}</span>
+                                <span className="text-black-alpha-60 font-semibold">{course.status as string}</span>
                                 <Button type="button" icon="pi pi-fw pi-pencil" rounded text className="text-black-alpha-60 ml-auto"></Button>
                             </div>
                         </div>
@@ -226,7 +225,7 @@ function NewProduct() {
                     <div className="border-1 surface-border border-round">
                         <span className="text-900 font-bold block border-bottom-1 surface-border p-3">Tags</span>
                         <div className="p-3 flex flex-wrap gap-1">
-                            {(product.tags as string[])?.map((tag, i) => {
+                            {(course.tags as string[])?.map((tag, i) => {
                                 return <Chip key={i} className="mr-2 py-2 px-3 text-900 font-bold surface-card border-1 surface-border" style={{ borderRadius: '20px' }} template={() => chipTemplate(tag)} />;
                             })}
                         </div>
@@ -235,26 +234,15 @@ function NewProduct() {
                     <div className="border-1 surface-border border-round">
                         <span className="text-900 font-bold block border-bottom-1 surface-border p-3">Category</span>
                         <div className="p-3">
-                            <Dropdown options={categoryOptions} value={selectedCategory} onChange={(e) => setSelectedCategory(e.value)} placeholder="Select a category"></Dropdown>
-                        </div>
-                    </div>
-
-                    <div className="border-1 surface-border border-round">
-                        <span className="text-900 font-bold block border-bottom-1 surface-border p-3">Colors</span>
-                        <div className="p-3 flex">
-                            {colorOptions.map((color, i) => {
-                                return (
-                                    <div
-                                        key={i}
-                                        className={classNames('w-2rem h-2rem mr-2 border-1 surface-border border-circle cursor-pointer flex justify-content-center align-items-center', color.background)}
-                                        onClick={() => {
-                                            onColorSelect(color.name, i);
-                                        }}
-                                    >
-                                        {(product.colors as string[]).includes(color.name) ? <i key={i} className="pi pi-check text-sm text-white z-5"></i> : null}
-                                    </div>
-                                );
-                            })}
+                            <Dropdown options={categories} value={course.category} 
+                           
+                            onChange={(e) =>
+                                setCourse((prevState: any) => ({
+                                    ...prevState,
+                                    category: e.value
+                                }))
+                            }
+                            placeholder="Select a category"></Dropdown>
                         </div>
                     </div>
 
@@ -263,19 +251,6 @@ function NewProduct() {
                         <div className="p-3">
                             <Dropdown options={categoryOptions} value={selectedStock} onChange={(e) => setSelectedStock(e.value)} placeholder="Select stock"></Dropdown>
                         </div>
-                    </div>
-
-                    <div className="border-1 surface-border flex justify-content-between align-items-center py-2 px-3 border-round">
-                        <span className="text-900 font-bold p-3">In stock</span>
-                        <InputSwitch
-                            checked={product.inStock as boolean}
-                            onChange={(e) =>
-                                setProduct((prevState) => ({
-                                    ...prevState,
-                                    inStock: e.value as boolean
-                                }))
-                            }
-                        ></InputSwitch>
                     </div>
 
                     <div className="flex flex-column sm:flex-row justify-content-between align-items-center gap-3 py-2">
@@ -288,4 +263,4 @@ function NewProduct() {
     );
 }
 
-export default NewProduct;
+export default CourseForm;

@@ -1,42 +1,46 @@
 'use client';
-
 import { Dialog } from 'primereact/dialog';
 import { Messages } from 'primereact/messages';
 import { ReactNode, useEffect, useRef, useState } from 'react';
-import { PrimeIcons } from 'primereact/api';
 import { Button } from 'primereact/button';
-import * as labels from '../../../constants/Labels';
-import { CSS_COL_12, CSS_COL_6, MAXIMUM_RECORDS_PER_PAGE } from '../../../constants/Constants';
-import { BaseApiServiceImpl } from '@/app/api/BaseApiServiceImpl';
-import { MessageUtils } from '@/app/utils/MessageUtils';
+import * as labels from '../../constants/Labels';
+import useShowModalDialog from '../../components/ShowModalHook';
+import { PrimeIcons } from 'primereact/api';
+import { BaseApiServiceImpl } from '../../api/BaseApiServiceImpl';
+import { MessageUtils } from '../../utils/MessageUtils';
+import { formatString, replaceWithUnderscore, toReadableDate } from '../../utils/Utils';
+import { getFilterComponent } from '../../components/Filters';
+import { paginatorTemplate } from '../../components/PaginatorTemplate';
+import { filtersHeadertemplate } from '../../components/FiltersPanelHeader';
+import UserFormDialogView from '../users/UserFormDialogView';
+import { getFormFieldComponent, validateEmptyField } from '../../components/FormFieldTemplates';
+import { ACADEMIES_ENUM, CATEGORY_TYPES_ENUM, CSS_COL_12, CSS_COL_6, LOOKUP_YPES, MAXIMUM_RECORDS_PER_PAGE, RECORD_STATUSES } from '../../constants/Constants';
+import { types } from 'util';
 import { FormFieldTypes } from '@/app/constants/FormFieldTypes';
-import { getFormFieldComponent, validateEmptyField } from '@/app/components/FormFieldTemplates';
-import { formatString } from '@/app/utils/Utils';
 import { MISSING_FORM_INPUT_MESSAGE } from '@/app/constants/ErrorMessages';
 
 interface ModalType {
     children?: ReactNode;
     messageRef?: any;
     record: any;
+    lookupTypes: any;
     reloadFn: any;
     isOpen: boolean;
     toggle: () => void;
 }
 
-const UserFormDialogView = (props: ModalType) => {
+const CategoryFormDialog = (props: ModalType) => {
     const [recordId, setRecordId] = useState<string | null>(null);
-    const [firstName, setFirstName] = useState<string | null>(null);
-    const [lastName, setLastName] = useState<string | null>(null);
-    const [userName, setUserName] = useState<string | null>(null);
-    const [gender, setGender] = useState<string | null>(null);
-    const [genders, setGenders] = useState<string | null>(null);
+    const [name, setName] = useState<string | null>(null);
+    const [description, setDescription] = useState<string | null>(null);
 
-    const [roleIds, setRoleIds] = useState<any>([]);
-    const [roles, setRoles] = useState<any>([]);
-    const [isValidFirstNameHint, setIsValidFirstNameHint] = useState<string | null>(null);
-
-    const [isValidLastNameHint, setIsValidLastNameHint] = useState<string | null>(null);
-    const [isValidUsernameHint, setIsValidUsernameHint] = useState<string | null>(null);
+    const [type, setType] = useState<any>(null);
+    const [academy, setAcademy] = useState<any>(null);
+    const [recordStatus, setRecordStatus] = useState<string | null>(null);
+    const [lookupTypes, setlookupTypes] = useState<any>([]);
+    const [isValidValueHint, setIsValidValueHint] = useState<string | null>(null);
+    const [isValidDescriptionHint, setIsValidDescriptionHint] = useState<string | null>(null);
+    const [isValidTypeHint, setIsValidTypeHint] = useState<string | null>(null);
     const [isSaving, setIsSaving] = useState<boolean>(false);
     const message = useRef<any>();
 
@@ -45,32 +49,9 @@ const UserFormDialogView = (props: ModalType) => {
      * in the parent view when the is changed
      */
     useEffect(() => {
+        setlookupTypes(props?.lookupTypes);
         populateForm(props?.record);
-        fetchGendersFromServer();
-        fetchRolesFromServer();
     }, [props?.record]);
-
-    const fetchGendersFromServer = () => {
-        new BaseApiServiceImpl('/api/v1/lookups/genders')
-            .getRequestWithJsonResponse({})
-            .then(async (response) => {
-                setGenders(response?.records);
-            })
-            .catch((error) => {
-                MessageUtils.showErrorMessage(message, error.message);
-            });
-    };
-
-    const fetchRolesFromServer = () => {
-        new BaseApiServiceImpl('/api/v1/users/roles')
-            .getRequestWithJsonResponse({ offset: 0, limit: MAXIMUM_RECORDS_PER_PAGE })
-            .then(async (response) => {
-                setRoles(response?.records);
-            })
-            .catch((error) => {
-                MessageUtils.showErrorMessage(message, error.message);
-            });
-    };
 
     /**
      * This clears the form by setting form values to null
@@ -81,10 +62,10 @@ const UserFormDialogView = (props: ModalType) => {
 
     const populateForm = (dataObject: any) => {
         setRecordId(dataObject?.id);
-        setFirstName(dataObject?.firstName);
-        setLastName(dataObject?.lastName);
-        setUserName(dataObject?.userName);
-        setRoleIds(dataObject?.roleIds);
+        setName(dataObject?.name);
+        setType(dataObject?.type.id);
+        setAcademy(dataObject?.academy.id);
+        setDescription(dataObject?.description);
     };
 
     /**
@@ -93,55 +74,42 @@ const UserFormDialogView = (props: ModalType) => {
     let userFormFields: any = [
         {
             type: FormFieldTypes.TEXT.toString(),
-            label: 'First Name',
-            value: firstName,
-            onChange: setFirstName,
-            setHint: setIsValidFirstNameHint,
-            isValidHint: isValidFirstNameHint,
+            label: 'Name',
+            value: name,
+            onChange: setName,
+            setHint: setIsValidValueHint,
+            isValidHint: isValidValueHint,
             validateFieldFn: validateEmptyField,
             width: CSS_COL_6
         },
         {
             type: FormFieldTypes.TEXT.toString(),
-            label: 'Last Name',
-            value: lastName,
-            onChange: setLastName,
-            setHint: setIsValidLastNameHint,
-            isValidHint: isValidLastNameHint,
-            validateFieldFn: validateEmptyField,
-            width: CSS_COL_6
-        },
-
-        {
-            type: FormFieldTypes.TEXT.toString(),
-            label: 'Email Address',
-            value: userName,
-            onChange: setUserName,
-            setHint: setIsValidUsernameHint,
-            isValidHint: isValidUsernameHint,
-            validateFieldFn: validateEmptyField,
+            label: 'Description',
+            value: description,
+            onChange: setDescription,
             width: CSS_COL_6
         },
 
         {
             type: FormFieldTypes.DROPDOWN.toString(),
-            label: 'Gender',
-            value: gender,
-            onChange: setGender,
-            options: genders,
+            label: 'Type',
+            value: type,
+            onChange: setType,
+            options: CATEGORY_TYPES_ENUM,
             optionValue: 'id',
             optionLabel: 'name',
             width: CSS_COL_6
         },
 
         {
-            type: FormFieldTypes.MULTISELECT.toString(),
-            label: 'Roles',
-            value: roleIds,
-            onChange: setRoleIds,
-            options: roles,
+            type: FormFieldTypes.DROPDOWN.toString(),
+            label: 'academy',
+            value: academy,
+            onChange: setAcademy,
+            options: ACADEMIES_ENUM,
             optionValue: 'id',
-            optionLabel: 'name'
+            optionLabel: 'name',
+            width: CSS_COL_6
         }
     ];
 
@@ -189,18 +157,15 @@ const UserFormDialogView = (props: ModalType) => {
     const saveUser = () => {
         let userData: any = {
             id: recordId,
-            firstName,
-            lastName,
-            username: userName,
-            emailAddress: userName,
-            initialPassword: userName,
-            genderId: gender,
-            roleIds: roleIds
+            name,
+            description,
+            typeId: type,
+            academyId: academy
         };
 
         if (validateForm()) {
             setIsSaving(true);
-            new BaseApiServiceImpl('/api/v1/users')
+            new BaseApiServiceImpl('/v1/categories')
                 .postRequestWithJsonResponse(userData)
                 .then(async (response) => {
                     setIsSaving(false);
@@ -234,7 +199,7 @@ const UserFormDialogView = (props: ModalType) => {
     );
 
     return (
-        <Dialog visible={props.isOpen} header={'Create user form'} footer={userDetailsDialogFooter} modal className="p-fluid" onHide={closeDialog} style={{ width: '50vw' }}>
+        <Dialog visible={props.isOpen} header={'Create category'} footer={userDetailsDialogFooter} modal className="p-fluid" onHide={closeDialog} style={{ width: '50vw' }}>
             <Messages ref={message} />
             <div className="grid">
                 <div className="col-12">
@@ -246,4 +211,4 @@ const UserFormDialogView = (props: ModalType) => {
     );
 };
 
-export default UserFormDialogView;
+export default CategoryFormDialog;

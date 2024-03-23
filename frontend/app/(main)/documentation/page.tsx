@@ -6,7 +6,7 @@ const Documentation = () => {
             <h2>Documentation</h2>
             <h4>Getting Started</h4>
             <p>
-                Verona is an application template for Next.js based on the popular{' '}
+                Learningking is an application template for Next.js based on the popular{' '}
                 <a href="https://nextjs.org/" className="font-medium hover:underline text-primary">
                     Next.js
                 </a>{' '}
@@ -29,7 +29,7 @@ const Documentation = () => {
                 <code>{`"npm run dev" or "yarn dev"`}</code>
             </pre>
             <h5>Dependencies</h5>
-            <p>Dependencies of Verona are listed below and needs to be defined at package.json.</p>
+            <p>Dependencies of Learningking are listed below and needs to be defined at package.json.</p>
 
             <pre className="app-code">
                 <code>
@@ -39,7 +39,7 @@ const Documentation = () => {
             </pre>
 
             <h5>Structure</h5>
-            <p>Verona consists of a couple folders, demos and core has been separated so that you can easily remove what is not necessary for your application.</p>
+            <p>Learningking consists of a couple folders, demos and core has been separated so that you can easily remove what is not necessary for your application.</p>
             <p>
                 There are three{' '}
                 <a href="https://nextjs.org/docs/app/building-your-application/routing/route-groups" className="font-medium hover:underline text-primary">
@@ -125,7 +125,7 @@ interface MainLayoutProps {
 }
 
 export const metadata: Metadata = {
-    title: "PrimeReact Verona",
+    title: "PrimeReact Learningking",
     ...
   };
 
@@ -150,7 +150,7 @@ interface FullPageLayoutProps {
 }
 
 export const metadata: Metadata = {
-    title: "PrimeReact Verona",
+    title: "PrimeReact Learningking",
     ...
 };
 
@@ -180,7 +180,7 @@ interface LandingLayoutProps {
 }
 
 export const metadata: Metadata = {
-    title: "PrimeReact Verona",
+    title: "PrimeReact Learningking",
     ...
 };
 
@@ -259,7 +259,7 @@ const AppMenu = () => {
 
             <h4>Theme</h4>
             <p>
-                Verona provides 34 PrimeReact themes out of the box. Setup of a theme is simple by including the CSS of the theme to your bundle that are located inside <span className="text-primary font-medium">public/theme/</span>
+                Learningking provides 34 PrimeReact themes out of the box. Setup of a theme is simple by including the CSS of the theme to your bundle that are located inside <span className="text-primary font-medium">public/theme/</span>
                 folder such as <span className="text-primary font-medium">public/theme/theme-light/blue/theme.css</span>.
             </p>
 

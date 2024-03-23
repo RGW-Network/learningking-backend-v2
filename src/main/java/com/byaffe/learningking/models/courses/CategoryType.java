@@ -11,14 +11,24 @@ package com.byaffe.learningking.models.courses;
  * @author Ray Gdhrt
  */
 public enum CategoryType {
-    COURSE("Course"),
-    CERTIFICATION("Certification"),
-    ARTICLE("Article");
+    COURSE("Course",0),
+    CERTIFICATION("Certification",1),
+    ARTICLE("Article",2);
 
     private String displayName;
-
-    CategoryType(String uiName) {
+private int id;
+    CategoryType(String uiName,int id) {
         this.displayName = uiName;
+        this.id=id;
+    }
+
+    public static CategoryType getById(int id){
+        for(CategoryType enumValue: CategoryType.values()){
+            if(enumValue.id==id){
+                return enumValue;
+            }
+        }
+        return null;
     }
 
     public String getDisplayName() {

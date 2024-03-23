@@ -1,7 +1,8 @@
 {
-    "name": "verona-react",
+    "name": "learningking-react",
     "version": "10.0.0",
     "private": true,
+    "proxy": "http://localhost:8080",
     "scripts": {
         "dev": "next dev",
         "build": "next build",

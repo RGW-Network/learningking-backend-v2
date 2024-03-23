@@ -71,7 +71,7 @@ public class BaseEntity implements Auditable {
         if (loggedInUser == null)
             return;
 
-        if (this.getCreatedById() == 0) {
+        if (this.getCreatedById()==null||this.getCreatedById() == 0) {
             this.setCreatedById(loggedInUser.getId());
             this.setCreatedByUsername(loggedInUser.getUsername());
             this.setCreatedByFullName(loggedInUser.getFullName());

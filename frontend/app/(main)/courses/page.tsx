@@ -7,24 +7,24 @@ import { Messages } from 'primereact/messages';
 import { Paginator } from 'primereact/paginator';
 import { Panel } from 'primereact/panel';
 import { BreadCrumb } from 'primereact/breadcrumb';
-import * as constants from '../../../constants/Constants';
+import * as constants from '../../constants/Constants';
 
-import * as labels from '../../../constants/Labels';
-import useShowModalDialog from '../../../components/ShowModalHook';
+import * as labels from '../../constants/Labels';
+import useShowModalDialog from '../../components/ShowModalHook';
 import { PrimeIcons } from 'primereact/api';
-import { BaseApiServiceImpl } from '../../../api/BaseApiServiceImpl';
-import { MessageUtils } from '../../../utils/MessageUtils';
-import { replaceWithUnderscore, toReadableDate } from '../../../utils/Utils';
-import { getFilterComponent } from '../../../components/Filters';
-import { paginatorTemplate } from '../../../components/PaginatorTemplate';
-import { filtersHeadertemplate } from '../../../components/FiltersPanelHeader';
+import { BaseApiServiceImpl } from '../../api/BaseApiServiceImpl';
+import { MessageUtils } from '../../utils/MessageUtils';
+import { replaceWithUnderscore, toReadableDate } from '../../utils/Utils';
+import { getFilterComponent } from '../../components/Filters';
+import { paginatorTemplate } from '../../components/PaginatorTemplate';
+import { filtersHeadertemplate } from '../../components/FiltersPanelHeader';
 import UserFormDialogView from '../users/UserFormDialogView';
-import LookupFormDialogView from './LookupFormDialogView';
+import LookupFormDialogView from './CourseForm';
 import authProtector from '@/app/security/authProtector';
 import checkAuth from '@/app/security/authProtector';
-import { useRouter } from 'next/navigation';
+import { redirect, useRouter } from 'next/navigation';
 
-const LookupsView = () => {
+const CoursesView = () => {
     const [records, setRecords] = useState<any>(null);
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [searchTermFilter, setSearchTermFilter] = useState<string | null>(null);
@@ -35,7 +35,7 @@ const LookupsView = () => {
     const [selectedUser, setSelectedUser] = useState<any>(null);
     const [lookupTypeFilter, setlookupTypeFilter] = useState<any>(null);
     const [lookupTypes, setlookupTypes] = useState<any>([]);
-
+    const router = useRouter();
     let offset = 0;
 
     const message = useRef<any>();
@@ -61,7 +61,7 @@ const LookupsView = () => {
             }
         },
         {
-            label: `System Users`,
+            label: `Categories`,
             icon: PrimeIcons.USERS
         }
     ];
@@ -86,7 +86,7 @@ const LookupsView = () => {
         setIsLoading(true);
         let searchParameters: any = getQueryParameters();
 
-        new BaseApiServiceImpl('/api/v1/lookups/lookup-values')
+        new BaseApiServiceImpl('/v1/courses')
             .getRequestWithJsonResponse(searchParameters)
             .then(async (response) => {
                 setIsLoading(false);
@@ -102,7 +102,7 @@ const LookupsView = () => {
      * This fetches counties from the back office using the search parameters
      */
     const fetchLookupTypes = () => {
-        new BaseApiServiceImpl('/api/v1/lookups/lookup-types')
+        new BaseApiServiceImpl('/v1/lookups/lookup-types')
             .getRequestWithJsonResponse({})
             .then(async (response) => {
                 setlookupTypes(response?.records);
@@ -152,10 +152,8 @@ const LookupsView = () => {
      * and setting the selected territory to null
      */
     const openNewFormDialog = () => {
-        setSelectedUser(null);
-        toggleOpenDialog();
+        router.push('/courses/form');
     };
-
     /**
      * The row index template
      * @param rowData
@@ -191,7 +189,7 @@ const LookupsView = () => {
         return (
             <div className="actions">
                 <Button
-                    label={labels.LABEL_EDIT}
+                    icon={PrimeIcons.PENCIL}
                     className="p-button-sm p-button-warning p-mr-2"
                     onClick={() => {
                         openEditFormDialog(rowData);
@@ -286,11 +284,8 @@ const LookupsView = () => {
 
     return (
         <div className="grid">
-            <div className="col-6 flex justify-content-start flex-wrap">
-                <BreadCrumb home={breadcrumbHome} model={breadcrumbItems} />
-            </div>
-            <div className="col-6 flex justify-content-end flex-wrap">
-                <Button label={'Create Lookup type'} icon={PrimeIcons.PLUS} className="p-button-secondary" onClick={openNewFormDialog} />
+            <div className="col-12 flex justify-content-end flex-wrap">
+                <Button label={'Add Course'} icon={PrimeIcons.PLUS} className="p-button-secondary" onClick={openNewFormDialog} />
             </div>
             <Messages ref={message} style={{ width: '100%' }} />
             <div className="col-12">
@@ -305,10 +300,10 @@ const LookupsView = () => {
                 <div className="card">
                     <DataTable value={records} paginator={false} className="datatable-responsive" paginatorPosition="both" emptyMessage="No record found." loading={isLoading}>
                         <Column field="Index" header="#" style={{ width: '70px' }} body={rowIndexTemplate}></Column>
-                        <Column field="typeName" header={'Type'}></Column>
-                        <Column field="value" header={'Value'}></Column>
-                        <Column field="description" header={'Description'}></Column>
-                        <Column field="parent.value" header={'Parent'}></Column>
+                        <Column field="title" header={'Title'}></Column>
+                        <Column field="coverImageUrl" header={'Cover image'}></Column>
+                        <Column field="academy" header={'Academy'}></Column>
+                        <Column field="category" header={'Category'}></Column>
 
                         <Column header={labels.LABEL_STATUS} body={statusBodyTemplate}></Column>
                         <Column style={{ width: '120px' }} header="Actions" body={actionBodyTemplate}></Column>
@@ -322,4 +317,4 @@ const LookupsView = () => {
     );
 };
 
-export default LookupsView;
+export default CoursesView;

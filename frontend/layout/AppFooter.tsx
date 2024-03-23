@@ -9,7 +9,7 @@ const AppFooter = () => {
         <div className="layout-footer mt-auto">
             <div className="footer-start">
                 <img src={'/layout/images/logo-' + (layoutConfig.colorScheme === 'light' ? 'dark' : 'light') + '.png'} alt="logo" />
-                <span className="app-name">Verona</span>
+                <span className="app-name">Learningking</span>
             </div>
             <div className="footer-right">
                 <span>© Your Organization</span>

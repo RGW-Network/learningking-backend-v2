@@ -3,18 +3,18 @@ import { Dialog } from 'primereact/dialog';
 import { Messages } from 'primereact/messages';
 import { ReactNode, useEffect, useRef, useState } from 'react';
 import { Button } from 'primereact/button';
-import * as labels from '../../../constants/Labels';
-import useShowModalDialog from '../../../components/ShowModalHook';
+import * as labels from '../../constants/Labels';
+import useShowModalDialog from '../../components/ShowModalHook';
 import { PrimeIcons } from 'primereact/api';
-import { BaseApiServiceImpl } from '../../../api/BaseApiServiceImpl';
-import { MessageUtils } from '../../../utils/MessageUtils';
-import { formatString, replaceWithUnderscore, toReadableDate } from '../../../utils/Utils';
-import { getFilterComponent } from '../../../components/Filters';
-import { paginatorTemplate } from '../../../components/PaginatorTemplate';
-import { filtersHeadertemplate } from '../../../components/FiltersPanelHeader';
+import { BaseApiServiceImpl } from '../../api/BaseApiServiceImpl';
+import { MessageUtils } from '../../utils/MessageUtils';
+import { formatString, replaceWithUnderscore, toReadableDate } from '../../utils/Utils';
+import { getFilterComponent } from '../../components/Filters';
+import { paginatorTemplate } from '../../components/PaginatorTemplate';
+import { filtersHeadertemplate } from '../../components/FiltersPanelHeader';
 import UserFormDialogView from '../users/UserFormDialogView';
-import { getFormFieldComponent, validateEmptyField } from '../../../components/FormFieldTemplates';
-import { CSS_COL_12, CSS_COL_6, LOOKUP_YPES, MAXIMUM_RECORDS_PER_PAGE, RECORD_STATUSES } from '../../../constants/Constants';
+import { getFormFieldComponent, validateEmptyField } from '../../components/FormFieldTemplates';
+import { ACADEMIES_ENUM, CATEGORY_TYPES_ENUM, CSS_COL_12, CSS_COL_6, LOOKUP_YPES, MAXIMUM_RECORDS_PER_PAGE, RECORD_STATUSES } from '../../constants/Constants';
 import { types } from 'util';
 import { FormFieldTypes } from '@/app/constants/FormFieldTypes';
 import { MISSING_FORM_INPUT_MESSAGE } from '@/app/constants/ErrorMessages';
@@ -29,11 +29,13 @@ interface ModalType {
     toggle: () => void;
 }
 
-const LookupFormDialogView = (props: ModalType) => {
+const CategoryFormDialog = (props: ModalType) => {
     const [recordId, setRecordId] = useState<string | null>(null);
-    const [value, setValue] = useState<string | null>(null);
-    const [type, setType] = useState<string | null>(null);
+    const [name, setName] = useState<string | null>(null);
     const [description, setDescription] = useState<string | null>(null);
+
+    const [type, setType] = useState<any>(null);
+    const [academy, setAcademy] = useState<any>(null);
     const [recordStatus, setRecordStatus] = useState<string | null>(null);
     const [lookupTypes, setlookupTypes] = useState<any>([]);
     const [isValidValueHint, setIsValidValueHint] = useState<string | null>(null);
@@ -60,10 +62,10 @@ const LookupFormDialogView = (props: ModalType) => {
 
     const populateForm = (dataObject: any) => {
         setRecordId(dataObject?.id);
-        setValue(dataObject?.value);
-        setType(dataObject?.typeId);
+        setName(dataObject?.name);
+        setType(dataObject?.type.id);
+        setAcademy(dataObject?.academy.id);
         setDescription(dataObject?.description);
-        setRecordStatus(dataObject?.recordStatus);
     };
 
     /**
@@ -72,9 +74,9 @@ const LookupFormDialogView = (props: ModalType) => {
     let userFormFields: any = [
         {
             type: FormFieldTypes.TEXT.toString(),
-            label: 'Value',
-            value: value,
-            onChange: setValue,
+            label: 'Name',
+            value: name,
+            onChange: setName,
             setHint: setIsValidValueHint,
             isValidHint: isValidValueHint,
             validateFieldFn: validateEmptyField,
@@ -93,21 +95,18 @@ const LookupFormDialogView = (props: ModalType) => {
             label: 'Type',
             value: type,
             onChange: setType,
-            options: lookupTypes,
+            options: CATEGORY_TYPES_ENUM,
             optionValue: 'id',
             optionLabel: 'name',
-            width: CSS_COL_6,
-            setHint: setIsValidTypeHint,
-            isValidHint: isValidTypeHint,
-            validateFieldFn: validateEmptyField
+            width: CSS_COL_6
         },
 
         {
             type: FormFieldTypes.DROPDOWN.toString(),
-            label: 'recordStatus',
-            value: recordStatus,
-            onChange: setRecordStatus,
-            options: RECORD_STATUSES,
+            label: 'academy',
+            value: academy,
+            onChange: setAcademy,
+            options: ACADEMIES_ENUM,
             optionValue: 'id',
             optionLabel: 'name',
             width: CSS_COL_6
@@ -158,15 +157,15 @@ const LookupFormDialogView = (props: ModalType) => {
     const saveUser = () => {
         let userData: any = {
             id: recordId,
-            value,
+            name,
             description,
-            recordStatus: recordStatus,
-            typeId: type
+            typeId: type,
+            academyId: academy
         };
 
         if (validateForm()) {
             setIsSaving(true);
-            new BaseApiServiceImpl('/api/v1/lookups/lookup-values')
+            new BaseApiServiceImpl('/v1/categories')
                 .postRequestWithJsonResponse(userData)
                 .then(async (response) => {
                     setIsSaving(false);
@@ -200,7 +199,7 @@ const LookupFormDialogView = (props: ModalType) => {
     );
 
     return (
-        <Dialog visible={props.isOpen} header={'Create lookup value'} footer={userDetailsDialogFooter} modal className="p-fluid" onHide={closeDialog} style={{ width: '50vw' }}>
+        <Dialog visible={props.isOpen} header={'Create category'} footer={userDetailsDialogFooter} modal className="p-fluid" onHide={closeDialog} style={{ width: '50vw' }}>
             <Messages ref={message} />
             <div className="grid">
                 <div className="col-12">
@@ -212,4 +211,4 @@ const LookupFormDialogView = (props: ModalType) => {
     );
 };
 
-export default LookupFormDialogView;
+export default CategoryFormDialog;
