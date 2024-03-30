@@ -449,3 +449,17 @@ export function toStyleClassName(anyString: string) {
 export const generalStatusBodyTemplate = (status: string) => {
     return <span className={`status-badge status-${toStyleClassName(status)}`}>{status}</span>;
 };
+/**
+ * Converts a JSON object into a form data object
+ * @param jsonData
+ * @returns FormData object
+ */
+export function jsonToFormData(jsonData: any) {
+    let accountProfileFormData: FormData = new FormData();
+    for (var itemKey in jsonData) {
+        if (jsonData[itemKey] !== undefined && jsonData[itemKey] !== null) {
+            accountProfileFormData.append(itemKey, jsonData[itemKey]);
+        }
+    }
+    return accountProfileFormData;
+}

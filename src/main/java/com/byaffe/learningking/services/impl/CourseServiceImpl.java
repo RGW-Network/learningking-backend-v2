@@ -10,7 +10,10 @@ import com.byaffe.learningking.shared.exceptions.OperationFailedException;
 import com.byaffe.learningking.shared.exceptions.ValidationFailedException;
 import com.byaffe.learningking.shared.utils.ApplicationContextProvider;
 import com.byaffe.learningking.shared.utils.CustomSearchUtils;
+import com.byaffe.learningking.utilities.ImageStorageService;
+import com.google.gson.Gson;
 import com.googlecode.genericdao.search.Search;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,8 +30,10 @@ import java.util.logging.Logger;
 public class CourseServiceImpl extends GenericServiceImpl<Course> implements CourseService {
 
     @Autowired
-    CourseSubscriptionService memberPlanDao;
+    ImageStorageService imageStorageService;
 
+    @Autowired
+    CourseCategoryService categoryService;
     @Autowired
     ModelMapper modelMapper;
     @Autowired
@@ -42,7 +47,19 @@ public class CourseServiceImpl extends GenericServiceImpl<Course> implements Cou
     }
     @Override
     public Course saveInstance(CourseRequestDTO plan) throws ValidationFailedException{
-        return saveInstance(modelMapper.map(plan,Course.class));
+        Course course=modelMapper.map(plan,Course.class);
+        course.setAcademy(plan.getAcademy());
+        System.err.println("Request Id>>"+new Gson().toJson( plan));
+        course.setCategory(categoryService.getInstanceByID(plan.getCategoryId()));
+        course.setOwnershipType(plan.getOwnershipType());
+        course= saveInstance(course);
+
+        if(ObjectUtils.allNotNull( plan.getCoverImage())) {
+         String imageUrl=   imageStorageService.uploadImage(plan.getCoverImage(), "courses/" + course.getId());
+         course.setCoverImageUrl(imageUrl);
+         course=saveInstance(course);
+        }
+    return course;
     }
     @Override
     public Course saveInstance(Course plan) throws ValidationFailedException {

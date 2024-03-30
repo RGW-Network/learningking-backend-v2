@@ -27,7 +27,7 @@ const AppMenu = () => {
         {
             label: 'Categories',
             icon: 'pi pi-fw pi-cog',
-            to: '/categories'
+            to: '/course-categories'
         },
         {
             label: 'Lookups',

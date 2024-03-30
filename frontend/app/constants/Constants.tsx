@@ -93,6 +93,16 @@ export const ACADEMIES_ENUM = [
         name: 'Wealthy Minds'
     }
 ];
+export const COURSE_OWNERSHIPS_ENUM = [
+    {
+        id: 0,
+        name: 'Proffessional'
+    },
+    {
+        id: 1,
+        name: 'Wealthy Minds'
+    }
+];
 export const LOOKUP_YPES = [
     {
         id: 5,

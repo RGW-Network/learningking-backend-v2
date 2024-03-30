@@ -14,6 +14,14 @@ public class FilterUtils {
             Arrays.asList("/api/health",
                     "/api/v1/status",
                     "/h2-console",
+                    "/swagger-ui/index.html",
+                    "/swagger-ui/swagger-ui.css",
+                    "/swagger-ui/swagger-ui-bundle.js",
+                    "/swagger-ui/swagger-ui-standalone-preset.js",
+                    "/swagger-ui/favicon-32x32.png",
+                    "/swagger-ui/favicon-16x16.png",
+
+                    "/favicon.ico",
                     "/swagger-ui",
                     "/api-docs",
                     "/api/v1/auth/refresh/token",
@@ -29,7 +37,7 @@ public class FilterUtils {
     public static boolean allowedAuth(String path) {
 
         for (String string : allowedEndpoints) {
-            if (path.equalsIgnoreCase(string)) {
+            if (path.startsWith(string)) {
                 return true;
             }
         }

@@ -20,52 +20,76 @@ import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import javax.validation.Valid;
+import javax.xml.bind.ValidationException;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+
+import static org.springframework.web.bind.annotation.RequestMethod.POST;
 
 /**
  * @author Ray Gdhrt
  */
 @Slf4j
 @RestController
-@RequestMapping("/v1/admin/courses")
+@RequestMapping("api/v1/admin/courses")
 public class AdminCoursesController {
-
-    @PostMapping("")
-    public ResponseEntity<ResponseObject<Course>> getCourses( CourseRequestDTO dto) throws JSONException {
+@Autowired
+    ModelMapper modelMapper;
+    @PostMapping("/json")
+    public ResponseEntity<ResponseObject<Course>> addCourse(@RequestBody CourseRequestDTO dto) throws JSONException {
 Course course=ApplicationContextProvider.getBean(CourseService.class).saveInstance(dto);
         return ResponseEntity.ok().body(new ResponseObject<>(course));
 
     }
-    @PostMapping("{id}/publish")
+    @PostMapping(path = "", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    public ResponseEntity<BaseResponse> uploadCSV(@RequestPart @Valid CourseRequestDTO dto, @RequestPart("file") MultipartFile file) throws JSONException {
+       dto.setCoverImage(file);
+         ApplicationContextProvider.getBean(CourseService.class).saveInstance(dto);
+        return ResponseEntity.ok().body(new BaseResponse(true));
+    }
+    @PostMapping("/{id}/publish")
     public ResponseEntity<BaseResponse> publishCourse(@PathVariable long id) throws JSONException {
         Course course=ApplicationContextProvider.getBean(CourseService.class).getInstanceByID(id);
         ApplicationContextProvider.getBean(CourseService.class).activatePlan(course);
         return ResponseEntity.ok().body(new BaseResponse(true));
 
     }
-    @PostMapping("{id}/unpublish")
+    @PostMapping("/{id}/unpublish")
     public ResponseEntity<BaseResponse> unPublishCourse(@PathVariable long id) throws JSONException {
         Course course=ApplicationContextProvider.getBean(CourseService.class).getInstanceByID(id);
         ApplicationContextProvider.getBean(CourseService.class).deActivatePlan(course);
         return ResponseEntity.ok().body(new BaseResponse(true));
 
     }
-    @DeleteMapping("{id}/delete")
+
+    @GetMapping("/{id}")
+    public ResponseEntity<ResponseObject<CourseResponseDTO>> getById(@PathVariable(name = "id") long id) throws JSONException {
+       System.out.println("ID======="+id);
+        Course course=ApplicationContextProvider.getBean(CourseService.class).getInstanceByID(id);
+        return ResponseEntity.ok().body(new ResponseObject<>(modelMapper.map(course, CourseResponseDTO.class)));
+
+    }
+    @DeleteMapping("/{id}/delete")
     public ResponseEntity<BaseResponse> deleteCourse(@PathVariable long id) throws JSONException {
         Course course=ApplicationContextProvider.getBean(CourseService.class).getInstanceByID(id);
         ApplicationContextProvider.getBean(CourseService.class).deleteInstance(course);
         return ResponseEntity.ok().body(new BaseResponse(true));
     }
     @GetMapping("")
-    public ResponseEntity<ResponseList<Course>> getCourses( ArticlesFilterDTO queryParamModel) throws JSONException {
+    public ResponseEntity<ResponseList<com.byaffe.learningking.dtos.courses.CourseResponseDTO>> getCourses(ArticlesFilterDTO queryParamModel) throws JSONException {
 
         Search search = CourseServiceImpl.generateSearchObjectForCourses(queryParamModel.getSearchTerm())
-                .addFilterEqual("recordStatus", RecordStatus.ACTIVE)
-                .addFilterEqual("publicationStatus", PublicationStatus.ACTIVE);
+                .addFilterEqual("recordStatus", RecordStatus.ACTIVE);
         if (queryParamModel.getCategoryId() != null) {
             search.addFilterEqual("category.id", queryParamModel.getCategoryId());
         }
@@ -78,11 +102,14 @@ Course course=ApplicationContextProvider.getBean(CourseService.class).saveInstan
             search.addSort(queryParamModel.getSortBy(), queryParamModel.getSortDescending());
         }
         List<Course> courses = ApplicationContextProvider.getBean(CourseService.class).getInstances(search, queryParamModel.getOffset(), queryParamModel.getLimit());
-        return ResponseEntity.ok().body(new ResponseList<>(courses, (int) 0, queryParamModel.getOffset(), queryParamModel.getLimit()));
+        long count = ApplicationContextProvider.getBean(CourseService.class).countInstances(search);
+
+
+        return ResponseEntity.ok().body(new ResponseList<>(courses.stream().map(r->modelMapper.map(r,com.byaffe.learningking.dtos.courses.CourseResponseDTO.class)).collect(Collectors.toList()), (int) count, queryParamModel.getOffset(), queryParamModel.getLimit()));
 
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/v2/{id}")
     public ResponseEntity<ResponseObject<CourseDetailsResponseDTO>> getCourseById(@PathVariable("id") Long id) throws JSONException {
          Course course = ApplicationContextProvider.getBean(CourseService.class).getInstanceByID(id);
         CourseDetailsResponseDTO responseDTO = new CourseDetailsResponseDTO();

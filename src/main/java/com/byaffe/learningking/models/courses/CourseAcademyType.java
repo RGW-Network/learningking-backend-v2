@@ -6,6 +6,8 @@
  */
 package com.byaffe.learningking.models.courses;
 
+import org.apache.commons.lang3.StringUtils;
+
 /**
  *
  * @author Ray Gdhrt
@@ -26,6 +28,10 @@ public enum CourseAcademyType {
         return displayName;
     }
 
+    public int getId() {
+        return id;
+    }
+
     public static CourseAcademyType getById(int id){
         for(CourseAcademyType enumValue: CourseAcademyType.values()){
             if(enumValue.id==id){
@@ -34,5 +40,18 @@ public enum CourseAcademyType {
         }
         return null;
     }
-    
+
+    public static CourseAcademyType getByName(String displayName){
+        for(CourseAcademyType enumValue: CourseAcademyType.values()){
+            if(StringUtils.equalsIgnoreCase(enumValue.displayName, displayName)||StringUtils.equalsIgnoreCase(enumValue.name(), displayName)){
+                return enumValue;
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public String toString() {
+        return displayName;
+    }
 }

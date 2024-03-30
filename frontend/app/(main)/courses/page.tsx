@@ -86,7 +86,7 @@ const CoursesView = () => {
         setIsLoading(true);
         let searchParameters: any = getQueryParameters();
 
-        new BaseApiServiceImpl('/v1/courses')
+        new BaseApiServiceImpl('/v1/admin/courses')
             .getRequestWithJsonResponse(searchParameters)
             .then(async (response) => {
                 setIsLoading(false);
@@ -144,7 +144,7 @@ const CoursesView = () => {
      */
     const openEditFormDialog = (selectedRecord: any) => {
         setSelectedUser(selectedRecord);
-        toggleOpenDialog();
+        router.push('/courses/form/' + selectedRecord?.id);
     };
 
     /**
@@ -303,7 +303,7 @@ const CoursesView = () => {
                         <Column field="title" header={'Title'}></Column>
                         <Column field="coverImageUrl" header={'Cover image'}></Column>
                         <Column field="academy" header={'Academy'}></Column>
-                        <Column field="category" header={'Category'}></Column>
+                        <Column field="category.name" header={'Category'}></Column>
 
                         <Column header={labels.LABEL_STATUS} body={statusBodyTemplate}></Column>
                         <Column style={{ width: '120px' }} header="Actions" body={actionBodyTemplate}></Column>
@@ -312,7 +312,6 @@ const CoursesView = () => {
                     <Paginator first={first} rows={constants.MAXIMUM_RECORDS_PER_PAGE} totalRecords={totalItems} alwaysShow={true} onPageChange={onPageChange} template={paginatorTemplate} />
                 </div>
             </div>
-            <LookupFormDialogView isOpen={openDialog} lookupTypes={lookupTypes} toggle={toggleOpenDialog} messageRef={message} record={selectedUser} reloadFn={fetchRecordsFromServer}></LookupFormDialogView>
         </div>
     );
 };

@@ -7,41 +7,51 @@ import { FileUpload, FileUploadSelectEvent, FileUploadUploadEvent, ItemTemplateO
 import { InputSwitch } from 'primereact/inputswitch';
 import { InputText } from 'primereact/inputtext';
 import { classNames } from 'primereact/utils';
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import type { Demo } from '@/types';
 import { InputTextarea } from 'primereact/inputtextarea';
 import { BaseApiServiceImpl } from '@/app/api/BaseApiServiceImpl';
 import { MessageUtils } from '@/app/utils/MessageUtils';
+import { LABEL_RECORD_SAVED_SUCCESSFULLY } from '@/app/constants/Labels';
+import { ACADEMIES_ENUM, COURSE_OWNERSHIPS_ENUM } from '@/app/constants/Constants';
+import { formatJSDate, isNotEmpty, jsonToFormData } from '@/app/utils/Utils';
+import { useParams, usePathname, useRouter, useSearchParams } from 'next/navigation';
 
 function CourseForm() {
+    const pathParam = useParams();
+
+    const recordId = pathParam.id;
+    console.log('Current Record Id ' + recordId);
     const [course, setCourse] = useState<any>({
+        id: recordId,
         title: '',
         description: '',
         coverImageUrl: '',
         welcomeVideoUrl: '',
         guidelineVideoUrl: '',
-        publicationStatus: 'Draft',
-        tags: ['Nike', 'Sneaker'],
-        category: 'Sneakers',
-        certificateTemplate: [],
-        stock: 'Sneakers',
-        ownershipType: true,
+        publicationStatus: 0,
+        tags: [],
+        categoryId: 0,
+        certificateTemplate: '',
+        ownershipTypeId: 0,
         isFeatured: true,
         isPaid: true,
-        cost: true,
-        fullDescription: true,
-        academy: '',
-        company: []
+        cost: 0,
+        fullDescription: '',
+        academyId: 0,
+        companyId: 0,
+        coverImage: null
     });
+    const [isSaving, setIsSaving] = useState<boolean>(false);
+    const router = useRouter();
+    const [profilePhoto, setProfilePhoto] = useState<any>(null);
 
-    const [categories, setCategories] = useState(course.category);
-    const [selectedStock, setSelectedStock] = useState(course.category);
-    const categoryOptions = ['Sneakers', 'Apparel', 'Socks'];
+    const [categories, setCategories] = useState([]);
 
     const fileUploader = useRef<FileUpload>(null);
-    const fetchRecordsFromServer = () => {
+    const fetchCategoriesFromServer = () => {
         new BaseApiServiceImpl('/v1/categories')
-            .getRequestWithJsonResponse({})
+            .getRequestWithJsonResponse({ offset: 0, limit: 100 })
             .then(async (response) => {
                 setCategories(response?.records);
             })
@@ -49,6 +59,59 @@ function CourseForm() {
                 MessageUtils.showErrorMessage('Categories', error.message);
             });
     };
+
+    const fetchRecordFromServer = () => {
+        new BaseApiServiceImpl('/v1/admin/courses/' + recordId)
+            .getRequestWithJsonResponse({})
+            .then(async (response) => {
+                setCourse(response?.data);
+            })
+            .catch((error) => {
+                MessageUtils.showErrorMessage('Categories', error.message);
+            });
+    };
+    /**
+     * This hook is called everytime the page is loaded
+     */
+    useEffect(() => {
+        if (isNotEmpty(recordId) && Number(recordId) > 0) {
+            fetchRecordFromServer();
+        }
+
+        fetchCategoriesFromServer();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+    const clearForm = () => {};
+    /**
+     * This submits a save user request to the backoffice
+     */
+    const doSave = () => {
+        let userData: any = course;
+
+        let accountProfileFormData: FormData = new FormData();
+        accountProfileFormData.append('file', course.coverImage);
+        userData.coverImage = null;
+        accountProfileFormData.append(
+            'dto',
+            new Blob([JSON.stringify(userData)], {
+                type: 'application/json'
+            })
+        );
+
+        setIsSaving(true);
+        new BaseApiServiceImpl('/v1/admin/courses')
+            .postMultipartWithJsonResponse(accountProfileFormData)
+            .then(async (response) => {
+                setIsSaving(false);
+                clearForm();
+                MessageUtils.showSuccessMessage('', LABEL_RECORD_SAVED_SUCCESSFULLY);
+            })
+            .catch((error) => {
+                setIsSaving(false);
+                MessageUtils.showErrorMessage('', error.message);
+            });
+    };
+
     const chipTemplate = (tag: string) => {
         return (
             <React.Fragment>
@@ -76,14 +139,22 @@ function CourseForm() {
     };
 
     const onUpload = (event: FileUploadUploadEvent | FileUploadSelectEvent) => {
-        setCourse((prevState: any) => ({ ...prevState, images: event.files }));
+        setCourse((prevState: any) => ({ ...prevState, coverImage: event.files[0] }));
     };
 
     const onFileUploadClick = () => {
         const inputEl = fileUploader.current?.getInput();
         inputEl?.click();
     };
-
+    /**
+     * This uploads the photo and sets the variable profilePhoto. It clears the file
+     * form once completed
+     * @param event
+     */
+    const uploadPhoto = (event: any) => {
+        setProfilePhoto(event.files[0]);
+        event.options.clear();
+    };
     const emptyTemplate = () => {
         return (
             <div className="h-15rem overflow-y-auto py-3 border-round" style={{ cursor: 'copy' }}>
@@ -186,10 +257,28 @@ function CourseForm() {
                             />
                         </div>
                         <div className="col-12 field">
-                            <InputTextarea value={course.description} style={{ height: '250px' }}></InputTextarea>
+                            <InputTextarea
+                                value={course.description}
+                                onChange={(e) =>
+                                    setCourse((prevState: any) => ({
+                                        ...prevState,
+                                        description: e.target.value
+                                    }))
+                                }
+                                style={{ height: '250px' }}
+                            ></InputTextarea>
                         </div>
                         <div className="col-12 field">
-                            <Editor value={course.fullDescription} style={{ height: '250px' }}></Editor>
+                            <Editor
+                                value={course.fullDescription}
+                                onTextChange={(e) =>
+                                    setCourse((prevState: any) => ({
+                                        ...prevState,
+                                        fullDescription: e.textValue
+                                    }))
+                                }
+                                style={{ height: '250px' }}
+                            ></Editor>
                         </div>
                         <div className="col-12 field">
                             <FileUpload
@@ -234,28 +323,67 @@ function CourseForm() {
                     <div className="border-1 surface-border border-round">
                         <span className="text-900 font-bold block border-bottom-1 surface-border p-3">Category</span>
                         <div className="p-3">
-                            <Dropdown options={categories} value={course.category} 
-                           
-                            onChange={(e) =>
-                                setCourse((prevState: any) => ({
-                                    ...prevState,
-                                    category: e.value
-                                }))
-                            }
-                            placeholder="Select a category"></Dropdown>
+                            <Dropdown
+                                optionLabel="name"
+                                optionValue="id"
+                                filter
+                                showClear
+                                options={categories}
+                                value={course.categoryId}
+                                onChange={(e) =>
+                                    setCourse((prevState: any) => ({
+                                        ...prevState,
+                                        categoryId: e.value
+                                    }))
+                                }
+                                placeholder="Select a category"
+                            ></Dropdown>
                         </div>
                     </div>
-
                     <div className="border-1 surface-border border-round">
-                        <span className="text-900 font-bold block border-bottom-1 surface-border p-3">Stock</span>
+                        <span className="text-900 font-bold block border-bottom-1 surface-border p-3">Ownership</span>
                         <div className="p-3">
-                            <Dropdown options={categoryOptions} value={selectedStock} onChange={(e) => setSelectedStock(e.value)} placeholder="Select stock"></Dropdown>
+                            <Dropdown
+                                optionLabel="name"
+                                optionValue="id"
+                                filter
+                                showClear
+                                options={COURSE_OWNERSHIPS_ENUM}
+                                value={course.ownershipTypeId}
+                                onChange={(e) =>
+                                    setCourse((prevState: any) => ({
+                                        ...prevState,
+                                        ownershipTypeId: e.value
+                                    }))
+                                }
+                                placeholder="Select a owner"
+                            ></Dropdown>
+                        </div>
+                    </div>
+                    <div className="border-1 surface-border border-round">
+                        <span className="text-900 font-bold block border-bottom-1 surface-border p-3">Academy</span>
+                        <div className="p-3">
+                            <Dropdown
+                                optionLabel="name"
+                                optionValue="id"
+                                filter
+                                showClear
+                                options={ACADEMIES_ENUM}
+                                value={course.academyId}
+                                onChange={(e) =>
+                                    setCourse((prevState: any) => ({
+                                        ...prevState,
+                                        academyId: e.value
+                                    }))
+                                }
+                                placeholder="Select stock"
+                            ></Dropdown>
                         </div>
                     </div>
 
                     <div className="flex flex-column sm:flex-row justify-content-between align-items-center gap-3 py-2">
-                        <Button className="flex-1" severity="danger" outlined label="Discard" icon="pi pi-fw pi-trash"></Button>
-                        <Button className="flex-1 border-round" label="Save" icon="pi pi-fw pi-check"></Button>
+                        <Button loading={isSaving} className="flex-1" severity="danger" outlined label="Discard" icon="pi pi-fw pi-trash"></Button>
+                        <Button loading={isSaving} className="flex-1 border-round" label="Save" onClick={doSave} icon="pi pi-fw pi-check"></Button>
                     </div>
                 </div>
             </div>

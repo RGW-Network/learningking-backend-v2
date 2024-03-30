@@ -23,10 +23,8 @@ public class Course extends BaseEntity {
     private int numberOfTopics = 0;
     private String coverImageUrl;
     private String welcomeVideoUrl;
-    @ElementCollection (fetch = FetchType.EAGER)
-    @CollectionTable(name="what_you_will_learn", joinColumns=@JoinColumn(name="course_id"))
-    @Column(name="outcome")
-    private List<String> whatYouWillLearn;
+    @Column(name="what_you_will_learn", columnDefinition = "TEXT")
+    private String whatYouWillLearn;
 
     @ElementCollection (fetch = FetchType.EAGER)
     @CollectionTable(name="course_tags", joinColumns=@JoinColumn(name="course_id"))

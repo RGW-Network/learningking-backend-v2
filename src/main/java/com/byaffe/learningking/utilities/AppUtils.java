@@ -11,6 +11,7 @@ import com.google.gson.Gson;
 import io.github.jav.exposerversdk.PushClient;
 import io.github.jav.exposerversdk.PushClientException;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
@@ -109,6 +110,16 @@ public class AppUtils {
                     .getName()).log(Level.SEVERE, null, ex);
         }
         return null;
+
+    }
+
+
+    public String uploadCloudinaryImage(MultipartFile contents, String public_id,Runnable runnable) {
+        try {
+            return uploadCloudinaryImage(contents.getBytes(),public_id);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
 
     }
 

@@ -5,6 +5,7 @@ import com.byaffe.learningking.shared.models.BaseEntity;
 import com.byaffe.learningking.shared.models.User;
 import com.googlecode.genericdao.dao.jpa.GenericDAOImpl;
 import com.googlecode.genericdao.search.MetadataUtil;
+import com.googlecode.genericdao.search.Search;
 import com.googlecode.genericdao.search.jpa.JPASearchProcessor;
 import com.byaffe.learningking.shared.security.UserDetailsContext;
 import org.apache.commons.lang3.StringUtils;
@@ -91,26 +92,30 @@ public class BaseDAOImpl<T extends BaseEntity> extends GenericDAOImpl<T, Long> i
 
     @Override
     public List<T> searchByPropertyEqual(String string, Object o) {
-        return null;
+        return super.search(new Search().addFilterEqual(string,o));
+
     }
 
     @Override
     public T searchUniqueByPropertyEqual(String string, Object o) {
-        return null;
+        return super.searchUnique(new Search().addFilterEqual(string,o).setMaxResults(1));
+
     }
 
     @Override
     public List<T> searchByPropertyEqual(String string, Object o, RecordStatus rs) {
-        return null;
+
+        return super.search(new Search().addFilterEqual(string,o).addFilterEqual("recordStatus",rs));
+
     }
 
     @Override
     public List<T> searchByRecordStatus(RecordStatus rs) {
-        return null;
+        return super.search(new Search().addFilterEqual("recordStatus",rs));
     }
 
     @Override
     public T searchUniqueByPropertyEqual(String string, Object o, RecordStatus rs) {
-        return null;
+        return super.searchUnique(new Search().addFilterEqual(string,o).addFilterEqual("recordStatus",rs).setMaxResults(1));
     }
 }

@@ -14,10 +14,14 @@ public class ResponseList<T> extends BaseResponse {
 	private List<T> records;
 
 	public ResponseList(List<T> records, long totalItems, int offset, int limit) {
+
 		this.totalItems = totalItems;
 		this.offset = offset;
 		this.limit = limit;
 		this.records = records;
+		this.setMessage("Records fetched successfully");
+		this.setStatus("Success");
+
 	}
 
 
