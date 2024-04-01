@@ -2,29 +2,24 @@
 import { Button } from 'primereact/button';
 import { Column } from 'primereact/column';
 import { DataTable } from 'primereact/datatable';
-import React, { useState, useEffect, useRef, useLayoutEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Messages } from 'primereact/messages';
 import { Paginator } from 'primereact/paginator';
 import { Panel } from 'primereact/panel';
-import { BreadCrumb } from 'primereact/breadcrumb';
-import * as constants from '../../constants/Constants';
+import * as constants from '../../../../constants/Constants';
 
-import * as labels from '../../constants/Labels';
-import useShowModalDialog from '../../components/ShowModalHook';
+import * as labels from '../../../../constants/Labels';
+import useShowModalDialog from '../../../../components/ShowModalHook';
 import { PrimeIcons } from 'primereact/api';
-import { BaseApiServiceImpl } from '../../api/BaseApiServiceImpl';
-import { MessageUtils } from '../../utils/MessageUtils';
-import { replaceWithUnderscore, toReadableDate } from '../../utils/Utils';
-import { getFilterComponent } from '../../components/Filters';
-import { paginatorTemplate } from '../../components/PaginatorTemplate';
-import { filtersHeadertemplate } from '../../components/FiltersPanelHeader';
-import UserFormDialogView from '../users/UserFormDialogView';
-import LookupFormDialogView from './CourseForm';
-import authProtector from '@/app/security/authProtector';
-import checkAuth from '@/app/security/authProtector';
-import { redirect, useRouter } from 'next/navigation';
+import { BaseApiServiceImpl } from '../../../../api/BaseApiServiceImpl';
+import { MessageUtils } from '../../../../utils/MessageUtils';
+import { replaceWithUnderscore, toReadableDate } from '../../../../utils/Utils';
+import { getFilterComponent } from '../../../../components/Filters';
+import { paginatorTemplate } from '../../../../components/PaginatorTemplate';
+import { filtersHeadertemplate } from '../../../../components/FiltersPanelHeader';
+import { useRouter } from 'next/navigation';
 
-const CoursesView = () => {
+const LessonsTab = () => {
     const [records, setRecords] = useState<any>(null);
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [searchTermFilter, setSearchTermFilter] = useState<string | null>(null);
@@ -39,32 +34,6 @@ const CoursesView = () => {
     let offset = 0;
 
     const message = useRef<any>();
-
-    const { openDialog, toggleOpenDialog } = useShowModalDialog();
-
-    /**
-     * These are the bread crumbs that serve as the title of the page
-     */
-    const breadcrumbHome = {
-        icon: 'pi pi-home',
-        command: () => {
-            //  history.push(HOME_ROUTE_PATH);
-        }
-    };
-
-    const breadcrumbItems = [
-        {
-            label: `Home`,
-            icon: PrimeIcons.COG,
-            command: () => {
-                // history.push(HOME_ROUTE_PATH);
-            }
-        },
-        {
-            label: `Categories`,
-            icon: PrimeIcons.USERS
-        }
-    ];
 
     /**
      * This gets the parameters to submit in the GET request to back office
@@ -261,18 +230,6 @@ const CoursesView = () => {
             optionValue: 'id',
             colWidth: constants.CSS_FILTER_DEFAULT_DIV,
             onkeydownFn: onSubmitFilter
-        },
-        {
-            type: 'dropdown',
-            value: lookupTypeFilter,
-            onChangeFn: setlookupTypeFilter,
-            id: 'lookupTypeFilter',
-            label: 'Lookup Type',
-            options: lookupTypes,
-            optionLabel: 'name',
-            optionValue: 'id',
-            colWidth: constants.CSS_FILTER_DEFAULT_DIV,
-            onkeydownFn: onSubmitFilter
         }
     ];
 
@@ -292,18 +249,17 @@ const CoursesView = () => {
 
     return (
         <div className="grid">
-            <div className="col-12 flex justify-content-end flex-wrap">
-                <Button label={'Add Course'} icon={PrimeIcons.PLUS} className="p-button-secondary" onClick={openNewFormDialog} />
+            <div className="col-11 ">
+                <div className="grid">
+                    {dynamicFilterDetails}
+                    {filterButtonsTemplate}
+                </div>
+            </div>
+            <div className="col-1 ">
+                <Button label={'Add'} icon={PrimeIcons.PLUS} className="p-button-secondary" onClick={openNewFormDialog} />
             </div>
             <Messages ref={message} style={{ width: '100%' }} />
-            <div className="col-12">
-                <Panel headerTemplate={filtersHeadertemplate} toggleable>
-                    <div className="grid">
-                        {dynamicFilterDetails}
-                        {filterButtonsTemplate}
-                    </div>
-                </Panel>
-            </div>
+
             <div className="col-12">
                 <div className="card">
                     <DataTable value={records} paginator={false} className="datatable-responsive" paginatorPosition="both" emptyMessage="No record found." loading={isLoading}>
@@ -324,4 +280,4 @@ const CoursesView = () => {
     );
 };
 
-export default CoursesView;
+export default LessonsTab;

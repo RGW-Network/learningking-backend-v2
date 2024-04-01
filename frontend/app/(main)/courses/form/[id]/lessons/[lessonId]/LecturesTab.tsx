@@ -2,36 +2,28 @@
 import { Button } from 'primereact/button';
 import { Column } from 'primereact/column';
 import { DataTable } from 'primereact/datatable';
-import React, { useState, useEffect, useRef, useLayoutEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Messages } from 'primereact/messages';
 import { Paginator } from 'primereact/paginator';
 import { Panel } from 'primereact/panel';
-import { BreadCrumb } from 'primereact/breadcrumb';
-import * as constants from '../../constants/Constants';
-
-import * as labels from '../../constants/Labels';
-import useShowModalDialog from '../../components/ShowModalHook';
 import { PrimeIcons } from 'primereact/api';
-import { BaseApiServiceImpl } from '../../api/BaseApiServiceImpl';
-import { MessageUtils } from '../../utils/MessageUtils';
-import { replaceWithUnderscore, toReadableDate } from '../../utils/Utils';
-import { getFilterComponent } from '../../components/Filters';
-import { paginatorTemplate } from '../../components/PaginatorTemplate';
-import { filtersHeadertemplate } from '../../components/FiltersPanelHeader';
-import UserFormDialogView from '../users/UserFormDialogView';
-import LookupFormDialogView from './CourseForm';
-import authProtector from '@/app/security/authProtector';
-import checkAuth from '@/app/security/authProtector';
-import { redirect, useRouter } from 'next/navigation';
+import { useRouter } from 'next/navigation';
+import { BaseApiServiceImpl } from '@/app/api/BaseApiServiceImpl';
+import { MessageUtils } from '@/app/utils/MessageUtils';
+import { replaceWithUnderscore, toReadableDate } from '@/app/utils/Utils';
+import { paginatorTemplate } from '@/app/components/PaginatorTemplate';
+import { getFilterComponent } from '@/app/components/Filters';
+import { CSS_FILTER_DEFAULT_DIV, CSS_FILTER_RESET_BUTTON, CSS_FILTER_SEARCH_INPUT_DIV, CSS_FILTER_SUBMIT_BUTTON, ICON_REFRESH, ICON_SEARCH, MAXIMUM_RECORDS_PER_PAGE, RECORD_STATUSES } from '@/app/constants/Constants';
+import { LABEL_RECORD_STATUS, LABEL_SEARCH_TERM, LABEL_STATUS } from '@/app/constants/Labels';
 
-const CoursesView = () => {
+const LecturesTab = () => {
     const [records, setRecords] = useState<any>(null);
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [searchTermFilter, setSearchTermFilter] = useState<string | null>(null);
     const [recordStatusFilter, setRecordStatusFilter] = useState<string | null>(null);
     const [totalItems, setTotalItems] = useState<number>(0);
     const [first, setFirst] = useState<number>(0);
-    const [limit, setLimit] = useState<number>(constants.MAXIMUM_RECORDS_PER_PAGE);
+    const [limit, setLimit] = useState<number>(MAXIMUM_RECORDS_PER_PAGE);
     const [selectedUser, setSelectedUser] = useState<any>(null);
     const [lookupTypeFilter, setlookupTypeFilter] = useState<any>(null);
     const [lookupTypes, setlookupTypes] = useState<any>([]);
@@ -39,32 +31,6 @@ const CoursesView = () => {
     let offset = 0;
 
     const message = useRef<any>();
-
-    const { openDialog, toggleOpenDialog } = useShowModalDialog();
-
-    /**
-     * These are the bread crumbs that serve as the title of the page
-     */
-    const breadcrumbHome = {
-        icon: 'pi pi-home',
-        command: () => {
-            //  history.push(HOME_ROUTE_PATH);
-        }
-    };
-
-    const breadcrumbItems = [
-        {
-            label: `Home`,
-            icon: PrimeIcons.COG,
-            command: () => {
-                // history.push(HOME_ROUTE_PATH);
-            }
-        },
-        {
-            label: `Categories`,
-            icon: PrimeIcons.USERS
-        }
-    ];
 
     /**
      * This gets the parameters to submit in the GET request to back office
@@ -173,9 +139,9 @@ const CoursesView = () => {
      * @param e
      */
     const onPageChange = (e: any) => {
-        offset = e.page * constants.MAXIMUM_RECORDS_PER_PAGE;
+        offset = e.page * MAXIMUM_RECORDS_PER_PAGE;
         setFirst(e.first);
-        setLimit(constants.MAXIMUM_RECORDS_PER_PAGE);
+        setLimit(MAXIMUM_RECORDS_PER_PAGE);
 
         fetchRecordsFromServer();
     };
@@ -231,8 +197,8 @@ const CoursesView = () => {
     const filterButtonsTemplate = (
         <>
             <div className="col-6  md:col-2 p-fluid" key="filterBtns">
-                <Button icon={constants.ICON_SEARCH} className={constants.CSS_FILTER_SUBMIT_BUTTON} onClick={onSubmitFilter} loading={isLoading} />
-                <Button icon={constants.ICON_REFRESH} className={constants.CSS_FILTER_RESET_BUTTON} onClick={resetFilters} loading={isLoading} />
+                <Button icon={ICON_SEARCH} className={CSS_FILTER_SUBMIT_BUTTON} onClick={onSubmitFilter} loading={isLoading} />
+                <Button icon={ICON_REFRESH} className={CSS_FILTER_RESET_BUTTON} onClick={resetFilters} loading={isLoading} />
             </div>
         </>
     );
@@ -246,8 +212,8 @@ const CoursesView = () => {
             value: searchTermFilter,
             onChangeFn: setSearchTermFilter,
             id: 'searchTermFilter',
-            label: labels.LABEL_SEARCH_TERM,
-            colWidth: constants.CSS_FILTER_SEARCH_INPUT_DIV,
+            label: LABEL_SEARCH_TERM,
+            colWidth: CSS_FILTER_SEARCH_INPUT_DIV,
             onkeydownFn: onSubmitFilter
         },
         {
@@ -255,23 +221,11 @@ const CoursesView = () => {
             value: recordStatusFilter,
             onChangeFn: setRecordStatusFilter,
             id: 'recordStatusFilter',
-            label: labels.LABEL_RECORD_STATUS,
-            options: constants.RECORD_STATUSES,
+            label: LABEL_RECORD_STATUS,
+            options: RECORD_STATUSES,
             optionLabel: 'value',
             optionValue: 'id',
-            colWidth: constants.CSS_FILTER_DEFAULT_DIV,
-            onkeydownFn: onSubmitFilter
-        },
-        {
-            type: 'dropdown',
-            value: lookupTypeFilter,
-            onChangeFn: setlookupTypeFilter,
-            id: 'lookupTypeFilter',
-            label: 'Lookup Type',
-            options: lookupTypes,
-            optionLabel: 'name',
-            optionValue: 'id',
-            colWidth: constants.CSS_FILTER_DEFAULT_DIV,
+            colWidth: CSS_FILTER_DEFAULT_DIV,
             onkeydownFn: onSubmitFilter
         }
     ];
@@ -292,18 +246,17 @@ const CoursesView = () => {
 
     return (
         <div className="grid">
-            <div className="col-12 flex justify-content-end flex-wrap">
-                <Button label={'Add Course'} icon={PrimeIcons.PLUS} className="p-button-secondary" onClick={openNewFormDialog} />
+            <div className="col-11 ">
+                <div className="grid">
+                    {dynamicFilterDetails}
+                    {filterButtonsTemplate}
+                </div>
+            </div>
+            <div className="col-1 ">
+                <Button label={'Add'} icon={PrimeIcons.PLUS} className="p-button-secondary" onClick={openNewFormDialog} />
             </div>
             <Messages ref={message} style={{ width: '100%' }} />
-            <div className="col-12">
-                <Panel headerTemplate={filtersHeadertemplate} toggleable>
-                    <div className="grid">
-                        {dynamicFilterDetails}
-                        {filterButtonsTemplate}
-                    </div>
-                </Panel>
-            </div>
+
             <div className="col-12">
                 <div className="card">
                     <DataTable value={records} paginator={false} className="datatable-responsive" paginatorPosition="both" emptyMessage="No record found." loading={isLoading}>
@@ -313,15 +266,15 @@ const CoursesView = () => {
                         <Column field="academy" header={'Academy'}></Column>
                         <Column field="category.name" header={'Category'}></Column>
 
-                        <Column header={labels.LABEL_STATUS} body={statusBodyTemplate}></Column>
+                        <Column header={LABEL_STATUS} body={statusBodyTemplate}></Column>
                         <Column style={{ width: '120px' }} header="Actions" body={actionBodyTemplate}></Column>
                     </DataTable>
 
-                    <Paginator first={first} rows={constants.MAXIMUM_RECORDS_PER_PAGE} totalRecords={totalItems} alwaysShow={true} onPageChange={onPageChange} template={paginatorTemplate} />
+                    <Paginator first={first} rows={MAXIMUM_RECORDS_PER_PAGE} totalRecords={totalItems} alwaysShow={true} onPageChange={onPageChange} template={paginatorTemplate} />
                 </div>
             </div>
         </div>
     );
 };
 
-export default CoursesView;
+export default LecturesTab;

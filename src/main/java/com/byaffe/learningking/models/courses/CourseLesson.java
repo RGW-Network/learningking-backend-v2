@@ -18,8 +18,6 @@ public class CourseLesson extends BaseEntity {
     private String title;
     private String description;
     private int position = 1;
-    private boolean isLast = false;
-    private boolean isFirst = false;
     private String coverImageUrl;
     private String videoUrl;
     private String audioUrl;
@@ -65,24 +63,6 @@ public class CourseLesson extends BaseEntity {
         this.position = position;
     }
 
-  
-     @Column(name = "is_last", length = 10)
-    public boolean isIsLast() {
-        return isLast;
-    }
-
-    public void setIsLast(boolean isLast) {
-        this.isLast = isLast;
-    }
-
-     @Column(name = "is_first", length = 10)
-    public boolean isIsFirst() {
-        return isFirst;
-    }
-
-    public void setIsFirst(boolean isFirst) {
-        this.isFirst = isFirst;
-    }
 
       @Column(name = "cover_image_url", columnDefinition = "TEXT")
     public String getCoverImageUrl() {

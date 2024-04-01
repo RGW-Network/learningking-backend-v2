@@ -17,10 +17,6 @@ public class CourseTopic extends BaseEntity {
     private String description;
     @Column(name = "position", length = 10)
     private int position = 1;
-    @Column(name = "is_last", length = 10)
-    private boolean isLast = false;
-    @Column(name = "is_first", length = 10)
-    private boolean isFirst = false;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "publication_status", nullable = true)

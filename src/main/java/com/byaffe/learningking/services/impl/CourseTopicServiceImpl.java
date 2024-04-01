@@ -1,16 +1,16 @@
 package com.byaffe.learningking.services.impl;
 
 import com.byaffe.learningking.daos.CourseLectureDao;
-import com.byaffe.learningking.models.courses.CourseLecture;
-import com.byaffe.learningking.models.courses.CourseLesson;
-import com.byaffe.learningking.models.courses.CourseTopic;
-import com.byaffe.learningking.models.courses.PublicationStatus;
+import com.byaffe.learningking.daos.CourseLessonDao;
+import com.byaffe.learningking.dtos.courses.CourseTopicRequestDTO;
+import com.byaffe.learningking.models.courses.*;
 import com.byaffe.learningking.services.CourseTopicService;
 import com.byaffe.learningking.shared.constants.RecordStatus;
 import com.byaffe.learningking.shared.dao.BaseDAOImpl;
 import com.byaffe.learningking.shared.exceptions.OperationFailedException;
 import com.byaffe.learningking.shared.exceptions.ValidationFailedException;
 import com.googlecode.genericdao.search.Search;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -22,6 +22,21 @@ public class CourseTopicServiceImpl extends BaseDAOImpl<CourseTopic> implements 
     @Autowired
     CourseLectureDao courseLectureDao;
 
+    @Autowired
+    CourseLessonDao courseLessonDao;
+    @Autowired
+    ModelMapper modelMapper;
+    @Override
+    public CourseTopic saveInstance(CourseTopicRequestDTO dto) {
+
+        CourseTopic courseLesson= modelMapper.map(dto,CourseTopic.class);
+        CourseLesson course= courseLessonDao.getReference(dto.getCourseLessonId());
+        courseLesson.setCourseLesson(course);
+        if (course == null) {
+            throw new ValidationFailedException("Missing lesson");
+        }
+        return super.save(courseLesson);
+    }
     @Override
     public CourseTopic saveInstance(CourseTopic seriesPart) throws ValidationFailedException {
 
@@ -91,6 +106,8 @@ if (allSubTopics.isEmpty()) {
                 .setMaxResults(1));
 
     }
+
+
 
     @Override
     public void deleteInstance(CourseTopic instance) throws OperationFailedException {

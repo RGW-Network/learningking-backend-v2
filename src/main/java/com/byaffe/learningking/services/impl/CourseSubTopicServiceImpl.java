@@ -1,5 +1,7 @@
 package com.byaffe.learningking.services.impl;
 
+import com.byaffe.learningking.daos.CourseLessonDao;
+import com.byaffe.learningking.dtos.courses.LectureRequestDTO;
 import com.byaffe.learningking.models.courses.*;
 import com.byaffe.learningking.services.CourseLessonService;
 import com.byaffe.learningking.services.CourseSubTopicService;
@@ -8,6 +10,7 @@ import com.byaffe.learningking.shared.constants.RecordStatus;
 import com.byaffe.learningking.shared.exceptions.OperationFailedException;
 import com.byaffe.learningking.shared.exceptions.ValidationFailedException;
 import com.googlecode.genericdao.search.Search;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -19,7 +22,10 @@ public class CourseSubTopicServiceImpl
     CourseTopicService courseTopicService;
     @Autowired
     CourseLessonService courseLessonService;
-
+    @Autowired
+    CourseLessonDao courseLessonDao;
+    @Autowired
+    ModelMapper modelMapper;
     @Override
     public boolean isDeletable(CourseLecture entity) throws OperationFailedException {
         return true;
@@ -28,6 +34,18 @@ public class CourseSubTopicServiceImpl
     @Override
     public CourseLecture saveInstance(CourseLecture instance) throws ValidationFailedException, OperationFailedException {
         return super.save(instance);
+    }
+
+    @Override
+    public CourseLecture saveInstance(LectureRequestDTO dto) {
+
+        CourseLecture courseLesson= modelMapper.map(dto,CourseLecture.class);
+        CourseTopic course= courseTopicService.getInstanceByID(dto.getCourseTopicId());
+        courseLesson.setCourseTopic(course);
+        if (course == null) {
+            throw new ValidationFailedException("Missing lesson");
+        }
+        return super.save(courseLesson);
     }
 
     @Override
