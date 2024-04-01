@@ -31,3 +31,31 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### VS Code ###
+.vscode/
+
+# Node artifact files
+node_modules/
+node/
+dist/
+build/
+
+# production
+/build
+dist
+/idea
+/.idea
+
+# Large media files
+*.mp4
+*.tiff
+*.avi
+*.flv
+*.mov
+*.wmv
+
+package-lock.json
+yarn.lock
+
+
