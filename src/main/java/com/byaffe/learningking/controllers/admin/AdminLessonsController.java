@@ -75,17 +75,20 @@ CourseLessonService modelService;
         return ResponseEntity.ok().body(new BaseResponse(true));
     }
     @GetMapping("")
-    public ResponseEntity<ResponseList<LessonResponseDTO>> getRecords(ArticlesFilterDTO queryParamModel) throws JSONException {
+    public ResponseEntity<ResponseList<LessonResponseDTO>> getRecords(@RequestParam(value = "searchTerm", required = false) String searchTerm,
+                                                                      @RequestParam(value = "offset", required = true) Integer offset,
+                                                                      @RequestParam(value = "limit", required = true) Integer limit,
+                                                                      @RequestParam(value = "courseId", required = false) Integer courseId) throws JSONException {
 
-        Search search = CourseServiceImpl.generateSearchObjectForCourses(queryParamModel.getSearchTerm())
-                .addFilterEqual("recordStatus", RecordStatus.ACTIVE);
+        Search search = CourseServiceImpl.generateSearchObjectForCourses(searchTerm) .addFilterEqual("recordStatus", RecordStatus.ACTIVE);
 
-        if (queryParamModel.getSortBy() != null) {
-            search.addSort(queryParamModel.getSortBy(), queryParamModel.getSortDescending());
+        if (courseId != null) {
+            search.addFilterEqual("course.id", courseId);
         }
-        List<CourseLesson> courses = modelService.getInstances(search, queryParamModel.getOffset(), queryParamModel.getLimit());
+
+        List<CourseLesson> courses = modelService.getInstances(search, offset,limit);
         long count = modelService.countInstances(search);
-        return ResponseEntity.ok().body(new ResponseList<>(courses.stream().map(r->modelMapper.map(r,LessonResponseDTO.class)).collect(Collectors.toList()), (int) count, queryParamModel.getOffset(), queryParamModel.getLimit()));
+        return ResponseEntity.ok().body(new ResponseList<>(courses.stream().map(r->modelMapper.map(r,LessonResponseDTO.class)).collect(Collectors.toList()), (int) count, offset, limit));
 
     }
 

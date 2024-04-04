@@ -12,8 +12,6 @@ public class LessonResponseDTO {
     private String title;
     private String description;
     private int position = 1;
-    private boolean isLast = false;
-    private boolean isFirst = false;
     private String coverImageUrl;
     private String videoUrl;
     private String audioUrl;

@@ -8,17 +8,23 @@ import com.byaffe.learningking.models.courses.CourseLesson;
 import com.byaffe.learningking.models.courses.CourseLecture;
 import com.byaffe.learningking.models.courses.PublicationStatus;
 import com.byaffe.learningking.services.CourseLessonService;
+import com.byaffe.learningking.services.CourseService;
 import com.byaffe.learningking.services.CourseSubTopicService;
 import com.byaffe.learningking.shared.constants.RecordStatus;
 import com.byaffe.learningking.shared.exceptions.OperationFailedException;
 import com.byaffe.learningking.shared.exceptions.ValidationFailedException;
+import com.byaffe.learningking.shared.utils.ApplicationContextProvider;
+import com.byaffe.learningking.utilities.ImageStorageService;
+import com.google.gson.Gson;
 import com.googlecode.genericdao.search.Search;
+import org.apache.commons.lang3.ObjectUtils;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-
+@Transactional
 @Repository
 public class CourseLessonServiceImpl extends GenericServiceImpl<CourseLesson> implements CourseLessonService {
 @Autowired
@@ -27,17 +33,27 @@ public class CourseLessonServiceImpl extends GenericServiceImpl<CourseLesson> im
     ModelMapper modelMapper;
     @Autowired
     CourseLectureDao courseLectureDao;
-
+    @Autowired
+    ImageStorageService imageStorageService;
     @Override
     public CourseLesson saveInstance(LessonRequestDTO dto) {
 
         CourseLesson courseLesson= modelMapper.map(dto,CourseLesson.class);
-        Course course= courseDao.getReference(dto.getCourseId());
-        courseLesson.setCourse(course);
+
+        System.err.println("Cloned props===: "+new Gson().toJson(courseLesson));
+        Course course= ApplicationContextProvider.getBean(CourseService.class).getInstanceByID(dto.getCourseId());
+
         if (course == null) {
             throw new ValidationFailedException("Missing course");
         }
-        return super.save(courseLesson);
+        courseLesson.setCourse(course);
+        courseLesson= super.save(courseLesson);
+        if(ObjectUtils.allNotNull( dto.getCoverImage())) {
+            String imageUrl=   imageStorageService.uploadImage(dto.getCoverImage(), "course-lessons/" + course.getId());
+            courseLesson.setCoverImageUrl(imageUrl);
+            courseLesson=super.save(courseLesson);
+        }
+        return courseLesson;
     }
     @Override
     public CourseLesson saveInstance(CourseLesson seriesPart) throws ValidationFailedException {

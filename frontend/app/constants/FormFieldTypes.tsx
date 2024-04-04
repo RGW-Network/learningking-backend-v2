@@ -6,6 +6,8 @@ export enum FormFieldTypes {
     NUMBER,
     FLOAT,
     TEXTAREA,
+    EDITOR,
     BOOLEAN,
-    CHIPSTEXT
-};
+    CHIPSTEXT,
+    IMAGE
+}

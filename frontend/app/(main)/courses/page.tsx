@@ -14,7 +14,7 @@ import useShowModalDialog from '../../components/ShowModalHook';
 import { PrimeIcons } from 'primereact/api';
 import { BaseApiServiceImpl } from '../../api/BaseApiServiceImpl';
 import { MessageUtils } from '../../utils/MessageUtils';
-import { replaceWithUnderscore, toReadableDate } from '../../utils/Utils';
+import { isNotEmpty, replaceWithUnderscore, toReadableDate } from '../../utils/Utils';
 import { getFilterComponent } from '../../components/Filters';
 import { paginatorTemplate } from '../../components/PaginatorTemplate';
 import { filtersHeadertemplate } from '../../components/FiltersPanelHeader';
@@ -144,7 +144,7 @@ const CoursesView = () => {
      */
     const openEditFormDialog = (selectedRecord: any) => {
         setSelectedUser(selectedRecord);
-        router.push('/courses/form/' + selectedRecord?.id);
+        router.push('/courses/form/' + selectedRecord.id);
     };
 
     /**
@@ -152,7 +152,7 @@ const CoursesView = () => {
      * and setting the selected territory to null
      */
     const openNewFormDialog = () => {
-        router.push('/courses/form');
+        router.push('/courses/form/0');
     };
     /**
      * The row index template

@@ -10,6 +10,8 @@ import { MultiSelect } from 'primereact/multiselect';
 import { TriStateCheckbox } from 'primereact/tristatecheckbox';
 import { Chips } from 'primereact/chips';
 import { FileUpload } from 'primereact/fileupload';
+import CustomImagePicker from './CustomImagePicker';
+import { Editor } from 'primereact/editor';
 
 /**
  * This validates a field by checking if the value is null or empty
@@ -352,7 +354,39 @@ export function getFormFieldComponent(formField: any) {
             </div>
         );
     }
-
+    if (formField?.type === FormFieldTypes.EDITOR.toString()) {
+        return (
+            <div key={formField?.id} className={`field col-12 md:${formField?.width !== null || formField?.width !== undefined ? formField?.width : 'col-12'}`}>
+                <label htmlFor={formField?.id} className="font-bold">
+                    {formField?.label}
+                </label>
+                {formField?.isValidHint && (
+                    <>
+                        <Editor
+                            value={formField?.value || ''}
+                            onTextChange={(e) => {
+                                formField?.onChange(e.textValue);
+                                formField?.validateFieldFn(e.textValue, formField?.setHint, formField?.label);
+                            }}
+                            style={{ height: '250px' }}
+                        ></Editor>
+                        <small className="p-invalid p-error block">{formField?.isValidHint}</small>
+                    </>
+                )}
+                {!formField?.isValidHint && (
+                    <>
+                        <Editor
+                            value={formField?.value || ''}
+                            onTextChange={(e) => {
+                                formField?.onChange(e.textValue);
+                            }}
+                            style={{ height: '250px' }}
+                        ></Editor>
+                    </>
+                )}
+            </div>
+        );
+    }
     if (formField?.type === FormFieldTypes.BOOLEAN.toString()) {
         return (
             <div key={formField?.id} className={`field-checkbox col-12 md:${formField?.width !== null || formField?.width !== undefined ? formField?.width : 'col-12'}`}>
@@ -439,30 +473,34 @@ export function getFormFieldComponent(formField: any) {
             </div>
         );
     }
-    if (formField?.type === 'Image') {
+    if (formField?.type === FormFieldTypes.IMAGE.toString()) {
         return (
             <div key={formField?.id} className={`field col-12 md:${formField?.width !== null || formField?.width !== undefined ? formField?.width : 'col-12'}`}>
-                <label htmlFor={formField?.fieldId} className={'font-bold'}>
+                <label htmlFor={formField?.id} className="font-bold">
                     {formField?.label}
                 </label>
-                <FileUpload
-                    id={formField?.fieldId}
-                    mode="basic"
-                    name={formField?.opportunityId}
-                    accept="*"
-                    customUpload
-                    uploadHandler={(event: any) => {
-                        formField.onChange(event.files[0]);
-                        event.options.clear();
-                    }}
-                    maxFileSize={500000}
-                    onUpload={formField?.onChange}
-                    auto
-                    chooseLabel="Upload Attachment"
-                />
-                <div className="flex align-items-center justify-content-center  m-1 ">
-                    <i className="pi pi-file-o" /> <span>{formField?.value?.name}</span>
-                </div>
+                {formField?.isValidHint && (
+                    <>
+                        <CustomImagePicker
+                            value={formField?.value}
+                            setValue={(e) => {
+                                formField?.onChange(e);
+                                formField?.validateFieldFn(e.value, formField?.setHint, formField?.label);
+                            }}
+                        />
+                        <small className="p-invalid p-error block">{formField?.isValidHint}</small>
+                    </>
+                )}
+                {!formField?.isValidHint && (
+                    <>
+                        <CustomImagePicker
+                            value={formField?.value}
+                            setValue={(e) => {
+                                formField?.onChange(e);
+                            }}
+                        />
+                    </>
+                )}
             </div>
         );
     }

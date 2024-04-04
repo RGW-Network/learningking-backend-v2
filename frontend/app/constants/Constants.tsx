@@ -68,6 +68,11 @@ export const RECORD_STATUSES = [
     { id: '-1', value: 'Deactivated' }
 ];
 
+export const PUBLICATION_STATUSES = [
+    { id: 'ACTIVE', name: 'Active' },
+    { id: 'INACTIVE', name: 'UnPublished' }
+];
+
 export const CATEGORY_TYPES_ENUM = [
     {
         id: 0,

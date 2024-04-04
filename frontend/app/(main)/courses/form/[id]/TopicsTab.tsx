@@ -19,8 +19,9 @@ import { paginatorTemplate } from '../../../../components/PaginatorTemplate';
 import { filtersHeadertemplate } from '../../../../components/FiltersPanelHeader';
 import { useParams, useRouter } from 'next/navigation';
 import LessonFormDialog from '../../LessonFormDialog';
+import TopicFormDialog from '../../TopicFormDialog';
 
-const LessonsTab = () => {
+const TopicsTab = () => {
     const pathParam = useParams();
 
     const courseId = pathParam.id;
@@ -32,8 +33,7 @@ const LessonsTab = () => {
     const [first, setFirst] = useState<number>(0);
     const [limit, setLimit] = useState<number>(constants.MAXIMUM_RECORDS_PER_PAGE);
     const [selectedUser, setSelectedUser] = useState<any>(null);
-    const [lookupTypeFilter, setlookupTypeFilter] = useState<any>(null);
-    const [lookupTypes, setlookupTypes] = useState<any>([]);
+    const [lessons, setLessons] = useState<any>([]);
     const router = useRouter();
     let offset = 0;
 
@@ -47,7 +47,6 @@ const LessonsTab = () => {
         let searchParameters: any = { offset: offset, limit: limit };
         if (searchTermFilter !== null) searchParameters.searchTerm = searchTermFilter;
         if (recordStatusFilter !== null) searchParameters.recordStatus = recordStatusFilter;
-        if (lookupTypeFilter !== null) searchParameters.lookupTypeId = lookupTypeFilter;
 
         return searchParameters;
     };
@@ -59,7 +58,7 @@ const LessonsTab = () => {
         setIsLoading(true);
         let searchParameters: any = getQueryParameters();
 
-        new BaseApiServiceImpl('/v1/admin/lessons')
+        new BaseApiServiceImpl('/v1/admin/course-topics')
             .getRequestWithJsonResponse(searchParameters)
             .then(async (response) => {
                 setIsLoading(false);
@@ -71,14 +70,15 @@ const LessonsTab = () => {
                 MessageUtils.showErrorMessage(message, error.message);
             });
     };
+
     /**
-     * This fetches counties from the back office using the search parameters
+     * This fetches lessons
      */
-    const fetchLookupTypes = () => {
-        new BaseApiServiceImpl('/v1/lookups/lookup-types')
-            .getRequestWithJsonResponse({})
+    const fetchLessonsFromServer = () => {
+        new BaseApiServiceImpl('/v1/admin/lessons')
+            .getRequestWithJsonResponse({ courseId: courseId, offset: 0, limit: 0 })
             .then(async (response) => {
-                setlookupTypes(response?.records);
+                setLessons(response?.records);
             })
             .catch((error) => {
                 MessageUtils.showErrorMessage(message, error.message);
@@ -90,7 +90,7 @@ const LessonsTab = () => {
      */
     useEffect(() => {
         fetchRecordsFromServer();
-        fetchLookupTypes();
+        fetchLessonsFromServer();
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
@@ -100,7 +100,6 @@ const LessonsTab = () => {
     const onSubmitFilter = () => {
         setSearchTermFilter(searchTermFilter);
         setRecordStatusFilter(recordStatusFilter);
-        setlookupTypeFilter(lookupTypeFilter);
         fetchRecordsFromServer();
     };
 
@@ -171,22 +170,14 @@ const LessonsTab = () => {
             </div>
         );
     };
-    const imageBodyTemplate = (rowData: any) => {
-        const representative = rowData.representative;
 
-        return (
-            <div className="flex align-items-center gap-2">
-                <img alt={'Cover Image'} src={rowData.coverImageUrl} width="32" />
-            </div>
-        );
-    };
     /**
      * The record status row template
      * @param rowData
      * @returns
      */
     const statusBodyTemplate = (rowData: any) => {
-        return <span className={`status-badge status-${rowData?.recordStatus?.toLowerCase()}`}>{rowData?.recordStatus}</span>;
+        return <span className={`status-badge status-${rowData?.publicationStatusId?.toLowerCase()}`}>{rowData?.recordStatus}</span>;
     };
 
     /**
@@ -221,18 +212,6 @@ const LessonsTab = () => {
             id: 'searchTermFilter',
             label: labels.LABEL_SEARCH_TERM,
             colWidth: constants.CSS_FILTER_SEARCH_INPUT_DIV,
-            onkeydownFn: onSubmitFilter
-        },
-        {
-            type: 'multiselect',
-            value: recordStatusFilter,
-            onChangeFn: setRecordStatusFilter,
-            id: 'recordStatusFilter',
-            label: labels.LABEL_RECORD_STATUS,
-            options: constants.RECORD_STATUSES,
-            optionLabel: 'value',
-            optionValue: 'id',
-            colWidth: constants.CSS_FILTER_DEFAULT_DIV,
             onkeydownFn: onSubmitFilter
         }
     ];
@@ -269,7 +248,7 @@ const LessonsTab = () => {
                     <DataTable value={records} paginator={false} className="datatable-responsive" paginatorPosition="both" emptyMessage="No record found." loading={isLoading}>
                         <Column field="Index" header="#" style={{ width: '70px' }} body={rowIndexTemplate}></Column>
                         <Column field="title" header={'Title'}></Column>
-                        <Column body={imageBodyTemplate} header={'Cover image'}></Column>
+                        <Column field="position" header={'position'}></Column>
                         <Column field="description" header={'Description'}></Column>
 
                         <Column header={labels.LABEL_STATUS} body={statusBodyTemplate}></Column>
@@ -279,9 +258,9 @@ const LessonsTab = () => {
                     <Paginator first={first} rows={constants.MAXIMUM_RECORDS_PER_PAGE} totalRecords={totalItems} alwaysShow={true} onPageChange={onPageChange} template={paginatorTemplate} />
                 </div>
             </div>
-            <LessonFormDialog courseId={Number(courseId)} isOpen={openDialog} lookupTypes={lookupTypes} toggle={toggleOpenDialog} messageRef={message} record={selectedUser} reloadFn={fetchRecordsFromServer} />
+            <TopicFormDialog isOpen={openDialog} lessons={lessons} toggle={toggleOpenDialog} messageRef={message} record={selectedUser} reloadFn={fetchRecordsFromServer} />
         </div>
     );
 };
 
-export default LessonsTab;
+export default TopicsTab;

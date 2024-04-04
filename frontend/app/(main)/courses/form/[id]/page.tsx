@@ -8,6 +8,7 @@ import { useParams } from 'next/navigation';
 import { TabView, TabPanel } from 'primereact/tabview';
 import FormTab from './FormTab';
 import LessonsTab from './LessonsTab';
+import TopicsTab from './TopicsTab';
 
 function CourseForm() {
     const pathParam = useParams();
@@ -45,6 +46,12 @@ function CourseForm() {
                     </TabPanel>
                     <TabPanel header="Lessons">
                         <LessonsTab />
+                    </TabPanel>
+                    <TabPanel header="Topics">
+                        <TopicsTab />
+                    </TabPanel>
+                    <TabPanel header="Lectures">
+                        <p>N/A</p>
                     </TabPanel>
                     <TabPanel header="Testimonials">
                         <p>N/A</p>

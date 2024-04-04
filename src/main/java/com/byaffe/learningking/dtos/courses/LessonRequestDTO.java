@@ -12,21 +12,17 @@ import java.util.List;
 
 @Data
 public class LessonRequestDTO {
+    private Long id= 0L;
     private String title;
     private String description;
     private int position = 1;
-    private boolean isLast = false;
-    private boolean isFirst = false;
     private String coverImageUrl;
     private String videoUrl;
     private String audioUrl;
-    private int publicationStatusId;
     private long courseId;
     private MultipartFile coverImage;
     private String fullDescription;
-
-    @JsonIgnore
-  private PublicationStatus publicationStatus=PublicationStatus.getById(publicationStatusId);
+    private PublicationStatus publicationStatus;
 
 
 }

@@ -4,11 +4,14 @@ import com.byaffe.learningking.daos.CourseLectureDao;
 import com.byaffe.learningking.daos.CourseLessonDao;
 import com.byaffe.learningking.dtos.courses.CourseTopicRequestDTO;
 import com.byaffe.learningking.models.courses.*;
+import com.byaffe.learningking.services.CourseLessonService;
+import com.byaffe.learningking.services.CourseService;
 import com.byaffe.learningking.services.CourseTopicService;
 import com.byaffe.learningking.shared.constants.RecordStatus;
 import com.byaffe.learningking.shared.dao.BaseDAOImpl;
 import com.byaffe.learningking.shared.exceptions.OperationFailedException;
 import com.byaffe.learningking.shared.exceptions.ValidationFailedException;
+import com.byaffe.learningking.shared.utils.ApplicationContextProvider;
 import com.googlecode.genericdao.search.Search;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,11 +33,14 @@ public class CourseTopicServiceImpl extends BaseDAOImpl<CourseTopic> implements 
     public CourseTopic saveInstance(CourseTopicRequestDTO dto) {
 
         CourseTopic courseLesson= modelMapper.map(dto,CourseTopic.class);
-        CourseLesson course= courseLessonDao.getReference(dto.getCourseLessonId());
-        courseLesson.setCourseLesson(course);
+
+        CourseLesson course= ApplicationContextProvider.getBean(CourseLessonService.class).getInstanceByID(dto.getCourseLessonId());
         if (course == null) {
             throw new ValidationFailedException("Missing lesson");
         }
+
+        courseLesson.setCourseLesson(course);
+
         return super.save(courseLesson);
     }
     @Override
