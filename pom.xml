@@ -195,7 +195,8 @@
 							<outputDirectory>${basedir}/target/classes/static</outputDirectory>
 							<resources>
 								<resource>
-									<directory>frontend/build</directory>
+									<directory>${basedir}/../nextjs-app/out</directory>
+									<filtering>false</filtering>
 								</resource>
 							</resources>
 						</configuration>

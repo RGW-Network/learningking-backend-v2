@@ -13,12 +13,14 @@ import useShowModalDialog from '../../../../components/ShowModalHook';
 import { PrimeIcons } from 'primereact/api';
 import { BaseApiServiceImpl } from '../../../../api/BaseApiServiceImpl';
 import { MessageUtils } from '../../../../utils/MessageUtils';
-import { replaceWithUnderscore, toReadableDate } from '../../../../utils/Utils';
+import { generalStatusBodyTemplate, isNotEmpty, replaceWithUnderscore, toReadableDate } from '../../../../utils/Utils';
 import { getFilterComponent } from '../../../../components/Filters';
 import { paginatorTemplate } from '../../../../components/PaginatorTemplate';
 import { filtersHeadertemplate } from '../../../../components/FiltersPanelHeader';
 import { useParams, useRouter } from 'next/navigation';
 import LessonFormDialog from '../../LessonFormDialog';
+import TopicFormDialog from '../../TopicFormDialog';
+import LectureFormDialog from '../../LectureFormDialog';
 
 const LecturesTab = () => {
     const pathParam = useParams();
@@ -27,13 +29,12 @@ const LecturesTab = () => {
     const [records, setRecords] = useState<any>(null);
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [searchTermFilter, setSearchTermFilter] = useState<string | null>(null);
-    const [recordStatusFilter, setRecordStatusFilter] = useState<string | null>(null);
+    const [topicFilter, setTopicFilter] = useState<string | null>(null);
     const [totalItems, setTotalItems] = useState<number>(0);
     const [first, setFirst] = useState<number>(0);
     const [limit, setLimit] = useState<number>(constants.MAXIMUM_RECORDS_PER_PAGE);
-    const [selectedUser, setSelectedUser] = useState<any>(null);
-    const [lookupTypeFilter, setlookupTypeFilter] = useState<any>(null);
-    const [lookupTypes, setlookupTypes] = useState<any>([]);
+    const [selectedRecord, setSelectedRecord] = useState<any>(null);
+    const [topics, setTopics] = useState<any>([]);
     const router = useRouter();
     let offset = 0;
 
@@ -45,9 +46,8 @@ const LecturesTab = () => {
      */
     const getQueryParameters = () => {
         let searchParameters: any = { offset: offset, limit: limit };
-        if (searchTermFilter !== null) searchParameters.searchTerm = searchTermFilter;
-        if (recordStatusFilter !== null) searchParameters.recordStatus = recordStatusFilter;
-        if (lookupTypeFilter !== null) searchParameters.lookupTypeId = lookupTypeFilter;
+        if (isNotEmpty(searchTermFilter)) searchParameters.searchTerm = searchTermFilter;
+        if (isNotEmpty(topicFilter)) searchParameters.topicId = topicFilter;
 
         return searchParameters;
     };
@@ -59,7 +59,7 @@ const LecturesTab = () => {
         setIsLoading(true);
         let searchParameters: any = getQueryParameters();
 
-        new BaseApiServiceImpl('/v1/admin/course-topics')
+        new BaseApiServiceImpl('/v1/admin/lectures')
             .getRequestWithJsonResponse(searchParameters)
             .then(async (response) => {
                 setIsLoading(false);
@@ -73,10 +73,25 @@ const LecturesTab = () => {
     };
 
     /**
+     * This fetches lessons
+     */
+    const fetchTopicsFromServer = () => {
+        new BaseApiServiceImpl('/v1/admin/course-topics')
+            .getRequestWithJsonResponse({ courseId: courseId, offset: 0, limit: 0 })
+            .then(async (response) => {
+                setTopics(response?.records);
+            })
+            .catch((error) => {
+                MessageUtils.showErrorMessage(message, error.message);
+            });
+    };
+
+    /**
      * This hook is called everytime the page is loaded
      */
     useEffect(() => {
         fetchRecordsFromServer();
+        fetchTopicsFromServer();
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
@@ -85,8 +100,7 @@ const LecturesTab = () => {
      */
     const onSubmitFilter = () => {
         setSearchTermFilter(searchTermFilter);
-        setRecordStatusFilter(recordStatusFilter);
-        setlookupTypeFilter(lookupTypeFilter);
+        setTopicFilter(topicFilter);
         fetchRecordsFromServer();
     };
 
@@ -102,7 +116,7 @@ const LecturesTab = () => {
      * This opens the edit territory dialog form by toggling the open dialog variable
      */
     const openEditFormDialog = (selectedRecord: any) => {
-        setSelectedUser(selectedRecord);
+        setSelectedRecord({ ...selectedRecord, courseTopicId: selectedRecord.courseTopic.id });
         toggleOpenDialog();
     };
 
@@ -164,7 +178,7 @@ const LecturesTab = () => {
      * @returns
      */
     const statusBodyTemplate = (rowData: any) => {
-        return <span className={`status-badge status-${rowData?.publicationStatusId?.toLowerCase()}`}>{rowData?.recordStatus}</span>;
+        return <>{generalStatusBodyTemplate(rowData.publicationStatus)}</>;
     };
 
     /**
@@ -200,6 +214,17 @@ const LecturesTab = () => {
             label: labels.LABEL_SEARCH_TERM,
             colWidth: constants.CSS_FILTER_SEARCH_INPUT_DIV,
             onkeydownFn: onSubmitFilter
+        },
+        {
+            type: 'dropdown',
+            value: topicFilter,
+            onChangeFn: setTopicFilter,
+            id: 'topicFilter',
+            label: 'Topic',
+            options: topics,
+            optionValue: 'id',
+            optionLabel: 'title',
+            colWidth: constants.CSS_COL_3
         }
     ];
 
@@ -231,21 +256,22 @@ const LecturesTab = () => {
             <Messages ref={message} style={{ width: '100%' }} />
 
             <div className="col-12">
-                <div className="card">
+                <div className="">
                     <DataTable value={records} paginator={false} className="datatable-responsive" paginatorPosition="both" emptyMessage="No record found." loading={isLoading}>
                         <Column field="Index" header="#" style={{ width: '70px' }} body={rowIndexTemplate}></Column>
                         <Column field="title" header={'Title'}></Column>
-                        <Column field="position" header={'position'}></Column>
+                        <Column field="position" header={'Position'}></Column>
+                        <Column field="courseTopic.title" header={'Topic'}></Column>
                         <Column field="description" header={'Description'}></Column>
 
                         <Column header={labels.LABEL_STATUS} body={statusBodyTemplate}></Column>
-                        <Column style={{ width: '120px' }} header="Actions" body={actionBodyTemplate}></Column>
+                        <Column style={{ width: '90px' }} header="Actions" body={actionBodyTemplate}></Column>
                     </DataTable>
 
                     <Paginator first={first} rows={constants.MAXIMUM_RECORDS_PER_PAGE} totalRecords={totalItems} alwaysShow={true} onPageChange={onPageChange} template={paginatorTemplate} />
                 </div>
             </div>
-            <LessonFormDialog courseId={Number(courseId)} isOpen={openDialog} lookupTypes={lookupTypes} toggle={toggleOpenDialog} messageRef={message} record={selectedUser} reloadFn={fetchRecordsFromServer} />
+            {openDialog == true && <LectureFormDialog isOpen={openDialog} topics={topics} toggle={toggleOpenDialog} messageRef={message} record={selectedRecord} reloadFn={fetchRecordsFromServer} />}
         </div>
     );
 };

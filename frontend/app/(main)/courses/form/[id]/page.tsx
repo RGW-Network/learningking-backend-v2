@@ -9,6 +9,7 @@ import { TabView, TabPanel } from 'primereact/tabview';
 import FormTab from './FormTab';
 import LessonsTab from './LessonsTab';
 import TopicsTab from './TopicsTab';
+import LecturesTab from './LecturesTab';
 
 function CourseForm() {
     const pathParam = useParams();
@@ -38,26 +39,25 @@ function CourseForm() {
 
     return (
         <div className="card">
-            <span className="block text-900 font-bold text-xl mb-4">Create Course</span>
-            <div className="grid grid-nogutter flex-wrap gap-3 p-fluid">
-                <TabView>
-                    <TabPanel header="Form">
-                        <FormTab />
-                    </TabPanel>
-                    <TabPanel header="Lessons">
-                        <LessonsTab />
-                    </TabPanel>
-                    <TabPanel header="Topics">
-                        <TopicsTab />
-                    </TabPanel>
-                    <TabPanel header="Lectures">
-                        <p>N/A</p>
-                    </TabPanel>
-                    <TabPanel header="Testimonials">
-                        <p>N/A</p>
-                    </TabPanel>
-                </TabView>
-            </div>
+            <span className="block text-900 font-bold text-xl mb-4 mr-4">Create Course</span>
+
+            <TabView>
+                <TabPanel header="Form">
+                    <FormTab />
+                </TabPanel>
+                <TabPanel header="Lessons">
+                    <LessonsTab />
+                </TabPanel>
+                <TabPanel header="Topics">
+                    <TopicsTab />
+                </TabPanel>
+                <TabPanel header="Lectures">
+                    <LecturesTab />
+                </TabPanel>
+                <TabPanel header="Testimonials">
+                    <p>N/A</p>
+                </TabPanel>
+            </TabView>
         </div>
     );
 }

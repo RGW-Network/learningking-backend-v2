@@ -16,11 +16,14 @@ import com.googlecode.genericdao.search.Search;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-@Repository
-public class CourseTopicServiceImpl extends BaseDAOImpl<CourseTopic> implements CourseTopicService {
+@Service
+@Transactional
+public class CourseTopicServiceImpl extends GenericServiceImpl<CourseTopic> implements CourseTopicService {
 
     @Autowired
     CourseLectureDao courseLectureDao;
@@ -123,6 +126,11 @@ if (allSubTopics.isEmpty()) {
     @Override
     public void deleteInstances(Search search) throws OperationFailedException {
         throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+
+    @Override
+    public boolean isDeletable(CourseTopic entity) throws OperationFailedException {
+        return true;
     }
 
 }

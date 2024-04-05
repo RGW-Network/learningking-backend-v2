@@ -35,9 +35,11 @@ public class FilterUtils {
     );
 
     public static boolean allowedAuth(String path) {
-
+if(!path.startsWith("/api")){
+    return  true;
+}
         for (String string : allowedEndpoints) {
-            if (path.startsWith(string)) {
+            if (path.equals(string)) {
                 return true;
             }
         }

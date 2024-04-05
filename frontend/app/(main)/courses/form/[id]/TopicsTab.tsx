@@ -13,7 +13,7 @@ import useShowModalDialog from '../../../../components/ShowModalHook';
 import { PrimeIcons } from 'primereact/api';
 import { BaseApiServiceImpl } from '../../../../api/BaseApiServiceImpl';
 import { MessageUtils } from '../../../../utils/MessageUtils';
-import { replaceWithUnderscore, toReadableDate } from '../../../../utils/Utils';
+import { generalStatusBodyTemplate, replaceWithUnderscore, toReadableDate } from '../../../../utils/Utils';
 import { getFilterComponent } from '../../../../components/Filters';
 import { paginatorTemplate } from '../../../../components/PaginatorTemplate';
 import { filtersHeadertemplate } from '../../../../components/FiltersPanelHeader';
@@ -32,7 +32,7 @@ const TopicsTab = () => {
     const [totalItems, setTotalItems] = useState<number>(0);
     const [first, setFirst] = useState<number>(0);
     const [limit, setLimit] = useState<number>(constants.MAXIMUM_RECORDS_PER_PAGE);
-    const [selectedUser, setSelectedUser] = useState<any>(null);
+    const [selectedRecord, setSelectedRecord] = useState<any>(null);
     const [lessons, setLessons] = useState<any>([]);
     const router = useRouter();
     let offset = 0;
@@ -115,7 +115,7 @@ const TopicsTab = () => {
      * This opens the edit territory dialog form by toggling the open dialog variable
      */
     const openEditFormDialog = (selectedRecord: any) => {
-        setSelectedUser(selectedRecord);
+        setSelectedRecord({ ...selectedRecord, courseLessonId: selectedRecord.courseLesson.id });
         toggleOpenDialog();
     };
 
@@ -177,7 +177,7 @@ const TopicsTab = () => {
      * @returns
      */
     const statusBodyTemplate = (rowData: any) => {
-        return <span className={`status-badge status-${rowData?.publicationStatusId?.toLowerCase()}`}>{rowData?.recordStatus}</span>;
+        return <>{generalStatusBodyTemplate(rowData.publicationStatus)}</>;
     };
 
     /**
@@ -244,21 +244,22 @@ const TopicsTab = () => {
             <Messages ref={message} style={{ width: '100%' }} />
 
             <div className="col-12">
-                <div className="card">
+                <div className="">
                     <DataTable value={records} paginator={false} className="datatable-responsive" paginatorPosition="both" emptyMessage="No record found." loading={isLoading}>
                         <Column field="Index" header="#" style={{ width: '70px' }} body={rowIndexTemplate}></Column>
                         <Column field="title" header={'Title'}></Column>
-                        <Column field="position" header={'position'}></Column>
+                        <Column field="position" header={'Position'}></Column>
+                        <Column field="courseLesson.title" header={'Topic'}></Column>
                         <Column field="description" header={'Description'}></Column>
 
                         <Column header={labels.LABEL_STATUS} body={statusBodyTemplate}></Column>
-                        <Column style={{ width: '120px' }} header="Actions" body={actionBodyTemplate}></Column>
+                        <Column style={{ width: '90px' }} header="Actions" body={actionBodyTemplate}></Column>
                     </DataTable>
 
                     <Paginator first={first} rows={constants.MAXIMUM_RECORDS_PER_PAGE} totalRecords={totalItems} alwaysShow={true} onPageChange={onPageChange} template={paginatorTemplate} />
                 </div>
             </div>
-            <TopicFormDialog isOpen={openDialog} lessons={lessons} toggle={toggleOpenDialog} messageRef={message} record={selectedUser} reloadFn={fetchRecordsFromServer} />
+            {openDialog == true && <TopicFormDialog isOpen={openDialog} lessons={lessons} toggle={toggleOpenDialog} messageRef={message} record={selectedRecord} reloadFn={fetchRecordsFromServer} />}
         </div>
     );
 };

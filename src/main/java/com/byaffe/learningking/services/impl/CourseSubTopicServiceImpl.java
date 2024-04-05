@@ -9,7 +9,9 @@ import com.byaffe.learningking.services.CourseTopicService;
 import com.byaffe.learningking.shared.constants.RecordStatus;
 import com.byaffe.learningking.shared.exceptions.OperationFailedException;
 import com.byaffe.learningking.shared.exceptions.ValidationFailedException;
+import com.byaffe.learningking.utilities.ImageStorageService;
 import com.googlecode.genericdao.search.Search;
+import org.apache.commons.lang3.ObjectUtils;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -26,6 +28,8 @@ public class CourseSubTopicServiceImpl
     CourseLessonDao courseLessonDao;
     @Autowired
     ModelMapper modelMapper;
+    @Autowired
+    ImageStorageService imageStorageService;
     @Override
     public boolean isDeletable(CourseLecture entity) throws OperationFailedException {
         return true;
@@ -45,7 +49,13 @@ public class CourseSubTopicServiceImpl
         if (course == null) {
             throw new ValidationFailedException("Missing lesson");
         }
-        return super.save(courseLesson);
+        courseLesson= super.save(courseLesson);
+        if(ObjectUtils.allNotNull( dto.getCoverImage())) {
+            String imageUrl=   imageStorageService.uploadImage(dto.getCoverImage(), "course-lectures/" + course.getId());
+            courseLesson.setCoverImageUrl(imageUrl);
+            courseLesson=super.save(courseLesson);
+        }
+        return courseLesson;
     }
 
     @Override

@@ -201,7 +201,7 @@ function FormTab() {
     };
 
     return (
-        <div className="card">
+        <div className="">
             <span className="block text-900 font-bold text-xl mb-4">Create Course</span>
             <div className="grid grid-nogutter flex-wrap gap-3 p-fluid">
                 <div className="col-12 lg:col-8">

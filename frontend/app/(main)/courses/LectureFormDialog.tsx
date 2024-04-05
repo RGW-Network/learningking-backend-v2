@@ -17,7 +17,7 @@ interface ModalType {
     children?: ReactNode;
     messageRef?: any;
     record: any;
-    lessons: [];
+    topics: any;
     reloadFn: any;
     isOpen: boolean;
     toggle: () => void;
@@ -25,14 +25,19 @@ interface ModalType {
 interface RecordType {
     id: 0;
     title: '';
-    description: '';
+    body: '';
     position: 1;
-    publicationStatus: '';
-    courseLessonId: 0;
+    coverImageUrl: '';
+    videoUrl: '';
+    audioUrl: '';
+    fullDescription: '';
+    externalLinks: [];
+    courseTopicId: 0;
+    coverImage: null;
+    publicationStatus: null;
 }
 
-const TopicFormDialog = (props: ModalType) => {
-    console.log('Selected Topic>>>>' + JSON.stringify(props.record));
+const LectureFormDialog = (props: ModalType) => {
     const [record, setRecord] = useState<RecordType | null>(props.record);
     const [isSaving, setIsSaving] = useState<boolean>(false);
     const message = useRef<any>();
@@ -74,20 +79,48 @@ const TopicFormDialog = (props: ModalType) => {
         },
         {
             type: FormFieldTypes.DROPDOWN.toString(),
-            label: 'Lessons',
-            value: record?.courseLessonId,
-            onChange: (e: any) => setRecord((prevState: any) => ({ ...prevState, courseLessonId: e })),
-            options: props.lessons,
+            label: 'Topics',
+            value: record?.courseTopicId,
+            onChange: (e: any) => setRecord((prevState: any) => ({ ...prevState, courseTopicId: e })),
+            options: props.topics,
             optionValue: 'id',
             optionLabel: 'title',
             width: CSS_COL_8
         },
-
+        {
+            type: FormFieldTypes.TEXT.toString(),
+            label: 'Video Url',
+            value: record?.videoUrl,
+            onChange: (e: any) => setRecord((prevState: any) => ({ ...prevState, videoUrl: e })),
+            width: CSS_COL_6
+        },
+        {
+            type: FormFieldTypes.TEXT.toString(),
+            label: 'Audio Url',
+            value: record?.audioUrl,
+            onChange: (e: any) => setRecord((prevState: any) => ({ ...prevState, audioUrl: e })),
+            width: CSS_COL_6
+        },
         {
             type: FormFieldTypes.TEXTAREA.toString(),
             label: 'Description',
-            value: record?.description,
-            onChange: (e: any) => setRecord((prevState: any) => ({ ...prevState, description: e })),
+            value: record?.body,
+            onChange: (e: any) => setRecord((prevState: any) => ({ ...prevState, body: e })),
+            width: CSS_COL_12
+        },
+        {
+            type: FormFieldTypes.EDITOR.toString(),
+            label: 'Full Description',
+            value: record?.fullDescription,
+            onChange: (e: any) => setRecord((prevState: any) => ({ ...prevState, fullDescription: e })),
+            width: CSS_COL_12
+        },
+
+        {
+            type: FormFieldTypes.IMAGE.toString(),
+            label: 'Cover Image Url',
+            value: record?.coverImageUrl,
+            onChange: (e: any) => setRecord((prevState: any) => ({ ...prevState, coverImage: e })),
             width: CSS_COL_12
         }
     ];
@@ -134,10 +167,20 @@ const TopicFormDialog = (props: ModalType) => {
      * This submits a save user request to the backoffice
      */
     const doSave = () => {
+        let jsonData: any = record;
+        let formData: FormData = new FormData();
+        formData.append('file', jsonData.coverImage);
+        jsonData.coverImage = null;
+        formData.append(
+            'dto',
+            new Blob([JSON.stringify(jsonData)], {
+                type: 'application/json'
+            })
+        );
         if (validateForm()) {
             setIsSaving(true);
-            new BaseApiServiceImpl('/v1/admin/course-topics')
-                .postRequestWithJsonResponse(record)
+            new BaseApiServiceImpl('/v1/admin/lectures/multipart')
+                .postMultipartWithJsonResponse(formData)
                 .then(async (response) => {
                     setIsSaving(false);
                     clearForm();
@@ -170,7 +213,7 @@ const TopicFormDialog = (props: ModalType) => {
     );
 
     return (
-        <Dialog visible={props.isOpen} header={'Course Topic Form'} footer={dialogFooter} modal className="p-fluid" onHide={closeDialog} style={{ width: '70vw' }}>
+        <Dialog visible={props.isOpen} header={'Lecture Form'} footer={dialogFooter} modal className="p-fluid" onHide={closeDialog} style={{ width: '70vw' }}>
             <div className="grid">
                 <div className="col-12">
                     <Messages ref={message} style={{ width: '100%' }} />
@@ -181,4 +224,4 @@ const TopicFormDialog = (props: ModalType) => {
     );
 };
 
-export default TopicFormDialog;
+export default LectureFormDialog;

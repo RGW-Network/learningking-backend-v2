@@ -12,7 +12,7 @@ import java.util.Set;
 
 @Data
 public class LectureRequestDTO {
-private Long id;
+    private Long id=0L;
     private String title;
     private String body;
     private int position = 1;
@@ -20,12 +20,10 @@ private Long id;
     private String videoUrl;
     private String audioUrl;
     private String fullDescription;
-    private Integer publicationStatusId;
-private Set<ExternalResource> externalLinks;
+    private Set<ExternalResource> externalLinks;
     private Long courseTopicId;
     private MultipartFile coverImage;
-    @JsonIgnore
-  private PublicationStatus publicationStatus=PublicationStatus.getById(publicationStatusId);
+    private PublicationStatus publicationStatus;
 
 
 }

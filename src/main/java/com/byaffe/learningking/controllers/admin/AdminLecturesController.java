@@ -63,18 +63,22 @@ CourseSubTopicService modelService;
         return ResponseEntity.ok().body(new BaseResponse(true));
     }
     @GetMapping("")
-    public ResponseEntity<ResponseList<LectureResponseDTO>> getRecords(ArticlesFilterDTO queryParamModel) throws JSONException {
+    public ResponseEntity<ResponseList<LectureResponseDTO>> getRecords(@RequestParam(value = "searchTerm", required = false) String searchTerm,
+                                                                       @RequestParam(value = "offset", required = true) Integer offset,
+                                                                       @RequestParam(value = "limit", required = true) Integer limit,
+                                                                       @RequestParam(value = "topicId", required = false) Integer topicId,
+                                                                       @RequestParam(value = "lessonId", required = false) Integer lessonId
 
-        Search search = CourseServiceImpl.generateSearchObjectForCourses(queryParamModel.getSearchTerm())
+    ) throws JSONException {
+        Search search = CourseServiceImpl.generateSearchObjectForCourses(searchTerm)
                 .addFilterEqual("recordStatus", RecordStatus.ACTIVE);
 
-        if (queryParamModel.getSortBy() != null) {
-            search.addSort(queryParamModel.getSortBy(), queryParamModel.getSortDescending());
+        if (topicId!= null) {
+            search.addFilterEqual("courseTopic.id", topicId);
         }
-        List<CourseLecture> courses = modelService.getInstances(search, queryParamModel.getOffset(), queryParamModel.getLimit());
+        List<CourseLecture> courses = modelService.getInstances(search,offset, limit);
         long count = modelService.countInstances(search);
-        return ResponseEntity.ok().body(new ResponseList<>(courses.stream().map(r->modelMapper.map(r,LectureResponseDTO.class)).collect(Collectors.toList()), (int) count, queryParamModel.getOffset(), queryParamModel.getLimit()));
-
+        return ResponseEntity.ok().body(new ResponseList<>(courses.stream().map(r->modelMapper.map(r,LectureResponseDTO.class)).collect(Collectors.toList()), (int) count,offset,limit));
     }
 
     @GetMapping("/v2/{id}")

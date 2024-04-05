@@ -265,7 +265,7 @@ const LessonsTab = () => {
             <Messages ref={message} style={{ width: '100%' }} />
 
             <div className="col-12">
-                <div className="card">
+                <div className="">
                     <DataTable value={records} paginator={false} className="datatable-responsive" paginatorPosition="both" emptyMessage="No record found." loading={isLoading}>
                         <Column field="Index" header="#" style={{ width: '70px' }} body={rowIndexTemplate}></Column>
                         <Column field="title" header={'Title'}></Column>
