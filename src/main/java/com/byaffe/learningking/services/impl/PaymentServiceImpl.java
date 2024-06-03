@@ -187,7 +187,7 @@ public class PaymentServiceImpl extends GenericServiceImpl<CoursePayment> implem
 
         //set currency and amounts
         newPayment.setCurrency(setting.getBaseCurrency());
-        newPayment.setAmount(course.getCost());
+        newPayment.setAmount(course.getDiscountedPrice()>0?course.getDiscountedPrice():course.getPrice());
         newPayment.setTitle("Payment For " + course.getTitle());
 
        

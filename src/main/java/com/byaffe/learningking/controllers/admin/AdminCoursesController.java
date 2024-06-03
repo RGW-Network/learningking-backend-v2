@@ -45,13 +45,13 @@ import static org.springframework.web.bind.annotation.RequestMethod.POST;
 public class AdminCoursesController {
 @Autowired
     ModelMapper modelMapper;
-    @PostMapping("/json")
+    @PostMapping("/")
     public ResponseEntity<ResponseObject<Course>> addCourse(@RequestBody CourseRequestDTO dto) throws JSONException {
 Course course=ApplicationContextProvider.getBean(CourseService.class).saveInstance(dto);
         return ResponseEntity.ok().body(new ResponseObject<>(course));
 
     }
-    @PostMapping(path = "", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    @PostMapping(path = "/multipart", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<BaseResponse> uploadCSV(@RequestPart @Valid CourseRequestDTO dto, @RequestPart("file") MultipartFile file) throws JSONException {
        dto.setCoverImage(file);
          ApplicationContextProvider.getBean(CourseService.class).saveInstance(dto);

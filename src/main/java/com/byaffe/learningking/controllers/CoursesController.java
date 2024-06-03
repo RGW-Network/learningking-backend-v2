@@ -18,9 +18,12 @@ import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -32,9 +35,10 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/v1/courses")
 public class CoursesController {
-
+@Autowired
+    ModelMapper modelMapper;
     @GetMapping("")
-    public ResponseEntity<ResponseList<CourseResponseDTO>> getCourses(@RequestParam ArticlesFilterDTO queryParamModel) throws JSONException {
+    public ResponseEntity<ResponseList<CourseResponseDTO>> getCourses(@Valid ArticlesFilterDTO queryParamModel) throws JSONException {
 
         Search search = CourseServiceImpl.generateSearchObjectForCourses(queryParamModel.getSearchTerm())
                 .addFilterEqual("recordStatus", RecordStatus.ACTIVE)
@@ -56,7 +60,7 @@ public class CoursesController {
         List<CourseResponseDTO> courses = new ArrayList<>();
         for (Course course : ApplicationContextProvider.getBean(CourseService.class).getInstances(search, queryParamModel.getOffset(), queryParamModel.getLimit())) {
 
-            CourseResponseDTO dto = (CourseResponseDTO) course;
+            CourseResponseDTO dto = modelMapper.map(course,CourseResponseDTO.class);
 
             int lessonsCount = ApplicationContextProvider.getBean(CourseLessonService.class)
                     .countInstances(new Search()
@@ -92,7 +96,7 @@ public class CoursesController {
                     .addFilterEqual("publicationStatus", PublicationStatus.ACTIVE)
                     .addFilterEqual("category", devTopic), queryParamModel.getOffset(), queryParamModel.getLimit());
 
-            CourseByTopicResponseDTO courseByTopicResponseDTO = (CourseByTopicResponseDTO) devTopic;
+            CourseByTopicResponseDTO courseByTopicResponseDTO =modelMapper.map (devTopic,CourseByTopicResponseDTO.class) ;
             List<CourseResponseDTO> dtos = new ArrayList<>();
             for (Course course : coursesModels) {
                 CourseResponseDTO dto = (CourseResponseDTO) course;
@@ -126,14 +130,14 @@ public class CoursesController {
         CourseService courseService = ApplicationContextProvider.getBean(CourseService.class);
         Course course = courseService.getInstanceByID(id);
         CourseDetailsResponseDTO responseDTO = new CourseDetailsResponseDTO();
-        CourseResponseDTO courseObj = (CourseResponseDTO) course;
+        CourseResponseDTO courseObj =modelMapper.map (course,CourseResponseDTO.class) ;
         List<CourseLesson> lessons = ApplicationContextProvider.getBean(CourseLessonService.class).getInstances(new Search()
                 .addFilterEqual("course", course)
                 .addFilterEqual("recordStatus", RecordStatus.ACTIVE), 0, 0);
         CourseSubscription subscription = ApplicationContextProvider.getBean(CourseSubscriptionService.class).getSerieSubscription(member, course);
 
         for (CourseLesson lesson : lessons) {
-            LessonResponseDTO lessonDto = (LessonResponseDTO) lesson;
+            LessonResponseDTO lessonDto =modelMapper.map (lesson,LessonResponseDTO.class) ;
 
             lessonDto.setProgress(ApplicationContextProvider.getBean(CourseLessonService.class
             ).getProgress(subscription.getCurrentSubTopic()));
@@ -179,7 +183,7 @@ public class CoursesController {
         CourseSubscription subscription = ApplicationContextProvider.getBean(CourseSubscriptionService.class).getSerieSubscription(member, lesson.getCourse());
 
         for (CourseTopic topic : topics) {
-            CourseTopicResponseDTO topicJSONObject = (CourseTopicResponseDTO) topic;
+            CourseTopicResponseDTO topicJSONObject =modelMapper.map (topic,CourseTopicResponseDTO.class);
             topicJSONObject.setProgress(courseSubTopicService.getProgress(subscription.getCurrentSubTopic()));
             result.getTopics().add(topicJSONObject);
         }
@@ -205,7 +209,7 @@ public class CoursesController {
         CourseSubscription subscription = ApplicationContextProvider.getBean(CourseSubscriptionService.class).getSerieSubscription(member, topic.getCourseLesson().getCourse());
 
         for (CourseLecture subTopic : subTopics) {
-            CourseLectureResponseDTO jSONObject = (CourseLectureResponseDTO) (subTopic);
+            CourseLectureResponseDTO jSONObject = modelMapper.map (subTopic,CourseLectureResponseDTO.class) ;
             result.getSubTopics().add(jSONObject);
         }
         result.setProgress(ApplicationContextProvider.getBean(CourseTopicService.class).getProgress(subscription.getCurrentSubTopic()));

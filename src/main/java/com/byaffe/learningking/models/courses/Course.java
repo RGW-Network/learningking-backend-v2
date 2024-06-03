@@ -11,7 +11,6 @@ import java.util.List;
 import java.util.Set;
 
 @Data
-@EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
 @Entity
 @Table(name = "courses")
@@ -47,7 +46,8 @@ public class Course extends BaseEntity {
     private CourseAcademyType academy;
     private boolean isFeatured;
     private boolean isPaid;
-    private float cost;
+    private Float price;
+    private Float discountedPrice;
     @Column(columnDefinition = "TEXT")
     private String fullDescription;
     @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.MERGE)

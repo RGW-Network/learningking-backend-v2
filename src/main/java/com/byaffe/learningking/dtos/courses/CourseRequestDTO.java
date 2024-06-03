@@ -26,24 +26,15 @@ public class CourseRequestDTO {
     private String welcomeRemarks;
     private String certificateTemplate;
     private Long categoryId;
-    private int ownershipTypeId ;
+    private CourseOwnerShipType ownershipType ;
     private long company;
     private int academyId;
     private boolean isFeatured;
     private boolean isPaid;
-    private float cost;
+    private float price;
+    private float discountedPrice;
     private String fullDescription;
-
-  private CourseAcademyType academy=CourseAcademyType.getById(academyId);
-
-  @JsonIgnore
-    public CourseOwnerShipType getOwnershipType(){
-        return CourseOwnerShipType.getById(this.ownershipTypeId);
-    }
-    @JsonIgnore
-    public CourseAcademyType getAcademy(){
-        return CourseAcademyType.getById(this.academyId);
-    }
+  private CourseAcademyType academy;
 
 
 }

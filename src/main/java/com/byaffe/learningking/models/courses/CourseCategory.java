@@ -1,83 +1,40 @@
 package com.byaffe.learningking.models.courses;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.Table;
 import com.byaffe.learningking.shared.models.BaseEntity;
+import lombok.Data;
 
+import javax.persistence.*;
+
+@Data
 @Entity
 @Table(name = "course_categories")
 public class CourseCategory extends BaseEntity {
 
     private static final long serialVersionUID = 1L;
 
-    private String name;
-    private String colorCode;
-    private String description;
-    private String imageUrl;
-    private CourseAcademyType academy;
-    private CategoryType type;
-
     @Column(name = "name")
-    public String getName() {
-        return name;
-    }
+    private String name;
 
-    public void setName(String name) {
-        this.name = name;
-    }
+    @Column(name = "color_code")
+    private String colorCode;
 
     @Column(name = "description", columnDefinition = "TEXT")
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
+    private String description;
 
     @Column(name = "image_url")
-    public String getImageUrl() {
-        return imageUrl;
-    }
+    private String imageUrl;
 
-    public void setImageUrl(String imageUrl) {
-        this.imageUrl = imageUrl;
-    }
+    @Column(name = "icon_url")
+    private String iconUrl;
 
     @Enumerated(EnumType.ORDINAL)
     @Column(name = "academy")
-    public CourseAcademyType getAcademy() {
-        return academy;
-    }
+    private CourseAcademyType academy;
 
-    public void setAcademy(CourseAcademyType academy) {
-        this.academy = academy;
-    }
-
-      @Enumerated(EnumType.ORDINAL)
+    @Enumerated(EnumType.ORDINAL)
     @Column(name = "type")
-    public CategoryType getType() {
-        return type;
-    }
+    private CategoryType type;
 
-    public void setType(CategoryType type) {
-        this.type = type;
-    }
-
-     @Column(name = "color_code")
-    public String getColorCode() {
-        return colorCode;
-    }
-
-    public void setColorCode(String colorCode) {
-        this.colorCode = colorCode;
-    }
-
-    
-    
     @Override
     public boolean equals(Object object) {
         return object instanceof CourseCategory && (super.getId() != null) ? super.getId().equals(((CourseCategory) object).getId())
@@ -91,11 +48,6 @@ public class CourseCategory extends BaseEntity {
 
     @Override
     public String toString() {
-        return  name + "("+ academy+")" ;
+        return  name + "("+ academy +")" ;
     }
-    
-    
-    
-    
-
 }

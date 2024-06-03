@@ -48,16 +48,13 @@ public class CourseServiceImpl extends GenericServiceImpl<Course> implements Cou
     @Override
     public Course saveInstance(CourseRequestDTO plan) throws ValidationFailedException{
         Course course=modelMapper.map(plan,Course.class);
-        course.setAcademy(plan.getAcademy());
-        System.err.println("Request Id>>"+new Gson().toJson( plan));
         course.setCategory(categoryService.getInstanceByID(plan.getCategoryId()));
-        course.setOwnershipType(plan.getOwnershipType());
         course= saveInstance(course);
 
         if(ObjectUtils.allNotNull( plan.getCoverImage())) {
          String imageUrl=   imageStorageService.uploadImage(plan.getCoverImage(), "courses/" + course.getId());
          course.setCoverImageUrl(imageUrl);
-         course=saveInstance(course);
+         course=super.save(course);
         }
     return course;
     }
@@ -79,7 +76,7 @@ public class CourseServiceImpl extends GenericServiceImpl<Course> implements Cou
         Course existingWithTitle = getPlanByTitle(plan.getTitle());
 
         if (existingWithTitle != null && !existingWithTitle.getId().equals(plan.getId())) {
-            throw new ValidationFailedException("A plan with the same title already exists!");
+            throw new ValidationFailedException("A course with the same title already exists!");
         }
         plan.setPublicationStatus(PublicationStatus.INACTIVE);
 

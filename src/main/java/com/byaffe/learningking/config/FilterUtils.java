@@ -13,29 +13,17 @@ public class FilterUtils {
     private static Set<String> allowedEndpoints = new HashSet<>(
             Arrays.asList("/api/health",
                     "/api/v1/status",
-                    "/h2-console",
-                    "/swagger-ui/index.html",
-                    "/swagger-ui/swagger-ui.css",
-                    "/swagger-ui/swagger-ui-bundle.js",
-                    "/swagger-ui/swagger-ui-standalone-preset.js",
-                    "/swagger-ui/favicon-32x32.png",
-                    "/swagger-ui/favicon-16x16.png",
-
-                    "/favicon.ico",
-                    "/swagger-ui",
-                    "/api-docs",
                     "/api/v1/auth/refresh/token",
                     "/api/v1/auth/login",
                     "/api/v1/auth/register",
                     "/api/v1/auth/verify-otp",
-                    "/api/v1/auth/send-otp",
-                    "/static/index.html",
-                    "/"
+                    "/api/v1/auth/send-otp"
             )
     );
 
     public static boolean allowedAuth(String path) {
-if(!path.startsWith("/api")){
+if(!path.startsWith("/api/")){
+    System.out.println("Auth Passed : true");
     return  true;
 }
         for (String string : allowedEndpoints) {
@@ -43,6 +31,9 @@ if(!path.startsWith("/api")){
                 return true;
             }
         }
+        System.out.println("Auth Failed : true");
         return false;
     }
+
+
 }
