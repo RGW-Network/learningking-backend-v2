@@ -50,7 +50,7 @@ public class CourseSubTopicServiceImpl
             throw new ValidationFailedException("Missing lesson");
         }
         courseLesson= super.save(courseLesson);
-        if(ObjectUtils.allNotNull( dto.getCoverImage())) {
+        if(dto.getCoverImage()!=null) {
             String imageUrl=   imageStorageService.uploadImage(dto.getCoverImage(), "course-lectures/" + course.getId());
             courseLesson.setCoverImageUrl(imageUrl);
             courseLesson=super.save(courseLesson);

@@ -150,7 +150,7 @@ public class CourseSubscriptionServiceImpl extends BaseDAOImpl<CourseSubscriptio
             return null;
         }
 
-        Search search = new Search().addFilterEqual("member", member)
+        Search search = new Search().addFilterEqual("student", member)
                 .addFilterEqual("course", course);
         try {
             return super.searchUnique(search);

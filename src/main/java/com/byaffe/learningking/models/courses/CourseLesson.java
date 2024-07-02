@@ -8,6 +8,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import com.byaffe.learningking.shared.models.BaseEntity;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 
 @Data
@@ -37,8 +38,9 @@ public class CourseLesson extends BaseEntity {
 
     @Enumerated(EnumType.ORDINAL)
     @Column(name = "publication_status", nullable = true)
-    private PublicationStatus publicationStatus;
+    private PublicationStatus publicationStatus= PublicationStatus.ACTIVE;
 
+    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "course_id")
     private Course course;

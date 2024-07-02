@@ -39,8 +39,6 @@ public class CourseLessonServiceImpl extends GenericServiceImpl<CourseLesson> im
     public CourseLesson saveInstance(LessonRequestDTO dto) {
 
         CourseLesson courseLesson= modelMapper.map(dto,CourseLesson.class);
-
-        System.err.println("Cloned props===: "+new Gson().toJson(courseLesson));
         Course course= ApplicationContextProvider.getBean(CourseService.class).getInstanceByID(dto.getCourseId());
 
         if (course == null) {
@@ -48,7 +46,7 @@ public class CourseLessonServiceImpl extends GenericServiceImpl<CourseLesson> im
         }
         courseLesson.setCourse(course);
         courseLesson= super.save(courseLesson);
-        if(ObjectUtils.allNotNull( dto.getCoverImage())) {
+        if(dto.getCoverImage()!=null) {
             String imageUrl=   imageStorageService.uploadImage(dto.getCoverImage(), "course-lessons/" + course.getId());
             courseLesson.setCoverImageUrl(imageUrl);
             courseLesson=super.save(courseLesson);

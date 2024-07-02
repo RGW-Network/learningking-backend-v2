@@ -1,6 +1,8 @@
 package com.byaffe.learningking.models.courses;
 
 import com.byaffe.learningking.shared.models.BaseEntity;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
@@ -17,7 +19,9 @@ import java.util.Set;
 public class Course extends BaseEntity {
 
     private static final long serialVersionUID = 1L;
+    @Column(columnDefinition = "TEXT")
     private String title;
+    @Column(columnDefinition = "TEXT")
     private String description;
     private int numberOfTopics = 0;
     private String coverImageUrl;
@@ -33,9 +37,12 @@ public class Course extends BaseEntity {
     private String welcomeRemarks;
     private String certificateTemplate;
     @Enumerated(EnumType.STRING)
-    private PublicationStatus publicationStatus = PublicationStatus.INACTIVE;
-    @ManyToOne(optional = true)
-    @JoinColumn(name = "course_category")
+    private PublicationStatus publicationStatus = PublicationStatus.ACTIVE;
+
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "category_id")
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     private CourseCategory category;
     @Enumerated(EnumType.STRING)
     private CourseOwnerShipType ownershipType = CourseOwnerShipType.OPEN;
@@ -48,7 +55,8 @@ public class Course extends BaseEntity {
     private boolean isPaid;
     private Float price;
     private Float discountedPrice;
-    @Column(columnDefinition = "TEXT")
+    private Float cost;
+    @Column(columnDefinition = "LONGTEXT")
     private String fullDescription;
     @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.MERGE)
     @JoinTable(name = "course_testimonials", joinColumns = @JoinColumn(name = "course_id"), inverseJoinColumns = @JoinColumn(name = "tesstimonial_id"))

@@ -43,8 +43,10 @@ CourseSubTopicService modelService;
         return ResponseEntity.ok().body(new BaseResponse(true));
     }
     @PostMapping(path = "/multipart", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
-    public ResponseEntity<BaseResponse> saveAndUpdateV2(@RequestPart @Valid LectureRequestDTO dto, @RequestPart("file") MultipartFile file) throws JSONException {
-       dto.setCoverImage(file);
+    public ResponseEntity<BaseResponse> saveAndUpdateV2(@RequestPart @Valid LectureRequestDTO dto, @RequestPart(value = "file",required = false) MultipartFile file) throws JSONException {
+      if(file!=null) {
+          dto.setCoverImage(file);
+      }
         modelService.saveInstance(dto);
         return ResponseEntity.ok().body(new BaseResponse(true));
     }

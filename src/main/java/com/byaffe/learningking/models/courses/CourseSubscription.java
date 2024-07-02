@@ -80,8 +80,7 @@ public class CourseSubscription extends BaseEntity {
     }
 
     public void setCurrentSubTopic(CourseLecture currentSubTopic) {
-        this.currentSubTopic = currentSubTopic;
-    }
+        this.currentSubTopic = currentSubTopic;}
 
     
     @Column(name = "current_topic")

@@ -13,14 +13,8 @@ public class CourseCategoryRequestDTO {
     private String colorCode;
     private String description;
     private String imageUrl;
-    private Integer academyId;
-    private Integer typeId;
-
-@JsonIgnore
-    public CourseAcademyType getAcademy(){return  CourseAcademyType.getById(this.academyId);};
-
-@JsonIgnore
-    public CategoryType getType(){return CategoryType.getById(this.typeId);};
+    private CourseAcademyType academy;
+    private CategoryType type;
 
     
 }

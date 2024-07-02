@@ -81,10 +81,15 @@ public class CourseRatingServiceImpl extends GenericServiceImpl<CourseRating> im
 
     @Override
     public double getTotalCourseRatings(Course course) {
-       return (double)super.searchUnique(new Search().addFilterEqual("course", course)
+       Object ratings= super.searchUnique(new Search().addFilterEqual("course", course)
                  .addFilterEqual("publicationStatus", PublicationStatus.ACTIVE)
                   .addFilterEqual("recordStatus", RecordStatus.ACTIVE)
-               .addField("starsCount", Field.OP_SUM)); 
+               .addField("starsCount", Field.OP_SUM));
+       if(ratings==null){
+           return  0.0;
+       }
+       return (double) ratings;
+
     }
     
     @Override

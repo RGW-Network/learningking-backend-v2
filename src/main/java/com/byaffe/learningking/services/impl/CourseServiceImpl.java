@@ -51,7 +51,7 @@ public class CourseServiceImpl extends GenericServiceImpl<Course> implements Cou
         course.setCategory(categoryService.getInstanceByID(plan.getCategoryId()));
         course= saveInstance(course);
 
-        if(ObjectUtils.allNotNull( plan.getCoverImage())) {
+        if(plan.getCoverImage()!=null) {
          String imageUrl=   imageStorageService.uploadImage(plan.getCoverImage(), "courses/" + course.getId());
          course.setCoverImageUrl(imageUrl);
          course=super.save(course);

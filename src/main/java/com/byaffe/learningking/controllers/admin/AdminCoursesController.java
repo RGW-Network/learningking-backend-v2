@@ -45,15 +45,15 @@ import static org.springframework.web.bind.annotation.RequestMethod.POST;
 public class AdminCoursesController {
 @Autowired
     ModelMapper modelMapper;
-    @PostMapping("/")
+    @PostMapping("")
     public ResponseEntity<ResponseObject<Course>> addCourse(@RequestBody CourseRequestDTO dto) throws JSONException {
 Course course=ApplicationContextProvider.getBean(CourseService.class).saveInstance(dto);
         return ResponseEntity.ok().body(new ResponseObject<>(course));
 
     }
     @PostMapping(path = "/multipart", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
-    public ResponseEntity<BaseResponse> uploadCSV(@RequestPart @Valid CourseRequestDTO dto, @RequestPart("file") MultipartFile file) throws JSONException {
-       dto.setCoverImage(file);
+    public ResponseEntity<BaseResponse> uploadCSV(@RequestPart  CourseRequestDTO dto, @RequestPart(value = "file",required = false) MultipartFile file)  {
+      dto.setCoverImage(file);
          ApplicationContextProvider.getBean(CourseService.class).saveInstance(dto);
         return ResponseEntity.ok().body(new BaseResponse(true));
     }
@@ -86,7 +86,7 @@ Course course=ApplicationContextProvider.getBean(CourseService.class).saveInstan
         return ResponseEntity.ok().body(new BaseResponse(true));
     }
     @GetMapping("")
-    public ResponseEntity<ResponseList<com.byaffe.learningking.dtos.courses.CourseResponseDTO>> getCourses(ArticlesFilterDTO queryParamModel) throws JSONException {
+    public ResponseEntity<ResponseList<Course>> getCourses(ArticlesFilterDTO queryParamModel) throws JSONException {
 
         Search search = CourseServiceImpl.generateSearchObjectForCourses(queryParamModel.getSearchTerm())
                 .addFilterEqual("recordStatus", RecordStatus.ACTIVE);
@@ -105,7 +105,7 @@ Course course=ApplicationContextProvider.getBean(CourseService.class).saveInstan
         long count = ApplicationContextProvider.getBean(CourseService.class).countInstances(search);
 
 
-        return ResponseEntity.ok().body(new ResponseList<>(courses.stream().map(r->modelMapper.map(r,com.byaffe.learningking.dtos.courses.CourseResponseDTO.class)).collect(Collectors.toList()), (int) count, queryParamModel.getOffset(), queryParamModel.getLimit()));
+        return ResponseEntity.ok().body(new ResponseList<>(courses, (int) count, queryParamModel.getOffset(), queryParamModel.getLimit()));
 
     }
 
