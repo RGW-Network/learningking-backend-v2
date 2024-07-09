@@ -117,6 +117,8 @@ Course course=ApplicationContextProvider.getBean(CourseService.class).saveInstan
         List<CourseLesson> lessons = ApplicationContextProvider.getBean(CourseLessonService.class).getInstances(new Search()
                 .addFilterEqual("course", course)
                 .addFilterEqual("recordStatus", RecordStatus.ACTIVE), 0, 0);
+        log.info("Lessons got: {}", lessons.stream().map(r->r.id).toArray());
+
         double rattings = 1;
         try {
             rattings = ApplicationContextProvider.getBean(CourseRatingService.class).getTotalCourseRatings(course) / 5;
@@ -126,8 +128,9 @@ Course course=ApplicationContextProvider.getBean(CourseService.class).saveInstan
 
         courseObj.setAverageRating(rattings / 5);
         courseObj.setTestimonials(course.getTestimonials());
-        responseDTO.setLessons(lessons);
-        responseDTO.setNumberOfLessons(lessons.size());
+        courseObj.setLessons(lessons.stream().map(r->modelMapper.map(r,LessonResponseDTO.class)).collect(Collectors.toList()));
+        courseObj.setNumberOfLessons(lessons.size());
+        responseDTO.setCourse(courseObj);
         return ResponseEntity.ok().body(new ResponseObject<>(responseDTO));
     }
 

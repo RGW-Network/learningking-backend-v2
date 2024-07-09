@@ -39,6 +39,9 @@ public class CourseLessonServiceImpl extends GenericServiceImpl<CourseLesson> im
     public CourseLesson saveInstance(LessonRequestDTO dto) {
 
         CourseLesson courseLesson= modelMapper.map(dto,CourseLesson.class);
+        if (dto.getCourseId() == null) {
+            throw new ValidationFailedException("Missing course id");
+        }
         Course course= ApplicationContextProvider.getBean(CourseService.class).getInstanceByID(dto.getCourseId());
 
         if (course == null) {
@@ -97,7 +100,6 @@ public class CourseLessonServiceImpl extends GenericServiceImpl<CourseLesson> im
         search.setMaxResults(limit);
         search.setFirstResult(offset);
         search.addSortAsc("position");
-        search.addFilterEqual("recordStatus", RecordStatus.ACTIVE);
         return super.search(search);
     }
 

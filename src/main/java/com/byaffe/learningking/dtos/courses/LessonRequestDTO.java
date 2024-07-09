@@ -19,7 +19,7 @@ public class LessonRequestDTO {
     private String coverImageUrl;
     private String videoUrl;
     private String audioUrl;
-    private long courseId;
+    private Long courseId;
     private MultipartFile coverImage;
     private String fullDescription;
     private PublicationStatus publicationStatus;

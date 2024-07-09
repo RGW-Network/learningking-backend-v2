@@ -21,12 +21,12 @@ public class Course extends BaseEntity {
     private static final long serialVersionUID = 1L;
     @Column(columnDefinition = "TEXT")
     private String title;
-    @Column(columnDefinition = "TEXT")
+    @Column(columnDefinition = "BIGTEXT")
     private String description;
     private int numberOfTopics = 0;
     private String coverImageUrl;
     private String welcomeVideoUrl;
-    @Column(name="what_you_will_learn", columnDefinition = "TEXT")
+    @Column(name="what_you_will_learn", columnDefinition = "BIGTEXT")
     private String whatYouWillLearn;
 
     @ElementCollection (fetch = FetchType.EAGER)
@@ -35,6 +35,7 @@ public class Course extends BaseEntity {
     private List<String> tags;
     private String guidelineVideoUrl;
     private String welcomeRemarks;
+    @Column(name="certificate_template", columnDefinition = "BIGTEXT")
     private String certificateTemplate;
     @Enumerated(EnumType.STRING)
     private PublicationStatus publicationStatus = PublicationStatus.ACTIVE;

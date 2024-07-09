@@ -13,7 +13,6 @@ public class CourseDetailsResponseDTO {
 
     private CourseResponseDTO course;
     private CourseSubscription subscription;
-    private List<CourseLesson> lessons=new ArrayList<>();
-    private Integer numberOfLessons;
+
 
 }

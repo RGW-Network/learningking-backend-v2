@@ -16,7 +16,7 @@ public class CourseResponseDTO extends Course {
 
     private boolean enrolled;
     private Set<Testimonial> testimonials =new HashSet<>();
-    private Set<CourseLesson> lessons =new HashSet<>();
+    private List<LessonResponseDTO> lessons =new ArrayList<>();
     private int numberOfLessons;
     private double averageRating;
     private int ratingsCount;

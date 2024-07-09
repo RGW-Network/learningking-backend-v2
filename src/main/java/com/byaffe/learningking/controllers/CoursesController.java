@@ -128,7 +128,7 @@ public class CoursesController {
 
     @GetMapping("/{id}")
     public ResponseEntity<ResponseObject<CourseDetailsResponseDTO>> getCourseDetails(@PathVariable("id") Long id) throws JSONException {
-        Student member = new Student();
+        Student member = UserDetailsContext.getLoggedInStudent();
         List<LessonResponseDTO> lessonsArray = new ArrayList<>();
         CourseService courseService = ApplicationContextProvider.getBean(CourseService.class);
         Course course = courseService.getInstanceByID(id);
@@ -138,7 +138,7 @@ public class CoursesController {
                 .addFilterEqual("course", course)
                 .addFilterEqual("recordStatus", RecordStatus.ACTIVE), 0, 0);
         CourseSubscription subscription = ApplicationContextProvider.getBean(CourseSubscriptionService.class).getSerieSubscription(member, course);
-
+        log.info("Lessons got: {}", lessons.stream().map(r->r.id).toArray());
         for (CourseLesson lesson : lessons) {
             LessonResponseDTO lessonDto = modelMapper.map(lesson, LessonResponseDTO.class);
             if (subscription != null) {
@@ -160,12 +160,15 @@ public class CoursesController {
         if (subscription != null) {
             courseObj.setProgress(courseService.getProgress(subscription.getCurrentSubTopic()));
         }
+        log.info("Lessons got: {}", lessons.stream().map(r->r.id).toArray());
+
         //     .put("ratingsCount", ApplicationContextProvider.getBean(CourseRatingService.class).getRatingsCount(course))
         courseObj.setTestimonials(course.getTestimonials());
+
+        courseObj.setLessons(lessonsArray);
+        courseObj.setNumberOfLessons(lessons.size());
         responseDTO.setCourse(courseObj);
         responseDTO.setSubscription(subscription);
-        responseDTO.setLessons(lessonsArray.stream().map(r -> (LessonResponseDTO) r).collect(Collectors.toList()));
-        responseDTO.setNumberOfLessons(lessons.size());
         return ResponseEntity.ok().body(new ResponseObject<>(responseDTO));
 
 
