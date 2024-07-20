@@ -38,7 +38,8 @@ public class CourseServiceImpl extends GenericServiceImpl<Course> implements Cou
     ModelMapper modelMapper;
     @Autowired
     CourseSubTopicService courseSubTopicService;
-
+@Autowired
+InstructorService instructorService;
     public static Search generateSearchObjectForCourses(String searchTerm) {
      Search search = CustomSearchUtils.generateSearchTerms(searchTerm,
                 Arrays.asList("title", "description"));
@@ -49,6 +50,7 @@ public class CourseServiceImpl extends GenericServiceImpl<Course> implements Cou
     public Course saveInstance(CourseRequestDTO plan) throws ValidationFailedException{
         Course course=modelMapper.map(plan,Course.class);
         course.setCategory(categoryService.getInstanceByID(plan.getCategoryId()));
+        course.setInstructor(instructorService.getInstanceByID(plan.getInstructorId()));
         course= saveInstance(course);
 
         if(plan.getCoverImage()!=null) {

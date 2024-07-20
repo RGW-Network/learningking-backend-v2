@@ -2,10 +2,12 @@ package com.byaffe.learningking.controllers;
 
 import com.byaffe.learningking.controllers.constants.ApiUtils;
 import com.byaffe.learningking.controllers.dtos.*;
+import com.byaffe.learningking.dtos.courses.LectureResponseDTO;
 import com.byaffe.learningking.models.Student;
 import com.byaffe.learningking.models.courses.*;
 import com.byaffe.learningking.services.*;
 import com.byaffe.learningking.services.impl.CourseServiceImpl;
+import com.byaffe.learningking.services.impl.InstructorServiceImpl;
 import com.byaffe.learningking.shared.api.ResponseList;
 import com.byaffe.learningking.shared.api.ResponseObject;
 import com.byaffe.learningking.shared.constants.RecordStatus;
@@ -145,6 +147,12 @@ public class CoursesController {
                 lessonDto.setProgress(ApplicationContextProvider.getBean(CourseLessonService.class ).getProgress(subscription.getCurrentSubTopic()));
             }
             lessonDto.setIsPreview(lesson.getPosition() == 1);
+            List<CourseLecture> lectures = ApplicationContextProvider.getBean(CourseSubTopicService.class).getInstances(new Search()
+                    .addFilterEqual("courseTopic.courseLesson", lesson)
+                    .addFilterEqual("recordStatus", RecordStatus.ACTIVE), 0, 0);
+            lessonDto.setLectures(lectures.stream().map(r->modelMapper.map(lesson, CourseLectureResponseDTO.class)).collect(Collectors.toList()));
+
+
             lessonsArray.add(lessonDto);
         }
 
@@ -184,7 +192,7 @@ public class CoursesController {
         if (lesson == null) {
             throw new ValidationFailedException("Lesson not found");
         }
-        result = (LessonResponseDTO) lesson;
+        result = modelMapper.map(lesson, LessonResponseDTO.class);
         CourseTopicService courseSubTopicService = ApplicationContextProvider.getBean(CourseTopicService.class);
         List<CourseTopic> topics = courseSubTopicService.getInstances(new Search()
                 .addFilterEqual("recordStatus", RecordStatus.ACTIVE)
@@ -215,6 +223,7 @@ public class CoursesController {
         if (topic == null) {
             throw new ValidationFailedException("Topic not found");
         }
+        result=modelMapper.map(topic,CourseTopicResponseDTO.class);
         List<CourseLecture> subTopics = ApplicationContextProvider.getBean(CourseSubTopicService.class
         ).getInstances(new Search()
                 .addFilterEqual("recordStatus", RecordStatus.ACTIVE)
@@ -345,6 +354,21 @@ public class CoursesController {
         return ResponseEntity.ok().body((courses));
 
 
+    }
+
+    @GetMapping("/instructors")
+    public ResponseEntity<ResponseList<InstructorResponseDTO>> getInstructors(
+            @RequestParam(value = "searchTerm", required = false) String searchTerm,
+            @RequestParam(value = "offset", required = true) Integer offset,
+            @RequestParam(value = "limit", required = true) Integer limit
+    )  {
+        Search search = InstructorServiceImpl.generateSearchObjectForCourses(searchTerm)
+                .addFilterEqual("recordStatus", RecordStatus.ACTIVE);
+
+        long count =ApplicationContextProvider.getBean(InstructorService.class).countInstances(search);
+        log.info("Instructors Count: {}", count);
+        List<CourseInstructor> courses = ApplicationContextProvider.getBean(InstructorService.class).getInstances(search, offset, limit);
+        return ResponseEntity.ok().body(new ResponseList<>(courses.stream().map(r->modelMapper.map(r,InstructorResponseDTO.class)).collect(Collectors.toList()),count, offset,  limit));
     }
 
 

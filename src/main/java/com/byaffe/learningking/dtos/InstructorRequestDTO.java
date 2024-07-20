@@ -3,15 +3,12 @@ package com.byaffe.learningking.dtos;
 import lombok.Data;
 
 @Data
-public class UserRegistrationRequestDTO {
+public class InstructorRequestDTO {
     public String emailAddress;
     public String lastName;
     public String firstName;
     public String phoneNumber;
-    public String password;
-    public String confirmPassword;
     public Long countryId;
-    public String countryName;
 
 
 

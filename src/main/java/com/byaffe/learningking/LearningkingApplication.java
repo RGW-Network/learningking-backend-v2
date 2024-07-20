@@ -10,6 +10,7 @@ import com.byaffe.learningking.shared.models.Role;
 import com.byaffe.learningking.shared.models.User;
 import com.byaffe.learningking.shared.utils.CountryApiResponseDTO;
 import com.byaffe.learningking.shared.utils.RestService;
+import com.byaffe.learningking.utilities.AppUtils;
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.info.Info;
 import org.modelmapper.ModelMapper;
@@ -38,35 +39,6 @@ public class LearningkingApplication {
     @Bean
     CommandLineRunner run(TaskService taskService, TaskExecutionService taskExecutionService, UserService userService, RestService restService, LookupValueService LookupValueService) {
         return args -> {
-//            try {
-//               for(Task task:taskService.getInstances(new Search().addFilterNull("bigDetails"),0,0)){
-//                   if(StringUtils.isNotEmpty(task.getDetails())) {
-//                       Logger.getAnonymousLogger().info("Task Update: on Task: " + task.getName());
-//                       task.setBigDetails(new BigDetails(task.getDetails()));
-//                       task.setDetails(null);
-//                       taskService.directSave(task);
-//                   }
-//               }
-//
-//
-//            } catch (Exception ex) {
-//                Logger.getAnonymousLogger().severe("Task Update: " + ex.getMessage());
-//            }
-//            try {
-//                for(TaskExecution task:taskExecutionService.getInstances(new Search().addFilterNull("bigDetails"),0,0)){
-//                    if(StringUtils.isNotEmpty(task.getDetails())) {
-//                        Logger.getAnonymousLogger().info("Task Execution Update: on Execution: " + task.getTask().getName());
-//                        task.setBigDetails(new BigDetails(task.getDetails()));
-//                        task.setDetails(null);
-//                        taskExecutionService.directSave(task);
-//                    }
-//                }
-//
-//
-//            } catch (Exception ex) {
-//                Logger.getAnonymousLogger().severe("Task Update: " + ex.getMessage());
-//            }
-
 
             try {
                 Role super_admin_role = userService.saveRole(new Role(SecurityConstants.SUPER_ADMIN_ROLE, "Super admin role"));
@@ -74,12 +46,12 @@ public class LearningkingApplication {
 
             }
             try {
-                Role shop_owner = userService.saveRole(new Role(SecurityConstants.TASK_CREATOR_ROLE, "Task Creator"));
+                Role shop_owner = userService.saveRole(new Role(AppUtils.INSTRUCTOR_ROLE_NAME, "Instructor"));
             } catch (Exception ex) {
 
             }
             try {
-                Role shop_attendant = userService.saveRole(new Role(SecurityConstants.TASK_DOER, "Task Runner"));
+                Role shop_attendant = userService.saveRole(new Role(AppUtils.STUDENT_ROLE_NAME, "Student"));
             } catch (Exception ex) {
 
             }

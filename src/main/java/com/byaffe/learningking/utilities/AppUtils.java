@@ -22,7 +22,7 @@ import java.util.logging.Logger;
 
 public class AppUtils {
 
-    public static String TUTOR_ROLE_NAME = "Learning king tutor";
+    public static String INSTRUCTOR_ROLE_NAME = "Learning king instructor";
      public static String STUDENT_ROLE_NAME = "Learning king student";
       public static String NORMAL_USER_ROLE_NAME = "Normal User";
     public static String PROF_DATASET_NAME = "Professionals";

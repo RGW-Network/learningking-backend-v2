@@ -45,6 +45,11 @@ public class Course extends BaseEntity {
     @JoinColumn(name = "category_id")
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     private CourseCategory category;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "instructor_id")
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+    private CourseInstructor instructor;
     @Enumerated(EnumType.STRING)
     private CourseOwnerShipType ownershipType = CourseOwnerShipType.OPEN;
     @ManyToOne(optional = true)

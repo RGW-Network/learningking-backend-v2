@@ -1,6 +1,7 @@
 package com.byaffe.learningking.controllers;
 
 import com.byaffe.learningking.dtos.*;
+import com.byaffe.learningking.services.InstructorService;
 import com.byaffe.learningking.services.StudentService;
 import com.byaffe.learningking.services.UserService;
 import com.byaffe.learningking.shared.api.BaseResponse;
@@ -31,6 +32,9 @@ public class AuthController {
 
     @Autowired
     StudentService studentService;
+
+    @Autowired
+    InstructorService instructorService;
 
     /**
      * Endpoint to register a microservice
@@ -74,6 +78,26 @@ public class AuthController {
     @PostMapping("/student/resend-otp")
     public ResponseEntity<BaseResponse> sendOtp(@RequestBody UserEmailVerificationRequestDTO userDTO) throws ValidationException {
         studentService.sendOTP(userDTO.emailAddress);
+        return ResponseEntity.ok().body(new BaseResponse("Verified OTP Successfully",true));
+    }
+    @PostMapping("/instructor/register")
+    public ResponseEntity<BaseResponse> registerInstructor(@RequestBody InstructorRequestDTO userDTO) throws ValidationException {
+
+        instructorService.doRegister(userDTO);
+        return ResponseEntity.ok().body(new BaseResponse("Success",true));
+    }
+
+
+    @PostMapping("/instructor/verify-otp")
+    public ResponseEntity<BaseResponse> verifyInstructorOtp(@RequestBody UserEmailVerificationRequestDTO userDTO) throws Exception {
+        instructorService.activateCourseInstructorAccount(userDTO.emailAddress, userDTO.getOtp());
+        return ResponseEntity.ok().body(new BaseResponse("Verified OTP Successfully",true));
+    }
+
+
+    @PostMapping("/instructor/resend-otp")
+    public ResponseEntity<BaseResponse> resendInstructorOtp(@RequestBody UserEmailVerificationRequestDTO userDTO) throws ValidationException {
+        instructorService.sendOTP(userDTO.emailAddress);
         return ResponseEntity.ok().body(new BaseResponse("Verified OTP Successfully",true));
     }
 

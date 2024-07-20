@@ -51,13 +51,6 @@ public class Article extends BaseEntity {
 
     @Column(name = "is_featured")
     private boolean featured;
-
-    @Column(name = "is_paid")
-    private boolean paid;
-
-    @Column(name = "cost")
-    private float cost;
-
     @Override
     public String toString() {
         return this.title;

@@ -12,5 +12,6 @@ public class LessonResponseDTO extends CourseLesson {
   private Float progress;
                    private Boolean isPreview;
                    private List<CourseTopicResponseDTO> topics= new ArrayList<>();
+    private List<CourseLectureResponseDTO> lectures= new ArrayList<>();
 
 }

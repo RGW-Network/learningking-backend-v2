@@ -30,6 +30,7 @@ public class CourseRequestDTO {
     private Long categoryId;
     private CourseOwnerShipType ownershipType ;
     private long company;
+    private Long instructorId;
     private int academyId;
     private boolean isFeatured;
     private boolean isPaid;

@@ -4,7 +4,7 @@ public interface SecurityConstants {
 
     //User roles
     String SUPER_ADMIN_ROLE = "Super Admin";
-    String TASK_CREATOR_ROLE = "Task Creator";
+    String INSTRUCTOR_ROLE = "Task Creator";
     String TASK_DOER = "Task Doer";
 
     //Default Users
