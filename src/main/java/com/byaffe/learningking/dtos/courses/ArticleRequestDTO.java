@@ -13,17 +13,11 @@ public class ArticleRequestDTO {
     private Long id;
     private String title;
     private String description;
+    private String fullDescription;
     private String coverImageUrl;
     private MultipartFile coverImage;
-    private String fullDescription;
-    private CourseAcademyType academy;
     private Long areaOfBusinessId;
-    private PublicationStatus publicationStatus;
-    private ArticleType type;
+    private ArticleType type ;
     private Long categoryId;
-    private boolean featured;
-    private boolean paid;
-    private float cost;
-
 
 }

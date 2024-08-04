@@ -1,5 +1,7 @@
 package com.byaffe.learningking.services.impl;
 
+import com.byaffe.learningking.models.courses.Course;
+import com.byaffe.learningking.shared.exceptions.ValidationFailedException;
 import com.googlecode.genericdao.search.Search;
 import com.byaffe.learningking.daos.CountryDao;
 import com.byaffe.learningking.daos.LookupValueDao;
@@ -143,7 +145,9 @@ public class LookupServiceImpl implements LookupValueService {
 
         return search;
     }
-
+    public LookupValue getInstanceByID(Long id) {
+        return  LookupValueDao.findById (id).orElseThrow(() -> new ValidationFailedException(String.format("LookupValue with ID %d not found", id)));
+    }
     public static Search composeSearchObjectForLookupValues(String searchTerm) {
         com.googlecode.genericdao.search.Search search = CustomSearchUtils.generateSearchTerms(searchTerm,
                 Arrays.asList("value","description"));

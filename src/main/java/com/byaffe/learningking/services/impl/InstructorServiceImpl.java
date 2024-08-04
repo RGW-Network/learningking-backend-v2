@@ -6,6 +6,7 @@ import com.byaffe.learningking.daos.CountryDao;
 import com.byaffe.learningking.daos.RoleDao;
 import com.byaffe.learningking.dtos.InstructorRequestDTO;
 import com.byaffe.learningking.dtos.UserRegistrationRequestDTO;
+import com.byaffe.learningking.models.Article;
 import com.byaffe.learningking.models.EmailTemplate;
 import com.byaffe.learningking.models.courses.CourseInstructor;
 import com.byaffe.learningking.services.*;
@@ -274,7 +275,10 @@ public class InstructorServiceImpl extends GenericServiceImpl<CourseInstructor> 
         courseInstructor.setUserAccount(user);
         return courseInstructor;
     }
-
+    @Override
+    public CourseInstructor getInstanceByID(Long instructorId) {
+        return super.findById(instructorId).orElseThrow(() -> new ValidationFailedException(String.format("Instructor with ID %d not found", instructorId)));
+    }
     private User createUserAccount(CourseInstructor courseInstructor) throws ValidationFailedException {
         User user = new User();
         user.setUsername(courseInstructor.getUsername());

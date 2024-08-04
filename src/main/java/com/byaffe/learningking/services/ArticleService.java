@@ -1,5 +1,6 @@
 package com.byaffe.learningking.services;
 
+import com.byaffe.learningking.dtos.courses.ArticleRequestDTO;
 import com.byaffe.learningking.models.Article;
 import com.byaffe.learningking.shared.exceptions.ValidationFailedException;
 
@@ -11,17 +12,18 @@ import com.byaffe.learningking.shared.exceptions.ValidationFailedException;
  */
 public interface ArticleService  extends GenericService<Article> {
 
-    
+
+    Article save(ArticleRequestDTO dto) throws ValidationFailedException;
 
 
-    Article activate(Article plan) throws ValidationFailedException;
+    Article activate(long plan) throws ValidationFailedException;
 
     /**
      *
      * @param plan
      * @return
      */
-    Article deActivate(Article plan);
+    Article deActivate(long plan);
 
     /**
      *

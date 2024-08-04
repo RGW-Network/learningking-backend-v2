@@ -158,11 +158,11 @@ InstructorService instructorService;
         return super.search(search);
     }
 
-    @Override
-    public Course getInstanceByID(Long plan_id) {
-        return super.searchUniqueByPropertyEqual("id", plan_id, RecordStatus.ACTIVE);
-    }
 
+    @Override
+    public Course getInstanceByID(Long id) {
+        return super.findById(id).orElseThrow(() -> new ValidationFailedException(String.format("Course with ID %d not found", id)));
+    }
     @Override
     public Course activatePlan(Course plan) throws ValidationFailedException {
         plan.setPublicationStatus(PublicationStatus.ACTIVE);

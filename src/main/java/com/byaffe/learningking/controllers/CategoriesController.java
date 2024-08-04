@@ -19,6 +19,7 @@ import com.byaffe.learningking.shared.models.Country;
 import com.google.gson.Gson;
 import com.googlecode.genericdao.search.Search;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -48,18 +49,18 @@ public class CategoriesController {
                                                                        @RequestParam(required = false, value = "commaSeparatedAcademyIds") String commaSeparatedAcademyIds,
                                                                        @RequestParam(required = false, value = "commaSeparatedTypeIds") String commaSeparatedTypeIds){
         Search search = CourseCategoryServiceImpl.composeSearchObject(searchTerm);
-        if(commaSeparatedTypeIds!=null){
+        if(StringUtils.isNotEmpty(commaSeparatedTypeIds)){
             String[] list = commaSeparatedTypeIds.split(",");
             List<CategoryType> lookupTypes= Arrays.stream(list).map(r->CategoryType.getById(Integer.parseInt(r))).collect(Collectors.toList());
             search.addFilterIn("type", lookupTypes);
         }
-        if(commaSeparatedAcademyIds!=null){
+        if(StringUtils.isNotEmpty(commaSeparatedAcademyIds)){
             String[] list = commaSeparatedAcademyIds.split(",");
             List<CourseAcademyType> lookupTypes= Arrays.stream(list).map(r->CourseAcademyType.getById(Integer.parseInt(r))).collect(Collectors.toList());
             search.addFilterIn("academy", lookupTypes);
         }
         long totalRecords = categoryService.countInstances(search);
-        return ResponseEntity.ok().body(new ResponseList<>(categoryService.getInstances(search, offset, limit), totalRecords, 0, 0));
+        return ResponseEntity.ok().body(new ResponseList<>(categoryService.getInstances(search, offset, limit), totalRecords, offset, limit));
 
     }
 

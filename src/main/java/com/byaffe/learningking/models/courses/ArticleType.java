@@ -13,7 +13,7 @@ package com.byaffe.learningking.models.courses;
 public enum ArticleType {
     WEALTHY_MINDS_MAGAZINE("Wealthy Minds Magazine"),
     PROFESSIONAL_JOURNAL("Professional Journal"),
-    COOPORATE_JOURNEL("Corporate Journal"),
+    CORPORATE_JOURNAL("Corporate Journal"),
     INVESTMENT_OPPORTUNITIES("Investment Opportunity"),
     RESEARCH("Research"),
     ADVERT("Adverts");

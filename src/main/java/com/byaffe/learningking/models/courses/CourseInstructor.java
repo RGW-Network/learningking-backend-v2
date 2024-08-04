@@ -38,6 +38,8 @@ public class CourseInstructor extends BaseEntity {
 
     @Column(name = "image_url", length = 500)
     private String imageUrl;
+    @Column(name = "biography",columnDefinition = "LONGTEXT")
+    private String biography;
     @Column(name = "cover_image_url", length = 500)
     private String coverImageUrl;
     @Enumerated(EnumType.STRING)
@@ -61,7 +63,10 @@ public class CourseInstructor extends BaseEntity {
         return object instanceof CourseInstructor && (super.getId() != null) ? super.getId().equals(((CourseInstructor) object).getId())
                 : (object == this);
     }
-
+    @Transient
+    public String  getFullName(){
+        return String.format("%s %s", firstName, lastName);
+    }
     @Override
     public int hashCode() {
         return super.getId() != null ? this.getClass().hashCode() + super.getId().hashCode() : super.hashCode();
