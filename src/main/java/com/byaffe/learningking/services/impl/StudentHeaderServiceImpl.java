@@ -56,16 +56,16 @@ public class StudentHeaderServiceImpl implements StudentHeaderService {
         }
 
         User user = new User();
-        user.setUsername(student.getProspectUsername());
-        user.setFirstName(student.getProspectFirstName());
-        user.setLastName(student.getProspectLastName());
-        user.setEmailAddress(student.getProspectEmailAddress());
-        user.setPassword(student.getProspectPassword());
+        user.setUsername(student.getUsername());
+        user.setFirstName(student.getFirstName());
+        user.setLastName(student.getLastName());
+        user.setEmailAddress(student.getEmailAddress());
+        user.setPassword(student.getPassKey());
         user.addRole(ApplicationContextProvider.getBean(UserService.class).getRoleByName(AppUtils.NORMAL_USER_ROLE_NAME));
-        user.setApiPassword(student.getProspectPassword());
+        user.setApiPassword(student.getPassKey());
         user = userService.saveUser(user);
 
-        student.setProspectPassword(null);
+        student.setPassKey(null);
         student.setUserAccount(user);
         student.setAccountStatus(AccountStatus.Active);
         return  memberService.quickSave(student);

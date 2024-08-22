@@ -28,7 +28,7 @@ public class FilterUtils {
         if(!path.startsWith("/api/")){
             return true;
         }
-        if (path.startsWith("/api/v1/courses") ||path.startsWith("/api/v1/lessons")|| path.startsWith("/api/v1/lookups") || path.startsWith("/api/v1/categories") || path.startsWith("/api/v1/articles")) {
+        if (path.startsWith("/api/v1/courses") ||path.startsWith("/api/v1/lessons")|| path.startsWith("/api/v1/lookups") || path.startsWith("/api/v1/categories") || path.startsWith("/api/v1/articles")||path.startsWith("/api/v1/events")) {
             System.out.println("Auth Passed : true");
             return true;
         }

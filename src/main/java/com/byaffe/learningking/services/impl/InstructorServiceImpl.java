@@ -263,6 +263,7 @@ public class InstructorServiceImpl extends GenericServiceImpl<CourseInstructor> 
         if (StringUtils.isEmpty(username)) {
             throw new ValidationFailedException("Missing username");
         }
+
         CourseInstructor courseInstructor = getCourseInstructorByUsername(username);
         if (courseInstructor == null) {
             throw new ValidationFailedException("CourseInstructor not found");
@@ -279,6 +280,7 @@ public class InstructorServiceImpl extends GenericServiceImpl<CourseInstructor> 
     public CourseInstructor getInstanceByID(Long instructorId) {
         return super.findById(instructorId).orElseThrow(() -> new ValidationFailedException(String.format("Instructor with ID %d not found", instructorId)));
     }
+
     private User createUserAccount(CourseInstructor courseInstructor) throws ValidationFailedException {
         User user = new User();
         user.setUsername(courseInstructor.getUsername());

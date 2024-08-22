@@ -5,13 +5,12 @@ import com.byaffe.learningking.constants.TemplateType;
 import com.byaffe.learningking.daos.CountryDao;
 import com.byaffe.learningking.daos.RoleDao;
 import com.byaffe.learningking.daos.UserDao;
+import com.byaffe.learningking.dtos.StudentProfileUpdateRequestDTO;
 import com.byaffe.learningking.dtos.UserRegistrationRequestDTO;
 import com.byaffe.learningking.models.EmailTemplate;
+import com.byaffe.learningking.models.LookupType;
 import com.byaffe.learningking.models.Student;
-import com.byaffe.learningking.services.EmailTemplateService;
-import com.byaffe.learningking.services.StudentService;
-import com.byaffe.learningking.services.SystemSettingService;
-import com.byaffe.learningking.services.UserService;
+import com.byaffe.learningking.services.*;
 import com.byaffe.learningking.shared.constants.Gender;
 import com.byaffe.learningking.shared.constants.RecordStatus;
 import com.byaffe.learningking.shared.exceptions.OperationFailedException;
@@ -23,6 +22,7 @@ import com.byaffe.learningking.shared.utils.MailService;
 import com.byaffe.learningking.shared.utils.PassEncTech4;
 import com.byaffe.learningking.utilities.AppUtils;
 import com.byaffe.learningking.utilities.CustomAppUtils;
+import com.byaffe.learningking.utilities.ImageStorageService;
 import com.googlecode.genericdao.search.Search;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,7 +45,7 @@ import static com.byaffe.learningking.config.MessageLabels.USER_REGISTRATION_EMA
 public class StudentServiceImpl extends GenericServiceImpl<Student> implements StudentService {
 
     @Autowired
-    RoleDao roleDao;
+    ImageStorageService imageStorageService;
 
     @Autowired
     UserService userService;
@@ -69,7 +69,7 @@ public class StudentServiceImpl extends GenericServiceImpl<Student> implements S
         try {
             user.setLastEmailVerificationCode(PassEncTech4.generateOTP(6));
             mailService.sendEmail(
-                    user.getProspectEmailAddress(),
+                    user.getEmailAddress(),
                     USER_REGISTRATION_EMAIL_SUBJECT,
                     MessageFormat.format(USER_REGISTRATION_EMAIL_CONTENT, user.getLastEmailVerificationCode())
             );
@@ -83,17 +83,59 @@ public class StudentServiceImpl extends GenericServiceImpl<Student> implements S
     @Override
     public Student saveInstance(Student student) throws ValidationFailedException {
 
-        if (StringUtils.isBlank(student.getProspectEmailAddress())) {
+        if (StringUtils.isBlank(student.getEmailAddress())) {
             throw new ValidationFailedException("Missing email Address");
         }
 
-        Student existingWithEmail = getStudentByPhoneNumber(student.getProspectEmailAddress());
+        Student existingWithEmail = getStudentByPhoneNumber(student.getEmailAddress());
 
         if (existingWithEmail != null && !existingWithEmail.getId().equals(student.getId())) {
             throw new ValidationFailedException("A member with the same email already exists!");
         }
 
         return super.merge(student);
+    }
+   public Student updateProfile(StudentProfileUpdateRequestDTO dto) throws ValidationFailedException{
+       if (StringUtils.isBlank(dto.getPhoneNumber())) {
+           throw new ValidationFailedException("Missing phone number");
+       }
+
+       if (StringUtils.isBlank(dto.getFirstName())) {
+           throw new ValidationFailedException("Missing first name");
+       }
+
+       if (StringUtils.isBlank(dto.getLastName())) {
+           throw new ValidationFailedException("Missing last name");
+       }
+       if (StringUtils.isBlank(dto.getBioInformation())) {
+           throw new ValidationFailedException("Missing bio information");
+       }
+
+Student student= getInstanceByID(dto.getStudentId());
+       if(student==null){
+           throw new ValidationFailedException("Student not found wiith id");
+       }
+
+       student.setFirstName(dto.getFirstName());
+       student.setLastName(dto.getLastName());
+       student.setPhoneNumber(dto.getPhoneNumber());
+       student.setCountry(countryDao.getReference(dto.getCountryId()));
+       student.setLocation(dto.getLocation());
+       student.setBioInformation(dto.getBioInformation());
+       student.setTwitterHandle(dto.getTwitterHandle());
+       student.setFacebookUsername(dto.getFacebookUsername());
+       student.setWebsite(dto.getWebsite());
+       student.setProfession(ApplicationContextProvider.getBean(LookupValueService.class).getByType(LookupType.TASK_CATEGORIES,dto.getProfessionId()));
+       student.setInterestNames(dto.getInterestNames());
+       if(dto.getCoverImage()!=null) {
+           String imageUrl=   imageStorageService.uploadImage(dto.getCoverImage(), "students/profile-images/" + student.getId());
+           student.setCoverImageUrl(imageUrl);
+       }
+       if(dto.getProfileImage()!=null) {
+           String imageUrl=   imageStorageService.uploadImage(dto.getProfileImage(), "students/cover-images/" + student.getId());
+           student.setProfileImageUrl(imageUrl);
+       }
+ return   super.save(student);
     }
 
     public Student saveStudent(UserRegistrationRequestDTO dto) throws ValidationFailedException {
@@ -132,12 +174,12 @@ Student student= new Student();
         if (existingInactive !=null) {
             student=existingInactive;
         }
-        student.setProspectFirstName(dto.firstName);
-        student.setProspectLastName(dto.lastName);
-        student.setProspectEmailAddress(dto.emailAddress);
-        student.setProspectUsername(dto.emailAddress);
-        student.setProspectCountryName(dto.countryName);
-        student.setProspectPassword(dto.password);
+        student.setFirstName(dto.firstName);
+        student.setLastName(dto.lastName);
+        student.setEmailAddress(dto.emailAddress);
+        student.setUsername(dto.emailAddress);
+        student.setCountry(country);
+        student.setPassKey(dto.password);
 student.setAccountStatus(AccountStatus.PendingActivation);
         student.setLastEmailVerificationCode(PassEncTech4.generateOTP(6));
         student= super.save(student);
@@ -146,7 +188,7 @@ student.setAccountStatus(AccountStatus.PendingActivation);
         new Thread(() -> {
             try {
                 mailService.sendEmail(
-                        finalStudent.getProspectEmailAddress(),
+                        finalStudent.getEmailAddress(),
                         USER_REGISTRATION_EMAIL_SUBJECT,
                         MessageFormat.format(USER_REGISTRATION_EMAIL_CONTENT, finalStudent.getLastEmailVerificationCode())
                 );
@@ -164,7 +206,7 @@ student.setAccountStatus(AccountStatus.PendingActivation);
     public Student getUnregisteredStudentByEmail(String email) {
         Search search = new Search()
                 .setMaxResults(1)
-                .addFilterEqual("prospectUsername", email)
+                .addFilterEqual("Username", email)
                 .addFilterNotIn("accountStatus", new ArrayList<>(Arrays.asList(AccountStatus.Active, AccountStatus.Blocked)))
                 .addFilterEqual("recordStatus", RecordStatus.ACTIVE);
         return super.searchUnique(search);
@@ -191,7 +233,7 @@ student.setAccountStatus(AccountStatus.PendingActivation);
 
     public Student getStudentByUsername(String email) {
         Search search = new Search().setMaxResults(1);
-        search.addFilterEqual("prospectUsername", email);
+        search.addFilterEqual("Username", email);
         search.addFilterEqual("recordStatus", RecordStatus.ACTIVE);
 
         return super.searchUnique(search);
@@ -237,12 +279,12 @@ student.setAccountStatus(AccountStatus.PendingActivation);
             }
             EmailTemplateService emailTemplateService = ApplicationContextProvider.getBean(EmailTemplateService.class);
 
-            newStudent.setProspectFirstName(firstName);
-            newStudent.setProspectLastName(lastName);
-            newStudent.setProspectEmailAddress(username);
-            newStudent.setProspectUsername(username);
-            newStudent.setProspectCountryName(null);
-            newStudent.setProspectPassword(password);
+            newStudent.setFirstName(firstName);
+            newStudent.setLastName(lastName);
+            newStudent.setEmailAddress(username);
+            newStudent.setUsername(username);
+            newStudent.setCountry(null);
+            newStudent.setPassKey(password);
             newStudent.setDeviceId(null);
             newStudent.setAccountStatus(AccountStatus.PendingActivation);
             String code = new AppUtils().generateVerificationCode();
@@ -257,15 +299,15 @@ student.setAccountStatus(AccountStatus.PendingActivation);
                 if (emailTemplate != null) {
                     String html = emailTemplate.getTemplate();
 
-                    html = html.replace("{fullName}", newStudent.getProspectFirstName());
+                    html = html.replace("{fullName}", newStudent.getFirstName());
                     html = html.replace("{code}", newStudent.getLastEmailVerificationCode());
 
 
-                    ApplicationContextProvider.getBean(MailService.class).sendEmail(newStudent.getProspectEmailAddress(), "Learningking Email Verification",
+                    ApplicationContextProvider.getBean(MailService.class).sendEmail(newStudent.getEmailAddress(), "Learningking Email Verification",
                             html);
 
                 } else {
-                    ApplicationContextProvider.getBean(MailService.class).sendEmail(newStudent.getProspectEmailAddress(), "Learningking Email Verification",
+                    ApplicationContextProvider.getBean(MailService.class).sendEmail(newStudent.getEmailAddress(), "Learningking Email Verification",
                             "<p>Verify your Learningking Email address with this code</p><h1><strong>" + newStudent.getLastEmailVerificationCode() + "</strong></h1>");
                 }
             }
@@ -327,7 +369,7 @@ student.setAccountStatus(AccountStatus.PendingActivation);
             public void run() {
                 try {
 
-                    ApplicationContextProvider.getBean(MailService.class).sendEmail(savedStudent.getProspectEmailAddress(), "AAPU account blocking", blockNotes);
+                    ApplicationContextProvider.getBean(MailService.class).sendEmail(savedStudent.getEmailAddress(), "AAPU account blocking", blockNotes);
 
                 } catch (Exception ex) {
                     Logger.getLogger(StudentServiceImpl.class.getName()).log(Level.SEVERE, null, ex);
@@ -353,7 +395,7 @@ student.setAccountStatus(AccountStatus.PendingActivation);
             public void run() {
                 try {
 
-                    ApplicationContextProvider.getBean(MailService.class).sendEmail(savedStudent.getProspectPassword(), "AAPU account activation", unblockNotes);
+                    ApplicationContextProvider.getBean(MailService.class).sendEmail(savedStudent.getPassKey(), "LK account activation", unblockNotes);
 
                 } catch (Exception ex) {
                     Logger.getLogger(StudentServiceImpl.class.getName()).log(Level.SEVERE, null, ex);
@@ -381,14 +423,14 @@ student.setAccountStatus(AccountStatus.PendingActivation);
             throw new ValidationFailedException("Invalid code");
         }
         User user = new User();
-        user.setUsername(student.getProspectUsername());
-        user.setFirstName(student.getProspectFirstName());
-        user.setLastName(student.getProspectLastName());
-        user.setEmailAddress(student.getProspectEmailAddress());
-        user.setPassword(student.getProspectPassword());
+        user.setUsername(student.getUsername());
+        user.setFirstName(student.getFirstName());
+        user.setLastName(student.getLastName());
+        user.setEmailAddress(student.getEmailAddress());
+        user.setPassword(student.getPassKey());
         user.addRole(ApplicationContextProvider.getBean(UserService.class).getRoleByName(AppUtils.NORMAL_USER_ROLE_NAME));
-        user.setApiPassword(student.getProspectPassword());
-        student.setProspectPassword(null);
+        user.setApiPassword(student.getPassKey());
+        student.setPassKey(null);
         student.setUserAccount(ApplicationContextProvider.getBean(UserService.class).saveUser(user));
         return student;
 
@@ -398,10 +440,10 @@ student.setAccountStatus(AccountStatus.PendingActivation);
         System.out.println("Creating user account...");
 
         User user = new User();
-        user.setUsername(student.getProspectEmailAddress());
-        user.setFirstName(student.getProspectFirstName());
-        user.setLastName(student.getProspectLastName());
-        user.setEmailAddress(student.getProspectEmailAddress());
+        user.setUsername(student.getEmailAddress());
+        user.setFirstName(student.getFirstName());
+        user.setLastName(student.getLastName());
+        user.setEmailAddress(student.getEmailAddress());
         user.setPassword(password);
         UserService userService = ApplicationContextProvider.getBean(UserService.class);
         user.addRole(userService.getRoleByName(AppUtils.STUDENT_ROLE_NAME));

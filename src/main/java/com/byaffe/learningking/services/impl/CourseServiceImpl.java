@@ -48,6 +48,10 @@ InstructorService instructorService;
     }
     @Override
     public Course saveInstance(CourseRequestDTO plan) throws ValidationFailedException{
+
+        if(plan.getInstructorId()==null){
+            throw  new ValidationFailedException("Instructor is required");
+        }
         Course course=modelMapper.map(plan,Course.class);
         course.setCategory(categoryService.getInstanceByID(plan.getCategoryId()));
         course.setInstructor(instructorService.getInstanceByID(plan.getInstructorId()));
@@ -64,7 +68,7 @@ InstructorService instructorService;
     public Course saveInstance(Course plan) throws ValidationFailedException {
 
         if (plan.getCategory() == null) {
-            throw new ValidationFailedException("Mising course Type");
+            throw new ValidationFailedException("Missing course Type");
         }
 
         if (StringUtils.isBlank(plan.getTitle())) {

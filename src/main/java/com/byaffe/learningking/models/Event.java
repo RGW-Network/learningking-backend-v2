@@ -14,7 +14,7 @@ import java.time.LocalTime;
 @Data
 @NoArgsConstructor
 @Entity
-@Table(name = "events")
+@Table(name = "lk_events")
 public class Event extends BaseEntity {
 
     private static final long serialVersionUID = 1L;
@@ -35,19 +35,19 @@ public class Event extends BaseEntity {
     @JoinColumn(name = "category_id")
     private LookupValue category;
 
-    @Enumerated(EnumType.ORDINAL)
+    @Enumerated(EnumType.STRING)
     @Column(name = "publication_status", nullable = true)
     private PublicationStatus publicationStatus = PublicationStatus.INACTIVE;
 
-    @Enumerated(EnumType.ORDINAL)
+    @Enumerated(EnumType.STRING)
     @Column(name = "location_type", nullable = true)
     private EventLocationType locationType = EventLocationType.PHYSICAL;
 
-    @Enumerated(EnumType.ORDINAL)
+    @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = true)
     private EventStatus status = EventStatus.UPCOMING;
 
-    @Column(name="what_you_will_gain", columnDefinition = "BIGTEXT")
+    @Column(name="what_you_will_gain", columnDefinition = "TEXT")
     private String whatYouWillGain;
 
     @Column(name="start_time")
@@ -61,9 +61,9 @@ public class Event extends BaseEntity {
     private LocalDateTime endDate;
 
     @Column(name = "is_featured")
-    private boolean featured=false;
+    private Boolean featured=false;
     @Column(name = "is_paid_for")
-    private boolean isPaidFor=false;
+    private Boolean isPaidFor=false;
 
     @Column(name = "original_price")
     private Double originalPrice=0.0;

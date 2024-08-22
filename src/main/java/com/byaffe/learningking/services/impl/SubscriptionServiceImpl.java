@@ -58,7 +58,7 @@ public class SubscriptionServiceImpl extends GenericServiceImpl<Subscription> im
                 ApplicationContextProvider.getBean(StudentService.class).saveInstance(student);
                 subscription.setStatus(SubscriptionStatus.STOPPED);
                 saveInstance(subscription);
-                ApplicationContextProvider.getBean(MailService.class).sendEmail(subscription.getStudent().getProspectEmailAddress(), "AAPU Subscription expired", "Your annual subscription has expired. Please renew for continued access to the AAPU services. Thank you");
+                ApplicationContextProvider.getBean(MailService.class).sendEmail(subscription.getStudent().getEmailAddress(), "AAPU Subscription expired", "Your annual subscription has expired. Please renew for continued access to the AAPU services. Thank you");
                        
             } catch (ValidationFailedException | OperationFailedException ex) {
                 Logger.getLogger(SubscriptionServiceImpl.class.getName()).log(Level.SEVERE, null, ex);
@@ -140,9 +140,9 @@ public class SubscriptionServiceImpl extends GenericServiceImpl<Subscription> im
                         
                         html = html.replace("{fullName}", savedSubscription.getStudent().getFullName());
                         html = html.replace("{transactionID}", savedSubscription.getPayment().getTransactionId());
-                        ApplicationContextProvider.getBean(MailService.class).sendEmail(savedSubscription.getStudent().getProspectEmailAddress(), "AAPU Subscription", html);
+                        ApplicationContextProvider.getBean(MailService.class).sendEmail(savedSubscription.getStudent().getEmailAddress(), "AAPU Subscription", html);
                     } else {
-                        ApplicationContextProvider.getBean(MailService.class).sendEmail(savedSubscription.getStudent().getProspectEmailAddress(), "AAPU Subscription", "Your subscription has been recieved");
+                        ApplicationContextProvider.getBean(MailService.class).sendEmail(savedSubscription.getStudent().getEmailAddress(), "AAPU Subscription", "Your subscription has been recieved");
                         
                     }
                 } catch (Exception ex) {
@@ -208,7 +208,7 @@ public class SubscriptionServiceImpl extends GenericServiceImpl<Subscription> im
                     
                     System.out.println("Sending email...");
 
-                    ApplicationContextProvider.getBean(MailService.class).sendEmail(savedSubscription.getStudent().getProspectEmailAddress(), "AAPU Subscription", "Congratulations,<br>Your annual subscription has been successfully extended to " + savedSubscription.getEndDate());
+                    ApplicationContextProvider.getBean(MailService.class).sendEmail(savedSubscription.getStudent().getEmailAddress(), "AAPU Subscription", "Congratulations,<br>Your annual subscription has been successfully extended to " + savedSubscription.getEndDate());
                     
                 } catch (Exception ex) {
                     Logger.getLogger(SubscriptionServiceImpl.class.getName()).log(Level.SEVERE, null, ex);

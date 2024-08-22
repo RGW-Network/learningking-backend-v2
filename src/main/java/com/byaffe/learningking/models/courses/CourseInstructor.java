@@ -38,7 +38,7 @@ public class CourseInstructor extends BaseEntity {
 
     @Column(name = "image_url", length = 500)
     private String imageUrl;
-    @Column(name = "biography",columnDefinition = "LONGTEXT")
+    @Column(name = "biography",length = 2000)
     private String biography;
     @Column(name = "cover_image_url", length = 500)
     private String coverImageUrl;

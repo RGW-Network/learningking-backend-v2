@@ -1,5 +1,6 @@
 package com.byaffe.learningking.services;
 
+import com.byaffe.learningking.dtos.StudentProfileUpdateRequestDTO;
 import com.byaffe.learningking.dtos.UserRegistrationRequestDTO;
 import com.byaffe.learningking.models.Student;
 import com.byaffe.learningking.shared.exceptions.OperationFailedException;
@@ -27,6 +28,7 @@ public interface StudentService extends GenericService<Student> {
      */
     Student quickSave(Student student) throws ValidationFailedException;
     Student saveStudent(UserRegistrationRequestDTO dto) throws ValidationFailedException;
+    Student updateProfile(StudentProfileUpdateRequestDTO dto) throws ValidationFailedException;
 
 
     /**

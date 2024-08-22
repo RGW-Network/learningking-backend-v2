@@ -2,6 +2,7 @@ package com.byaffe.learningking.models;
 
 import com.byaffe.learningking.constants.AccountStatus;
 import com.byaffe.learningking.shared.models.BaseEntity;
+import com.byaffe.learningking.shared.models.Country;
 import com.byaffe.learningking.shared.models.User;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
@@ -22,19 +23,33 @@ import java.util.Set;
 public class Student extends BaseEntity {
 
     private static final long serialVersionUID = 1L;
-
+    @Column(name = "first_name", length = 50)
+    private String firstName;
+    @Column(name = "last_name", length = 50)
+    private String lastName;
+    @Column(name = "username", length = 50)
+    private String username;
+    @Column(name = "email_address", length = 50)
+    private String emailAddress;
+    @Column(name = "phone_number", length = 20)
+    private String phoneNumber;
+    @JsonIgnore
+    @ManyToOne
+    @JoinColumn(name = "country_id")
+    private Country country;
+    @Enumerated(EnumType.STRING)
+    private AccountStatus accountStatus = AccountStatus.PendingActivation;
+    private String coverImageUrl;
     private String profileImageUrl;
     private String location;
     private String bioInformation;
-    @Enumerated(EnumType.STRING)
-    private AccountStatus accountStatus = AccountStatus.Active;
     private String twitterHandle;
     private String facebookUsername;
     private String website;
     @ManyToOne
     @JoinColumn(name = "profession_id")
     private LookupValue profession;
-
+    private String passKey;
     private String lastEmailVerificationCode;
     private String lastPhoneVerificationCode;
     @Temporal(TemporalType.TIMESTAMP)
@@ -44,28 +59,14 @@ public class Student extends BaseEntity {
     @JoinColumn(name = "user_id")
     private User userAccount;
     @ElementCollection
-    @CollectionTable(name = "interest_names_mapping", joinColumns = @JoinColumn(name = "member_id"))
+    @CollectionTable(name = "student_interest_names_mapping", joinColumns = @JoinColumn(name = "student_id"))
     @Column(name = "list")
     private Set<String> interestNames;
 
-    //Prospect fields
-    @Column(name = "prospect_country_name")
-    private String prospectCountryName;
-    @Column(name = "prospect_first_name")
-    private String prospectFirstName;
-    @Column(name = "prospect_last_name")
-    private String prospectLastName;
-    @Column(name = "prospect_email_address")
-    private String prospectEmailAddress;
-    @Column(name = "prospect_username")
-    private String prospectUsername;
-    @JsonIgnore
-    @Column(name = "prospect_password")
-    private String prospectPassword;
 
     @Transient
     public String getFullName() {
-        return StringUtils.capitalize(this.prospectFirstName + " " + this.prospectLastName);
+        return StringUtils.capitalize(this.firstName + " " + this.lastName);
     }
 
     @Override

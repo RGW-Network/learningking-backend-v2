@@ -6,6 +6,7 @@ import com.byaffe.learningking.models.LookupValue;
 import com.byaffe.learningking.models.courses.ArticleType;
 import com.byaffe.learningking.models.courses.CourseAcademyType;
 import com.byaffe.learningking.models.courses.PublicationStatus;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -23,7 +24,6 @@ public class EventRequestDTO {
     private String location;
     private Long categoryId;
     private EventLocationType locationType = EventLocationType.PHYSICAL;
-    private EventStatus status = EventStatus.UPCOMING;
     private String whatYouWillGain;
     private LocalTime startTime;
     private LocalTime endTime;
