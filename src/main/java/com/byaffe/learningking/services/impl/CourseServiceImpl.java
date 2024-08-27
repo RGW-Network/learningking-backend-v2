@@ -38,32 +38,42 @@ public class CourseServiceImpl extends GenericServiceImpl<Course> implements Cou
     ModelMapper modelMapper;
     @Autowired
     CourseSubTopicService courseSubTopicService;
-@Autowired
-InstructorService instructorService;
+    @Autowired
+    InstructorService instructorService;
+
     public static Search generateSearchObjectForCourses(String searchTerm) {
-     Search search = CustomSearchUtils.generateSearchTerms(searchTerm,
+        Search search = CustomSearchUtils.generateSearchTerms(searchTerm,
                 Arrays.asList("title", "description"));
 
         return search;
     }
-    @Override
-    public Course saveInstance(CourseRequestDTO plan) throws ValidationFailedException{
 
-        if(plan.getInstructorId()==null){
-            throw  new ValidationFailedException("Instructor is required");
+    @Override
+    public Course saveInstance(CourseRequestDTO plan) throws ValidationFailedException {
+
+        if (plan.getInstructorId() == null) {
+            throw new ValidationFailedException("Instructor is required");
         }
-        Course course=modelMapper.map(plan,Course.class);
+        if (StringUtils.isBlank(plan.getTitle())) {
+            throw new ValidationFailedException("Missing Title");
+        }
+
+        if (StringUtils.isBlank(plan.getDescription())) {
+            throw new ValidationFailedException("Missing Description");
+        }
+        Course course = modelMapper.map(plan, Course.class);
         course.setCategory(categoryService.getInstanceByID(plan.getCategoryId()));
         course.setInstructor(instructorService.getInstanceByID(plan.getInstructorId()));
-        course= saveInstance(course);
+        course = saveInstance(course);
 
-        if(plan.getCoverImage()!=null) {
-         String imageUrl=   imageStorageService.uploadImage(plan.getCoverImage(), "courses/" + course.getId());
-         course.setCoverImageUrl(imageUrl);
-         course=super.save(course);
+        if (plan.getCoverImage() != null) {
+            String imageUrl = imageStorageService.uploadImage(plan.getCoverImage(), "courses/" + course.getId());
+            course.setCoverImageUrl(imageUrl);
+            course = super.save(course);
         }
-    return course;
+        return course;
     }
+
     @Override
     public Course saveInstance(Course plan) throws ValidationFailedException {
 
@@ -167,6 +177,7 @@ InstructorService instructorService;
     public Course getInstanceByID(Long id) {
         return super.findById(id).orElseThrow(() -> new ValidationFailedException(String.format("Course with ID %d not found", id)));
     }
+
     @Override
     public Course activatePlan(Course plan) throws ValidationFailedException {
         plan.setPublicationStatus(PublicationStatus.ACTIVE);

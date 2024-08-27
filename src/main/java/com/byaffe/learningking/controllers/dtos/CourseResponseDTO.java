@@ -18,6 +18,8 @@ public class CourseResponseDTO extends Course {
     private Set<Testimonial> testimonials =new HashSet<>();
     private List<LessonResponseDTO> lessons =new ArrayList<>();
     private int numberOfLessons;
+    private int numberOfTopics;
+private int daysToEndOfDiscount;
     private double averageRating;
     private int ratingsCount;
     private Float progress;

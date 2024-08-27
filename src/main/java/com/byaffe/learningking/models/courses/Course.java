@@ -8,9 +8,12 @@ import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
 import javax.persistence.*;
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 @Data
 @ToString(callSuper = true)
@@ -19,36 +22,34 @@ import java.util.Set;
 public class Course extends BaseEntity {
 
     private static final long serialVersionUID = 1L;
-    @Column(columnDefinition = "TEXT")
+    @Column(length = 1000)
     private String title;
-    @Column(columnDefinition = "BIGTEXT")
+    @Column(columnDefinition = "TEXT")
     private String description;
-    private int numberOfTopics = 0;
     private String coverImageUrl;
     private String welcomeVideoUrl;
-    @Column(name="what_you_will_learn", columnDefinition = "BIGTEXT")
-    private String whatYouWillLearn;
+    private Boolean offersCertificate = false;
 
-    @ElementCollection (fetch = FetchType.EAGER)
-    @CollectionTable(name="course_tags", joinColumns=@JoinColumn(name="course_id"))
-    @Column(name="tags")
-    private List<String> tags;
+    @Column(name = "comma_separated_tags")
+    private String commaSeparatedTags;
+
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "what_you_will_learn", joinColumns = @JoinColumn(name = "course_id"))
+    @Column(name = "outcomes")
+    private List<String> whatYouWillLearn;//new
     private String guidelineVideoUrl;
     private String welcomeRemarks;
-    @Column(name="certificate_template", columnDefinition = "BIGTEXT")
+    @Column(name = "certificate_template", columnDefinition = "BIGTEXT")
     private String certificateTemplate;
     @Enumerated(EnumType.STRING)
     private PublicationStatus publicationStatus = PublicationStatus.ACTIVE;
-
-
+    private LocalDate discountStartDate;//new
+    private LocalDate discountEndDate;//new
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "category_id")
-    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     private CourseCategory category;
-
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "instructor_id")
-    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     private CourseInstructor instructor;
     @Enumerated(EnumType.STRING)
     private CourseOwnerShipType ownershipType = CourseOwnerShipType.OPEN;
@@ -62,11 +63,17 @@ public class Course extends BaseEntity {
     private Float price;
     private Float discountedPrice;
     private Float cost;
-    @Column(columnDefinition = "LONGTEXT")
-    private String fullDescription;
     @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.MERGE)
     @JoinTable(name = "course_testimonials", joinColumns = @JoinColumn(name = "course_id"), inverseJoinColumns = @JoinColumn(name = "tesstimonial_id"))
     private Set<Testimonial> testimonials;
+
+    public long getDaysToEndOfDiscount(){
+        if(this.discountEndDate!=null){
+            return ChronoUnit.DAYS.between(this.discountEndDate,LocalDate.now());
+        }
+
+        return 0;
+    }
 
     public void addTestimonial(Testimonial testimonial) {
         if (this.testimonials == null) {

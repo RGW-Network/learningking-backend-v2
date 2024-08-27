@@ -73,7 +73,9 @@ CourseSubTopicService modelService;
 
     ) throws JSONException {
         Search search = CourseServiceImpl.generateSearchObjectForCourses(searchTerm)
-                .addFilterEqual("recordStatus", RecordStatus.ACTIVE);
+                .addFilterEqual("recordStatus", RecordStatus.ACTIVE)
+                .addSortAsc("position");
+                ;
 
         if (topicId!= null) {
             search.addFilterEqual("courseTopic.id", topicId);

@@ -31,6 +31,9 @@ public class CourseLecture extends BaseEntity {
     @Column(name = "video_url", columnDefinition = "TEXT")
     private String videoUrl;
 
+    @Enumerated(EnumType.STRING)
+private ContentType contentType;
+
     @Column(name = "audio_url", columnDefinition = "TEXT")
     private String audioUrl;
 

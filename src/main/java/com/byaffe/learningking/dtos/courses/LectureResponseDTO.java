@@ -22,12 +22,11 @@ public class LectureResponseDTO {
     private String audioUrl;
     private String fullDescription;
     private PublicationStatus publicationStatus;
-private Set<ExternalResource> externalLinks;
+    private Set<ExternalResource> externalLinks;
     private CourseTopic courseTopic;
-
-
-    private String publicationStatusName =publicationStatus!=null?publicationStatus.getDisplayName():null;
-    private Integer publicationStatusId=publicationStatus!=null?publicationStatus.getId() :null;;
+    private String publicationStatusName = publicationStatus != null ? publicationStatus.getDisplayName() : null;
+    private Integer publicationStatusId = publicationStatus != null ? publicationStatus.getId() : null;
+    ;
 
 
 }
