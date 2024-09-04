@@ -67,11 +67,9 @@ public class ApiCompanyService {
 
     @PostMapping(path = "/{organisationId}/add-student")
     public ResponseEntity<BaseResponse> addStudent(@PathVariable Long  organisationId, @RequestBody List<String> studentEmails)  {
-
         for(String studentEmail:studentEmails){
             ApplicationContextProvider.getBean(CompanyService.class).addStudentToCompany(organisationId,studentEmail);
         }
-
         return ResponseEntity.ok().body(new BaseResponse(true));
     }
 

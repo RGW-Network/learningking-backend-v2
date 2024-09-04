@@ -1,5 +1,6 @@
 package com.byaffe.learningking.dtos.courses;
 
+import com.byaffe.learningking.models.courses.ContentType;
 import com.byaffe.learningking.models.courses.CourseTopic;
 import com.byaffe.learningking.models.courses.ExternalResource;
 import com.byaffe.learningking.models.courses.PublicationStatus;
@@ -22,6 +23,7 @@ public class LectureRequestDTO {
     private String fullDescription;
     private Set<ExternalResource> externalLinks;
     private Long courseTopicId;
+    private ContentType contentType;
     private MultipartFile coverImage;
     private PublicationStatus publicationStatus;
 
