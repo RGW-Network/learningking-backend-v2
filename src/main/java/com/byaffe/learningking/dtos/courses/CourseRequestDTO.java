@@ -10,8 +10,10 @@ import lombok.Data;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Data
 public class CourseRequestDTO {
@@ -22,8 +24,9 @@ public class CourseRequestDTO {
     private String coverImageUrl;
     private MultipartFile coverImage;
     private String welcomeVideoUrl;
-    private String whatYouWillLearn;
-    private List<String> tags;
+    private List<String>  tags= new ArrayList<>();
+    private String  commaSeparatedTags= String.join(",", tags);;
+    private List<String> whatYouWillLearn= new ArrayList<>();
     private String guidelineVideoUrl;
     private String welcomeRemarks;
     private String certificateTemplate;
@@ -31,9 +34,9 @@ public class CourseRequestDTO {
     private CourseOwnerShipType ownershipType ;
     private long company;
     private Long instructorId;
-    private int academyId;
-    private boolean isFeatured;
-    private boolean isPaid;
+    private Integer academyId;
+    private Boolean isFeatured;
+    private Boolean isPaid;
     private float price;
     private float discountedPrice;
     private String fullDescription;

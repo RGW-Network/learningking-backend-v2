@@ -131,14 +131,14 @@ public class CoursesController {
     @GetMapping("/{id}")
     public ResponseEntity<ResponseObject<CourseDetailsResponseDTO>> getCourseDetails(@PathVariable("id") Long id) throws JSONException {
         Student member = UserDetailsContext.getLoggedInStudent();
-        List<LessonResponseDTO> lessonsArray = new ArrayList<>();
         CourseService courseService = ApplicationContextProvider.getBean(CourseService.class);
         Course course = courseService.getInstanceByID(id);
         CourseDetailsResponseDTO responseDTO = new CourseDetailsResponseDTO();
         CourseResponseDTO courseObj = modelMapper.map(course, CourseResponseDTO.class);
         List<CourseLesson> lessons = ApplicationContextProvider.getBean(CourseLessonService.class).getInstances(new Search()
                 .addFilterEqual("course", course)
-                .addFilterEqual("recordStatus", RecordStatus.ACTIVE), 0, 0);
+                .addFilterEqual("recordStatus", RecordStatus.ACTIVE)
+                .addSortAsc("position"), 0, 0);
         CourseSubscription subscription = ApplicationContextProvider.getBean(CourseSubscriptionService.class).getSerieSubscription(member, course);
         log.info("Lessons got: {}", lessons.stream().map(r -> r.id).toArray());
         for (CourseLesson lesson : lessons) {
@@ -150,12 +150,13 @@ public class CoursesController {
 
             List<CourseTopic> topics = ApplicationContextProvider.getBean(CourseTopicService.class).getInstances(new Search()
                     .addFilterEqual("recordStatus", RecordStatus.ACTIVE)
-                    .addFilterEqual("courseLesson", lesson), 0, 0);
+                    .addFilterEqual("courseLesson", lesson)
+                    .addSortAsc("position"), 0, 0);
 
             for (CourseTopic topic : topics) {
                 CourseTopicResponseDTO topicJSONObject = modelMapper.map(topic, CourseTopicResponseDTO.class);
                 List<CourseLecture> lectures = ApplicationContextProvider.getBean(CourseSubTopicService.class).getInstances(new Search()
-                        .addFilterEqual("courseTopic.courseLesson", lesson)
+                        .addFilterEqual("courseTopic", topic)
                         .addFilterEqual("recordStatus", RecordStatus.ACTIVE)
                         .addSortAsc("position"), 0, 0);
                 topicJSONObject.setLectures(lectures.stream().map(r -> modelMapper.map(r, LectureResponseDTO.class)).collect(Collectors.toList()));
@@ -173,7 +174,6 @@ public class CoursesController {
 
         courseObj.setEnrolled(subscription != null);
         courseObj.setAverageRating(rattings / 5);
-        courseObj.setDaysToEndOfDiscount((int) course.getDaysToEndOfDiscount());
         if (subscription != null) {
             courseObj.setEnrolled(true);
             courseObj.setProgress(courseService.getProgress(subscription.getCurrentSubTopic()));
@@ -181,7 +181,7 @@ public class CoursesController {
         log.info("Lessons got: {}", lessons.stream().map(r -> r.id).toArray());
         //     .put("ratingsCount", ApplicationContextProvider.getBean(CourseRatingService.class).getRatingsCount(course))
         courseObj.setTestimonials(course.getTestimonials());
-        courseObj.setLessons(lessonsArray);
+        //courseObj.setLessons(lessonsArray);
         courseObj.setNumberOfLessons(lessons.size());
         responseDTO.setCourse(courseObj);
         responseDTO.setSubscription(subscription);
@@ -204,7 +204,8 @@ public class CoursesController {
         CourseTopicService courseSubTopicService = ApplicationContextProvider.getBean(CourseTopicService.class);
         List<CourseTopic> topics = courseSubTopicService.getInstances(new Search()
                 .addFilterEqual("recordStatus", RecordStatus.ACTIVE)
-                .addFilterEqual("courseLesson", lesson), 0, 0);
+                .addFilterEqual("courseLesson", lesson)
+                .addSortAsc("position"), 0, 0);
         CourseSubscription subscription = ApplicationContextProvider.getBean(CourseSubscriptionService.class).getSerieSubscription(member, lesson.getCourse());
 
         for (CourseTopic topic : topics) {
@@ -212,6 +213,13 @@ public class CoursesController {
             if (subscription != null) {
                 topicJSONObject.setProgress(courseSubTopicService.getProgress(subscription.getCurrentSubTopic()));
             }
+            List<CourseLecture> lectures = ApplicationContextProvider.getBean(CourseSubTopicService.class).getInstances(new Search()
+                    .addFilterEqual("courseTopic", topic)
+                    .addFilterEqual("recordStatus", RecordStatus.ACTIVE)
+                    .addSortAsc("position"), 0, 0);
+            topicJSONObject.setLectures(lectures.stream().map(r -> modelMapper.map(r, LectureResponseDTO.class)).collect(Collectors.toList()));
+
+
             result.getTopics().add(topicJSONObject);
         }
         result.setIsPreview(lesson.getPosition() == 1);
@@ -236,7 +244,8 @@ public class CoursesController {
         List<CourseLecture> subTopics = ApplicationContextProvider.getBean(CourseSubTopicService.class
         ).getInstances(new Search()
                 .addFilterEqual("recordStatus", RecordStatus.ACTIVE)
-                .addFilterEqual("courseTopic", topic), 0, 0);
+                .addFilterEqual("courseTopic", topic)
+                .addSortAsc("position"), 0, 0);
         CourseSubscription subscription = ApplicationContextProvider.getBean(CourseSubscriptionService.class).getSerieSubscription(member, topic.getCourseLesson().getCourse());
 
         for (CourseLecture subTopic : subTopics) {

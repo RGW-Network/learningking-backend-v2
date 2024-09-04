@@ -16,7 +16,7 @@ public class CompanyCourse extends BaseEntity {
     private static final long serialVersionUID = 1L;
     private int position;
     private Course course;
-    private Company company;
+    private Organisation organisation;
 
      @Column(name = "position")
     public int getPosition() {
@@ -39,12 +39,12 @@ public class CompanyCourse extends BaseEntity {
 
      @OneToOne
      @JoinColumn(name = "company_id")
-    public Company getCompany() {
-        return company;
+    public Organisation getCompany() {
+        return organisation;
     }
 
-    public void setCompany(Company company) {
-        this.company = company;
+    public void setCompany(Organisation organisation) {
+        this.organisation = organisation;
     }
 
     

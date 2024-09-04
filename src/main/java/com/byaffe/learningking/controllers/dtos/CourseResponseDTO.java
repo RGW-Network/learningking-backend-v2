@@ -19,7 +19,6 @@ public class CourseResponseDTO extends Course {
     private List<LessonResponseDTO> lessons =new ArrayList<>();
     private int numberOfLessons;
     private int numberOfTopics;
-private int daysToEndOfDiscount;
     private double averageRating;
     private int ratingsCount;
     private Float progress;

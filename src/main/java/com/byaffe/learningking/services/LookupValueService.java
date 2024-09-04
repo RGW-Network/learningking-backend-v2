@@ -43,6 +43,7 @@ public interface LookupValueService {
      */
     List<LookupValue> getByType(LookupType member);
     LookupValue getByType(LookupType lookupType,Long id);
+    Country getCountryById(long id);
 
     List<Country> getCountries(Search search, int offset, int limit);
 

@@ -1,19 +1,14 @@
 package com.byaffe.learningking.models.courses;
 
 import com.byaffe.learningking.shared.models.BaseEntity;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.persistence.*;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.concurrent.TimeUnit;
+import java.util.*;
 
 @Data
 @ToString(callSuper = true)
@@ -55,7 +50,7 @@ public class Course extends BaseEntity {
     private CourseOwnerShipType ownershipType = CourseOwnerShipType.OPEN;
     @ManyToOne(optional = true)
     @JoinColumn(name = "owning_company")
-    private Company company;
+    private Organisation organisation;
     @Enumerated(EnumType.STRING)
     private CourseAcademyType academy;
     private boolean isFeatured;
@@ -64,7 +59,7 @@ public class Course extends BaseEntity {
     private Float discountedPrice;
     private Float cost;
     @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.MERGE)
-    @JoinTable(name = "course_testimonials", joinColumns = @JoinColumn(name = "course_id"), inverseJoinColumns = @JoinColumn(name = "tesstimonial_id"))
+    @JoinTable(name = "course_testimonials", joinColumns = @JoinColumn(name = "course_id"), inverseJoinColumns = @JoinColumn(name = "testimonial_id"))
     private Set<Testimonial> testimonials;
 
     public long getDaysToEndOfDiscount(){
@@ -93,7 +88,13 @@ public class Course extends BaseEntity {
         return object instanceof Course && (super.getId() != null) ? super.getId().equals(((Course) object).getId())
                 : (object == this);
     }
-
+    public List<String> getTags() {
+        if (StringUtils.isNotEmpty(this.commaSeparatedTags)) {
+            return Arrays.asList(this.commaSeparatedTags.split(","));
+        } else {
+            return new ArrayList<>(); // Return an empty list if the string is empty or null
+        }
+    }
     @Override
     public int hashCode() {
         return super.getId() != null ? this.getClass().hashCode() + super.getId().hashCode() : super.hashCode();

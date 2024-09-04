@@ -46,7 +46,7 @@ public class ArticlesController {
         if (featured!= null) {
             search.addFilterEqual("isFeatured",featured);
         }
-        if (StringUtils.isEmpty(sortBy)) {
+        if (StringUtils.isNotEmpty(sortBy)) {
             search.addSort(sortBy, sortDescending);
         }
         List<Article> articles = ApplicationContextProvider.getBean(ArticleService.class).getInstances(search, offset, limit);

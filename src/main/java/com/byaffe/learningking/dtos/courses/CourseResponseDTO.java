@@ -1,11 +1,8 @@
 package com.byaffe.learningking.dtos.courses;
 
 import com.byaffe.learningking.models.courses.*;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
-import org.springframework.web.multipart.MultipartFile;
 
-import javax.persistence.*;
 import java.util.List;
 import java.util.Set;
 
@@ -31,7 +28,7 @@ public class CourseResponseDTO {
     private PublicationStatus publicationStatus ;
     private CourseCategory category;
     private CourseOwnerShipType ownershipType;
-    private Company company;
+    private Organisation organisation;
     private CourseAcademyType academy;
 
     private String publicationStatusName =publicationStatus!=null?publicationStatus.getDisplayName():null;

@@ -84,7 +84,9 @@ public class LookupServiceImpl implements LookupValueService {
                 new Search().addFilterEqual("name", name));
     }
 
-    ;
+   public   Country getCountryById(long id) {
+        return countryDao.findById(id).orElseThrow(()->new ValidationFailedException("Country with id not found"));
+    }
 
     @Override
     public List<LookupValue> getList(Search search, int offset, int limit) {

@@ -1,8 +1,29 @@
 package com.byaffe.learningking.controllers;
 
+import com.byaffe.learningking.controllers.dtos.ArticlesFilterDTO;
+import com.byaffe.learningking.controllers.dtos.CourseByTopicResponseDTO;
+import com.byaffe.learningking.dtos.CompanyRequestDTO;
+import com.byaffe.learningking.dtos.courses.ArticleRequestDTO;
+import com.byaffe.learningking.models.Article;
+import com.byaffe.learningking.models.courses.OrganisationStudent;
+import com.byaffe.learningking.services.ArticleService;
+import com.byaffe.learningking.services.CompanyService;
+import com.byaffe.learningking.services.CompanyStudentDao;
+import com.byaffe.learningking.services.impl.ArticleServiceImpl;
+import com.byaffe.learningking.shared.api.BaseResponse;
+import com.byaffe.learningking.shared.api.ResponseList;
+import com.byaffe.learningking.shared.constants.RecordStatus;
+import com.byaffe.learningking.shared.utils.ApplicationContextProvider;
+import com.googlecode.genericdao.search.Search;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.json.JSONException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 /**
  *
@@ -10,119 +31,48 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @Slf4j
 @RestController
-@RequestMapping("/v1/companies")
+@RequestMapping("/v1/organisations")
 public class ApiCompanyService {
+@Autowired
+    CompanyService companyService;
 
-//    @GET
-//    @Path("/mycompanies")
-//    @Produces("application/json")
-//    @Consumes("application/json")
-//    public Response getMyCompanies(@Context HttpServletRequest request, @Context UriInfo uriInfo) throws JSONException {
-//        JSONObject result = new JSONObject();
-//
-//        try {
-//            JSONArray companyJSONArray = new JSONArray();
-//            Student member = (Student) request.getAttribute(HttpConstants.MEMBER_OBJECT_ATTRIBUTE);
-//            if (member == null) {
-//                return ApiUtils.composeFailureMessage("User not found", 401);
-//            }
-//            BaseQueryParamModel queryParamModel = new BaseQueryParamModel().buildFromQueryParams(uriInfo);
-//            Search search = CompanyServiceImpl.generateSearchTermsForCompanyStudents(queryParamModel.getSearchTerm(), null, null)
-//                    .addFilterEqual("recordStatus", RecordStatus.ACTIVE)
-//                    .addFilterEqual("member", member);
-//            if (queryParamModel.getCategoryId() != null) {
-//                search.addFilterEqual("category.id", queryParamModel.getCategoryId());
-//            }
-//
-//            if (queryParamModel.getSortBy() != null) {
-//                search.addSort(queryParamModel.getSortBy(), queryParamModel.getSortDescending());
-//            }
-//
-//            for (CompanyStudent companyStudent : ApplicationContextProvider.getBean(CompanyService.class).getCompanyStudents(search, queryParamModel.getOffset(), queryParamModel.getLimit())) {
-//                companyJSONArray.put(new JSONObject()
-//                        .put("id", companyStudent.getCompany().getId())
-//                        .put("companyName", companyStudent.getCompany().getName())
-//                         .put("coverImageUrl", companyStudent.getCompany().getCoverImageUrl())
-//                         .put("emailAddress", companyStudent.getCompany().getEmailAddress())
-//                         .put("areaOfBusiness", new JSONObject(companyStudent.getCompany().getAreaOfBusiness()))
-//                         .put("website", companyStudent.getCompany().getWebsite())
-//                        .put("dateAdded", companyStudent.getDateCreated())
-//                        .put("recordStatus", companyStudent.getRecordStatus().name())
-//                );
-//
-//            }
-//            result.put("companies", companyJSONArray);
-//            result.put(ApiUtils.STATUS_PARAM, ApiUtils.SUCCESSFUL_TOKEN);
-//            result.put(ApiUtils.RESPONSE_PARAM, ApiUtils.SUCCESSFUL_RESPONSE_VALUE);
-//            return ApiUtils.buidResponse(200, result);
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//            result.put(ApiUtils.STATUS_PARAM, ApiUtils.FAILURE_TOKEN);
-//            result.put(ApiUtils.RESPONSE_PARAM, e.getMessage());
-//            return ApiUtils.buidResponse(500, result);
-//        }
-//
-//    }
-//
-//    @GET
-//    @Path("/{id}")
-//    @Produces("application/json")
-//    @Consumes("application/json")
-//    public Response getCompanyDetails(@Context HttpServletRequest request, @PathParam("id") String id) throws JSONException {
-//        JSONObject result = new JSONObject();
-//        Student member = (Student) request.getAttribute(HttpConstants.MEMBER_OBJECT_ATTRIBUTE);
-//        if (member == null) {
-//            return ApiUtils.composeFailureMessage("User not found", 401);
-//        } else {
-//            try {
-//
-//                Company company = ApplicationContextProvider.getBean(CompanyService.class).getInstanceByID(id);
-//                if (company == null) {
-//                    return ApiUtils.composeFailureMessage("Company Not Found", ApiConstants.BAD_REQUEST_CODE);
-//                }
-//                JSONObject companyJSONObject = new JSONObject(company);
-//
-//                companyJSONObject.put("id", company.getId());
-//
-//                JSONArray companyCoursesJSONArray = new JSONArray();
-//                List<CompanyCourse> companyCourses = ApplicationContextProvider.getBean(CompanyService.class).getCompanyCourses(company);
-//
-//                for (CompanyCourse companyCourse : companyCourses) {
-//                    companyCoursesJSONArray.put(new JSONObject(companyCourse.getCourse())
-//                            .put("id", companyCourse.getCourse().getId())
-//                    );
-//
-//                }
-//
-//                 JSONArray companyArticlesJSONArray = new JSONArray();
-//                 Search articleSearch= new Search()
-//                         .addFilterEqual("recordStatus", RecordStatus.ACTIVE)
-//                          .addFilterEqual("publicationStatus", PublicationStatus.ACTIVE)
-//                         .addFilterEqual("type", ArticleType.COOPORATE_JOURNEL)
-//
-//                         .addFilterEqual("areaOfBusiness", company.getAreaOfBusiness());
-//
-//                List<Article> articles = ApplicationContextProvider.getBean(ArticleService.class).getInstances(articleSearch,0,20);
-//
-//                for (Article companyArticle : articles) {
-//                    companyArticlesJSONArray.put(new JSONObject(companyArticle)
-//                            .put("id", companyArticle.getId())
-//                    );
-//
-//                }
-//
-//                companyJSONObject.put("articles", companyArticlesJSONArray);
-//                companyJSONObject.put("courses", companyCoursesJSONArray);
-//                result.put("company", companyJSONObject);
-//                result.put(ApiUtils.STATUS_PARAM, ApiUtils.SUCCESSFUL_TOKEN);
-//                result.put(ApiUtils.RESPONSE_PARAM, ApiUtils.SUCCESSFUL_RESPONSE_VALUE);
-//                return ApiUtils.buidResponse(200, result);
-//            } catch (Exception e) {
-//                return ApiUtils.composeFailureMessage(e.getMessage());
-//            }
-//
-//        }
-//
-//    }
+    @GetMapping("/mine")
+    public ResponseEntity<ResponseList<OrganisationStudent>> getMyCompanies(@RequestParam(value = "searchTerm", required = false) String searchTerm,
+                                                                            @RequestParam(value = "offset", required = true) Integer offset,
+                                                                            @RequestParam(value = "limit", required = true) Integer limit,
+                                                                            @RequestParam(value = "sortBy", required = false) String sortBy,
+                                                                            @RequestParam(value = "sortDescending", required = false) Boolean sortDescending,
+                                                                            @RequestParam(value = "featured", required = false) Boolean featured) throws JSONException {
+
+        Search search = ArticleServiceImpl.generateSearchTermsForArticles(searchTerm)
+                .addFilterEqual("recordStatus", RecordStatus.ACTIVE);
+
+        if (sortBy != null) {
+            search.addSort(sortBy,sortDescending);
+        }
+        List<OrganisationStudent> Articles = ApplicationContextProvider.getBean(CompanyService.class).getCompanyStudents(search, offset, limit);
+        long count = ApplicationContextProvider.getBean(CompanyService.class).countInstances(search);
+
+        return ResponseEntity.ok().body(new ResponseList<>(Articles, (int) count, offset, limit));
+
+
+    }
+    @PostMapping(path = "", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    public ResponseEntity<BaseResponse> uploadCSV(@RequestPart CompanyRequestDTO dto, @RequestPart(value = "logoImage",required = false) MultipartFile logoImage, @RequestPart(value = "coverImage",required = false) MultipartFile coverImage)  {
+        dto.setCoverImage(coverImage);
+        dto.setLogoImage(logoImage);
+        ApplicationContextProvider.getBean(CompanyService.class).saveOrganisation(dto);
+        return ResponseEntity.ok().body(new BaseResponse(true));
+    }
+
+    @PostMapping(path = "/{organisationId}/add-student")
+    public ResponseEntity<BaseResponse> addStudent(@PathVariable Long  organisationId, @RequestBody List<String> studentEmails)  {
+
+        for(String studentEmail:studentEmails){
+            ApplicationContextProvider.getBean(CompanyService.class).addStudentToCompany(organisationId,studentEmail);
+        }
+
+        return ResponseEntity.ok().body(new BaseResponse(true));
+    }
 
 }
