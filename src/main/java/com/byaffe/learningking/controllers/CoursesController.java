@@ -155,7 +155,7 @@ public class CoursesController {
 
             for (CourseTopic topic : topics) {
                 CourseTopicResponseDTO topicJSONObject = modelMapper.map(topic, CourseTopicResponseDTO.class);
-                List<CourseLecture> lectures = ApplicationContextProvider.getBean(CourseSubTopicService.class).getInstances(new Search()
+                List<CourseLecture> lectures = ApplicationContextProvider.getBean(CourseLectureService.class).getInstances(new Search()
                         .addFilterEqual("courseTopic", topic)
                         .addFilterEqual("recordStatus", RecordStatus.ACTIVE)
                         .addSortAsc("position"), 0, 0);
@@ -213,7 +213,7 @@ public class CoursesController {
             if (subscription != null) {
                 topicJSONObject.setProgress(courseSubTopicService.getProgress(subscription.getCurrentSubTopic()));
             }
-            List<CourseLecture> lectures = ApplicationContextProvider.getBean(CourseSubTopicService.class).getInstances(new Search()
+            List<CourseLecture> lectures = ApplicationContextProvider.getBean(CourseLectureService.class).getInstances(new Search()
                     .addFilterEqual("courseTopic", topic)
                     .addFilterEqual("recordStatus", RecordStatus.ACTIVE)
                     .addSortAsc("position"), 0, 0);
@@ -241,7 +241,7 @@ public class CoursesController {
             throw new ValidationFailedException("Topic not found");
         }
         result = modelMapper.map(topic, CourseTopicResponseDTO.class);
-        List<CourseLecture> subTopics = ApplicationContextProvider.getBean(CourseSubTopicService.class
+        List<CourseLecture> subTopics = ApplicationContextProvider.getBean(CourseLectureService.class
         ).getInstances(new Search()
                 .addFilterEqual("recordStatus", RecordStatus.ACTIVE)
                 .addFilterEqual("courseTopic", topic)
@@ -320,7 +320,7 @@ public class CoursesController {
     @PostMapping("/subtopics/complete/{id}")
     public ResponseEntity<CourseSubscription> completeSubTopic(@PathVariable("id") Long id) throws JSONException {
         Student member = UserDetailsContext.getLoggedInStudent();
-        CourseLecture topic = ApplicationContextProvider.getBean(CourseSubTopicService.class).getInstanceByID(id);
+        CourseLecture topic = ApplicationContextProvider.getBean(CourseLectureService.class).getInstanceByID(id);
         if (topic == null) {
             throw new ValidationFailedException("Topic  Not Found");
         }

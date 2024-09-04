@@ -4,21 +4,20 @@ import com.byaffe.learningking.daos.CourseLessonDao;
 import com.byaffe.learningking.dtos.courses.LectureRequestDTO;
 import com.byaffe.learningking.models.courses.*;
 import com.byaffe.learningking.services.CourseLessonService;
-import com.byaffe.learningking.services.CourseSubTopicService;
+import com.byaffe.learningking.services.CourseLectureService;
 import com.byaffe.learningking.services.CourseTopicService;
 import com.byaffe.learningking.shared.constants.RecordStatus;
 import com.byaffe.learningking.shared.exceptions.OperationFailedException;
 import com.byaffe.learningking.shared.exceptions.ValidationFailedException;
 import com.byaffe.learningking.utilities.ImageStorageService;
 import com.googlecode.genericdao.search.Search;
-import org.apache.commons.lang3.ObjectUtils;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public class CourseSubTopicServiceImpl
-        extends GenericServiceImpl<CourseLecture> implements CourseSubTopicService {
+public class CourseLectureServiceImpl
+        extends GenericServiceImpl<CourseLecture> implements CourseLectureService {
 
     @Autowired
     CourseTopicService courseTopicService;

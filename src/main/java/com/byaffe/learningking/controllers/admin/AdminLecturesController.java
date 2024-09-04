@@ -1,10 +1,9 @@
 package com.byaffe.learningking.controllers.admin;
 
-import com.byaffe.learningking.controllers.dtos.ArticlesFilterDTO;
 import com.byaffe.learningking.dtos.courses.LectureRequestDTO;
 import com.byaffe.learningking.dtos.courses.LectureResponseDTO;
 import com.byaffe.learningking.models.courses.CourseLecture;
-import com.byaffe.learningking.services.CourseSubTopicService;
+import com.byaffe.learningking.services.CourseLectureService;
 import com.byaffe.learningking.services.impl.CourseServiceImpl;
 import com.byaffe.learningking.shared.api.BaseResponse;
 import com.byaffe.learningking.shared.api.ResponseList;
@@ -35,7 +34,7 @@ public class AdminLecturesController {
     ModelMapper modelMapper;
 
 @Autowired
-CourseSubTopicService modelService;
+CourseLectureService modelService;
 
     @PostMapping("")
     public ResponseEntity<BaseResponse> saveAndUpdate(@RequestBody LectureRequestDTO dto) throws JSONException {

@@ -30,7 +30,7 @@ public class CourseSubscriptionServiceImpl extends BaseDAOImpl<CourseSubscriptio
     CourseTopicService courseTopicService;
 
     @Autowired
-    CourseSubTopicService courseSubTopicService;
+    CourseLectureService courseLectureService;
 
     @Override
     public CourseSubscription saveInstance(CourseSubscription subscription) throws ValidationFailedException {
@@ -193,7 +193,7 @@ public class CourseSubscriptionServiceImpl extends BaseDAOImpl<CourseSubscriptio
 
         }
 
-        List<CourseLecture> subTopics = courseSubTopicService.getInstances(
+        List<CourseLecture> subTopics = courseLectureService.getInstances(
                 new Search()
                         .addSortAsc("position")
                         .addFilterEqual("courseTopic", subTopic.getCourseTopic())
@@ -219,7 +219,7 @@ public class CourseSubscriptionServiceImpl extends BaseDAOImpl<CourseSubscriptio
         if (nextTopic != null) {
             //get first subtopic for this next topic
 
-            CourseLecture nextSubTopic = courseSubTopicService.getFirstSubTopic(nextTopic);
+            CourseLecture nextSubTopic = courseLectureService.getFirstSubTopic(nextTopic);
             courseSubscription.setCurrentSubTopic(nextSubTopic);
             courseSubscription = saveInstance(courseSubscription);
             return courseSubscription;
@@ -236,7 +236,7 @@ public class CourseSubscriptionServiceImpl extends BaseDAOImpl<CourseSubscriptio
         //Next lessson exists
         if (nextLesson != null) {
             //Fetch first sub-topic in next lesson
-            CourseLecture nextSubTopicInLesson = courseSubTopicService.getFirstSubTopic(nextLesson);
+            CourseLecture nextSubTopicInLesson = courseLectureService.getFirstSubTopic(nextLesson);
             courseSubscription.setCurrentSubTopic(nextSubTopicInLesson);
             courseSubscription = saveInstance(courseSubscription);
             return courseSubscription;

@@ -11,9 +11,7 @@ import com.byaffe.learningking.shared.exceptions.ValidationFailedException;
 import com.byaffe.learningking.shared.utils.ApplicationContextProvider;
 import com.byaffe.learningking.shared.utils.CustomSearchUtils;
 import com.byaffe.learningking.utilities.ImageStorageService;
-import com.google.gson.Gson;
 import com.googlecode.genericdao.search.Search;
-import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,7 +35,7 @@ public class CourseServiceImpl extends GenericServiceImpl<Course> implements Cou
     @Autowired
     ModelMapper modelMapper;
     @Autowired
-    CourseSubTopicService courseSubTopicService;
+    CourseLectureService courseLectureService;
     @Autowired
     InstructorService instructorService;
 
@@ -105,7 +103,7 @@ public class CourseServiceImpl extends GenericServiceImpl<Course> implements Cou
         if (currentSubTopic == null) {
             return 0;
         }
-        List<CourseLecture> allSubTopics = courseSubTopicService.getInstances(new Search()
+        List<CourseLecture> allSubTopics = courseLectureService.getInstances(new Search()
                 .addSortAsc("position")
                 .addFilterEqual("publicationStatus", PublicationStatus.ACTIVE)
                 .addFilterEqual("recordStatus", RecordStatus.ACTIVE)
@@ -138,7 +136,7 @@ public class CourseServiceImpl extends GenericServiceImpl<Course> implements Cou
 
         }
         CourseTopic firstTopic = topics.get(0);
-        List<CourseLecture> subTopics = ApplicationContextProvider.getBean(CourseSubTopicService.class)
+        List<CourseLecture> subTopics = ApplicationContextProvider.getBean(CourseLectureService.class)
                 .getInstances(new Search()
                         .addFilterEqual("courseTopic", firstTopic)
                         .addSortAsc("position"), 0, 1);
