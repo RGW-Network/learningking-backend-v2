@@ -92,7 +92,7 @@ public class CourseSubscriptionServiceImpl extends BaseDAOImpl<CourseSubscriptio
     @Override
     public CourseSubscription createSubscription(Student member, Course course) throws ValidationFailedException {
 
-        if (course.isPaid() || course.getDiscountedPrice() > 0) {
+        if (course.isPaid() ) {
             throw new ValidationFailedException("This is a paid Course");
         }
         return createActualSubscription(member, course);

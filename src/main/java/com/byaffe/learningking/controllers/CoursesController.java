@@ -317,7 +317,7 @@ public class CoursesController {
     }
 
 
-    @PostMapping("/subtopics/complete/{id}")
+    @PostMapping("/lectures/complete/{id}")
     public ResponseEntity<CourseSubscription> completeSubTopic(@PathVariable("id") Long id) throws JSONException {
         Student member = UserDetailsContext.getLoggedInStudent();
         CourseLecture topic = ApplicationContextProvider.getBean(CourseLectureService.class).getInstanceByID(id);
