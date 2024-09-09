@@ -22,18 +22,23 @@ public class JacksonConfiguration {
         return builder -> {
             
             // formatter
-            DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-            DateTimeFormatter dateTimeFormatter =  DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
-            DateTimeFormatter timeFormatter =  DateTimeFormatter.ofPattern("HH:mm");
+            DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSX");
+            DateTimeFormatter dateTimeFormatter =  DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSX");
+            DateTimeFormatter timeFormatter =  DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSX");
 
-            // deserializers
+            DateTimeFormatter dateFormatterS = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+            DateTimeFormatter dateTimeFormatterS =  DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
+            DateTimeFormatter timeFormatterS =  DateTimeFormatter.ofPattern("HH:mm");
+
+        // deserializers
             builder.deserializers(new LocalDateDeserializer(dateFormatter));
             builder.deserializers(new LocalDateTimeDeserializer(dateTimeFormatter));
             builder.deserializers(new LocalTimeDeserializer(timeFormatter));
+
             // serializers
-            builder.serializers(new LocalDateSerializer(dateFormatter));
-            builder.serializers(new LocalDateTimeSerializer(dateTimeFormatter));
-            builder.serializers(new LocalTimeSerializer(timeFormatter));
+            builder.serializers(new LocalDateSerializer(dateFormatterS));
+            builder.serializers(new LocalDateTimeSerializer(dateTimeFormatterS));
+            builder.serializers(new LocalTimeSerializer(timeFormatterS));
         };
     }
 }

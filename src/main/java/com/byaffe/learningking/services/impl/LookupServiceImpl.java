@@ -37,7 +37,7 @@ public class LookupServiceImpl implements LookupValueService {
         if (StringUtils.isBlank(dto.getValue())) {
             throw new OperationFailedException("Missing value");
         }
-        LookupType lookupType= LookupType.getById(dto.getTypeId());
+        LookupType lookupType= dto.getType();
         Validate.notNull(lookupType,"Missing Type");
 
         LookupValue existsWithNameAndType = getLookupValueByTypeAndValue(lookupType, dto.getValue());

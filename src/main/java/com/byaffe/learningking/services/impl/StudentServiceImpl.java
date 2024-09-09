@@ -125,7 +125,7 @@ Student student= getInstanceByID(dto.getStudentId());
        student.setTwitterHandle(dto.getTwitterHandle());
        student.setFacebookUsername(dto.getFacebookUsername());
        student.setWebsite(dto.getWebsite());
-       student.setProfession(ApplicationContextProvider.getBean(LookupValueService.class).getByType(LookupType.TASK_CATEGORIES,dto.getProfessionId()));
+       student.setProfession(ApplicationContextProvider.getBean(LookupValueService.class).getByType(LookupType.PROFESSIONS,dto.getProfessionId()));
        student.setInterestNames(dto.getInterestNames());
        if(dto.getCoverImage()!=null) {
            String imageUrl=   imageStorageService.uploadImage(dto.getCoverImage(), "students/profile-images/" + student.getId());

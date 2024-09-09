@@ -17,14 +17,14 @@ public class LookupValueDTO extends BaseDTO {
 private long id;
 
     private String typeName;
-    private int typeId;
+    private LookupType type;
     private String value;
     private String description;
     private String imageUrl;
 
     public LookupValueDTO(LookupType type, String value) {
         this.typeName = type.name();
-        this.typeId=type.getId();
+        this.type=type;
         this.value = value;
     }
 
@@ -33,7 +33,7 @@ private long id;
     }
     public static LookupValueDTO fromDBModel(LookupValue dbModel){
         LookupValueDTO dto=new LookupValueDTO();
-        dto.setTypeId(dbModel.getType().getId());
+        dto.setType(dbModel.getType());
         dto.setTypeName(dbModel.getType().name());
         dto.setValue(dbModel.getValue());
         dto.setImageUrl(dbModel.getImageUrl());

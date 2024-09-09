@@ -63,7 +63,7 @@ Event event=ApplicationContextProvider.getBean(EventService.class).save(dto);
     @GetMapping("/{id}")
     public ResponseEntity<ResponseObject<Event>> getById(@PathVariable(name = "id") long id) throws JSONException {
        System.out.println("ID======="+id);
-        Event event=ApplicationContextProvider.getBean(EventService.class).getInstanceByID(id);
+        Event event=ApplicationContextProvider.getBean(EventService.class).getById(id);
         return ResponseEntity.ok().body(new ResponseObject<>(event));
 
     }

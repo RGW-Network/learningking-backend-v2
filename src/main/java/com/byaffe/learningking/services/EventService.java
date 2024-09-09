@@ -31,6 +31,7 @@ public interface EventService extends GenericService<Event> {
      * @return
      */
     Event getByTitle(String planTitle);
-    
+    Event getById(Long id);
+
 
 }

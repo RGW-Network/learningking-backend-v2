@@ -11,6 +11,7 @@ import lombok.Data;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.persistence.*;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 
@@ -27,8 +28,8 @@ public class EventRequestDTO {
     private String whatYouWillGain;
     private LocalTime startTime;
     private LocalTime endTime;
-    private LocalDateTime startDate;
-    private LocalDateTime endDate;
+    private LocalDate startDate;
+    private LocalDate endDate;
     private boolean featured=false;
     private boolean isPaidFor=false;
     private Double originalPrice=0.0;

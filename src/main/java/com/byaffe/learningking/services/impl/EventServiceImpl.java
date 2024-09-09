@@ -168,6 +168,11 @@ public class EventServiceImpl extends GenericServiceImpl<Event> implements Event
 
     }
 
+    @Override
+    public Event getById(Long id) {
+        return super.findById(id).orElseThrow(()->new ValidationFailedException("No record Found"));
+    }
+
 
     public static Search generateSearchTermsForEvents(String searchTerm) {
         Search search = CustomSearchUtils.generateSearchTerms(searchTerm,
