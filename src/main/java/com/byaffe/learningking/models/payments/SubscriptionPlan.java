@@ -2,7 +2,7 @@ package com.byaffe.learningking.models.payments;
 
 import com.byaffe.learningking.models.courses.Course;
 import com.byaffe.learningking.models.courses.CourseAcademyType;
-import com.byaffe.learningking.models.courses.CourseCategory;
+import com.byaffe.learningking.models.courses.Category;
 import com.byaffe.learningking.models.courses.PublicationStatus;
 import com.byaffe.learningking.shared.models.BaseEntity;
 import lombok.Data;
@@ -37,7 +37,7 @@ public class SubscriptionPlan extends BaseEntity {
     private Set<Course> courses;
     @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.REFRESH)
     @JoinTable(name = "plan_course_categories", joinColumns = @JoinColumn(name = "plan_id"), inverseJoinColumns = @JoinColumn(name = "category_id"))
-    private Set<CourseCategory> courseCategories;
+    private Set<Category> courseCategories;
 
     public void addCourse(Course course) {
         if (this.courses == null) {
@@ -46,7 +46,7 @@ public class SubscriptionPlan extends BaseEntity {
         this.courses.add(course);
     }
 
-    public void addCourseCategory(CourseCategory category) {
+    public void addCourseCategory(Category category) {
         if (this.courseCategories == null) {
             this.courseCategories = new HashSet<>();
         }

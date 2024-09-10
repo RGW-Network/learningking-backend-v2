@@ -1,7 +1,6 @@
 package com.byaffe.learningking.models;
 
-import com.byaffe.learningking.models.courses.ArticleType;
-import com.byaffe.learningking.models.courses.CourseCategory;
+import com.byaffe.learningking.models.courses.Category;
 import com.byaffe.learningking.models.courses.PublicationStatus;
 import com.byaffe.learningking.shared.models.BaseEntity;
 import lombok.Data;
@@ -32,8 +31,24 @@ public class Event extends BaseEntity {
     private String coverImageUrl;
 
     @ManyToOne(optional = true)
-    @JoinColumn(name = "category_id")
-    private LookupValue category;
+    @JoinColumn(name = "event_category_id")
+    private Category category;
+
+    @Transient
+    public String getCategoryName() {
+        if (this.category == null) {
+            return null;
+        }
+        return category.getName();
+    }
+
+    @Transient
+    public Long getCategoryId() {
+        if (this.category == null) {
+            return null;
+        }
+        return category.getId();
+    }
 
     @Enumerated(EnumType.STRING)
     @Column(name = "publication_status", nullable = true)
@@ -47,28 +62,28 @@ public class Event extends BaseEntity {
     @Column(name = "status", nullable = true)
     private EventStatus status = EventStatus.UPCOMING;
 
-    @Column(name="what_you_will_gain", columnDefinition = "TEXT")
+    @Column(name = "what_you_will_gain", columnDefinition = "TEXT")
     private String whatYouWillGain;
 
-    @Column(name="start_time")
+    @Column(name = "start_time")
     private LocalTime startTime;
-    @Column(name="end_time")
+    @Column(name = "end_time")
     private LocalTime endTime;
 
-    @Column(name="start_date")
+    @Column(name = "start_date")
     private LocalDateTime startDate;
-    @Column(name="end_date")
+    @Column(name = "end_date")
     private LocalDateTime endDate;
 
     @Column(name = "is_featured")
-    private Boolean featured=false;
+    private Boolean featured = false;
     @Column(name = "is_paid_for")
-    private Boolean isPaidFor=false;
+    private Boolean isPaidFor = false;
 
     @Column(name = "original_price")
-    private Double originalPrice=0.0;
+    private Double originalPrice = 0.0;
     @Column(name = "discounted_price")
-    private Double discountedPrice=0.0;
+    private Double discountedPrice = 0.0;
     @Column(name = "maximum_attendees")
     private Long maximumAttendees;
 

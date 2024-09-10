@@ -1,7 +1,7 @@
 package com.byaffe.learningking.services;
 
 import com.byaffe.learningking.models.courses.Course;
-import com.byaffe.learningking.models.courses.CourseCategory;
+import com.byaffe.learningking.models.courses.Category;
 import com.byaffe.learningking.models.courses.CourseRating;
 import com.byaffe.learningking.shared.exceptions.ValidationFailedException;
 
@@ -10,7 +10,7 @@ import java.util.List;
 ;
 
 /**
- * Responsible for CRUD operations on {@link CourseCategory}
+ * Responsible for CRUD operations on {@link Category}
  *
  * @author RayGdhrt
  *

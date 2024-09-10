@@ -5,7 +5,7 @@
  */
 package com.byaffe.learningking.models.payments;
 
-import com.byaffe.learningking.models.courses.CourseCategory;
+import com.byaffe.learningking.models.courses.Category;
 import com.byaffe.learningking.shared.models.BaseEntity;
 
 import javax.persistence.*;
@@ -19,7 +19,7 @@ import javax.persistence.*;
 public class SubscriptionPlanToCategoryMapper extends BaseEntity {
 
     private SubscriptionPlan subscriptionPlan;
-    private CourseCategory courseCategory;
+    private Category category;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "subscription_plan_id")
@@ -34,17 +34,17 @@ public class SubscriptionPlanToCategoryMapper extends BaseEntity {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "category_id")
    
-    public CourseCategory getCourseCategory() {
-        return courseCategory;
+    public Category getCourseCategory() {
+        return category;
     }
 
-    public void setCourseCategory(CourseCategory courseCategory) {
-        this.courseCategory = courseCategory;
+    public void setCourseCategory(Category category) {
+        this.category = category;
     }
 
     @Override
     public String toString() {
-        return courseCategory==null?"": courseCategory.getName();
+        return category ==null?"": category.getName();
     }
 
     

@@ -10,7 +10,7 @@ import java.util.List;
 
 ;
 /**
- * Responsible for CRUD operations on {@link CourseCategory}
+ * Responsible for CRUD operations on {@link Category}
  *
  * @author RayGdhrt
  *

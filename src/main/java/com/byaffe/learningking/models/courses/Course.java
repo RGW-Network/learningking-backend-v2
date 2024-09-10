@@ -42,7 +42,7 @@ public class Course extends BaseEntity {
     private LocalDate discountEndDate;//new
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "category_id")
-    private CourseCategory category;
+    private Category category;
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "instructor_id")
     private CourseInstructor instructor;

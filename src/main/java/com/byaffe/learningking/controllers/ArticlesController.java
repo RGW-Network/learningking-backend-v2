@@ -1,6 +1,7 @@
 package com.byaffe.learningking.controllers;
 
 import com.byaffe.learningking.models.Article;
+import com.byaffe.learningking.models.courses.ArticleType;
 import com.byaffe.learningking.services.ArticleService;
 import com.byaffe.learningking.services.impl.ArticleServiceImpl;
 import com.byaffe.learningking.shared.api.ResponseList;
@@ -39,12 +40,16 @@ public class ArticlesController {
                                                              @RequestParam(value = "offset", required = true) Integer offset,
                                                              @RequestParam(value = "limit", required = true) Integer limit,
                                                              @RequestParam(value = "sortBy", required = false) String sortBy,
+                                                             @RequestParam(value = "type", required = false) ArticleType type,
                                                              @RequestParam(value = "sortDescending", required = false) Boolean sortDescending,
                                                              @RequestParam(value = "featured", required = false) Boolean featured) throws JSONException {
 
         Search search = ArticleServiceImpl.generateSearchObjectForArticles(searchTerm).addFilterEqual("recordStatus", RecordStatus.ACTIVE);
         if (featured!= null) {
             search.addFilterEqual("isFeatured",featured);
+        }
+        if (type!= null) {
+            search.addFilterEqual("type",type);
         }
         if (StringUtils.isNotEmpty(sortBy)) {
             search.addSort(sortBy, sortDescending);

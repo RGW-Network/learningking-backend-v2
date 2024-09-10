@@ -1,6 +1,6 @@
 package com.byaffe.learningking.services.impl;
 
-import com.byaffe.learningking.models.courses.CourseCategory;
+import com.byaffe.learningking.models.courses.Category;
 import com.byaffe.learningking.models.payments.SubscriptionPlan;
 import com.byaffe.learningking.models.payments.SubscriptionPlanToCategoryMapper;
 import com.byaffe.learningking.services.SubscriptionPlanToCategoryMapperService;
@@ -40,7 +40,7 @@ public class SubscriptionPlanToCategoryMapperServiceImpl extends GenericServiceI
     }
     
     @Override
-    public SubscriptionPlanToCategoryMapper saveInstance(SubscriptionPlan plan, CourseCategory course) {
+    public SubscriptionPlanToCategoryMapper saveInstance(SubscriptionPlan plan, Category course) {
         SubscriptionPlanToCategoryMapper instance = new SubscriptionPlanToCategoryMapper();
         instance.setCourseCategory(course);
         instance.setSubscriptionPlan(plan);
@@ -59,7 +59,7 @@ public class SubscriptionPlanToCategoryMapperServiceImpl extends GenericServiceI
     }
     
     @Override
-    public List<SubscriptionPlanToCategoryMapper> getList(CourseCategory course) {
+    public List<SubscriptionPlanToCategoryMapper> getList(Category course) {
         return super.search(new Search()
                 .addFilterEqual("courseCategory", course)
                 .addFilterEqual("recordStatus", RecordStatus.ACTIVE)
@@ -77,7 +77,7 @@ public class SubscriptionPlanToCategoryMapperServiceImpl extends GenericServiceI
     
 
     @Override
-    public SubscriptionPlanToCategoryMapper getRecord(SubscriptionPlan plan, CourseCategory course) {
+    public SubscriptionPlanToCategoryMapper getRecord(SubscriptionPlan plan, Category course) {
         return super.searchUnique(new Search()
                 .addFilterEqual("subscriptionPlan", plan)
                 .addFilterEqual("courseCategory", course)

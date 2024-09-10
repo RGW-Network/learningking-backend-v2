@@ -94,13 +94,13 @@ public class StudentSubscriptionPlanServiceImpl extends GenericServiceImpl<Stude
         }
 
         if (planPayment.getSubscriptionPlan().getContentRestrictionType().equals(SubscriptionContentRestrictionType.SELECTED_ACADEMY)) {
-            if (subscriptionPlan.getAllowedAcademyType().equals(course.getCategory().getAcademy())) {
+            if (subscriptionPlan.getAllowedAcademyType().equals(course.getAcademy())) {
                 return courseSubscriptionService.createActualSubscription(course, planPayment);
 
             }
         }
 
-        throw new ValidationFailedException("This course doesnt apply to this subscription");
+        throw new ValidationFailedException("This course doesn't apply to this subscription");
     }
 
     @Override

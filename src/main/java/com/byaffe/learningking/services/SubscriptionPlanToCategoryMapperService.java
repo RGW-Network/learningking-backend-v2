@@ -1,7 +1,7 @@
 package com.byaffe.learningking.services;
 
 import java.util.List;
-import com.byaffe.learningking.models.courses.CourseCategory;
+import com.byaffe.learningking.models.courses.Category;
 import com.byaffe.learningking.models.payments.SubscriptionPlan;
 import com.byaffe.learningking.models.payments.SubscriptionPlanToCategoryMapper;
 import com.byaffe.learningking.shared.exceptions.ValidationFailedException;
@@ -16,9 +16,9 @@ public interface SubscriptionPlanToCategoryMapperService extends GenericService<
 
     public List<SubscriptionPlanToCategoryMapper> getList(SubscriptionPlan plan);
 
-    public List<SubscriptionPlanToCategoryMapper> getList(CourseCategory course);
+    public List<SubscriptionPlanToCategoryMapper> getList(Category course);
 
-    public SubscriptionPlanToCategoryMapper saveInstance(SubscriptionPlan plan, CourseCategory course) throws ValidationFailedException;
-  public SubscriptionPlanToCategoryMapper getRecord(SubscriptionPlan plan, CourseCategory course);
+    public SubscriptionPlanToCategoryMapper saveInstance(SubscriptionPlan plan, Category course) throws ValidationFailedException;
+  public SubscriptionPlanToCategoryMapper getRecord(SubscriptionPlan plan, Category course);
 
 }

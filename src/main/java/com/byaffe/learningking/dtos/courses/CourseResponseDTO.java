@@ -26,7 +26,7 @@ public class CourseResponseDTO {
    private Set<Testimonial> testimonials;
 
     private PublicationStatus publicationStatus ;
-    private CourseCategory category;
+    private Category category;
     private CourseOwnerShipType ownershipType;
     private Organisation organisation;
     private CourseAcademyType academy;

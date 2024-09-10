@@ -1,19 +1,11 @@
 package com.byaffe.learningking.dtos.courses;
 
-import com.byaffe.learningking.models.OwnershipType;
 import com.byaffe.learningking.models.courses.*;
-import com.byaffe.learningking.services.CourseCategoryService;
-import com.byaffe.learningking.shared.utils.ApplicationContextProvider;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @Data
 public class CourseRequestDTO {
@@ -25,7 +17,13 @@ public class CourseRequestDTO {
     private MultipartFile coverImage;
     private String welcomeVideoUrl;
     private List<String>  tags= new ArrayList<>();
-    private String  commaSeparatedTags= String.join(",", tags);;
+    public String  getCommaSeparatedTags(){
+        if(this.tags==null){
+            return null;
+        }
+       return String.join(",", tags);
+
+    }
     private List<String> whatYouWillLearn= new ArrayList<>();
     private String guidelineVideoUrl;
     private String welcomeRemarks;
@@ -41,6 +39,7 @@ public class CourseRequestDTO {
     private float discountedPrice;
     private String fullDescription;
   private CourseAcademyType academy;
+
 
 
 }

@@ -1,14 +1,8 @@
 package com.byaffe.learningking.controllers;
 
-import com.byaffe.learningking.controllers.dtos.ArticlesFilterDTO;
-import com.byaffe.learningking.controllers.dtos.CourseByTopicResponseDTO;
 import com.byaffe.learningking.dtos.CompanyRequestDTO;
-import com.byaffe.learningking.dtos.courses.ArticleRequestDTO;
-import com.byaffe.learningking.models.Article;
 import com.byaffe.learningking.models.courses.OrganisationStudent;
-import com.byaffe.learningking.services.ArticleService;
 import com.byaffe.learningking.services.CompanyService;
-import com.byaffe.learningking.services.CompanyStudentDao;
 import com.byaffe.learningking.services.impl.ArticleServiceImpl;
 import com.byaffe.learningking.shared.api.BaseResponse;
 import com.byaffe.learningking.shared.api.ResponseList;

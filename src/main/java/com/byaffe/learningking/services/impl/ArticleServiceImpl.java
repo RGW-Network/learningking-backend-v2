@@ -4,10 +4,9 @@ import com.byaffe.learningking.dtos.courses.ArticleRequestDTO;
 import com.byaffe.learningking.models.Article;
 import com.byaffe.learningking.models.NotificationBuilder;
 import com.byaffe.learningking.models.NotificationDestinationActivity;
-import com.byaffe.learningking.models.courses.Course;
 import com.byaffe.learningking.models.courses.PublicationStatus;
 import com.byaffe.learningking.services.ArticleService;
-import com.byaffe.learningking.services.CourseCategoryService;
+import com.byaffe.learningking.services.CategoryService;
 import com.byaffe.learningking.services.NotificationService;
 import com.byaffe.learningking.shared.constants.RecordStatus;
 import com.byaffe.learningking.shared.exceptions.OperationFailedException;
@@ -36,7 +35,7 @@ public class ArticleServiceImpl extends GenericServiceImpl<Article> implements A
     @Autowired
     ModelMapper modelMapper;
     @Autowired
-    CourseCategoryService categoryService;
+    CategoryService categoryService;
 
     public static Search generateSearchObjectForArticles(String searchTerm) {
 
@@ -89,10 +88,6 @@ public class ArticleServiceImpl extends GenericServiceImpl<Article> implements A
         search.setFirstResult(offset);
         return super.search(search);
     }
-    @Override
-    public Article getInstanceByID(Long plan_id) {
-        return super.findById(plan_id).orElse(null);
-    }
 
 
     @Override
@@ -127,7 +122,9 @@ public class ArticleServiceImpl extends GenericServiceImpl<Article> implements A
 
         return article;
     }
-
+   public Article getInstanceByID(Long id){
+        return  super.findById(id).orElseThrow(()->new ValidationFailedException("Not found"));
+    }
     @Override
     public Article activate(long plan) throws ValidationFailedException {
         Article article=getInstanceByID(plan);

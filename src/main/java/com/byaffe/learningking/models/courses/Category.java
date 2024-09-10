@@ -8,7 +8,7 @@ import javax.persistence.*;
 @Data
 @Entity
 @Table(name = "course_categories")
-public class CourseCategory extends BaseEntity {
+public class Category extends BaseEntity {
 
     private static final long serialVersionUID = 1L;
 
@@ -28,16 +28,20 @@ public class CourseCategory extends BaseEntity {
     private String iconUrl;
 
     @Enumerated(EnumType.ORDINAL)
-    @Column(name = "academy")
-    private CourseAcademyType academy;
-
-    @Enumerated(EnumType.ORDINAL)
     @Column(name = "type")
     private CategoryType type;
 
+    @Transient
+    public String getTypeName(){
+        if(this.type==null){
+            return  null;
+        }
+        return type.getDisplayName();
+    }
+
     @Override
     public boolean equals(Object object) {
-        return object instanceof CourseCategory && (super.getId() != null) ? super.getId().equals(((CourseCategory) object).getId())
+        return object instanceof Category && (super.getId() != null) ? super.getId().equals(((Category) object).getId())
                 : (object == this);
     }
 
@@ -48,6 +52,6 @@ public class CourseCategory extends BaseEntity {
 
     @Override
     public String toString() {
-        return  name + "("+ academy +")" ;
+        return  name + "("+ getType() +")" ;
     }
 }

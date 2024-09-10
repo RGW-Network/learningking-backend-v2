@@ -26,7 +26,12 @@ public class LookupValue extends BaseEntity {
     @Column(name = "image_url")
     private String imageUrl;
 
-
-
+@Transient
+public String getTypeName(){
+    if(type==null){
+        return  null;
+    }
+    return type.getUiName();
+}
 
 }

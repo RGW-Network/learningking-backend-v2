@@ -16,7 +16,7 @@ public interface LookupValueService {
      * Saves a microservice to the database
      * @return
      */
-    LookupValue save(LookupValueDTO instance);
+    LookupValue save(LookupValue instance);
 
      Country save(Country country );
 

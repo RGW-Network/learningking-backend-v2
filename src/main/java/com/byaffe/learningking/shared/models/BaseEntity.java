@@ -202,4 +202,12 @@ public class BaseEntity implements Auditable {
     public boolean isSaved() {
         return !this.isNew();
     }
+
+    @Transient
+    public String getRecordStatusName(){
+        if(recordStatus==null){
+            return  null;
+        }
+        return recordStatus.getDisplayName();
+    }
 }

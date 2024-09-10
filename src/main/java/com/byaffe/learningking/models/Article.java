@@ -1,7 +1,7 @@
 package com.byaffe.learningking.models;
 
 import com.byaffe.learningking.models.courses.ArticleType;
-import com.byaffe.learningking.models.courses.CourseCategory;
+import com.byaffe.learningking.models.courses.Category;
 
 import javax.persistence.*;
 
@@ -21,6 +21,8 @@ public class Article extends BaseEntity {
 
     @Column(name = "title")
     private String title;
+    @Column(name = "main_quote")
+    private String mainQuote;
 
     @Column(name = "description", columnDefinition = "TEXT")
     private String description;
@@ -51,13 +53,18 @@ public String  getAreaOfBusinessName(){
     @JsonIgnore
     @ManyToOne(optional = true)
     @JoinColumn(name = "course_category")
-    private CourseCategory category;
+    private Category category;
+
     @Transient
     public String  getCategoryName(){
 
         return category!=null? category.getName():null;
     }
+    @Transient
+    public String  getAcademyTypeName(){
 
+        return type!=null? type.getDisplayName():null;
+    }
     @Transient
     public Long  getCategoryId(){
         return   category!=null? category.getId():null;

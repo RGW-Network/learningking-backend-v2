@@ -6,7 +6,7 @@ import com.byaffe.learningking.models.NotificationBuilder;
 import com.byaffe.learningking.models.NotificationDestinationActivity;
 import com.byaffe.learningking.models.courses.PublicationStatus;
 import com.byaffe.learningking.services.EventService;
-import com.byaffe.learningking.services.CourseCategoryService;
+import com.byaffe.learningking.services.CategoryService;
 import com.byaffe.learningking.services.NotificationService;
 import com.byaffe.learningking.shared.constants.RecordStatus;
 import com.byaffe.learningking.shared.exceptions.OperationFailedException;
@@ -35,7 +35,7 @@ public class EventServiceImpl extends GenericServiceImpl<Event> implements Event
     @Autowired
     ModelMapper modelMapper;
     @Autowired
-    CourseCategoryService categoryService;
+    CategoryService categoryService;
 
     public static Search generateSearchObjectForEvents(String searchTerm) {
     return new Search();

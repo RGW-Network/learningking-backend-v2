@@ -93,15 +93,15 @@ public class CoursesController {
 
 
     @GetMapping("/by-categories")
-    public ResponseEntity<ResponseList<CourseByTopicResponseDTO>> getCoursesByCategories(@RequestParam ArticlesFilterDTO queryParamModel) throws JSONException {
-        List<CourseByTopicResponseDTO> records = new ArrayList<>();
-        for (CourseCategory devTopic : ApplicationContextProvider.getBean(CourseCategoryService.class).getInstances(new Search().addFilterEqual("recordStatus", RecordStatus.ACTIVE), 0, 0)) {
+    public ResponseEntity<ResponseList<ByTopicResponseDTO>> getCoursesByCategories(@RequestParam ArticlesFilterDTO queryParamModel) throws JSONException {
+        List<ByTopicResponseDTO> records = new ArrayList<>();
+        for (Category devTopic : ApplicationContextProvider.getBean(CategoryService.class).getInstances(new Search().addFilterEqual("recordStatus", RecordStatus.ACTIVE), 0, 0)) {
             List<Course> coursesModels = ApplicationContextProvider.getBean(CourseService.class).getInstances(new Search()
                     .addFilterEqual("recordStatus", RecordStatus.ACTIVE)
                     .addFilterEqual("publicationStatus", PublicationStatus.ACTIVE)
                     .addFilterEqual("category", devTopic), queryParamModel.getOffset(), queryParamModel.getLimit());
 
-            CourseByTopicResponseDTO courseByTopicResponseDTO = modelMapper.map(devTopic, CourseByTopicResponseDTO.class);
+            ByTopicResponseDTO courseByTopicResponseDTO = modelMapper.map(devTopic, ByTopicResponseDTO.class);
             List<CourseResponseDTO> dtos = new ArrayList<>();
             for (Course course : coursesModels) {
                 CourseResponseDTO dto = (CourseResponseDTO) course;
@@ -403,12 +403,11 @@ public class CoursesController {
             search.addFilterEqual("academy", academyType);
         }
         JSONArray topics = new JSONArray();
-        for (CourseCategory topic : ApplicationContextProvider.getBean(CourseCategoryService.class).getInstances(search, queryParamModel.getOffset(), queryParamModel.getLimit())) {
+        for (Category topic : ApplicationContextProvider.getBean(CategoryService.class).getInstances(search, queryParamModel.getOffset(), queryParamModel.getLimit())) {
             int count = ApplicationContextProvider.getBean(CourseService.class).countInstances(new Search().addFilterEqual("recordStatus", RecordStatus.ACTIVE).addFilterEqual("category", topic));
             topics.put(
                     new JSONObject()
                             .put("id", topic.getId())
-                            .put("academy", topic.getAcademy())
                             .put("name", topic.getName())
                             .put("colorCode", topic.getColorCode())
                             .put("imageUrl", topic.getImageUrl())

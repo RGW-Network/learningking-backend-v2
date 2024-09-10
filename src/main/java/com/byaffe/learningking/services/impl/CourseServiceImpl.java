@@ -31,7 +31,7 @@ public class CourseServiceImpl extends GenericServiceImpl<Course> implements Cou
     ImageStorageService imageStorageService;
 
     @Autowired
-    CourseCategoryService categoryService;
+    CategoryService categoryService;
     @Autowired
     ModelMapper modelMapper;
     @Autowired
@@ -61,6 +61,7 @@ public class CourseServiceImpl extends GenericServiceImpl<Course> implements Cou
         }
         Course course = modelMapper.map(plan, Course.class);
         course.setCategory(categoryService.getInstanceByID(plan.getCategoryId()));
+        course.setCommaSeparatedTags(plan.getCommaSeparatedTags());
         course.setInstructor(instructorService.getInstanceByID(plan.getInstructorId()));
         course = saveInstance(course);
 
