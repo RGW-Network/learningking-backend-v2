@@ -2,7 +2,7 @@ package com.byaffe.learningking.services.impl;
 
 import com.byaffe.learningking.models.Student;
 import com.byaffe.learningking.models.courses.Course;
-import com.byaffe.learningking.models.courses.CourseSubscription;
+import com.byaffe.learningking.models.courses.CourseEnrollment;
 import com.byaffe.learningking.models.payments.*;
 import com.byaffe.learningking.services.CourseSubscriptionService;
 import com.byaffe.learningking.services.StudentSubscriptionPlanService;
@@ -67,7 +67,7 @@ public class StudentSubscriptionPlanServiceImpl extends GenericServiceImpl<Stude
     }
 
     @Override
-    public CourseSubscription payBySubscription(Course course, StudentSubscriptionPlan planPayment) throws ValidationFailedException {
+    public CourseEnrollment payBySubscription(Course course, StudentSubscriptionPlan planPayment) throws ValidationFailedException {
         SubscriptionPlan subscriptionPlan = planPayment.getSubscriptionPlan();
 
         if (subscriptionPlan.getContentRestrictionType().equals(SubscriptionContentRestrictionType.OPEN_ANY_COURSE)) {

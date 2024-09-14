@@ -4,12 +4,12 @@ import java.util.List;
 import com.byaffe.learningking.models.Student;
 import com.byaffe.learningking.models.courses.Course;
 import com.byaffe.learningking.models.courses.CourseLecture;
-import com.byaffe.learningking.models.courses.CourseSubscription;
+import com.byaffe.learningking.models.courses.CourseEnrollment;
 import com.byaffe.learningking.models.payments.CoursePayment;
 import com.byaffe.learningking.models.payments.StudentSubscriptionPlan;
 import com.byaffe.learningking.shared.exceptions.ValidationFailedException;
 
-public interface CourseSubscriptionService extends GenericService<CourseSubscription> {
+public interface CourseSubscriptionService extends GenericService<CourseEnrollment> {
 
     /**
      * 
@@ -17,11 +17,11 @@ public interface CourseSubscriptionService extends GenericService<CourseSubscrip
      * @param serie
      * @return 
      */
-    CourseSubscription getSerieSubscription(Student member, Course serie);
-    CourseSubscription createSubscription(Student member, Course serie)throws ValidationFailedException;
-     CourseSubscription createSubscription(CoursePayment coursePayment)throws ValidationFailedException;
-    
-      /**
+    CourseEnrollment getSerieSubscription(Student member, Course serie);
+    CourseEnrollment createSubscription(Student member, Course serie)throws ValidationFailedException;
+     CourseEnrollment createSubscription(CoursePayment coursePayment)throws ValidationFailedException;
+     CourseEnrollment enrolForFreeCourse(Student member, Course course) throws ValidationFailedException;
+    /**
      * 
      * @param member
      * @param courseTopic
@@ -29,17 +29,17 @@ public interface CourseSubscriptionService extends GenericService<CourseSubscrip
      * @return 
      * @throws ValidationFailedException
      */
-    CourseSubscription completeSubTopic(Student member, CourseLecture courseTopic)throws ValidationFailedException;
+    CourseEnrollment completeSubTopic(Student member, CourseLecture courseTopic)throws ValidationFailedException;
 
     /**
      * 
      * @param member
      * @return 
      */
- List<CourseSubscription> getPlansForStudent(Student member);
+ List<CourseEnrollment> getPlansForStudent(Student member);
  
-   CourseSubscription createSubscription(Course course, Student member) ;
+   CourseEnrollment createSubscription(Course course, Student member) ;
    
-  CourseSubscription createActualSubscription(Course course, StudentSubscriptionPlan memberSubscriptionPlan) throws ValidationFailedException ;
+  CourseEnrollment createActualSubscription(Course course, StudentSubscriptionPlan memberSubscriptionPlan) throws ValidationFailedException ;
     
 }

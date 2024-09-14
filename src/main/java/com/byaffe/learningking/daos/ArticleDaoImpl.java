@@ -1,7 +1,6 @@
 package com.byaffe.learningking.daos;
 
 import com.byaffe.learningking.models.Article;
-import com.byaffe.learningking.models.BigDetails;
 import com.byaffe.learningking.shared.dao.BaseDAOImpl;
 import org.springframework.stereotype.Repository;
 

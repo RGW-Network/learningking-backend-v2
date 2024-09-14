@@ -6,15 +6,7 @@
 package com.byaffe.learningking.models.payments;
 
 import java.util.Date;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
+import javax.persistence.*;
 
 import com.byaffe.learningking.models.Student;
 import com.byaffe.learningking.shared.models.BaseEntity;
@@ -36,7 +28,7 @@ public class StudentSubscriptionPlan extends BaseEntity {
     private float cost;
     private SubscriptionPlanStatus status = SubscriptionPlanStatus.ACTIVE;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
     public Student getStudent() {
         return student;
@@ -46,7 +38,7 @@ public class StudentSubscriptionPlan extends BaseEntity {
         this.student = student;
     }
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "subscription_plan_id")
     public SubscriptionPlan getSubscriptionPlan() {
         return subscriptionPlan;

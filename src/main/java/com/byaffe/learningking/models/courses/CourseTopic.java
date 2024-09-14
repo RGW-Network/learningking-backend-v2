@@ -27,7 +27,16 @@ public class CourseTopic extends BaseEntity {
     @JoinColumn(name = "course_lesson_id")
     private CourseLesson courseLesson;
 
+    @Transient
+    public String  getCourseLessonName(){
 
+        return courseLesson!=null? courseLesson.getTitle():null;
+    }
+    @Transient
+    public Long  getCourseLessonId(){
+
+        return courseLesson!=null? courseLesson.getId():null;
+    }
     @Override
     public boolean equals(Object object) {
         return object instanceof CourseTopic && (super.getId() != null) ? super.getId().equals(((CourseTopic) object).getId())

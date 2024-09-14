@@ -14,7 +14,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Data
-@EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
 @Entity
 @Table(name = "subscription_plans")
@@ -32,10 +31,10 @@ public class SubscriptionPlan extends BaseEntity {
     private PublicationStatus publicationStatus = PublicationStatus.INACTIVE;
     @Enumerated(EnumType.STRING)
     private CourseAcademyType allowedAcademyType;
-    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.REFRESH)
+    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.REFRESH)
     @JoinTable(name = "plan_courses", joinColumns = @JoinColumn(name = "plan_id"), inverseJoinColumns = @JoinColumn(name = "course_id"))
     private Set<Course> courses;
-    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.REFRESH)
+    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.REFRESH)
     @JoinTable(name = "plan_course_categories", joinColumns = @JoinColumn(name = "plan_id"), inverseJoinColumns = @JoinColumn(name = "category_id"))
     private Set<Category> courseCategories;
 

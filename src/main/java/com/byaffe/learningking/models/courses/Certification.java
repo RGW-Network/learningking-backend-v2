@@ -10,7 +10,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Data
-@EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
 @Entity
 @Table(name = "certifications")
@@ -40,5 +39,19 @@ public class Certification extends BaseEntity {
     @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.MERGE)
     @JoinTable(name = "certification_testimonials", joinColumns = @JoinColumn(name = "certification_id"), inverseJoinColumns = @JoinColumn(name = "testimonial_id"))
     private Set<Testimonial> testimonials;
+
+    @Override
+    public boolean equals(Object object) {
+        return object instanceof Certification && (super.getId() != null)
+                ? super.getId().equals(((Certification) object).getId())
+                : (object == this);
+    }
+
+
+    @Override
+    public int hashCode() {
+        return super.getId() != null ? this.getClass().hashCode() + super.getId().hashCode() : super.hashCode();
+    }
+
 
 }

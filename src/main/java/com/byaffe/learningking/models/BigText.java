@@ -13,12 +13,12 @@ import javax.persistence.*;
 @Builder
 @AllArgsConstructor
 @Entity
-@Table(name = "big_details")
-public class BigDetails extends BaseEntity {
+@Table(name = "big_text")
+public class BigText extends BaseEntity {
 
 
-    @Column(name = "data", columnDefinition = "LONGTEXT")
-    private String data;
+    @Column(name = "text", columnDefinition = "LONGTEXT")
+    private String text;
 
 
 

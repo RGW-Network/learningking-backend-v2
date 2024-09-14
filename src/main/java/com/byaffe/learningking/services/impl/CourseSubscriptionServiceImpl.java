@@ -15,14 +15,13 @@ import com.byaffe.learningking.shared.utils.ApplicationContextProvider;
 import com.googlecode.genericdao.search.Search;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
-import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-@Service
-@Repository
-public class CourseSubscriptionServiceImpl extends BaseDAOImpl<CourseSubscription> implements CourseSubscriptionService {
 
+@Transactional
+@Repository
+public class CourseSubscriptionServiceImpl extends BaseDAOImpl<CourseEnrollment> implements CourseSubscriptionService {
 
 
     @Autowired
@@ -35,41 +34,37 @@ public class CourseSubscriptionServiceImpl extends BaseDAOImpl<CourseSubscriptio
     CourseLectureService courseLectureService;
 
     @Override
-    public CourseSubscription saveInstance(CourseSubscription subscription) throws ValidationFailedException {
-        CourseSubscription exists = getSerieSubscription(subscription.getStudent(), subscription.getCourse());
+    public CourseEnrollment saveInstance(CourseEnrollment subscription) throws ValidationFailedException {
+        CourseEnrollment exists = getSerieSubscription(subscription.getStudent(), subscription.getCourse());
 
         if (exists != null && !exists.getId().equals(subscription.getId())) {
             subscription.setId(exists.getId());
-            subscription.setCurrentLesson(exists.getCurrentLesson());
-            subscription.setCurrentTopic(exists.getCurrentTopic());
         }
 
         return super.merge(subscription);
     }
 
     @Override
-    public CourseSubscription createSubscription(Course course, Student member) {
-        CourseSubscription exists = getSerieSubscription(member, course);
+    public CourseEnrollment createSubscription(Course course, Student member) {
+        CourseEnrollment exists = getSerieSubscription(member, course);
 
         if (exists == null) {
 
-            CourseSubscription subscription = new CourseSubscription();
+            CourseEnrollment subscription = new CourseEnrollment();
             subscription.setCourse(course);
             subscription.setStudent(member);
-            subscription.setCurrentLesson(1);
-            subscription.setCurrentTopic(1);
             return super.merge(subscription);
         }
         return exists;
     }
 
     @Override
-    public List<CourseSubscription> getPlansForStudent(Student member) {
-        return super.searchByPropertyEqual("member", member, RecordStatus.ACTIVE); //To change body of generated methods, choose Tools | Templates.
+    public List<CourseEnrollment> getPlansForStudent(Student member) {
+        return super.searchByPropertyEqual("student", member, RecordStatus.ACTIVE); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public List<CourseSubscription> getInstances(Search search, int offset, int limit) {
+    public List<CourseEnrollment> getInstances(Search search, int offset, int limit) {
         if (search == null) {
             search = new Search();
         }
@@ -77,13 +72,13 @@ public class CourseSubscriptionServiceImpl extends BaseDAOImpl<CourseSubscriptio
     }
 
     @Override
-    public void deleteInstance(CourseSubscription memberPlan) {
+    public void deleteInstance(CourseEnrollment memberPlan) {
         memberPlan.setRecordStatus(RecordStatus.DELETED);
         super.save(memberPlan);//To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public CourseSubscription getInstanceByID(Long member_plan_id) {
+    public CourseEnrollment getInstanceByID(Long member_plan_id) {
         if (member_plan_id == null) {
             return null;
         }
@@ -91,54 +86,72 @@ public class CourseSubscriptionServiceImpl extends BaseDAOImpl<CourseSubscriptio
     }
 
     @Override
-    public CourseSubscription createSubscription(Student member, Course course) throws ValidationFailedException {
+    public CourseEnrollment createSubscription(Student member, Course course) throws ValidationFailedException {
 
-        if (course.isPaid() ) {
+        if (course.isPaid()) {
             throw new ValidationFailedException("This is a paid Course");
         }
         return createActualSubscription(member, course);
     }
 
-    private CourseSubscription createActualSubscription(Student member, Course course) {
-        CourseSubscription courseSubscription = new CourseSubscription();
+    @Override
+    public CourseEnrollment enrolForFreeCourse(Student member, Course course) throws ValidationFailedException {
+
+        if (course.isPaid()) {
+            throw new ValidationFailedException("This is a paid Course");
+        }
+
+         CourseEnrollment existing = getSerieSubscription(member,course);
+        if(existing!=null){
+            throw new ValidationFailedException("You already enrolled for this course");
+        }
+        CourseEnrollment courseEnrollment = new CourseEnrollment();
+        CourseLecture firstSubTopic = null;
+        firstSubTopic = ApplicationContextProvider.getBean(CourseService.class).getFirstSubTopic(course);
+        courseEnrollment.setStudent(member);
+        courseEnrollment.setCourse(course);
+        courseEnrollment.setCurrentLecture(firstSubTopic);
+        courseEnrollment.setReadStatus(ReadStatus.Inprogress);
+        return super.save(courseEnrollment);
+    }
+
+    private CourseEnrollment createActualSubscription(Student member, Course course) {
+        CourseEnrollment courseEnrollment = new CourseEnrollment();
         CourseLecture firstSubTopic = null;
         try {
             firstSubTopic = ApplicationContextProvider.getBean(CourseService.class).getFirstSubTopic(course);
         } catch (ValidationFailedException ex) {
-            courseSubscription.setLastErrorMessage(ex.getMessage());
+            ex.printStackTrace();
+            courseEnrollment.setLastErrorMessage(ex.getMessage());
         } finally {
-            courseSubscription.setStudent(member);
-            courseSubscription.setCourse(course);
-            courseSubscription.setCurrentSubTopic(firstSubTopic);
-            courseSubscription.setCurrentTopic(1);
-            courseSubscription.setCurrentLesson(1);
-            courseSubscription.setReadStatus(ReadStatus.Inprogress);
-            return super.save(courseSubscription);
+            courseEnrollment.setStudent(member);
+            courseEnrollment.setCourse(course);
+            courseEnrollment.setCurrentLecture(firstSubTopic);
+            courseEnrollment.setReadStatus(ReadStatus.Inprogress);
+            return super.save(courseEnrollment);
         }
     }
 
     @Override
-    public CourseSubscription createActualSubscription(Course course, StudentSubscriptionPlan memberSubscriptionPlan) throws ValidationFailedException {
-        CourseSubscription courseSubscription = new CourseSubscription();
+    public CourseEnrollment createActualSubscription(Course course, StudentSubscriptionPlan memberSubscriptionPlan) throws ValidationFailedException {
+        CourseEnrollment courseEnrollment = new CourseEnrollment();
         CourseLecture firstSubTopic = null;
         try {
             firstSubTopic = ApplicationContextProvider.getBean(CourseService.class).getFirstSubTopic(course);
+            courseEnrollment.setStudent(memberSubscriptionPlan.getStudent());
+            courseEnrollment.setStudentSubscriptionPlan(memberSubscriptionPlan);
+            courseEnrollment.setCourse(course);
+            courseEnrollment.setCurrentLecture(firstSubTopic);
+            courseEnrollment.setReadStatus(ReadStatus.Inprogress);
         } catch (ValidationFailedException ex) {
-            courseSubscription.setLastErrorMessage(ex.getMessage());
-        } finally {
-            courseSubscription.setStudent(memberSubscriptionPlan.getStudent());
-            courseSubscription.setStudentSubscriptionPlan(memberSubscriptionPlan);
-            courseSubscription.setCourse(course);
-            courseSubscription.setCurrentSubTopic(firstSubTopic);
-            courseSubscription.setCurrentTopic(1);
-            courseSubscription.setCurrentLesson(1);
-            courseSubscription.setReadStatus(ReadStatus.Inprogress);
-            return super.save(courseSubscription);
+            courseEnrollment.setLastErrorMessage(ex.getMessage());
         }
+            return super.save(courseEnrollment);
+
     }
 
     @Override
-    public CourseSubscription createSubscription(CoursePayment coursePayment) throws ValidationFailedException {
+    public CourseEnrollment createSubscription(CoursePayment coursePayment) throws ValidationFailedException {
         if (coursePayment == null || !coursePayment.getStatus().equals(TransactionStatus.SUCESSFULL)) {
             return null;
         }
@@ -146,19 +159,16 @@ public class CourseSubscriptionServiceImpl extends BaseDAOImpl<CourseSubscriptio
     }
 
     @Override
-    public CourseSubscription getSerieSubscription(Student member, Course course) {
+    public CourseEnrollment getSerieSubscription(Student member, Course course) {
         if (member == null || course == null) {
             return null;
         }
 
         Search search = new Search().addFilterEqual("student", member)
-                .addFilterEqual("course", course);
-        try {
+                .addFilterEqual("course", course).setMaxResults(1);
+
             return super.searchUnique(search);
-        } catch (javax.persistence.NonUniqueResultException e) {
-            System.err.println("Error ocurred...\n" + e.getLocalizedMessage());
-            return (CourseSubscription) super.search(search).get(0);
-        }
+
 
     }
 
@@ -173,23 +183,23 @@ public class CourseSubscriptionServiceImpl extends BaseDAOImpl<CourseSubscriptio
     }
 
     @Override
-    public CourseSubscription completeSubTopic(Student member, CourseLecture subTopic) throws ValidationFailedException {
+    public CourseEnrollment completeSubTopic(Student member, CourseLecture subTopic) throws ValidationFailedException {
         if (subTopic == null || subTopic.isNew()) {
             throw new ValidationFailedException("Missing subTopic");
         }
-        CourseSubscription courseSubscription = getSerieSubscription(member, subTopic.getCourseTopic().getCourseLesson().getCourse());
+        CourseEnrollment courseEnrollment = getSerieSubscription(member, subTopic.getCourseTopic().getCourseLesson().getCourse());
 
-        if (courseSubscription == null) {
+        if (courseEnrollment == null) {
             throw new ValidationFailedException("Not enrolled for this course");
         }
 
-        if (courseSubscription.getCurrentSubTopic().getCourseTopic() != subTopic.getCourseTopic()) {
+        if (courseEnrollment.getCurrentLecture().getCourseTopic() != subTopic.getCourseTopic()) {
 
             throw new ValidationFailedException("Your previous topic hasnt been completed yet. Please complete all the subtopics in it");
 
         }
 
-        if (subTopic.getPosition() > courseSubscription.getCurrentSubTopic().getPosition()) {
+        if (subTopic.getPosition() > courseEnrollment.getCurrentLecture().getPosition()) {
             throw new ValidationFailedException("You can't skip previous subtopics. Please complete all the subtopics in order");
 
         }
@@ -202,10 +212,9 @@ public class CourseSubscriptionServiceImpl extends BaseDAOImpl<CourseSubscriptio
 
         //If subtopic of higher position exists in topic 
         if (!subTopics.isEmpty()) {
-            courseSubscription.setCurrentSubTopic(subTopics.get(0));
-            courseSubscription.setCurrentTopic(subTopic.getCourseTopic().getPosition());
-            courseSubscription = saveInstance(courseSubscription);
-            return courseSubscription;
+            courseEnrollment.setCurrentLecture(subTopics.get(0));
+            courseEnrollment = saveInstance(courseEnrollment);
+            return courseEnrollment;
         }
 
         //look for next topic
@@ -221,9 +230,9 @@ public class CourseSubscriptionServiceImpl extends BaseDAOImpl<CourseSubscriptio
             //get first subtopic for this next topic
 
             CourseLecture nextSubTopic = courseLectureService.getFirstSubTopic(nextTopic);
-            courseSubscription.setCurrentSubTopic(nextSubTopic);
-            courseSubscription = saveInstance(courseSubscription);
-            return courseSubscription;
+            courseEnrollment.setCurrentLecture(nextSubTopic);
+            courseEnrollment = saveInstance(courseEnrollment);
+            return courseEnrollment;
 
         }
         // Fetch next lesson
@@ -238,21 +247,20 @@ public class CourseSubscriptionServiceImpl extends BaseDAOImpl<CourseSubscriptio
         if (nextLesson != null) {
             //Fetch first sub-topic in next lesson
             CourseLecture nextSubTopicInLesson = courseLectureService.getFirstSubTopic(nextLesson);
-            courseSubscription.setCurrentSubTopic(nextSubTopicInLesson);
-            courseSubscription = saveInstance(courseSubscription);
-            return courseSubscription;
+            courseEnrollment.setCurrentLecture(nextSubTopicInLesson);
+            courseEnrollment = saveInstance(courseEnrollment);
+            return courseEnrollment;
 
         }
         //Next lesson doesnt exist. So lets just complete the course
-        courseSubscription.setReadStatus(ReadStatus.Completed);
-        courseSubscription = saveInstance(courseSubscription);
+        courseEnrollment.setReadStatus(ReadStatus.Completed);
+        courseEnrollment = saveInstance(courseEnrollment);
 
         //Update certification progress too
-        ApplicationContextProvider.getBean(CertificationSubscriptionService.class).completeCertificationCourse(member, courseSubscription.getCourse());
-        return courseSubscription;
+        ApplicationContextProvider.getBean(CertificationSubscriptionService.class).completeCertificationCourse(member, courseEnrollment.getCourse());
+        return courseEnrollment;
 
     }
-
 
 
 }

@@ -1,6 +1,7 @@
 package com.byaffe.learningking.controllers.admin;
 
 import com.byaffe.learningking.dtos.courses.CourseTopicRequestDTO;
+import com.byaffe.learningking.dtos.courses.CourseTopicResponseDTO;
 import com.byaffe.learningking.models.courses.CourseTopic;
 import com.byaffe.learningking.services.CourseTopicService;
 import com.byaffe.learningking.services.impl.CourseServiceImpl;
@@ -60,11 +61,11 @@ CourseTopicService modelService;
         return ResponseEntity.ok().body(new BaseResponse(true));
     }
     @GetMapping("")
-    public ResponseEntity<ResponseList<CourseTopicRequestDTO>> getRecords(@RequestParam(value = "searchTerm", required = false) String searchTerm,
-                                                                          @RequestParam(value = "offset", required = true) Integer offset,
-                                                                          @RequestParam(value = "limit", required = true) Integer limit,
-                                                                          @RequestParam(value = "courseId", required = false) Integer courseId,
-                                                                          @RequestParam(value = "lessonId", required = false) Integer lessonId
+    public ResponseEntity<ResponseList<CourseTopic>> getRecords(@RequestParam(value = "searchTerm", required = false) String searchTerm,
+                                                                           @RequestParam(value = "offset", required = true) Integer offset,
+                                                                           @RequestParam(value = "limit", required = true) Integer limit,
+                                                                           @RequestParam(value = "courseId", required = false) Integer courseId,
+                                                                           @RequestParam(value = "lessonId", required = false) Integer lessonId
 
     ) throws JSONException {
 
@@ -79,7 +80,7 @@ CourseTopicService modelService;
         }
         List<CourseTopic> courses = modelService.getInstances(search, offset, limit);
         long count = modelService.countInstances(search);
-        return ResponseEntity.ok().body(new ResponseList<>(courses.stream().map(r->modelMapper.map(r,CourseTopicRequestDTO.class)).collect(Collectors.toList()), (int) count,offset,limit));
+        return ResponseEntity.ok().body(new ResponseList<>(courses, (int) count,offset,limit));
 
     }
 
