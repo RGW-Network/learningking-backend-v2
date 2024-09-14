@@ -1,9 +1,8 @@
 package com.byaffe.learningking.controllers.admin;
 
 import com.byaffe.learningking.controllers.constants.ApiUtils;
-import com.byaffe.learningking.controllers.dtos.*;
-import com.byaffe.learningking.dtos.courses.CourseRequestDTO;
-import com.byaffe.learningking.models.Student;
+import com.byaffe.learningking.dtos.articles.ArticlesFilterDTO;
+import com.byaffe.learningking.dtos.courses.*;
 import com.byaffe.learningking.models.courses.*;
 import com.byaffe.learningking.services.*;
 import com.byaffe.learningking.services.impl.CourseServiceImpl;
@@ -11,15 +10,10 @@ import com.byaffe.learningking.shared.api.BaseResponse;
 import com.byaffe.learningking.shared.api.ResponseList;
 import com.byaffe.learningking.shared.api.ResponseObject;
 import com.byaffe.learningking.shared.constants.RecordStatus;
-import com.byaffe.learningking.shared.exceptions.ValidationFailedException;
-import com.byaffe.learningking.shared.security.UserDetailsContext;
 import com.byaffe.learningking.shared.utils.ApplicationContextProvider;
 import com.googlecode.genericdao.search.Search;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
-import org.json.JSONArray;
 import org.json.JSONException;
-import org.json.JSONObject;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -27,14 +21,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.validation.Valid;
-import javax.xml.bind.ValidationException;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
-
-import static org.springframework.web.bind.annotation.RequestMethod.POST;
 
 /**
  * @author Ray Gdhrt
@@ -127,7 +116,7 @@ Course course=ApplicationContextProvider.getBean(CourseService.class).saveInstan
 
         courseObj.setAverageRating(rattings / 5);
         courseObj.setTestimonials(course.getTestimonials());
-        courseObj.setLessons(lessons.stream().map(r->modelMapper.map(r,LessonResponseDTO.class)).collect(Collectors.toList()));
+        courseObj.setLessons(lessons.stream().map(r->modelMapper.map(r, LessonResponseDTO.class)).collect(Collectors.toList()));
         courseObj.setNumberOfLessons(lessons.size());
         responseDTO.setCourse(courseObj);
         return ResponseEntity.ok().body(new ResponseObject<>(responseDTO));

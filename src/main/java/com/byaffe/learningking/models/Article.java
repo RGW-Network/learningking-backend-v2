@@ -21,8 +21,8 @@ public class Article extends BaseEntity {
 
     @Column(name = "title")
     private String title;
-    @Column(name = "main_quote")
-    private String mainQuote;
+    @Column(name = "quote")
+    private String quote;
 
     @Column(name = "description", columnDefinition = "TEXT")
     private String description;

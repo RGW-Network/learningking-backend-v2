@@ -1,6 +1,6 @@
 package com.byaffe.learningking.services;
 
-import com.byaffe.learningking.controllers.dtos.CourseCategoryRequestDTO;
+import com.byaffe.learningking.dtos.courses.CourseCategoryRequestDTO;
 import com.byaffe.learningking.models.courses.CategoryType;
 import com.byaffe.learningking.models.courses.Category;
 

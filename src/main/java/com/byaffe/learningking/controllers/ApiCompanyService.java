@@ -1,6 +1,6 @@
 package com.byaffe.learningking.controllers;
 
-import com.byaffe.learningking.dtos.CompanyRequestDTO;
+import com.byaffe.learningking.dtos.student.CompanyRequestDTO;
 import com.byaffe.learningking.models.courses.OrganisationStudent;
 import com.byaffe.learningking.services.CompanyService;
 import com.byaffe.learningking.services.impl.ArticleServiceImpl;

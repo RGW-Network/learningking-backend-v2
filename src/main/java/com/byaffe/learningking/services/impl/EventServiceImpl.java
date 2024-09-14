@@ -1,6 +1,6 @@
 package com.byaffe.learningking.services.impl;
 
-import com.byaffe.learningking.dtos.courses.EventRequestDTO;
+import com.byaffe.learningking.dtos.articles.EventRequestDTO;
 import com.byaffe.learningking.models.Event;
 import com.byaffe.learningking.models.NotificationBuilder;
 import com.byaffe.learningking.models.NotificationDestinationActivity;

@@ -1,8 +1,12 @@
 package com.byaffe.learningking.controllers;
 
 import com.byaffe.learningking.controllers.constants.ApiUtils;
-import com.byaffe.learningking.controllers.dtos.*;
-import com.byaffe.learningking.dtos.courses.LectureResponseDTO;
+import com.byaffe.learningking.dtos.articles.ArticlesFilterDTO;
+import com.byaffe.learningking.dtos.courses.*;
+import com.byaffe.learningking.dtos.instructor.*;
+import com.byaffe.learningking.dtos.courses.CourseResponseDTO;
+import com.byaffe.learningking.dtos.courses.CourseTopicResponseDTO;
+import com.byaffe.learningking.dtos.courses.LessonResponseDTO;
 import com.byaffe.learningking.models.Student;
 import com.byaffe.learningking.models.courses.*;
 import com.byaffe.learningking.services.*;

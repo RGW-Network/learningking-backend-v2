@@ -1,16 +1,12 @@
 package com.byaffe.learningking.services.impl;
 
-import com.byaffe.learningking.dtos.CompanyRequestDTO;
-import com.byaffe.learningking.models.Article;
+import com.byaffe.learningking.dtos.student.CompanyRequestDTO;
 import com.byaffe.learningking.models.Student;
-import com.byaffe.learningking.models.NotificationBuilder;
-import com.byaffe.learningking.models.NotificationDestinationActivity;
 import com.byaffe.learningking.models.courses.*;
 import com.byaffe.learningking.services.*;
 import com.byaffe.learningking.shared.constants.RecordStatus;
 import com.byaffe.learningking.shared.exceptions.OperationFailedException;
 import com.byaffe.learningking.shared.exceptions.ValidationFailedException;
-import com.byaffe.learningking.shared.utils.ApplicationContextProvider;
 import com.byaffe.learningking.utilities.ImageStorageService;
 import com.googlecode.genericdao.search.Search;
 import org.apache.commons.lang3.StringUtils;
@@ -20,8 +16,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 @Service
 @Transactional

@@ -1,11 +1,9 @@
 package com.byaffe.learningking.services.impl;
 
-import com.byaffe.learningking.models.courses.Course;
 import com.byaffe.learningking.shared.exceptions.ValidationFailedException;
 import com.googlecode.genericdao.search.Search;
 import com.byaffe.learningking.daos.CountryDao;
 import com.byaffe.learningking.daos.LookupValueDao;
-import com.byaffe.learningking.dtos.LookupValueDTO;
 import com.byaffe.learningking.models.LookupType;
 import com.byaffe.learningking.models.LookupValue;
 import com.byaffe.learningking.services.LookupValueService;

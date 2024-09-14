@@ -1,6 +1,5 @@
 package com.byaffe.learningking.controllers.admin;
 
-import com.byaffe.learningking.controllers.dtos.ArticlesFilterDTO;
 import com.byaffe.learningking.dtos.courses.CourseTopicRequestDTO;
 import com.byaffe.learningking.models.courses.CourseTopic;
 import com.byaffe.learningking.services.CourseTopicService;

@@ -1,8 +1,6 @@
 package com.byaffe.learningking;
 
 import com.byaffe.learningking.services.LookupValueService;
-import com.byaffe.learningking.services.TaskExecutionService;
-import com.byaffe.learningking.services.TaskService;
 import com.byaffe.learningking.services.UserService;
 import com.byaffe.learningking.shared.constants.SecurityConstants;
 import com.byaffe.learningking.shared.models.Country;
@@ -24,7 +22,7 @@ import java.util.HashSet;
 import java.util.logging.Logger;
 
 @SpringBootApplication
-@OpenAPIDefinition(info = @Info(title = "MicroTasks", version = "1.0", description = "MicroTasks MIS"))
+@OpenAPIDefinition(info = @Info(title = "Learningking Backend", version = "2.0", description = "Learningking E-Learning Platform"))
 public class LearningkingApplication {
 
     public static void main(String[] args) {
@@ -37,7 +35,7 @@ public class LearningkingApplication {
     }
 
     @Bean
-    CommandLineRunner run(TaskService taskService, TaskExecutionService taskExecutionService, UserService userService, RestService restService, LookupValueService LookupValueService) {
+    CommandLineRunner run( UserService userService, RestService restService, LookupValueService LookupValueService) {
         return args -> {
 
             try {

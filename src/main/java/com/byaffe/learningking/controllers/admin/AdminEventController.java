@@ -1,7 +1,7 @@
 package com.byaffe.learningking.controllers.admin;
 
-import com.byaffe.learningking.controllers.dtos.*;
-import com.byaffe.learningking.dtos.courses.EventRequestDTO;
+import com.byaffe.learningking.dtos.articles.EventRequestDTO;
+import com.byaffe.learningking.dtos.articles.ArticlesFilterDTO;
 import com.byaffe.learningking.models.Event;
 import com.byaffe.learningking.services.EventService;
 import com.byaffe.learningking.services.impl.EventServiceImpl;
@@ -20,9 +20,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * @author Ray Gdhrt

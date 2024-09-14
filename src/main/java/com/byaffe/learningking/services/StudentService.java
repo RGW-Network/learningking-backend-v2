@@ -1,7 +1,7 @@
 package com.byaffe.learningking.services;
 
-import com.byaffe.learningking.dtos.StudentProfileUpdateRequestDTO;
-import com.byaffe.learningking.dtos.UserRegistrationRequestDTO;
+import com.byaffe.learningking.dtos.student.StudentProfileUpdateRequestDTO;
+import com.byaffe.learningking.dtos.auth.UserRegistrationRequestDTO;
 import com.byaffe.learningking.models.Student;
 import com.byaffe.learningking.shared.exceptions.OperationFailedException;
 import com.byaffe.learningking.shared.exceptions.ValidationFailedException;

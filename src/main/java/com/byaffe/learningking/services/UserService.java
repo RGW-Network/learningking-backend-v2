@@ -1,10 +1,10 @@
 package com.byaffe.learningking.services;
 
-import com.byaffe.learningking.dtos.UserRegistrationRequestDTO;
+import com.byaffe.learningking.dtos.auth.UserRegistrationRequestDTO;
 import com.googlecode.genericdao.search.Search;
-import com.byaffe.learningking.dtos.AuthDTO;
-import com.byaffe.learningking.dtos.RoleDTO;
-import com.byaffe.learningking.dtos.UserDTO;
+import com.byaffe.learningking.dtos.auth.AuthDTO;
+import com.byaffe.learningking.dtos.auth.RoleDTO;
+import com.byaffe.learningking.dtos.auth.UserDTO;
 import com.byaffe.learningking.shared.models.Role;
 import com.byaffe.learningking.shared.models.User;
 

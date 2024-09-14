@@ -1,6 +1,8 @@
 package com.byaffe.learningking.controllers;
 
-import com.byaffe.learningking.dtos.*;
+import com.byaffe.learningking.dtos.auth.*;
+import com.byaffe.learningking.dtos.instructor.InstructorRequestDTO;
+import com.byaffe.learningking.dtos.student.StudentProfileUpdateRequestDTO;
 import com.byaffe.learningking.models.Student;
 import com.byaffe.learningking.services.InstructorService;
 import com.byaffe.learningking.services.StudentService;

@@ -1,7 +1,6 @@
 package com.byaffe.learningking.services;
 
-import com.byaffe.learningking.dtos.InstructorRequestDTO;
-import com.byaffe.learningking.dtos.UserRegistrationRequestDTO;
+import com.byaffe.learningking.dtos.instructor.InstructorRequestDTO;
 import com.byaffe.learningking.models.courses.CourseInstructor;
 import com.byaffe.learningking.shared.exceptions.OperationFailedException;
 import com.byaffe.learningking.shared.exceptions.ValidationFailedException;

@@ -1,26 +1,14 @@
 package com.byaffe.learningking.controllers.admin;
 
-import com.byaffe.learningking.controllers.constants.ApiUtils;
-import com.byaffe.learningking.controllers.dtos.ArticlesFilterDTO;
-import com.byaffe.learningking.controllers.dtos.CourseDetailsResponseDTO;
-import com.byaffe.learningking.controllers.dtos.CourseRatingResponseDTO;
-import com.byaffe.learningking.controllers.dtos.CourseResponseDTO;
-import com.byaffe.learningking.dtos.courses.CourseRequestDTO;
 import com.byaffe.learningking.dtos.courses.LessonRequestDTO;
 import com.byaffe.learningking.dtos.courses.LessonResponseDTO;
-import com.byaffe.learningking.models.courses.Course;
 import com.byaffe.learningking.models.courses.CourseLesson;
-import com.byaffe.learningking.models.courses.CourseRating;
-import com.byaffe.learningking.models.courses.PublicationStatus;
 import com.byaffe.learningking.services.CourseLessonService;
-import com.byaffe.learningking.services.CourseRatingService;
-import com.byaffe.learningking.services.CourseService;
 import com.byaffe.learningking.services.impl.CourseServiceImpl;
 import com.byaffe.learningking.shared.api.BaseResponse;
 import com.byaffe.learningking.shared.api.ResponseList;
 import com.byaffe.learningking.shared.api.ResponseObject;
 import com.byaffe.learningking.shared.constants.RecordStatus;
-import com.byaffe.learningking.shared.utils.ApplicationContextProvider;
 import com.googlecode.genericdao.search.Search;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONException;
@@ -32,7 +20,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 

@@ -1,6 +1,6 @@
 package com.byaffe.learningking.services;
 
-import com.byaffe.learningking.dtos.courses.ArticleRequestDTO;
+import com.byaffe.learningking.dtos.articles.ArticleRequestDTO;
 import com.byaffe.learningking.models.Article;
 import com.byaffe.learningking.shared.exceptions.ValidationFailedException;
 

@@ -1,13 +1,9 @@
 package com.byaffe.learningking.services.impl;
 
 import com.byaffe.learningking.constants.AccountStatus;
-import com.byaffe.learningking.constants.TemplateType;
 import com.byaffe.learningking.daos.CountryDao;
 import com.byaffe.learningking.daos.RoleDao;
-import com.byaffe.learningking.dtos.InstructorRequestDTO;
-import com.byaffe.learningking.dtos.UserRegistrationRequestDTO;
-import com.byaffe.learningking.models.Article;
-import com.byaffe.learningking.models.EmailTemplate;
+import com.byaffe.learningking.dtos.instructor.InstructorRequestDTO;
 import com.byaffe.learningking.models.courses.CourseInstructor;
 import com.byaffe.learningking.services.*;
 import com.byaffe.learningking.shared.constants.RecordStatus;
@@ -15,7 +11,6 @@ import com.byaffe.learningking.shared.exceptions.OperationFailedException;
 import com.byaffe.learningking.shared.exceptions.ValidationFailedException;
 import com.byaffe.learningking.shared.models.Country;
 import com.byaffe.learningking.shared.models.User;
-import com.byaffe.learningking.shared.utils.ApplicationContextProvider;
 import com.byaffe.learningking.shared.utils.CustomSearchUtils;
 import com.byaffe.learningking.shared.utils.MailService;
 import com.byaffe.learningking.shared.utils.PassEncTech4;

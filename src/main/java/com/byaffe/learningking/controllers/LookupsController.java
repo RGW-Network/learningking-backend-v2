@@ -1,7 +1,6 @@
 package com.byaffe.learningking.controllers;
 
 import com.byaffe.learningking.dtos.LookupDTO;
-import com.byaffe.learningking.dtos.LookupValueDTO;
 import com.byaffe.learningking.models.LookupType;
 import com.byaffe.learningking.models.LookupValue;
 import com.byaffe.learningking.services.LookupValueService;
@@ -9,10 +8,8 @@ import com.byaffe.learningking.services.impl.LookupServiceImpl;
 import com.byaffe.learningking.shared.api.ResponseList;
 import com.byaffe.learningking.shared.constants.Gender;
 import com.byaffe.learningking.shared.models.Country;
-import com.google.gson.Gson;
 import com.googlecode.genericdao.search.Search;
 import lombok.extern.slf4j.Slf4j;
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

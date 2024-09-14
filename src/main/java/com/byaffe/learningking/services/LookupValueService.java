@@ -1,7 +1,6 @@
 package com.byaffe.learningking.services;
 
 import com.googlecode.genericdao.search.Search;
-import com.byaffe.learningking.dtos.LookupValueDTO;
 import com.byaffe.learningking.models.LookupType;
 import com.byaffe.learningking.models.LookupValue;
 import com.byaffe.learningking.shared.models.Country;
