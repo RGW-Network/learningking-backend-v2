@@ -59,7 +59,7 @@ public class UserServiceImpl implements UserService {
         if (existEWithUserName != null && user.isNew()) {
             throw new OperationFailedException("User with username exists");
         }
-        log.info("Saving new user to DB", user.getUsername());
+        log.info("Saving new user {} to DB", user.getUsername());
 
         if (user.isNew()) {
             user.setPassword(PassEncTech4.generateSecurePassword(user.getPassword()));
