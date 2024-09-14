@@ -29,6 +29,7 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -152,22 +153,23 @@ Student student= getInstanceByID(dto.getStudentId());
         if (!dto.confirmPassword.equals(dto.password)) {
             throw new ValidationFailedException("Passwords don't match");
         }
-        if (StringUtils.isBlank(dto.countryName)) {
+        if (dto.getCountryId()==null) {
             throw new ValidationFailedException("Missing country");
         }
-        Country country= countryDao.getReference(dto.countryId);
+        Country country= countryDao.findById(dto.countryId).orElseThrow(()->new ValidationFailedException("Invalid Country"));
         if (country==null) {
             throw new ValidationFailedException("Invalid country");
         }
-        User existEWithUserName=userService.getUserByUsername(dto.getEmailAddress());
-        if (existEWithUserName != null) {
-          throw new OperationFailedException("Active User with email exists");
 
-        }
         Student existingInactive = getUnregisteredStudentByEmail(dto.getEmailAddress());
 Student student= new Student();
         if (existingInactive !=null) {
             student=existingInactive;
+        }
+        User existEWithUserName=userService.getUserByUsername(dto.getEmailAddress());
+        if (existEWithUserName != null && !Objects.equals(existEWithUserName.getId(), student.getId())) {
+            throw new OperationFailedException("Active User with email exists");
+
         }
         student.setFirstName(dto.firstName);
         student.setLastName(dto.lastName);
@@ -201,7 +203,7 @@ student.setAccountStatus(AccountStatus.PendingActivation);
     public Student getUnregisteredStudentByEmail(String email) {
         Search search = new Search()
                 .setMaxResults(1)
-                .addFilterEqual("Username", email)
+                .addFilterEqual("username", email)
                 .addFilterNotIn("accountStatus", new ArrayList<>(Arrays.asList(AccountStatus.Active, AccountStatus.Blocked)))
                 .addFilterEqual("recordStatus", RecordStatus.ACTIVE);
         return super.searchUnique(search);
@@ -228,7 +230,7 @@ student.setAccountStatus(AccountStatus.PendingActivation);
 
     public Student getStudentByUsername(String email) {
         Search search = new Search().setMaxResults(1);
-        search.addFilterEqual("Username", email);
+        search.addFilterEqual("username", email);
         search.addFilterEqual("recordStatus", RecordStatus.ACTIVE);
 
         return super.searchUnique(search);
@@ -334,7 +336,7 @@ student.setAccountStatus(AccountStatus.PendingActivation);
     }
 
     @Override
-    public Student getStudentById(String memberId) {
+    public Student getStudentById(Long memberId) {
         return super.searchUniqueByPropertyEqual("id", memberId, RecordStatus.ACTIVE);
     }
 

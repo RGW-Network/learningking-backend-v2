@@ -60,7 +60,7 @@ public interface StudentService extends GenericService<Student> {
      * @param memberId
      * @return
      */
-    Student getStudentById(String memberId);
+    Student getStudentById(Long memberId);
 
     /**
      * Deactivates a member along with all he data associated to it. This member

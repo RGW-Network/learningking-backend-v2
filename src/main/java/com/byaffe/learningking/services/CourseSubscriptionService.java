@@ -20,7 +20,7 @@ public interface CourseSubscriptionService extends GenericService<CourseEnrollme
     CourseEnrollment getSerieSubscription(Student member, Course serie);
     CourseEnrollment createSubscription(Student member, Course serie)throws ValidationFailedException;
      CourseEnrollment createSubscription(CoursePayment coursePayment)throws ValidationFailedException;
-     CourseEnrollment enrolForFreeCourse(Student member, Course course) throws ValidationFailedException;
+     CourseEnrollment enrolForFreeCourse(Long studentId, Long courseId) throws ValidationFailedException;
     /**
      * 
      * @param member

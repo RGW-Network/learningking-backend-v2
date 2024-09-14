@@ -11,12 +11,14 @@ import com.byaffe.learningking.shared.constants.RecordStatus;
 import com.byaffe.learningking.shared.dao.BaseDAOImpl;
 import com.byaffe.learningking.shared.exceptions.OperationFailedException;
 import com.byaffe.learningking.shared.exceptions.ValidationFailedException;
+import com.byaffe.learningking.shared.security.UserDetailsContext;
 import com.byaffe.learningking.shared.utils.ApplicationContextProvider;
 import com.googlecode.genericdao.search.Search;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Transactional
@@ -95,14 +97,15 @@ public class CourseSubscriptionServiceImpl extends BaseDAOImpl<CourseEnrollment>
     }
 
     @Override
-    public CourseEnrollment enrolForFreeCourse(Student member, Course course) throws ValidationFailedException {
-
+    public CourseEnrollment enrolForFreeCourse(Long studentId, Long courseId) throws ValidationFailedException {
+        Student member = ApplicationContextProvider.getBean(StudentService.class).getStudentById(studentId);
+        Course course = ApplicationContextProvider.getBean(CourseService.class).getInstanceByID(courseId);
         if (course.isPaid()) {
             throw new ValidationFailedException("This is a paid Course");
         }
 
-         CourseEnrollment existing = getSerieSubscription(member,course);
-        if(existing!=null){
+        CourseEnrollment existing = getSerieSubscription(member, course);
+        if (existing != null) {
             throw new ValidationFailedException("You already enrolled for this course");
         }
         CourseEnrollment courseEnrollment = new CourseEnrollment();
@@ -110,6 +113,7 @@ public class CourseSubscriptionServiceImpl extends BaseDAOImpl<CourseEnrollment>
         firstSubTopic = ApplicationContextProvider.getBean(CourseService.class).getFirstSubTopic(course);
         courseEnrollment.setStudent(member);
         courseEnrollment.setCourse(course);
+        courseEnrollment.setProgress(0.0);
         courseEnrollment.setCurrentLecture(firstSubTopic);
         courseEnrollment.setReadStatus(ReadStatus.Inprogress);
         return super.save(courseEnrollment);
@@ -146,7 +150,7 @@ public class CourseSubscriptionServiceImpl extends BaseDAOImpl<CourseEnrollment>
         } catch (ValidationFailedException ex) {
             courseEnrollment.setLastErrorMessage(ex.getMessage());
         }
-            return super.save(courseEnrollment);
+        return super.save(courseEnrollment);
 
     }
 
@@ -167,7 +171,7 @@ public class CourseSubscriptionServiceImpl extends BaseDAOImpl<CourseEnrollment>
         Search search = new Search().addFilterEqual("student", member)
                 .addFilterEqual("course", course).setMaxResults(1);
 
-            return super.searchUnique(search);
+        return super.searchUnique(search);
 
 
     }
@@ -210,7 +214,22 @@ public class CourseSubscriptionServiceImpl extends BaseDAOImpl<CourseEnrollment>
                         .addFilterEqual("courseTopic", subTopic.getCourseTopic())
                         .addFilterGreaterOrEqual("position", subTopic.getPosition()), 0, 1);
 
-        //If subtopic of higher position exists in topic 
+        long totalSubTopics= courseLectureService.countInstances(
+                new Search().addFilterEqual("courseTopic.courseLesson.course.id", courseEnrollment.getCourseId()));
+        long completedSubTopics= courseLectureService.countInstances(
+                new Search().addFilterEqual("courseTopic.courseLesson.course.id", courseEnrollment.getCourseId()).addFilterGreaterOrEqual("id",subTopic.getId()));
+       //Compute Progress
+        if(totalSubTopics>0) {
+           double progress = ((double) completedSubTopics / totalSubTopics) * 100;
+           courseEnrollment.setProgress(progress);
+           if(progress>=100){
+               courseEnrollment.setReadStatus(ReadStatus.Completed);
+               courseEnrollment.setDateCompleted(LocalDateTime.now());
+
+               return save(courseEnrollment);
+           }
+       }
+        //If subtopic of higher position exists in topic
         if (!subTopics.isEmpty()) {
             courseEnrollment.setCurrentLecture(subTopics.get(0));
             courseEnrollment = saveInstance(courseEnrollment);
@@ -253,6 +272,7 @@ public class CourseSubscriptionServiceImpl extends BaseDAOImpl<CourseEnrollment>
 
         }
         //Next lesson doesnt exist. So lets just complete the course
+        courseEnrollment.setProgress(100.0);
         courseEnrollment.setReadStatus(ReadStatus.Completed);
         courseEnrollment = saveInstance(courseEnrollment);
 

@@ -267,21 +267,11 @@ public class CoursesController {
 
 
     @PostMapping("/enroll/{id}")
-    public ResponseEntity<ResponseObject<EnrollCourseResponseDTO>> enroll(@PathVariable("id") Long id) throws JSONException {
-        EnrollCourseResponseDTO result = new EnrollCourseResponseDTO();
+    public ResponseEntity<ResponseObject<CourseEnrollment>> enroll(@PathVariable("id") Long id) throws JSONException {
         Student member = UserDetailsContext.getLoggedInStudent();
-        if(member==null){
-            throw new ValidationFailedException("Student Not Found");
-        }
-        CourseService courseService = ApplicationContextProvider.getBean(CourseService.class);
-        Course courseSerie = courseService.getInstanceByID(id);
-        if (courseSerie == null) {
-            throw new ValidationFailedException("Course Not Found");
-        }
-        CourseEnrollment courseEnrollment = subscriptionService.enrolForFreeCourse(member, courseSerie);
-        result.setSubscription(courseEnrollment);
-        result.setCourse(courseSerie);
-        return ResponseEntity.ok().body(new ResponseObject<>(result));
+        assert member != null;
+        CourseEnrollment courseEnrollment = subscriptionService.enrolForFreeCourse(member.getId(), id);
+        return ResponseEntity.ok().body(new ResponseObject<>(courseEnrollment));
 
     }
 

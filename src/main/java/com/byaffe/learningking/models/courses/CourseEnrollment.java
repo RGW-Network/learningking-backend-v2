@@ -9,6 +9,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Data
@@ -37,12 +38,14 @@ public class CourseEnrollment extends BaseEntity {
     @JoinColumn(name = "current_lecture_id")
     private CourseLecture currentLecture;
 
-    @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "date_completed", length = 50)
-    private Date dateCompleted;
+    @Column(name = "date_completed")
+    private LocalDateTime dateCompleted;
 
     @Column(name = "last_error_message")
     private String lastErrorMessage;
+
+    @Column(name = "progress")
+    private Double progress;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "progress_status")
@@ -52,7 +55,11 @@ public class CourseEnrollment extends BaseEntity {
 
         return currentLecture!=null? currentLecture.getTitle():null;
     }
+    @Transient
+    public Long  getCurrentLectureId(){
 
+        return currentLecture!=null? currentLecture.getId():null;
+    }
     @Transient
     public Long  getCourseId(){
 
