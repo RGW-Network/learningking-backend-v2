@@ -1,6 +1,7 @@
 package com.byaffe.learningking.models.courses;
 
 import com.byaffe.learningking.shared.models.BaseEntity;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 
 import javax.persistence.*;
@@ -20,12 +21,22 @@ public class CourseTopic extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "publication_status", nullable = true)
-    private PublicationStatus publicationStatus;
+    private PublicationStatus publicationStatus= PublicationStatus.ACTIVE;
+    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "course_lesson_id")
     private CourseLesson courseLesson;
 
+    @Transient
+    public String  getCourseLessonName(){
 
+        return courseLesson!=null? courseLesson.getTitle():null;
+    }
+    @Transient
+    public Long  getCourseLessonId(){
+
+        return courseLesson!=null? courseLesson.getId():null;
+    }
     @Override
     public boolean equals(Object object) {
         return object instanceof CourseTopic && (super.getId() != null) ? super.getId().equals(((CourseTopic) object).getId())

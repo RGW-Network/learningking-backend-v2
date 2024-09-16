@@ -1,9 +1,9 @@
 package com.byaffe.learningking.services.impl;
 
+import com.byaffe.learningking.shared.exceptions.ValidationFailedException;
 import com.googlecode.genericdao.search.Search;
 import com.byaffe.learningking.daos.CountryDao;
 import com.byaffe.learningking.daos.LookupValueDao;
-import com.byaffe.learningking.dtos.LookupValueDTO;
 import com.byaffe.learningking.models.LookupType;
 import com.byaffe.learningking.models.LookupValue;
 import com.byaffe.learningking.services.LookupValueService;
@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import javax.transaction.Transactional;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @Transactional
@@ -31,26 +32,24 @@ public class LookupServiceImpl implements LookupValueService {
 
 
     @Override
-    public LookupValue save(LookupValueDTO dto) {
+    public LookupValue save(LookupValue dto) {
         if (StringUtils.isBlank(dto.getValue())) {
             throw new OperationFailedException("Missing value");
         }
-        LookupType lookupType= LookupType.getById(dto.getTypeId());
-        Validate.notNull(lookupType,"Missing Type");
-
-        LookupValue existsWithNameAndType = getLookupValueByTypeAndValue(lookupType, dto.getValue());
-        if (existsWithNameAndType != null && existsWithNameAndType.getId() != dto.getId()) {
+        Validate.notNull(dto.getType(),"Missing Type");
+        LookupValue existsWithNameAndType = getLookupValueByTypeAndValue(dto.getType(), dto.getValue());
+        if (existsWithNameAndType != null && !Objects.equals(existsWithNameAndType.getId(), dto.getId())) {
             throw new OperationFailedException("Lookup value with same name and type exists");
         }
-        LookupValue LookupValue = new LookupValue();
+        LookupValue lookupValue= new LookupValue();
         if(dto.getId()>0){
-            LookupValue = getById(dto.getId());
+            lookupValue = getById(dto.getId());
         }
-        LookupValue.setValue(dto.getValue() );
-        LookupValue.setDescription(dto.getDescription() );
-        LookupValue.setImageUrl(dto.getImageUrl() );
-        LookupValue.setType(lookupType);
-        return LookupValueDao.save(LookupValue);
+        lookupValue.setValue(dto.getValue() );
+        lookupValue.setDescription(dto.getDescription() );
+        lookupValue.setImageUrl(dto.getImageUrl() );
+        lookupValue.setType(dto.getType());
+        return LookupValueDao.save(dto);
     }
 
     LookupValue getLookupValueByTypeAndValue(LookupType type, String value) {
@@ -82,7 +81,9 @@ public class LookupServiceImpl implements LookupValueService {
                 new Search().addFilterEqual("name", name));
     }
 
-    ;
+   public   Country getCountryById(long id) {
+        return countryDao.findById(id).orElseThrow(()->new ValidationFailedException("Country with id not found"));
+    }
 
     @Override
     public List<LookupValue> getList(Search search, int offset, int limit) {
@@ -143,7 +144,9 @@ public class LookupServiceImpl implements LookupValueService {
 
         return search;
     }
-
+    public LookupValue getInstanceByID(Long id) {
+        return  LookupValueDao.findById (id).orElseThrow(() -> new ValidationFailedException(String.format("LookupValue with ID %d not found", id)));
+    }
     public static Search composeSearchObjectForLookupValues(String searchTerm) {
         com.googlecode.genericdao.search.Search search = CustomSearchUtils.generateSearchTerms(searchTerm,
                 Arrays.asList("value","description"));

@@ -6,7 +6,7 @@ import com.byaffe.learningking.models.NotificationBuilder;
 import com.byaffe.learningking.models.NotificationDestinationActivity;
 import com.byaffe.learningking.models.SystemSetting;
 import com.byaffe.learningking.models.courses.Course;
-import com.byaffe.learningking.models.courses.CourseSubscription;
+import com.byaffe.learningking.models.courses.CourseEnrollment;
 import com.byaffe.learningking.models.payments.CoursePayment;
 import com.byaffe.learningking.models.payments.PaymentPrefixes;
 import com.byaffe.learningking.services.*;
@@ -171,7 +171,7 @@ public class PaymentServiceImpl extends GenericServiceImpl<CoursePayment> implem
             throw new ValidationFailedException("Course Not Found");
         }
 
-        CourseSubscription memberCourse = ApplicationContextProvider.getBean(CourseSubscriptionService.class).getSerieSubscription(student, course);
+        CourseEnrollment memberCourse = ApplicationContextProvider.getBean(CourseSubscriptionService.class).getSerieSubscription(student, course);
         if (memberCourse != null) {
             throw new ValidationFailedException("You already purchased this course. Go to My-Courses to view your course.");
         }
@@ -187,7 +187,7 @@ public class PaymentServiceImpl extends GenericServiceImpl<CoursePayment> implem
 
         //set currency and amounts
         newPayment.setCurrency(setting.getBaseCurrency());
-        newPayment.setAmount(course.getCost());
+        newPayment.setAmount(course.getDiscountedPrice()>0?course.getDiscountedPrice():course.getPrice());
         newPayment.setTitle("Payment For " + course.getTitle());
 
        

@@ -11,7 +11,17 @@ package com.byaffe.learningking.shared.constants;
  */
 public enum RecordStatus {
 
-    ACTIVE,
-    DELETED,
-    ACTIVE_LOCKED;
+    ACTIVE("Active"),
+    DELETED("Delete"),
+    ACTIVE_LOCKED("Active Loacked");
+
+    private String displayName;
+
+    RecordStatus(String name){
+        this.displayName=name;
+    }
+
+    public String getDisplayName() {
+        return displayName;
+    }
 }

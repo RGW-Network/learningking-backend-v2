@@ -1,5 +1,6 @@
 package com.byaffe.learningking.services;
 
+import com.byaffe.learningking.dtos.student.CompanyRequestDTO;
 import com.byaffe.learningking.models.Student;
 import com.byaffe.learningking.models.courses.*;
 import com.byaffe.learningking.shared.exceptions.ValidationFailedException;
@@ -9,37 +10,36 @@ import java.util.List;
 
 ;
 /**
- * Responsible for CRUD operations on {@link CourseCategory}
+ * Responsible for CRUD operations on {@link Category}
  *
  * @author RayGdhrt
  *
  */
-public interface CompanyService  extends GenericService<Company> {
+public interface CompanyService  extends GenericService<Organisation> {
 
     
-    public Company activate(Company plan) throws ValidationFailedException;
+    public Organisation activate(Organisation plan) throws ValidationFailedException;
+    public void addStudentToCompany(long organizationId, String studentEmail) throws ValidationFailedException ;
 
-    public Company deActivate(Company plan);
-    
-     public List<CompanyCourse> getCompanyCourses(Company company);
+    public Organisation deActivate(Organisation plan);
+    public Organisation saveOrganisation(CompanyRequestDTO dto);
 
-    public CompanyCourse getCompanyCourse(Company company, Course course);
+    public List<CompanyCourse> getCompanyCourses(Organisation organisation);
+
+    public CompanyCourse getCompanyCourse(Organisation organisation, Course course);
 
     public void delete(CompanyCourse companyCourse);
 
     public void saveCompanyCourse(CompanyCourse companyCourse) throws ValidationFailedException;
    
     
-     public List<CompanyStudent> getCompanyStudents(Search search, int offset, int limit);
+     public List<OrganisationStudent> getCompanyStudents(Search search, int offset, int limit);
 
-    public CompanyStudent getCompanyStudent(Company company, Student student);
+    public OrganisationStudent getCompanyStudent(Organisation organisation, Student student);
 
-    public void delete(CompanyStudent companyStudent);
+    public void delete(OrganisationStudent organisationStudent);
 
-    public void saveCompanyStudent(CompanyStudent companyStudent) throws ValidationFailedException;
-     public CompanyStudent activate(CompanyStudent plan) throws ValidationFailedException ;
-
-    public CompanyStudent deActivate(CompanyStudent plan);
+    public OrganisationStudent deActivate(OrganisationStudent plan);
    
 
 }

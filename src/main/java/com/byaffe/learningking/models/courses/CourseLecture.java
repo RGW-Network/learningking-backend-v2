@@ -3,6 +3,7 @@ package com.byaffe.learningking.models.courses;
 import javax.persistence.*;
 
 import com.byaffe.learningking.shared.models.BaseEntity;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 
 import java.util.HashSet;
@@ -30,6 +31,9 @@ public class CourseLecture extends BaseEntity {
     @Column(name = "video_url", columnDefinition = "TEXT")
     private String videoUrl;
 
+    @Enumerated(EnumType.STRING)
+private ContentType contentType;
+
     @Column(name = "audio_url", columnDefinition = "TEXT")
     private String audioUrl;
 
@@ -38,12 +42,13 @@ public class CourseLecture extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "publication_status", nullable = true)
-    private PublicationStatus publicationStatus;
+    private PublicationStatus publicationStatus= PublicationStatus.ACTIVE;
 
     @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.MERGE)
     @JoinTable(name = "series_part_verses", joinColumns = @JoinColumn(name = "series_part_id"), inverseJoinColumns = @JoinColumn(name = "verse_id"))
     private Set<ExternalResource> externalLinks;
 
+    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "course_topic_id")
     private CourseTopic courseTopic;

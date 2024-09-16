@@ -1,4 +1,0 @@
-// Manual Transactions MS
-export const MANUAL_TRANSACTIONS_GET_MANUAL_TRANSACTIONS_PERMISSION = "Get Manual Transactions";
-export const MANUAL_TRANSACTIONS_SAVE_MANUAL_TRANSACTION_PERMISSION = "Save Manual Transaction";
-export const MANUAL_TRANSACTIONS_GET_MANUAL_TRANSACTION_ATTACHMENTS_PERMISSION = "Get Manual Transaction Attachments";

@@ -1,9 +1,8 @@
 package com.byaffe.learningking.controllers.admin;
 
 import com.byaffe.learningking.controllers.constants.ApiUtils;
-import com.byaffe.learningking.controllers.dtos.*;
-import com.byaffe.learningking.dtos.courses.CourseRequestDTO;
-import com.byaffe.learningking.models.Student;
+import com.byaffe.learningking.dtos.articles.ArticlesFilterDTO;
+import com.byaffe.learningking.dtos.courses.*;
 import com.byaffe.learningking.models.courses.*;
 import com.byaffe.learningking.services.*;
 import com.byaffe.learningking.services.impl.CourseServiceImpl;
@@ -11,15 +10,10 @@ import com.byaffe.learningking.shared.api.BaseResponse;
 import com.byaffe.learningking.shared.api.ResponseList;
 import com.byaffe.learningking.shared.api.ResponseObject;
 import com.byaffe.learningking.shared.constants.RecordStatus;
-import com.byaffe.learningking.shared.exceptions.ValidationFailedException;
-import com.byaffe.learningking.shared.security.UserDetailsContext;
 import com.byaffe.learningking.shared.utils.ApplicationContextProvider;
 import com.googlecode.genericdao.search.Search;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
-import org.json.JSONArray;
 import org.json.JSONException;
-import org.json.JSONObject;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -27,14 +21,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.validation.Valid;
-import javax.xml.bind.ValidationException;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
-
-import static org.springframework.web.bind.annotation.RequestMethod.POST;
 
 /**
  * @author Ray Gdhrt
@@ -45,15 +34,14 @@ import static org.springframework.web.bind.annotation.RequestMethod.POST;
 public class AdminCoursesController {
 @Autowired
     ModelMapper modelMapper;
-    @PostMapping("/json")
+    @PostMapping("")
     public ResponseEntity<ResponseObject<Course>> addCourse(@RequestBody CourseRequestDTO dto) throws JSONException {
 Course course=ApplicationContextProvider.getBean(CourseService.class).saveInstance(dto);
         return ResponseEntity.ok().body(new ResponseObject<>(course));
-
     }
-    @PostMapping(path = "", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
-    public ResponseEntity<BaseResponse> uploadCSV(@RequestPart @Valid CourseRequestDTO dto, @RequestPart("file") MultipartFile file) throws JSONException {
-       dto.setCoverImage(file);
+    @PostMapping(path = "/multipart", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    public ResponseEntity<BaseResponse> uploadCSV(@RequestPart  CourseRequestDTO dto, @RequestPart(value = "file",required = false) MultipartFile file)  {
+      dto.setCoverImage(file);
          ApplicationContextProvider.getBean(CourseService.class).saveInstance(dto);
         return ResponseEntity.ok().body(new BaseResponse(true));
     }
@@ -86,7 +74,7 @@ Course course=ApplicationContextProvider.getBean(CourseService.class).saveInstan
         return ResponseEntity.ok().body(new BaseResponse(true));
     }
     @GetMapping("")
-    public ResponseEntity<ResponseList<com.byaffe.learningking.dtos.courses.CourseResponseDTO>> getCourses(ArticlesFilterDTO queryParamModel) throws JSONException {
+    public ResponseEntity<ResponseList<Course>> getCourses(ArticlesFilterDTO queryParamModel) throws JSONException {
 
         Search search = CourseServiceImpl.generateSearchObjectForCourses(queryParamModel.getSearchTerm())
                 .addFilterEqual("recordStatus", RecordStatus.ACTIVE);
@@ -105,7 +93,7 @@ Course course=ApplicationContextProvider.getBean(CourseService.class).saveInstan
         long count = ApplicationContextProvider.getBean(CourseService.class).countInstances(search);
 
 
-        return ResponseEntity.ok().body(new ResponseList<>(courses.stream().map(r->modelMapper.map(r,com.byaffe.learningking.dtos.courses.CourseResponseDTO.class)).collect(Collectors.toList()), (int) count, queryParamModel.getOffset(), queryParamModel.getLimit()));
+        return ResponseEntity.ok().body(new ResponseList<>(courses, (int) count, queryParamModel.getOffset(), queryParamModel.getLimit()));
 
     }
 
@@ -117,6 +105,8 @@ Course course=ApplicationContextProvider.getBean(CourseService.class).saveInstan
         List<CourseLesson> lessons = ApplicationContextProvider.getBean(CourseLessonService.class).getInstances(new Search()
                 .addFilterEqual("course", course)
                 .addFilterEqual("recordStatus", RecordStatus.ACTIVE), 0, 0);
+        log.info("Lessons got: {}", lessons.stream().map(r->r.id).toArray());
+
         double rattings = 1;
         try {
             rattings = ApplicationContextProvider.getBean(CourseRatingService.class).getTotalCourseRatings(course) / 5;
@@ -126,8 +116,9 @@ Course course=ApplicationContextProvider.getBean(CourseService.class).saveInstan
 
         courseObj.setAverageRating(rattings / 5);
         courseObj.setTestimonials(course.getTestimonials());
-        responseDTO.setLessons(lessons);
-        responseDTO.setNumberOfLessons(lessons.size());
+        courseObj.setLessons(lessons.stream().map(r->modelMapper.map(r, LessonResponseDTO.class)).collect(Collectors.toList()));
+        courseObj.setNumberOfLessons(lessons.size());
+        responseDTO.setCourse(courseObj);
         return ResponseEntity.ok().body(new ResponseObject<>(responseDTO));
     }
 

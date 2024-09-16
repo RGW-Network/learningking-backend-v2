@@ -1,16 +1,11 @@
 package com.byaffe.learningking.dtos.courses;
 
-import com.byaffe.learningking.models.OwnershipType;
 import com.byaffe.learningking.models.courses.*;
-import com.byaffe.learningking.services.CourseCategoryService;
-import com.byaffe.learningking.shared.utils.ApplicationContextProvider;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 @Data
 public class CourseRequestDTO {
@@ -18,32 +13,33 @@ public class CourseRequestDTO {
     private String title;
     private String description;
     private int numberOfTopics = 0;
+    private String coverImageUrl;
     private MultipartFile coverImage;
     private String welcomeVideoUrl;
-    private String whatYouWillLearn;
-    private List<String> tags;
+    private List<String>  tags= new ArrayList<>();
+    public String  getCommaSeparatedTags(){
+        if(this.tags==null){
+            return null;
+        }
+       return String.join(",", tags);
+
+    }
+    private List<String> whatYouWillLearn= new ArrayList<>();
     private String guidelineVideoUrl;
     private String welcomeRemarks;
     private String certificateTemplate;
     private Long categoryId;
-    private int ownershipTypeId ;
+    private CourseOwnerShipType ownershipType ;
     private long company;
-    private int academyId;
-    private boolean isFeatured;
-    private boolean isPaid;
-    private float cost;
+    private Long instructorId;
+    private Integer academyId;
+    private Boolean isFeatured;
+    private Boolean isPaid;
+    private float price;
+    private float discountedPrice;
     private String fullDescription;
+  private CourseAcademyType academy;
 
-  private CourseAcademyType academy=CourseAcademyType.getById(academyId);
-
-  @JsonIgnore
-    public CourseOwnerShipType getOwnershipType(){
-        return CourseOwnerShipType.getById(this.ownershipTypeId);
-    }
-    @JsonIgnore
-    public CourseAcademyType getAcademy(){
-        return CourseAcademyType.getById(this.academyId);
-    }
 
 
 }

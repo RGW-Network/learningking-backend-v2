@@ -1,15 +1,15 @@
 package com.byaffe.learningking.services.impl;
 
-import com.byaffe.learningking.dtos.UserRegistrationRequestDTO;
+import com.byaffe.learningking.dtos.auth.UserRegistrationRequestDTO;
 import com.byaffe.learningking.models.Student;
 import com.byaffe.learningking.services.StudentDao;
 import com.byaffe.learningking.shared.exceptions.ValidationFailedException;
 import com.byaffe.learningking.shared.utils.MailService;
 import com.googlecode.genericdao.search.Search;
 import com.byaffe.learningking.daos.*;
-import com.byaffe.learningking.dtos.AuthDTO;
-import com.byaffe.learningking.dtos.RoleDTO;
-import com.byaffe.learningking.dtos.UserDTO;
+import com.byaffe.learningking.dtos.auth.AuthDTO;
+import com.byaffe.learningking.dtos.auth.RoleDTO;
+import com.byaffe.learningking.dtos.auth.UserDTO;
 import com.byaffe.learningking.services.UserService;
 import com.byaffe.learningking.shared.constants.Gender;
 import com.byaffe.learningking.shared.constants.PermissionConstant;
@@ -51,8 +51,6 @@ public class UserServiceImpl implements UserService {
     StudentDao studentDao;
 
     @Autowired
-    TaskDoerDao shopAttendantDao;
-    @Autowired
     CountryDao countryDao;
 
     @Override
@@ -61,7 +59,7 @@ public class UserServiceImpl implements UserService {
         if (existEWithUserName != null && user.isNew()) {
             throw new OperationFailedException("User with username exists");
         }
-        log.info("Saving new user to DB", user.getUsername());
+        log.info("Saving new user {} to DB", user.getUsername());
 
         if (user.isNew()) {
             user.setPassword(PassEncTech4.generateSecurePassword(user.getPassword()));

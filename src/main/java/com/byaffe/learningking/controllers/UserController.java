@@ -1,15 +1,13 @@
 package com.byaffe.learningking.controllers;
 
-import com.byaffe.learningking.services.CreditService;
 import com.googlecode.genericdao.search.Search;
-import com.byaffe.learningking.dtos.PermissionDTO;
-import com.byaffe.learningking.dtos.RoleDTO;
-import com.byaffe.learningking.dtos.UserDTO;
+import com.byaffe.learningking.dtos.auth.PermissionDTO;
+import com.byaffe.learningking.dtos.auth.RoleDTO;
+import com.byaffe.learningking.dtos.auth.UserDTO;
 import com.byaffe.learningking.services.UserService;
 import com.byaffe.learningking.services.impl.UserServiceImpl;
 import com.byaffe.learningking.shared.api.BaseResponse;
 import com.byaffe.learningking.shared.api.ResponseList;
-import com.byaffe.learningking.shared.models.Role;
 import com.byaffe.learningking.shared.models.User;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -29,8 +27,6 @@ public class UserController {
 
     @Autowired
     UserService userService;
-    @Autowired
-    CreditService creditService;
 
     @Autowired
     ModelMapper modelMapper;
@@ -52,7 +48,7 @@ public class UserController {
 
     @GetMapping("/{id}")
     public ResponseEntity<UserDTO> userById(@PathVariable(value = "id") long id) throws ValidationException {
-        creditService.updateUserCredit(id);
+       // creditService.updateUserCredit(id);
         User user = userService.getUserById(id);
 
         return ResponseEntity.ok().body(UserDTO.fromModel(user));

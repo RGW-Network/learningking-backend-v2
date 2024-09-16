@@ -1,6 +1,7 @@
 package com.byaffe.learningking.services;
 
-import com.byaffe.learningking.dtos.UserRegistrationRequestDTO;
+import com.byaffe.learningking.dtos.student.StudentProfileUpdateRequestDTO;
+import com.byaffe.learningking.dtos.auth.UserRegistrationRequestDTO;
 import com.byaffe.learningking.models.Student;
 import com.byaffe.learningking.shared.exceptions.OperationFailedException;
 import com.byaffe.learningking.shared.exceptions.ValidationFailedException;
@@ -27,6 +28,7 @@ public interface StudentService extends GenericService<Student> {
      */
     Student quickSave(Student student) throws ValidationFailedException;
     Student saveStudent(UserRegistrationRequestDTO dto) throws ValidationFailedException;
+    Student updateProfile(StudentProfileUpdateRequestDTO dto) throws ValidationFailedException;
 
 
     /**
@@ -58,7 +60,7 @@ public interface StudentService extends GenericService<Student> {
      * @param memberId
      * @return
      */
-    Student getStudentById(String memberId);
+    Student getStudentById(Long memberId);
 
     /**
      * Deactivates a member along with all he data associated to it. This member

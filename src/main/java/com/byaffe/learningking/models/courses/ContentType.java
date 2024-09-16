@@ -11,7 +11,7 @@ package com.byaffe.learningking.models.courses;
  * @author Ray Gdhrt
  */
 public enum ContentType {
-    CHURCH,
-    RGW
+    VIDEO,
+    TEXT
     
 }

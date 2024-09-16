@@ -4,20 +4,26 @@ import com.byaffe.learningking.daos.CourseLectureDao;
 import com.byaffe.learningking.daos.CourseLessonDao;
 import com.byaffe.learningking.dtos.courses.CourseTopicRequestDTO;
 import com.byaffe.learningking.models.courses.*;
+import com.byaffe.learningking.services.CourseLessonService;
+import com.byaffe.learningking.services.CourseService;
 import com.byaffe.learningking.services.CourseTopicService;
 import com.byaffe.learningking.shared.constants.RecordStatus;
 import com.byaffe.learningking.shared.dao.BaseDAOImpl;
 import com.byaffe.learningking.shared.exceptions.OperationFailedException;
 import com.byaffe.learningking.shared.exceptions.ValidationFailedException;
+import com.byaffe.learningking.shared.utils.ApplicationContextProvider;
 import com.googlecode.genericdao.search.Search;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-@Repository
-public class CourseTopicServiceImpl extends BaseDAOImpl<CourseTopic> implements CourseTopicService {
+@Service
+@Transactional
+public class CourseTopicServiceImpl extends GenericServiceImpl<CourseTopic> implements CourseTopicService {
 
     @Autowired
     CourseLectureDao courseLectureDao;
@@ -30,11 +36,14 @@ public class CourseTopicServiceImpl extends BaseDAOImpl<CourseTopic> implements 
     public CourseTopic saveInstance(CourseTopicRequestDTO dto) {
 
         CourseTopic courseLesson= modelMapper.map(dto,CourseTopic.class);
-        CourseLesson course= courseLessonDao.getReference(dto.getCourseLessonId());
-        courseLesson.setCourseLesson(course);
+
+        CourseLesson course= ApplicationContextProvider.getBean(CourseLessonService.class).getInstanceByID(dto.getCourseLessonId());
         if (course == null) {
             throw new ValidationFailedException("Missing lesson");
         }
+
+        courseLesson.setCourseLesson(course);
+
         return super.save(courseLesson);
     }
     @Override
@@ -117,6 +126,11 @@ if (allSubTopics.isEmpty()) {
     @Override
     public void deleteInstances(Search search) throws OperationFailedException {
         throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+
+    @Override
+    public boolean isDeletable(CourseTopic entity) throws OperationFailedException {
+        return true;
     }
 
 }

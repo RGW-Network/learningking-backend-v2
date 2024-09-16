@@ -1,9 +1,6 @@
 package com.byaffe.learningking.dtos.courses;
 
-import com.byaffe.learningking.models.courses.Course;
-import com.byaffe.learningking.models.courses.CourseTopic;
-import com.byaffe.learningking.models.courses.ExternalResource;
-import com.byaffe.learningking.models.courses.PublicationStatus;
+import com.byaffe.learningking.models.courses.*;
 import lombok.Data;
 
 import javax.persistence.*;
@@ -21,13 +18,13 @@ public class LectureResponseDTO {
     private String videoUrl;
     private String audioUrl;
     private String fullDescription;
+    private ContentType contentType;
     private PublicationStatus publicationStatus;
-private Set<ExternalResource> externalLinks;
+    private Set<ExternalResource> externalLinks;
     private CourseTopic courseTopic;
-
-
-    private String publicationStatusName =publicationStatus!=null?publicationStatus.getDisplayName():null;
-    private Integer publicationStatusId=publicationStatus!=null?publicationStatus.getId() :null;;
+    private String publicationStatusName = publicationStatus != null ? publicationStatus.getDisplayName() : null;
+    private Integer publicationStatusId = publicationStatus != null ? publicationStatus.getId() : null;
+    ;
 
 
 }

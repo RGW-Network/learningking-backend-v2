@@ -2,7 +2,7 @@ package com.byaffe.learningking.services.impl;
 
 import com.byaffe.learningking.models.Student;
 import com.byaffe.learningking.models.courses.Course;
-import com.byaffe.learningking.models.courses.CourseSubscription;
+import com.byaffe.learningking.models.courses.CourseEnrollment;
 import com.byaffe.learningking.models.payments.*;
 import com.byaffe.learningking.services.CourseSubscriptionService;
 import com.byaffe.learningking.services.StudentSubscriptionPlanService;
@@ -67,7 +67,7 @@ public class StudentSubscriptionPlanServiceImpl extends GenericServiceImpl<Stude
     }
 
     @Override
-    public CourseSubscription payBySubscription(Course course, StudentSubscriptionPlan planPayment) throws ValidationFailedException {
+    public CourseEnrollment payBySubscription(Course course, StudentSubscriptionPlan planPayment) throws ValidationFailedException {
         SubscriptionPlan subscriptionPlan = planPayment.getSubscriptionPlan();
 
         if (subscriptionPlan.getContentRestrictionType().equals(SubscriptionContentRestrictionType.OPEN_ANY_COURSE)) {
@@ -94,13 +94,13 @@ public class StudentSubscriptionPlanServiceImpl extends GenericServiceImpl<Stude
         }
 
         if (planPayment.getSubscriptionPlan().getContentRestrictionType().equals(SubscriptionContentRestrictionType.SELECTED_ACADEMY)) {
-            if (subscriptionPlan.getAllowedAcademyType().equals(course.getCategory().getAcademy())) {
+            if (subscriptionPlan.getAllowedAcademyType().equals(course.getAcademy())) {
                 return courseSubscriptionService.createActualSubscription(course, planPayment);
 
             }
         }
 
-        throw new ValidationFailedException("This course doesnt apply to this subscription");
+        throw new ValidationFailedException("This course doesn't apply to this subscription");
     }
 
     @Override

@@ -6,113 +6,50 @@
 package com.byaffe.learningking.models.payments;
 
 import java.util.Date;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
+import javax.persistence.*;
 
 import com.byaffe.learningking.models.Student;
 import com.byaffe.learningking.shared.models.BaseEntity;
+import lombok.Data;
 
 /**
  *
  * @author Ray Gdhrt
  */
+@Data
 @Entity
-@Table(name = "member_subscription_plans")
+@Table(name = "student_subscription_plans")
 public class StudentSubscriptionPlan extends BaseEntity {
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "student_id", nullable = false)
     private Student student;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "subscription_plan_id", nullable = false)
     private SubscriptionPlan subscriptionPlan;
-    private Date activatedOn;
-    private Date depletedOn;
-    private Date expiredOn;
-    private int durationInMonths = 1;
-    private float cost;
-    private SubscriptionPlanStatus status = SubscriptionPlanStatus.ACTIVE;
-
-    @ManyToOne
-    @JoinColumn(name = "member_id")
-    public Student getStudent() {
-        return student;
-    }
-
-    public void setStudent(Student student) {
-        this.student = student;
-    }
-
-    @ManyToOne
-    @JoinColumn(name = "subscription_plan_id")
-    public SubscriptionPlan getSubscriptionPlan() {
-        return subscriptionPlan;
-    }
-
-    public void setSubscriptionPlan(SubscriptionPlan subscriptionPlan) {
-        this.subscriptionPlan = subscriptionPlan;
-    }
 
     @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "activated_on")
-    public Date getActivatedOn() {
-        return activatedOn;
-    }
-
-    public void setActivatedOn(Date activatedOn) {
-        this.activatedOn = activatedOn;
-    }
+    @Column(name = "activated_on", nullable = false)
+    private Date activatedOn;
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "depleted_on")
-    public Date getDepletedOn() {
-        return depletedOn;
-    }
-
-    public void setDepletedOn(Date depletedOn) {
-        this.depletedOn = depletedOn;
-    }
+    private Date depletedOn;
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "expired_on")
-    public Date getExpiredOn() {
-        return expiredOn;
-    }
+    private Date expiredOn;
 
-    public void setExpiredOn(Date expiredOn) {
-        this.expiredOn = expiredOn;
-    }
+    @Column(name = "duration_in_months", nullable = false)
+    private int durationInMonths = 1;
 
-    @Column(name = "duration_in_months")
-    public int getDurationInMonths() {
-        return durationInMonths;
-    }
-
-    public void setDurationInMonths(int durationInMonths) {
-        this.durationInMonths = durationInMonths;
-    }
-
-    @Column(name = "cost")
-    public float getCost() {
-        return cost;
-    }
-
-    public void setCost(float cost) {
-        this.cost = cost;
-    }
+    @Column(name = "cost", nullable = false)
+    private float cost;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "status")
-    public SubscriptionPlanStatus getStatus() {
-        return status;
-    }
-
-    public void setStatus(SubscriptionPlanStatus status) {
-        this.status = status;
-    }
+    @Column(name = "status", nullable = false)
+    private SubscriptionPlanStatus status = SubscriptionPlanStatus.ACTIVE;
 
     @Override
     public boolean equals(Object object) {

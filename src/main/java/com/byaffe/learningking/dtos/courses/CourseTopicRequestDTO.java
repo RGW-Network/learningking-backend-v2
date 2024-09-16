@@ -8,17 +8,14 @@ import org.springframework.web.multipart.MultipartFile;
 
 @Data
 public class CourseTopicRequestDTO {
-    private Long id;
+    private Long id= 0L;
     private String title;
     private String description;
     private int position = 1;
-    private int publicationStatusId;
+    private PublicationStatus publicationStatus;
     private Long courseLessonId;
 
     private MultipartFile coverImage;
-
-    @JsonIgnore
-  private PublicationStatus publicationStatus=PublicationStatus.getById(publicationStatusId);
 
 
 }

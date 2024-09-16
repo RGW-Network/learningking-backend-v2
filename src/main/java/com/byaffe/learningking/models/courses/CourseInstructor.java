@@ -1,108 +1,74 @@
 package com.byaffe.learningking.models.courses;
 
+import com.byaffe.learningking.constants.AccountStatus;
 import com.byaffe.learningking.shared.constants.Gender;
 import com.byaffe.learningking.shared.models.BaseEntity;
 import com.byaffe.learningking.shared.models.Country;
+import com.byaffe.learningking.shared.models.User;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 import javax.persistence.*;
 
-/**
- *
- * @author RayGdhrt
- */
+
 @Entity
 @Table(name = "instructors")
+@Data
 public class CourseInstructor extends BaseEntity {
 
-    private String fullName;
+    @Column(name = "first_name", length = 50)
+    private String firstName;
+    @Column(name = "last_name", length = 50)
+    private String lastName;
+    @Column(name = "username", length = 50)
+    private String username;
+    @Column(name = "email_address", length = 50)
     private String emailAddress;
-    private String phoneNumber;
-    private Country country;
-    private String imageUrl;
-    private Gender gender;
-    private int numberOfContributions;
-
-    @Column(name = "full_name", length = 50)
-    public String getFullName() {
-        return fullName;
-    }
-
-    public void setFullName(String fullName) {
-        this.fullName = fullName;
-    }
-
-    @Column(name = "email_addres", length = 50)
-    public String getEmailAddress() {
-        return emailAddress;
-    }
-
-    public void setEmailAddress(String emailAddress) {
-        this.emailAddress = emailAddress;
-    }
-
     @Column(name = "phone_number", length = 20)
-    public String getPhoneNumber() {
-        return phoneNumber;
-    }
+    private String phoneNumber;
+    @Enumerated(EnumType.STRING)
+    private AccountStatus accountStatus = AccountStatus.PendingActivation;
 
-    public void setPhoneNumber(String phoneNumber) {
-        this.phoneNumber = phoneNumber;
-    }
-
+    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "country_id")
-    public Country getCountry() {
-        return country;
-    }
-
-    public void setCountry(Country country) {
-        this.country = country;
-    }
+    private Country country;
 
     @Column(name = "image_url", length = 500)
-    public String getImageUrl() {
-        return imageUrl;
-    }
-
-    public void setImageUrl(String imageUrl) {
-        this.imageUrl = imageUrl;
-    }
-
-    @Column(name = "number_of_contributions", length = 20)
-    public int getNumberOfContributions() {
-        return numberOfContributions;
-    }
-
-    public void setNumberOfContributions(int numberOfContributions) {
-        this.numberOfContributions = numberOfContributions;
-    }
-
+    private String imageUrl;
+    @Column(name = "biography",length = 2000)
+    private String biography;
+    @Column(name = "cover_image_url", length = 500)
+    private String coverImageUrl;
     @Enumerated(EnumType.STRING)
     @Column(name = "gender")
-    public Gender getGender() {
-        return gender;
-    }
+    private Gender gender;
+    @Column(name = "number_of_contributions", length = 20)
+    private int numberOfContributions;
+    @Column(name = "last_verification", length = 20)
+    private String lastVerificationCode;
 
-    public void setGender(Gender gender) {
-        this.gender = gender;
+    @JsonIgnore
+    @OneToOne
+    @JoinColumn(name = "user_id")
+    private User userAccount;
+    @Override
+    public String toString() {
+        return firstName+" "+lastName + " (" + emailAddress + ")";
     }
-    
-     @Override
+    @Override
     public boolean equals(Object object) {
         return object instanceof CourseInstructor && (super.getId() != null) ? super.getId().equals(((CourseInstructor) object).getId())
                 : (object == this);
     }
-
+    @Transient
+    public String  getFullName(){
+        return String.format("%s %s", firstName, lastName);
+    }
     @Override
     public int hashCode() {
         return super.getId() != null ? this.getClass().hashCode() + super.getId().hashCode() : super.hashCode();
     }
-
-    @Override
-    public String toString() {
-        return  fullName + " (" + emailAddress + ")";
-    }
-    
-    
-
 }

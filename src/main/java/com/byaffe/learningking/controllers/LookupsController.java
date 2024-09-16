@@ -1,7 +1,6 @@
 package com.byaffe.learningking.controllers;
 
 import com.byaffe.learningking.dtos.LookupDTO;
-import com.byaffe.learningking.dtos.LookupValueDTO;
 import com.byaffe.learningking.models.LookupType;
 import com.byaffe.learningking.models.LookupValue;
 import com.byaffe.learningking.services.LookupValueService;
@@ -9,10 +8,8 @@ import com.byaffe.learningking.services.impl.LookupServiceImpl;
 import com.byaffe.learningking.shared.api.ResponseList;
 import com.byaffe.learningking.shared.constants.Gender;
 import com.byaffe.learningking.shared.models.Country;
-import com.google.gson.Gson;
 import com.googlecode.genericdao.search.Search;
 import lombok.extern.slf4j.Slf4j;
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -30,14 +27,6 @@ public class LookupsController {
     @Autowired
     LookupValueService lookupService;
 
-    @Autowired
-    private ModelMapper modelMapper;
-
-    /**
-     * Endpoint to register a microservice
-     *
-     * @return
-     */
     @GetMapping("/genders")
     public ResponseEntity<ResponseList<LookupDTO>> getGenders() {
         List<LookupDTO> genders = Arrays.stream(Gender.values()).map(r -> new LookupDTO(r.getId(), r.getUiName())).collect(Collectors.toList());
@@ -61,35 +50,26 @@ public class LookupsController {
     }
 
     @GetMapping("/lookup-values")
-    public ResponseEntity<ResponseList<LookupValueDTO>> getLookupValue(@RequestParam(required = false, value = "searchTerm") String searchTerm,
+    public ResponseEntity<ResponseList<LookupValue>> getLookupValue(@RequestParam(required = false, value = "searchTerm") String searchTerm,
                                                                        @RequestParam("offset") int offset,
                                                                        @RequestParam("limit") int limit,
-                                                                       @RequestParam(required = false, value = "commaSeparatedTypeIds") String commaSeparatedTypeIds){
+                                                                       @RequestParam(required = false, value = "commaSeparatedTypes") String commaSeparatedTypes){
         Search search = LookupServiceImpl.composeSearchObjectForLookupValues(searchTerm);
-        if(commaSeparatedTypeIds!=null){
-            String[] list = commaSeparatedTypeIds.split(",");
-            List<LookupType> lookupTypes= Arrays.stream(list).map(r->LookupType.getById(Integer.parseInt(r))).collect(Collectors.toList());
+        if(commaSeparatedTypes!=null){
+            String[] list = commaSeparatedTypes.split(",");
+            List<LookupType> lookupTypes= Arrays.stream(list).map(LookupType::valueOf).collect(Collectors.toList());
             search.addFilterIn("type", lookupTypes);
         }
-        List<LookupValue> LookupValues = lookupService.getList(search, offset, limit);
-        System.err.println(new Gson().toJson(LookupValues));
+        List<LookupValue> values = lookupService.getList(search, offset, limit);
         long totalRecords = lookupService.countLookupValues(search);
-        return ResponseEntity.ok().body(new ResponseList<>(LookupValues.stream().map(LookupValueDTO::fromDBModel).collect(Collectors.toList()), totalRecords, 0, 0));
-
+        return ResponseEntity.ok().body(new ResponseList<>(values, totalRecords, offset, limit));
     }
 
     @PostMapping("/lookup-values")
-    public ResponseEntity<LookupValueDTO> saveLookupValue(@RequestBody LookupValueDTO LookupValueDTO) throws ValidationException {
-        LookupValue LookupValue = lookupService.save(LookupValueDTO);
-        return ResponseEntity.ok().body(LookupValueDTO.fromDBModel(LookupValue));
+    public ResponseEntity<LookupValue> saveLookupValue(@RequestBody LookupValue lookupValue) throws ValidationException {
+        return ResponseEntity.ok().body(lookupService.save(lookupValue));
     }
 
-    @PutMapping("/lookup-values/{id}")
-    public ResponseEntity<LookupValueDTO> updateLookupValue(@PathVariable(value = "id", required = true) long id, @RequestBody LookupValueDTO LookupValueDTO) throws ValidationException {
-        LookupValueDTO.setId(id);
-        LookupValue LookupValue = lookupService.save(LookupValueDTO);
-        return ResponseEntity.ok().body(LookupValueDTO.fromDBModel(LookupValue));
-    }
 
 
 }

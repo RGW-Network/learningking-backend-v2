@@ -2,7 +2,7 @@ package com.byaffe.learningking.services;
 
 import com.byaffe.learningking.models.Student;
 import com.byaffe.learningking.models.courses.Course;
-import com.byaffe.learningking.models.courses.CourseSubscription;
+import com.byaffe.learningking.models.courses.CourseEnrollment;
 import com.byaffe.learningking.models.payments.StudentSubscriptionPlan;
 import com.byaffe.learningking.models.payments.SubscriptionPlan;
 import com.byaffe.learningking.models.payments.SubscriptionPlanPayment;
@@ -26,6 +26,6 @@ public interface StudentSubscriptionPlanService extends GenericService<StudentSu
     
      public StudentSubscriptionPlan deplete(StudentSubscriptionPlan plan);
      
-      public CourseSubscription payBySubscription(Course course, StudentSubscriptionPlan planPayment) throws ValidationFailedException;
+      public CourseEnrollment payBySubscription(Course course, StudentSubscriptionPlan planPayment) throws ValidationFailedException;
    
 }

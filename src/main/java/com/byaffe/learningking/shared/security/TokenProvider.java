@@ -5,8 +5,10 @@ import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
+import com.byaffe.learningking.models.Student;
+import com.byaffe.learningking.services.StudentService;
 import com.byaffe.learningking.services.UserService;
-import com.byaffe.learningking.dtos.UserDTO;
+import com.byaffe.learningking.dtos.auth.UserDTO;
 import com.byaffe.learningking.shared.models.User;
 import lombok.Data;
 import lombok.NonNull;
@@ -32,6 +34,8 @@ public class TokenProvider {
 
     @Autowired
     UserService userService;
+    @Autowired
+    StudentService studentService;
 
     public TokenProvider() {
         String secretKey = System.getProperty(TOKEN_CIPHER);
@@ -55,7 +59,8 @@ public class TokenProvider {
             DecodedJWT decodedJWT = jWTVerifier.verify(authToken);
             String username = decodedJWT.getSubject();
             User userAccount = userService.getUserByUsername(username);
-
+            Student student=studentService.getStudentByUserAccount(userAccount);
+            UserDetailsContext.setLoggedInStudent(student);
             UserDetailsContext.setLoggedInUser(userAccount);
             if (userAccount == null) {
                 throw new JWTVerificationException("Invalid Credentials in Token");

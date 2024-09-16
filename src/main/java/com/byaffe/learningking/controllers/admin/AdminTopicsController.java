@@ -1,7 +1,7 @@
 package com.byaffe.learningking.controllers.admin;
 
-import com.byaffe.learningking.controllers.dtos.ArticlesFilterDTO;
 import com.byaffe.learningking.dtos.courses.CourseTopicRequestDTO;
+import com.byaffe.learningking.dtos.courses.CourseTopicResponseDTO;
 import com.byaffe.learningking.models.courses.CourseTopic;
 import com.byaffe.learningking.services.CourseTopicService;
 import com.byaffe.learningking.services.impl.CourseServiceImpl;
@@ -61,17 +61,26 @@ CourseTopicService modelService;
         return ResponseEntity.ok().body(new BaseResponse(true));
     }
     @GetMapping("")
-    public ResponseEntity<ResponseList<CourseTopicRequestDTO>> getRecords(ArticlesFilterDTO queryParamModel) throws JSONException {
+    public ResponseEntity<ResponseList<CourseTopic>> getRecords(@RequestParam(value = "searchTerm", required = false) String searchTerm,
+                                                                           @RequestParam(value = "offset", required = true) Integer offset,
+                                                                           @RequestParam(value = "limit", required = true) Integer limit,
+                                                                           @RequestParam(value = "courseId", required = false) Integer courseId,
+                                                                           @RequestParam(value = "lessonId", required = false) Integer lessonId
 
-        Search search = CourseServiceImpl.generateSearchObjectForCourses(queryParamModel.getSearchTerm())
+    ) throws JSONException {
+
+        Search search = CourseServiceImpl.generateSearchObjectForCourses(searchTerm)
                 .addFilterEqual("recordStatus", RecordStatus.ACTIVE);
       
-        if (queryParamModel.getSortBy() != null) {
-            search.addSort(queryParamModel.getSortBy(), queryParamModel.getSortDescending());
+        if (courseId!= null) {
+            search.addFilterEqual("courseLesson.course.id", courseId);
         }
-        List<CourseTopic> courses = modelService.getInstances(search, queryParamModel.getOffset(), queryParamModel.getLimit());
+        if (lessonId!= null) {
+            search.addFilterEqual("courseLesson.id",lessonId);
+        }
+        List<CourseTopic> courses = modelService.getInstances(search, offset, limit);
         long count = modelService.countInstances(search);
-        return ResponseEntity.ok().body(new ResponseList<>(courses.stream().map(r->modelMapper.map(r,CourseTopicRequestDTO.class)).collect(Collectors.toList()), (int) count, queryParamModel.getOffset(), queryParamModel.getLimit()));
+        return ResponseEntity.ok().body(new ResponseList<>(courses, (int) count,offset,limit));
 
     }
 

@@ -1,8 +1,8 @@
 package com.byaffe.learningking.models;
 
 public enum LookupType {
-    TASK_CATEGORIES(1,"Task Categories"),
-
+    EVENT_CATEGORIES(0,"Event Categories"),
+    PROFESSIONS(0,"Professions"),
     ;
     private String uiName;
     private int id;

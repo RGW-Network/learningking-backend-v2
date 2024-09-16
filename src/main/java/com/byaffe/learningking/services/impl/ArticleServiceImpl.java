@@ -1,18 +1,23 @@
 package com.byaffe.learningking.services.impl;
 
+import com.byaffe.learningking.dtos.articles.ArticleRequestDTO;
 import com.byaffe.learningking.models.Article;
 import com.byaffe.learningking.models.NotificationBuilder;
 import com.byaffe.learningking.models.NotificationDestinationActivity;
 import com.byaffe.learningking.models.courses.PublicationStatus;
 import com.byaffe.learningking.services.ArticleService;
+import com.byaffe.learningking.services.CategoryService;
 import com.byaffe.learningking.services.NotificationService;
 import com.byaffe.learningking.shared.constants.RecordStatus;
 import com.byaffe.learningking.shared.exceptions.OperationFailedException;
 import com.byaffe.learningking.shared.exceptions.ValidationFailedException;
 import com.byaffe.learningking.shared.utils.ApplicationContextProvider;
 import com.byaffe.learningking.shared.utils.CustomSearchUtils;
+import com.byaffe.learningking.utilities.ImageStorageService;
 import com.googlecode.genericdao.search.Search;
 import org.apache.commons.lang3.StringUtils;
+import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,7 +30,17 @@ import java.util.logging.Logger;
 @Transactional
 public class ArticleServiceImpl extends GenericServiceImpl<Article> implements ArticleService {
 
-   
+    @Autowired
+    ImageStorageService imageStorageService;
+    @Autowired
+    ModelMapper modelMapper;
+    @Autowired
+    CategoryService categoryService;
+
+    public static Search generateSearchObjectForArticles(String searchTerm) {
+
+   return  new Search();
+    }
 
     @Override
     public Article saveInstance(Article plan) throws ValidationFailedException {
@@ -73,27 +88,59 @@ public class ArticleServiceImpl extends GenericServiceImpl<Article> implements A
         search.setFirstResult(offset);
         return super.search(search);
     }
+
+
     @Override
-    public Article getInstanceByID(Long plan_id) {
-        return super.getInstanceByID(plan_id);
+    public Article save(ArticleRequestDTO dto) throws ValidationFailedException {
+        if (dto.getCategoryId() == null) {
+            throw new ValidationFailedException("Missing category");
+        }
+
+        if (StringUtils.isBlank(dto.getTitle())) {
+            throw new ValidationFailedException("Missing Title");
+        }
+
+        if (StringUtils.isBlank(dto.getDescription())) {
+            throw new ValidationFailedException("Missing Description");
+        }
+
+        Article existingWithTitle = getByTitle(dto.getTitle());
+
+        if (existingWithTitle != null && !existingWithTitle.getId().equals(dto.getId())) {
+            throw new ValidationFailedException("An article with the same title already exists!");
+        }
+
+        Article article=modelMapper.map(dto,Article.class);
+        article.setCategory(categoryService.getInstanceByID(dto.getCategoryId()));
+        article= saveInstance(article);
+
+        if(dto.getCoverImage()!=null) {
+            String imageUrl=   imageStorageService.uploadImage(dto.getCoverImage(), "articles/" + article.getId());
+            article.setCoverImageUrl(imageUrl);
+            article=super.save(article);
+        }
+
+        return article;
     }
-
-   
+   public Article getInstanceByID(Long id){
+        return  super.findById(id).orElseThrow(()->new ValidationFailedException("Not found"));
+    }
     @Override
-    public Article activate(Article plan) throws ValidationFailedException {
-        plan.setPublicationStatus(PublicationStatus.ACTIVE);
+    public Article activate(long plan) throws ValidationFailedException {
+        Article article=getInstanceByID(plan);
+        article.setPublicationStatus(PublicationStatus.ACTIVE);
 
-        Article savedDevotionPlan = super.save(plan);
+        Article savedDevotionPlan = super.save(article);
         try {
 
             ApplicationContextProvider.getBean(NotificationService.class).sendNotificationsToAllStudents(
                     new NotificationBuilder()
                             .setTitle("New Articles added")
-                            .setDescription(plan.getTitle())
+                            .setDescription(article.getTitle())
                             .setImageUrl("")
                             .setFmsTopicName("")
                             .setDestinationActivity(NotificationDestinationActivity.DASHBOARD)
-                            .setDestinationInstanceId(String.valueOf(plan.getId()))
+                            .setDestinationInstanceId(String.valueOf(article.getId()))
                             .build());
 
         } catch (Exception ex) {
@@ -104,7 +151,8 @@ public class ArticleServiceImpl extends GenericServiceImpl<Article> implements A
     }
 
     @Override
-    public Article deActivate(Article plan) {
+    public Article deActivate(long id) {
+        Article plan=getInstanceByID(id);
         plan.setPublicationStatus(PublicationStatus.INACTIVE);
         return super.save(plan);
     }

@@ -11,9 +11,7 @@ import com.byaffe.learningking.shared.exceptions.ValidationFailedException;
 import com.byaffe.learningking.shared.utils.ApplicationContextProvider;
 import com.byaffe.learningking.shared.utils.CustomSearchUtils;
 import com.byaffe.learningking.utilities.ImageStorageService;
-import com.google.gson.Gson;
 import com.googlecode.genericdao.search.Search;
-import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,39 +31,53 @@ public class CourseServiceImpl extends GenericServiceImpl<Course> implements Cou
     ImageStorageService imageStorageService;
 
     @Autowired
-    CourseCategoryService categoryService;
+    CategoryService categoryService;
     @Autowired
     ModelMapper modelMapper;
     @Autowired
-    CourseSubTopicService courseSubTopicService;
+    CourseLectureService courseLectureService;
+    @Autowired
+    InstructorService instructorService;
 
     public static Search generateSearchObjectForCourses(String searchTerm) {
-     Search search = CustomSearchUtils.generateSearchTerms(searchTerm,
+        Search search = CustomSearchUtils.generateSearchTerms(searchTerm,
                 Arrays.asList("title", "description"));
 
         return search;
     }
-    @Override
-    public Course saveInstance(CourseRequestDTO plan) throws ValidationFailedException{
-        Course course=modelMapper.map(plan,Course.class);
-        course.setAcademy(plan.getAcademy());
-        System.err.println("Request Id>>"+new Gson().toJson( plan));
-        course.setCategory(categoryService.getInstanceByID(plan.getCategoryId()));
-        course.setOwnershipType(plan.getOwnershipType());
-        course= saveInstance(course);
 
-        if(ObjectUtils.allNotNull( plan.getCoverImage())) {
-         String imageUrl=   imageStorageService.uploadImage(plan.getCoverImage(), "courses/" + course.getId());
-         course.setCoverImageUrl(imageUrl);
-         course=saveInstance(course);
+    @Override
+    public Course saveInstance(CourseRequestDTO plan) throws ValidationFailedException {
+
+        if (plan.getInstructorId() == null) {
+            throw new ValidationFailedException("Instructor is required");
         }
-    return course;
+        if (StringUtils.isBlank(plan.getTitle())) {
+            throw new ValidationFailedException("Missing Title");
+        }
+
+        if (StringUtils.isBlank(plan.getDescription())) {
+            throw new ValidationFailedException("Missing Description");
+        }
+        Course course = modelMapper.map(plan, Course.class);
+        course.setCategory(categoryService.getInstanceByID(plan.getCategoryId()));
+        course.setCommaSeparatedTags(plan.getCommaSeparatedTags());
+        course.setInstructor(instructorService.getInstanceByID(plan.getInstructorId()));
+        course = saveInstance(course);
+
+        if (plan.getCoverImage() != null) {
+            String imageUrl = imageStorageService.uploadImage(plan.getCoverImage(), "courses/" + course.getId());
+            course.setCoverImageUrl(imageUrl);
+            course = super.save(course);
+        }
+        return course;
     }
+
     @Override
     public Course saveInstance(Course plan) throws ValidationFailedException {
 
         if (plan.getCategory() == null) {
-            throw new ValidationFailedException("Mising course Type");
+            throw new ValidationFailedException("Missing course Type");
         }
 
         if (StringUtils.isBlank(plan.getTitle())) {
@@ -79,7 +91,7 @@ public class CourseServiceImpl extends GenericServiceImpl<Course> implements Cou
         Course existingWithTitle = getPlanByTitle(plan.getTitle());
 
         if (existingWithTitle != null && !existingWithTitle.getId().equals(plan.getId())) {
-            throw new ValidationFailedException("A plan with the same title already exists!");
+            throw new ValidationFailedException("A course with the same title already exists!");
         }
         plan.setPublicationStatus(PublicationStatus.INACTIVE);
 
@@ -92,7 +104,7 @@ public class CourseServiceImpl extends GenericServiceImpl<Course> implements Cou
         if (currentSubTopic == null) {
             return 0;
         }
-        List<CourseLecture> allSubTopics = courseSubTopicService.getInstances(new Search()
+        List<CourseLecture> allSubTopics = courseLectureService.getInstances(new Search()
                 .addSortAsc("position")
                 .addFilterEqual("publicationStatus", PublicationStatus.ACTIVE)
                 .addFilterEqual("recordStatus", RecordStatus.ACTIVE)
@@ -125,12 +137,12 @@ public class CourseServiceImpl extends GenericServiceImpl<Course> implements Cou
 
         }
         CourseTopic firstTopic = topics.get(0);
-        List<CourseLecture> subTopics = ApplicationContextProvider.getBean(CourseSubTopicService.class)
+        List<CourseLecture> subTopics = ApplicationContextProvider.getBean(CourseLectureService.class)
                 .getInstances(new Search()
                         .addFilterEqual("courseTopic", firstTopic)
                         .addSortAsc("position"), 0, 1);
         if (subTopics.isEmpty()) {
-            throw new ValidationFailedException("No sub Topics in first Course lesson topic");
+            throw new ValidationFailedException("No lectures in first Course lesson topic");
 
         }
 
@@ -159,9 +171,10 @@ public class CourseServiceImpl extends GenericServiceImpl<Course> implements Cou
         return super.search(search);
     }
 
+
     @Override
-    public Course getInstanceByID(Long plan_id) {
-        return super.searchUniqueByPropertyEqual("id", plan_id, RecordStatus.ACTIVE);
+    public Course getInstanceByID(Long id) {
+        return super.findById(id).orElseThrow(() -> new ValidationFailedException(String.format("Course with ID %d not found", id)));
     }
 
     @Override

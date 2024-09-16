@@ -3,6 +3,7 @@
  */
 package com.byaffe.learningking.services.impl;
 
+import com.byaffe.learningking.shared.exceptions.ValidationFailedException;
 import com.byaffe.learningking.shared.security.UserDetailsContext;
 import com.byaffe.learningking.services.GenericService;
 import com.byaffe.learningking.shared.constants.RecordStatus;
@@ -97,7 +98,7 @@ public abstract class GenericServiceImpl<T extends BaseEntity> extends BaseDAOIm
 	@Override
 	public T getInstanceByID(Long arg0) {
 		// TODO Auto-generated method stub
-		return super.getReference(arg0);
+		return super.findById(arg0).orElseThrow(()->new ValidationFailedException("Record not fund with id "+arg0));
 	}
 
 

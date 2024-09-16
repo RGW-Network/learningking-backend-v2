@@ -1,7 +1,6 @@
 package com.byaffe.learningking.services;
 
 import com.googlecode.genericdao.search.Search;
-import com.byaffe.learningking.dtos.LookupValueDTO;
 import com.byaffe.learningking.models.LookupType;
 import com.byaffe.learningking.models.LookupValue;
 import com.byaffe.learningking.shared.models.Country;
@@ -16,7 +15,7 @@ public interface LookupValueService {
      * Saves a microservice to the database
      * @return
      */
-    LookupValue save(LookupValueDTO instance);
+    LookupValue save(LookupValue instance);
 
      Country save(Country country );
 
@@ -43,6 +42,7 @@ public interface LookupValueService {
      */
     List<LookupValue> getByType(LookupType member);
     LookupValue getByType(LookupType lookupType,Long id);
+    Country getCountryById(long id);
 
     List<Country> getCountries(Search search, int offset, int limit);
 
