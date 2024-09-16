@@ -24,6 +24,10 @@ public class Category extends BaseEntity {
     @Column(name = "image_url")
     private String imageUrl;
 
+    @Enumerated(EnumType.ORDINAL)
+    @Column(name = "academy")
+    private CourseAcademyType academy;
+
     @Column(name = "icon_url")
     private String iconUrl;
 

@@ -3,6 +3,7 @@ package com.byaffe.learningking.controllers;
 import com.byaffe.learningking.dtos.courses.CourseCategoryRequestDTO;
 import com.byaffe.learningking.models.courses.CategoryType;
 import com.byaffe.learningking.models.courses.Category;
+import com.byaffe.learningking.models.courses.CourseAcademyType;
 import com.byaffe.learningking.services.CategoryService;
 import com.byaffe.learningking.services.impl.CategoryServiceImpl;
 import com.byaffe.learningking.shared.api.ResponseList;
@@ -36,12 +37,18 @@ public class CategoriesController {
     public ResponseEntity<ResponseList<Category>> getLookupValue(@RequestParam(required = false, value = "searchTerm") String searchTerm,
                                                                  @RequestParam("offset") int offset,
                                                                  @RequestParam("limit") int limit,
-                                                                 @RequestParam(required = false, value = "commaSeparatedTypes") String commaSeparatedTypes){
+                                                                 @RequestParam(required = false, value = "commaSeparatedTypes") String commaSeparatedTypes,
+                                                                 @RequestParam(required = false, value = "commaSeparatedAcademyIds") String commaSeparatedAcademyIds){
         Search search = CategoryServiceImpl.composeSearchObject(searchTerm);
         if(StringUtils.isNotEmpty(commaSeparatedTypes)){
             String[] list = commaSeparatedTypes.split(",");
             List<CategoryType> lookupTypes= Arrays.stream(list).map(CategoryType::valueOf).collect(Collectors.toList());
             search.addFilterIn("type", lookupTypes);
+        }
+        if(StringUtils.isNotEmpty(commaSeparatedAcademyIds)){
+            String[] list = commaSeparatedAcademyIds.split(",");
+            List<CourseAcademyType> lookupTypes= Arrays.stream(list).map(CourseAcademyType::valueOf).collect(Collectors.toList());
+            search.addFilterIn("academy", lookupTypes);
         }
 
         long totalRecords = categoryService.countInstances(search);

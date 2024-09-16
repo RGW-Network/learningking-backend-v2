@@ -25,6 +25,7 @@ public class SubscriptionPlan extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private SubscriptionContentRestrictionType contentRestrictionType;
     private int maximumNumberOfCourses = 1;
+    private int maximumNumberOfStudents = 1;
     private int durationInMonths = 1;
     private float cost;
     @Enumerated(EnumType.STRING)
