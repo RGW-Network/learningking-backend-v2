@@ -9,7 +9,7 @@ import com.byaffe.learningking.models.payments.CoursePayment;
 import com.byaffe.learningking.models.payments.StudentSubscriptionPlan;
 import com.byaffe.learningking.shared.exceptions.ValidationFailedException;
 
-public interface CourseSubscriptionService extends GenericService<CourseEnrollment> {
+public interface CourseEnrollmentService extends GenericService<CourseEnrollment> {
 
     /**
      * 

@@ -4,7 +4,7 @@ import com.byaffe.learningking.models.Student;
 import com.byaffe.learningking.models.courses.Course;
 import com.byaffe.learningking.models.courses.CourseEnrollment;
 import com.byaffe.learningking.models.payments.*;
-import com.byaffe.learningking.services.CourseSubscriptionService;
+import com.byaffe.learningking.services.CourseEnrollmentService;
 import com.byaffe.learningking.services.StudentSubscriptionPlanService;
 import com.byaffe.learningking.services.SubscriptionPlanToCategoryMapperService;
 import com.byaffe.learningking.services.SubscriptionPlanToCourseMapperService;
@@ -28,7 +28,7 @@ public class StudentSubscriptionPlanServiceImpl extends GenericServiceImpl<Stude
    SubscriptionPlanToCategoryMapperService subscriptionPlanToCategoryMapperService;
     
     @Autowired
-    CourseSubscriptionService courseSubscriptionService;
+    CourseEnrollmentService courseSubscriptionService;
 
     @Override
     public boolean isDeletable(StudentSubscriptionPlan entity) throws OperationFailedException {
@@ -69,34 +69,16 @@ public class StudentSubscriptionPlanServiceImpl extends GenericServiceImpl<Stude
     @Override
     public CourseEnrollment payBySubscription(Course course, StudentSubscriptionPlan planPayment) throws ValidationFailedException {
         SubscriptionPlan subscriptionPlan = planPayment.getSubscriptionPlan();
-
-        if (subscriptionPlan.getContentRestrictionType().equals(SubscriptionContentRestrictionType.OPEN_ANY_COURSE)) {
+        int takenWealthyMindsCourses = courseSubscriptionService.countInstances(new Search().addFilterEqual("student",planPayment.getStudent()));
+         int takenCorporateCourses =  courseSubscriptionService.countInstances(new Search().addFilterEqual("student",planPayment.getStudent()));
+        if (takenCorporateCourses<subscriptionPlan.getMaximumNumberOfCorporateCourses()) {
             return courseSubscriptionService.createActualSubscription(course, planPayment);
 
         }
 
-        if (planPayment.getSubscriptionPlan().getContentRestrictionType().equals(SubscriptionContentRestrictionType.SELECTED_CATEGORY)) {
-
+        if (takenWealthyMindsCourses<subscriptionPlan.getMaximumNumberOfWealthyMindsCourses()) {
             if (subscriptionPlanToCategoryMapperService.getRecord(subscriptionPlan, course.getCategory())!=null) {
                 return courseSubscriptionService.createActualSubscription(course, planPayment);
-
-            }
-
-        }
-
-        if (planPayment.getSubscriptionPlan().getContentRestrictionType().equals(SubscriptionContentRestrictionType.SELECTED_COURSES)) {
-
-            if (subscriptionPlanToCourseMapperService.getRecord(subscriptionPlan, course)!=null) {
-                return courseSubscriptionService.createActualSubscription(course, planPayment);
-
-            }
-
-        }
-
-        if (planPayment.getSubscriptionPlan().getContentRestrictionType().equals(SubscriptionContentRestrictionType.SELECTED_ACADEMY)) {
-            if (subscriptionPlan.getAllowedAcademyType().equals(course.getAcademy())) {
-                return courseSubscriptionService.createActualSubscription(course, planPayment);
-
             }
         }
 

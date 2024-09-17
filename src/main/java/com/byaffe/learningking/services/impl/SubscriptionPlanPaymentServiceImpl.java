@@ -42,7 +42,7 @@ public class SubscriptionPlanPaymentServiceImpl extends GenericServiceImpl<Subsc
 
     @Override
     public SubscriptionPlanPayment saveInstance(SubscriptionPlanPayment payment) throws ValidationFailedException, OperationFailedException {
-        if (Float.isNaN(payment.getAmount())) {
+        if (payment.getAmount()>0) {
             throw new ValidationFailedException("SubscriptionPlanPayment missing amount");
         }
 
@@ -180,7 +180,7 @@ public class SubscriptionPlanPaymentServiceImpl extends GenericServiceImpl<Subsc
 
         //set currency and amounts
         newPayment.setCurrency(setting.getBaseCurrency());
-        newPayment.setAmount(subscriptionplan.getCost());
+        newPayment.setAmount(subscriptionplan.getCostPerYear());
         newPayment.setTitle("Payment For " + subscriptionplan.getName());
 
         //make flutterwave request

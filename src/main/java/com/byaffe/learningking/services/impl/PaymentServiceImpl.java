@@ -42,7 +42,7 @@ public class PaymentServiceImpl extends GenericServiceImpl<CoursePayment> implem
 
     @Override
     public CoursePayment saveInstance(CoursePayment payment) throws ValidationFailedException, OperationFailedException {
-        if (Float.isNaN(payment.getAmount())) {
+        if (payment.getAmount()>0) {
             throw new ValidationFailedException("CoursePayment missing amount");
         }
 
@@ -113,7 +113,7 @@ public class PaymentServiceImpl extends GenericServiceImpl<CoursePayment> implem
 
 
                     try {
-                        ApplicationContextProvider.getBean(CourseSubscriptionService.class).createSubscription(payment);
+                        ApplicationContextProvider.getBean(CourseEnrollmentService.class).createSubscription(payment);
                         payment.setStatus(TransactionStatus.SUCESSFULL);
                         saveInstance(payment);
                         ApplicationContextProvider.getBean(NotificationService.class)
@@ -171,7 +171,7 @@ public class PaymentServiceImpl extends GenericServiceImpl<CoursePayment> implem
             throw new ValidationFailedException("Course Not Found");
         }
 
-        CourseEnrollment memberCourse = ApplicationContextProvider.getBean(CourseSubscriptionService.class).getSerieSubscription(student, course);
+        CourseEnrollment memberCourse = ApplicationContextProvider.getBean(CourseEnrollmentService.class).getSerieSubscription(student, course);
         if (memberCourse != null) {
             throw new ValidationFailedException("You already purchased this course. Go to My-Courses to view your course.");
         }

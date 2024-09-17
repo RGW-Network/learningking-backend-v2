@@ -53,11 +53,11 @@ public class Course extends BaseEntity {
     private Organisation organisation;
     @Enumerated(EnumType.STRING)
     private CourseAcademyType academy;
-    private boolean isFeatured;
-    private boolean isPaid;
-    private Float price;
-    private Float discountedPrice;
-    private Float cost;
+    private Boolean isFeatured;
+    private Boolean isPaid;
+    private Double price;
+    private Double discountedPrice;
+    private Double cost;
     @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.MERGE)
     @JoinTable(name = "course_testimonials", joinColumns = @JoinColumn(name = "course_id"), inverseJoinColumns = @JoinColumn(name = "testimonial_id"))
     private Set<Testimonial> testimonials;

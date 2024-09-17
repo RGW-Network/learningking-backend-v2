@@ -1,4 +1,4 @@
-package com.byaffe.learningking.controllers;
+package com.byaffe.learningking.controllers.admin;
 
 import com.byaffe.learningking.dtos.SubscriptionPlanRequestDTO;
 import com.byaffe.learningking.models.courses.CategoryType;
@@ -17,14 +17,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.xml.bind.ValidationException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Slf4j
 @RestController
-@RequestMapping("/api/v1/subscription-plans")
+@RequestMapping("/api/v1/admin/subscription-plans")
 public class AdminSubscriptionPlansController {
 
     @Autowired
@@ -51,10 +50,8 @@ public class AdminSubscriptionPlansController {
             List<CourseAcademyType> lookupTypes= Arrays.stream(list).map(CourseAcademyType::valueOf).collect(Collectors.toList());
             search.addFilterIn("academy", lookupTypes);
         }
-
         long totalRecords = subscriptionPlanService.countInstances(search);
         return ResponseEntity.ok().body(new ResponseList<>(subscriptionPlanService.getInstances(search, offset, limit), totalRecords, offset, limit));
-
     }
 
     @PostMapping("")

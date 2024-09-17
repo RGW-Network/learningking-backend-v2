@@ -45,7 +45,7 @@ public class StudentSubscriptionPlan extends BaseEntity {
     private int durationInMonths = 1;
 
     @Column(name = "cost", nullable = false)
-    private float cost;
+    private Double cost;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)

@@ -45,7 +45,7 @@ public class CoursesController {
     ModelMapper modelMapper;
 
     @Autowired
-    CourseSubscriptionService subscriptionService;
+    CourseEnrollmentService subscriptionService;
     @GetMapping("")
     public ResponseEntity<ResponseList<CourseResponseDTO>> getCourses(@Valid ArticlesFilterDTO queryParamModel) throws JSONException {
 
@@ -83,7 +83,7 @@ public class CoursesController {
                 e.printStackTrace();
             }
             if (UserDetailsContext.getLoggedInStudent() != null) {
-                CourseEnrollment subscription = ApplicationContextProvider.getBean(CourseSubscriptionService.class).getSerieSubscription(UserDetailsContext.getLoggedInStudent(), course);
+                CourseEnrollment subscription = ApplicationContextProvider.getBean(CourseEnrollmentService.class).getSerieSubscription(UserDetailsContext.getLoggedInStudent(), course);
 
                 dto.setEnrolled(subscription != null);
             }
@@ -119,7 +119,7 @@ public class CoursesController {
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-                CourseEnrollment subscription = ApplicationContextProvider.getBean(CourseSubscriptionService.class).getSerieSubscription(UserDetailsContext.getLoggedInStudent(), course);
+                CourseEnrollment subscription = ApplicationContextProvider.getBean(CourseEnrollmentService.class).getSerieSubscription(UserDetailsContext.getLoggedInStudent(), course);
                 dto.setEnrolled(subscription != null);
                 dto.setNumberOfLessons(lessonsCount);
                 dto.setAverageRating((rattings / 5));
@@ -145,7 +145,7 @@ public class CoursesController {
                 .addFilterEqual("course", course)
                 .addFilterEqual("recordStatus", RecordStatus.ACTIVE)
                 .addSortAsc("position"), 0, 0);
-        CourseEnrollment subscription = ApplicationContextProvider.getBean(CourseSubscriptionService.class).getSerieSubscription(member, course);
+        CourseEnrollment subscription = ApplicationContextProvider.getBean(CourseEnrollmentService.class).getSerieSubscription(member, course);
         log.info("Lessons got: {}", lessons.stream().map(r -> r.id).toArray());
         for (CourseLesson lesson : lessons) {
             LessonResponseDTO lessonDto = modelMapper.map(lesson, LessonResponseDTO.class);
@@ -212,7 +212,7 @@ public class CoursesController {
                 .addFilterEqual("recordStatus", RecordStatus.ACTIVE)
                 .addFilterEqual("courseLesson", lesson)
                 .addSortAsc("position"), 0, 0);
-        CourseEnrollment subscription = ApplicationContextProvider.getBean(CourseSubscriptionService.class).getSerieSubscription(member, lesson.getCourse());
+        CourseEnrollment subscription = ApplicationContextProvider.getBean(CourseEnrollmentService.class).getSerieSubscription(member, lesson.getCourse());
 
         for (CourseTopic topic : topics) {
             CourseTopicResponseDTO topicJSONObject = modelMapper.map(topic, CourseTopicResponseDTO.class);
@@ -252,7 +252,7 @@ public class CoursesController {
                 .addFilterEqual("recordStatus", RecordStatus.ACTIVE)
                 .addFilterEqual("courseTopic", topic)
                 .addSortAsc("position"), 0, 0);
-        CourseEnrollment subscription = ApplicationContextProvider.getBean(CourseSubscriptionService.class).getSerieSubscription(member, topic.getCourseLesson().getCourse());
+        CourseEnrollment subscription = ApplicationContextProvider.getBean(CourseEnrollmentService.class).getSerieSubscription(member, topic.getCourseLesson().getCourse());
 
         for (CourseLecture subTopic : subTopics) {
             LectureResponseDTO jSONObject = modelMapper.map(subTopic, LectureResponseDTO.class);
@@ -329,7 +329,7 @@ public class CoursesController {
         if (topic == null) {
             throw new ValidationFailedException("Topic  Not Found");
         }
-        CourseEnrollment courseEnrollment = ApplicationContextProvider.getBean(CourseSubscriptionService.class).completeSubTopic(member, topic);
+        CourseEnrollment courseEnrollment = ApplicationContextProvider.getBean(CourseEnrollmentService.class).completeSubTopic(member, topic);
 
         return ResponseEntity.ok().body(courseEnrollment);
     }
@@ -355,7 +355,7 @@ public class CoursesController {
             search.addSort(queryParamModel.getSortBy(), queryParamModel.getSortDescending());
         }
         List<CourseResponseDTO> courses = new ArrayList<>();
-        for (CourseEnrollment course : ApplicationContextProvider.getBean(CourseSubscriptionService.class).getInstances(search, queryParamModel.getOffset(), queryParamModel.getLimit())) {
+        for (CourseEnrollment course : ApplicationContextProvider.getBean(CourseEnrollmentService.class).getInstances(search, queryParamModel.getOffset(), queryParamModel.getLimit())) {
             CourseResponseDTO dto = (CourseResponseDTO) course.getCourse();
             int lessonsCount = ApplicationContextProvider.getBean(CourseLessonService.class)
                     .countInstances(new Search()
@@ -367,7 +367,7 @@ public class CoursesController {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            CourseEnrollment subscription = ApplicationContextProvider.getBean(CourseSubscriptionService.class).getSerieSubscription(UserDetailsContext.getLoggedInStudent(), course.getCourse());
+            CourseEnrollment subscription = ApplicationContextProvider.getBean(CourseEnrollmentService.class).getSerieSubscription(UserDetailsContext.getLoggedInStudent(), course.getCourse());
             dto.setEnrolled(subscription != null);
             dto.setNumberOfLessons(lessonsCount);
             dto.setAverageRating((rattings / 5));

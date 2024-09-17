@@ -11,7 +11,6 @@ import com.byaffe.learningking.shared.constants.RecordStatus;
 import com.byaffe.learningking.shared.dao.BaseDAOImpl;
 import com.byaffe.learningking.shared.exceptions.OperationFailedException;
 import com.byaffe.learningking.shared.exceptions.ValidationFailedException;
-import com.byaffe.learningking.shared.security.UserDetailsContext;
 import com.byaffe.learningking.shared.utils.ApplicationContextProvider;
 import com.googlecode.genericdao.search.Search;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +22,7 @@ import java.util.List;
 
 @Transactional
 @Repository
-public class CourseSubscriptionServiceImpl extends BaseDAOImpl<CourseEnrollment> implements CourseSubscriptionService {
+public class CourseEnrollmentServiceImpl extends BaseDAOImpl<CourseEnrollment> implements CourseEnrollmentService {
 
 
     @Autowired
@@ -90,7 +89,7 @@ public class CourseSubscriptionServiceImpl extends BaseDAOImpl<CourseEnrollment>
     @Override
     public CourseEnrollment createSubscription(Student member, Course course) throws ValidationFailedException {
 
-        if (course.isPaid()) {
+        if (course.getIsPaid()) {
             throw new ValidationFailedException("This is a paid Course");
         }
         return createActualSubscription(member, course);
@@ -100,7 +99,7 @@ public class CourseSubscriptionServiceImpl extends BaseDAOImpl<CourseEnrollment>
     public CourseEnrollment enrolForFreeCourse(Long studentId, Long courseId) throws ValidationFailedException {
         Student member = ApplicationContextProvider.getBean(StudentService.class).getStudentById(studentId);
         Course course = ApplicationContextProvider.getBean(CourseService.class).getInstanceByID(courseId);
-        if (course.isPaid()) {
+        if (course.getIsPaid()) {
             throw new ValidationFailedException("This is a paid Course");
         }
 
