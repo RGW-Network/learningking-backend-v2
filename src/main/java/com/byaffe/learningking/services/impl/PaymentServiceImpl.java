@@ -18,6 +18,7 @@ import com.byaffe.learningking.shared.constants.RecordStatus;
 import com.byaffe.learningking.shared.exceptions.OperationFailedException;
 import com.byaffe.learningking.shared.exceptions.ValidationFailedException;
 import com.byaffe.learningking.shared.utils.ApplicationContextProvider;
+import com.byaffe.learningking.shared.utils.CustomSearchUtils;
 import com.google.gson.Gson;
 import com.googlecode.genericdao.search.Search;
 import lombok.extern.slf4j.Slf4j;
@@ -124,10 +125,13 @@ public class PaymentServiceImpl extends GenericServiceImpl<AggregatorTransaction
         AggregatorTransaction newPayment = new AggregatorTransaction();
         newPayment.setStudent(student);
         newPayment.setType(transactionType);
+        newPayment.setTimestamp(LocalDateTime.now());
         newPayment.setReferenceRecordId(referenceRecordId);
         newPayment.setDescription("Payment For " + description);
         newPayment.setAmountInitiated(amount);
-
+        newPayment.setAmountChargedFromUser(amount);
+newPayment=super.save(newPayment);
+newPayment.generateInternalReference();
         // Make Flutterwave request
         FlutterReponse flutterReponse = flutterWaveService.initiateDeposit(newPayment);
         newPayment.setLastAggregatorResponse(new Gson().toJson(flutterReponse));
@@ -205,5 +209,10 @@ public class PaymentServiceImpl extends GenericServiceImpl<AggregatorTransaction
 
         return payment;
     }
+    public static Search composeSearchObject(String searchTerm) {
+        com.googlecode.genericdao.search.Search search = CustomSearchUtils.generateSearchTerms(searchTerm,
+                Arrays.asList("serialNumber","description"));
 
+        return search;
+    }
 }

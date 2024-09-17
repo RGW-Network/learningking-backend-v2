@@ -2,6 +2,7 @@ package com.byaffe.learningking.services.flutterwave;
 
 import com.byaffe.learningking.constants.TransactionMode;
 import com.byaffe.learningking.models.payments.AggregatorTransaction;
+import com.byaffe.learningking.shared.exceptions.ValidationFailedException;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import org.slf4j.Logger;
@@ -116,7 +117,7 @@ public class FlutterWaveService {
             return flutterReponse;
         } catch (RestClientException e) {
             logger.error("Error during payment initiation: ", e);
-            throw new RuntimeException("Error during payment initiation", e);
+            throw new ValidationFailedException("Error during payment initiation"+ e.getMessage());
         }
     }
 

@@ -7,6 +7,7 @@ import com.byaffe.learningking.constants.TransactionType;
 import com.byaffe.learningking.models.CurrencyEnum;
 import com.byaffe.learningking.models.Student;
 import com.byaffe.learningking.shared.models.BaseEntity;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 
 import javax.persistence.*;
@@ -39,6 +40,10 @@ public class AggregatorTransaction extends BaseEntity {
     private String phoneNumber;
     private String redirectUrl;
     private Long referenceRecordId;
+
+    @JsonIgnore
+    @ManyToOne
+    @JoinColumn(name = "student_id")
     private Student student;
 
     //Json data fields
@@ -51,6 +56,27 @@ public class AggregatorTransaction extends BaseEntity {
 
     public void generateInternalReference() {
         generateSerialNumber();
+    }
+    @Transient
+    public String getStudentName() {
+        if(student==null){
+            return  null;
+        }
+        return student.getFullName();
+    }
+    @Transient
+    public String getStudentEmail() {
+        if(student==null){
+            return  null;
+        }
+        return student.getEmailAddress();
+    }
+    @Transient
+    public Long getStudentId() {
+        if(student==null){
+            return  null;
+        }
+        return student.getId();
     }
 
     @Transient

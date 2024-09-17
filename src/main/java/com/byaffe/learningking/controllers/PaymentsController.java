@@ -1,5 +1,6 @@
 package com.byaffe.learningking.controllers;
 
+import com.byaffe.learningking.constants.TransactionStatus;
 import com.byaffe.learningking.constants.TransactionType;
 import com.byaffe.learningking.models.courses.PublicationStatus;
 import com.byaffe.learningking.models.payments.AggregatorTransaction;
@@ -7,6 +8,7 @@ import com.byaffe.learningking.models.payments.SubscriptionPlan;
 import com.byaffe.learningking.services.PaymentService;
 import com.byaffe.learningking.services.SubscriptionPlanService;
 import com.byaffe.learningking.services.impl.CategoryServiceImpl;
+import com.byaffe.learningking.services.impl.PaymentServiceImpl;
 import com.byaffe.learningking.shared.api.BaseResponse;
 import com.byaffe.learningking.shared.api.ResponseList;
 import com.byaffe.learningking.shared.api.ResponseObject;
@@ -32,7 +34,7 @@ public class PaymentsController {
     @Autowired
     PaymentService paymentService;
 
-    @GetMapping("")
+    @GetMapping("/subscription-plans")
     public ResponseEntity<ResponseList<SubscriptionPlan>> getPlans(@RequestParam(required = false, value = "searchTerm") String searchTerm,
                                                                    @RequestParam("offset") int offset,
                                                                    @RequestParam("limit") int limit) {
@@ -41,16 +43,28 @@ public class PaymentsController {
         long totalRecords = subscriptionPlanService.countInstances(search);
         return ResponseEntity.ok().body(new ResponseList<>(subscriptionPlanService.getInstances(search, offset, limit), totalRecords, offset, limit));
     }
+    @GetMapping("")
+    public ResponseEntity<ResponseList<AggregatorTransaction>> getPayments(@RequestParam(required = false, value = "searchTerm") String searchTerm,
+                                                                   @RequestParam("offset") int offset,
+                                                                   @RequestParam("limit") int limit) {
+        Search search = PaymentServiceImpl.composeSearchObject(searchTerm);
+        if(!Objects.requireNonNull(UserDetailsContext.getLoggedInUser()).hasAdministrativePrivileges()) {
+            search.addFilterEqual("student.id", Objects.requireNonNull(UserDetailsContext.getLoggedInStudent()).getId());
+            search.addFilterEqual("status", TransactionStatus.SUCCESSFUL);
+        }
+        long totalRecords = paymentService.countInstances(search);
+        return ResponseEntity.ok().body(new ResponseList<>(paymentService.getInstances(search, offset, limit), totalRecords, offset, limit));
+    }
 
     @PostMapping("/pay/{type}/{recordId}")
     public ResponseEntity<ResponseObject<AggregatorTransaction>> save(@PathVariable(name = "type", required = true) TransactionType type, @PathVariable(name = "recordId", required = true) Long recordId) throws ValidationFailedException, IOException {
         AggregatorTransaction response = null;
         if (type.equals(TransactionType.COURSE_PAYMENT)) {
-            response = paymentService.initiateCoursePayment(recordId, Objects.requireNonNull(UserDetailsContext.getLoggedInUser()).getId());
+            response = paymentService.initiateCoursePayment(recordId, Objects.requireNonNull(UserDetailsContext.getLoggedInStudent()).getId());
         } else if (type.equals(TransactionType.SUBSCRIPTION_PAYMENT)) {
-            response = paymentService.initiateSubscriptionPlanPayment(recordId, Objects.requireNonNull(UserDetailsContext.getLoggedInUser()).getId());
+            response = paymentService.initiateSubscriptionPlanPayment(recordId, Objects.requireNonNull(UserDetailsContext.getLoggedInStudent()).getId());
         } else if (type.equals(TransactionType.EVENT_PAYMENT)) {
-            response = paymentService.initiateEventPayment(recordId, Objects.requireNonNull(UserDetailsContext.getLoggedInUser()).getId());
+            response = paymentService.initiateEventPayment(recordId, Objects.requireNonNull(UserDetailsContext.getLoggedInStudent()).getId());
         }
 
         return ResponseEntity.ok().body(new ResponseObject<>(response));
