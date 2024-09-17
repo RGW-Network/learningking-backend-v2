@@ -21,16 +21,7 @@ public class CronJobsRunner {
         System.out.println("Cron job to update course transaction statuses at "+new Date());
         ApplicationContextProvider.getBean(PaymentService.class).updatePaymentStatus();
     }
-     @Scheduled(fixedDelay = 5000)//Every 5 seconds
-    public void updateSubTransactionStatusTask() {
-        System.out.println("Cron job to update subscription transaction statuses at "+new Date());
-        ApplicationContextProvider.getBean(SubscriptionPlanPaymentService.class).updatePaymentStatus();
-    }
 
-    @Scheduled(fixedDelay = 5000)
-    public void scheduleFixedDelayTask() {
-        System.out.println(
-                "Fixed delay task ----------------------> " + System.currentTimeMillis() / 1000);
-    }
+
 
 }
