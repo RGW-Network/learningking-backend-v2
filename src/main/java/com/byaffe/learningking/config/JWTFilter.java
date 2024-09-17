@@ -27,7 +27,6 @@ public class JWTFilter extends GenericFilterBean {
     TokenProvider tokenProvider;
 
 
-
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
         try {
@@ -44,12 +43,13 @@ public class JWTFilter extends GenericFilterBean {
                 return;
             }
             if (FilterUtils.allowedAuth(httpServletRequest.getRequestURI())) {
+                String authorisationHeader = httpServletRequest.getHeader(HttpHeaders.AUTHORIZATION);
+                processAuthDetails(authorisationHeader, false);
                 filterChain.doFilter(httpServletRequest, httpServletResponse);
             } else {
                 try {
                     String authorisationHeader = httpServletRequest.getHeader(HttpHeaders.AUTHORIZATION);
-                    String accessToken = authorisationHeader.substring("Bearer ".length());
-                    tokenProvider.validateToken(accessToken);
+                    processAuthDetails(authorisationHeader, true);
                     filterChain.doFilter(httpServletRequest, httpServletResponse);
                 } catch (Exception ex) {
                     httpServletResponse.setHeader("error", ex.getMessage());
@@ -63,4 +63,21 @@ public class JWTFilter extends GenericFilterBean {
             UserDetailsContext.clear();
         }
     }
+
+    private void processAuthDetails(String authorisationHeader, boolean mandatory) {
+
+        if (mandatory) {
+            //throw appropriate errors
+            String accessToken = authorisationHeader.substring("Bearer ".length());
+            tokenProvider.validateToken(accessToken);
+        } else
+            try {
+                //Catch errors, no need to throw
+                String accessToken = authorisationHeader.substring("Bearer ".length());
+                tokenProvider.validateToken(accessToken);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+    }
+
 }

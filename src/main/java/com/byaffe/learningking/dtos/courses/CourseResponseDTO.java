@@ -20,6 +20,6 @@ public class CourseResponseDTO extends Course {
     private int numberOfTopics;
     private double averageRating;
     private int ratingsCount;
-    private Float progress;
+    private Double progress;
 
 }

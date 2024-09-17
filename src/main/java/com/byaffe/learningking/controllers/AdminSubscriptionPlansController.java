@@ -1,13 +1,14 @@
 package com.byaffe.learningking.controllers;
 
-import com.byaffe.learningking.dtos.courses.CourseCategoryRequestDTO;
+import com.byaffe.learningking.dtos.SubscriptionPlanRequestDTO;
 import com.byaffe.learningking.models.courses.CategoryType;
-import com.byaffe.learningking.models.courses.Category;
 import com.byaffe.learningking.models.courses.CourseAcademyType;
-import com.byaffe.learningking.services.CategoryService;
+import com.byaffe.learningking.models.payments.SubscriptionPlan;
+import com.byaffe.learningking.services.SubscriptionPlanService;
 import com.byaffe.learningking.services.impl.CategoryServiceImpl;
 import com.byaffe.learningking.shared.api.ResponseList;
 import com.byaffe.learningking.shared.api.ResponseObject;
+import com.byaffe.learningking.shared.exceptions.ValidationFailedException;
 import com.googlecode.genericdao.search.Search;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -23,22 +24,22 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @RestController
-@RequestMapping("/api/v1/categories")
-public class CategoriesController {
+@RequestMapping("/api/v1/subscription-plans")
+public class AdminSubscriptionPlansController {
 
     @Autowired
-    CategoryService categoryService;
+    SubscriptionPlanService subscriptionPlanService;
 
     @Autowired
     private ModelMapper modelMapper;
 
 
     @GetMapping("")
-    public ResponseEntity<ResponseList<Category>> getLookupValue(@RequestParam(required = false, value = "searchTerm") String searchTerm,
-                                                                 @RequestParam("offset") int offset,
-                                                                 @RequestParam("limit") int limit,
-                                                                 @RequestParam(required = false, value = "commaSeparatedTypes") String commaSeparatedTypes,
-                                                                 @RequestParam(required = false, value = "commaSeparatedAcademies") String commaSeparatedAcademies){
+    public ResponseEntity<ResponseList<SubscriptionPlan>> getList(@RequestParam(required = false, value = "searchTerm") String searchTerm,
+                                                                         @RequestParam("offset") int offset,
+                                                                         @RequestParam("limit") int limit,
+                                                                         @RequestParam(required = false, value = "commaSeparatedTypes") String commaSeparatedTypes,
+                                                                         @RequestParam(required = false, value = "commaSeparatedAcademies") String commaSeparatedAcademies){
         Search search = CategoryServiceImpl.composeSearchObject(searchTerm);
         if(StringUtils.isNotEmpty(commaSeparatedTypes)){
             String[] list = commaSeparatedTypes.split(",");
@@ -51,14 +52,14 @@ public class CategoriesController {
             search.addFilterIn("academy", lookupTypes);
         }
 
-        long totalRecords = categoryService.countInstances(search);
-        return ResponseEntity.ok().body(new ResponseList<>(categoryService.getInstances(search, offset, limit), totalRecords, offset, limit));
+        long totalRecords = subscriptionPlanService.countInstances(search);
+        return ResponseEntity.ok().body(new ResponseList<>(subscriptionPlanService.getInstances(search, offset, limit), totalRecords, offset, limit));
 
     }
 
     @PostMapping("")
-    public ResponseEntity<ResponseObject<Category>> saveLookupValue(@RequestBody CourseCategoryRequestDTO courseCategoryRequestDTO) throws ValidationException {
-        return ResponseEntity.ok().body(new ResponseObject<>( categoryService.saveInstance(courseCategoryRequestDTO)));
+    public ResponseEntity<ResponseObject<SubscriptionPlan>> save(@RequestBody SubscriptionPlanRequestDTO dto) throws ValidationFailedException  {
+        return ResponseEntity.ok().body(new ResponseObject<>( subscriptionPlanService.saveInstance(dto)));
     }
 
 

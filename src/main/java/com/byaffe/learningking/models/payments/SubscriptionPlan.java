@@ -8,10 +8,10 @@ import com.byaffe.learningking.shared.models.BaseEntity;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.persistence.*;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 @Data
 @ToString(callSuper = true)
@@ -20,37 +20,30 @@ import java.util.Set;
 public class SubscriptionPlan extends BaseEntity {
 
     private String name;
+    private String color;
+    @Column(name = "description", length = 2000)
     private String description;
+    @Column(name = "what_you_get", length = 2000)
+    private String commaSeparatedWhatYouGet;
     private String imageUrl;
-    @Enumerated(EnumType.STRING)
-    private SubscriptionContentRestrictionType contentRestrictionType;
-    private int maximumNumberOfCourses = 1;
+    private int maximumNumberOfWealthyMindsCourses = 1;
+    private int maximumNumberOfCorporateCourses = 1;
     private int maximumNumberOfStudents = 1;
+    private int maximumNumberOfWealthyMindsCertifications = 1;
+    private int maximumNumberOfCorporateCertifications = 1;
     private int durationInMonths = 1;
-    private float cost;
+    private double costPerYear;
+    private double costPerMonth;
     @Enumerated(EnumType.STRING)
     private PublicationStatus publicationStatus = PublicationStatus.INACTIVE;
-    @Enumerated(EnumType.STRING)
-    private CourseAcademyType allowedAcademyType;
-    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.REFRESH)
-    @JoinTable(name = "plan_courses", joinColumns = @JoinColumn(name = "plan_id"), inverseJoinColumns = @JoinColumn(name = "course_id"))
-    private Set<Course> courses;
-    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.REFRESH)
-    @JoinTable(name = "plan_course_categories", joinColumns = @JoinColumn(name = "plan_id"), inverseJoinColumns = @JoinColumn(name = "category_id"))
-    private Set<Category> courseCategories;
 
-    public void addCourse(Course course) {
-        if (this.courses == null) {
-            this.courses = new HashSet<>();
+    public List<String> getWhatYouGet(){
+        if (StringUtils.isNotEmpty(this.commaSeparatedWhatYouGet)) {
+            return Arrays.asList(this.commaSeparatedWhatYouGet.split(","));
+        } else {
+            return new ArrayList<>(); // Return an empty list if the string is empty or null
         }
-        this.courses.add(course);
-    }
 
-    public void addCourseCategory(Category category) {
-        if (this.courseCategories == null) {
-            this.courseCategories = new HashSet<>();
-        }
-        this.courseCategories.add(category);
     }
 
     @Override

@@ -182,7 +182,7 @@ public class CoursesController {
         courseObj.setAverageRating(rattings / 5);
         if (subscription != null) {
             courseObj.setEnrolled(true);
-            courseObj.setProgress(courseService.getProgress(subscription.getCurrentLecture()));
+            courseObj.setProgress(subscription.getProgress());
         }
         log.info("Lessons got: {}", lessons.stream().map(r -> r.id).toArray());
         //     .put("ratingsCount", ApplicationContextProvider.getBean(CourseRatingService.class).getRatingsCount(course))
