@@ -35,10 +35,5 @@ void updatePaymentStatus();
      * @return
      */
     AggregatorTransaction updatePayment(String transactionid, String raveId)throws ValidationFailedException;
-    
-    /**
-     * 
-     */
-     void checkAndUpdatePendingTransactions();
 
 }

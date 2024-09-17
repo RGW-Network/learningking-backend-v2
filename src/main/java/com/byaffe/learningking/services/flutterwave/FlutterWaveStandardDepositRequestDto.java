@@ -8,7 +8,7 @@ public class FlutterWaveStandardDepositRequestDto {
     private String amount;
     private String currency;
     private String redirect_url="#";
-    private String payment_options="card";
+    private String payment_options="card,mobile_money_uganda,mpesa,mobile_money_tanzania";
     private CustomerDTO customer;
     private CustomizationsDTO customizations;
 }

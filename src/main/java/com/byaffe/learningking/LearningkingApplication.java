@@ -1,5 +1,6 @@
 package com.byaffe.learningking;
 
+import com.byaffe.learningking.services.BackgroundJobService;
 import com.byaffe.learningking.services.LookupValueService;
 import com.byaffe.learningking.services.UserService;
 import com.byaffe.learningking.shared.constants.SecurityConstants;
@@ -35,7 +36,7 @@ public class LearningkingApplication {
     }
 
     @Bean
-    CommandLineRunner run( UserService userService, RestService restService, LookupValueService LookupValueService) {
+    CommandLineRunner run(BackgroundJobService backgroundJobService, UserService userService, RestService restService, LookupValueService LookupValueService) {
         return args -> {
 
             try {

@@ -129,13 +129,13 @@ public class FlutterWaveService {
         fluterwaveRequest.setRedirect_url(redirectUrl);
 
         CustomerDTO customerDTO = new CustomerDTO();
-        customerDTO.setEmail(payment.getStudent().getUserAccount().getEmailAddress());
-        customerDTO.setName(payment.getStudent().getUserAccount().getFullName());
-        customerDTO.setPhonenumber(payment.getStudent().getUserAccount().getPhoneNumber());
+        customerDTO.setEmail(payment.getStudent().getEmailAddress());
+        customerDTO.setName(payment.getStudent().getFullName());
+        customerDTO.setPhonenumber(payment.getStudent().getPhoneNumber());
         fluterwaveRequest.setCustomer(customerDTO);
 
         CustomizationsDTO customizationsDTO= new CustomizationsDTO();
-        customizationsDTO.setTitle("MyGuardian Wallet Card Deposit");
+        customizationsDTO.setTitle("Learningking "+payment.getDescription());
 
         fluterwaveRequest.setCustomizations(customizationsDTO);
         return fluterwaveRequest;

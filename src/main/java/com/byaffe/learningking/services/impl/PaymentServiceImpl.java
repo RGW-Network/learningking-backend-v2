@@ -69,11 +69,7 @@ public class PaymentServiceImpl extends GenericServiceImpl<AggregatorTransaction
 
     }
 
-    @Override
-    public void checkAndUpdatePendingTransactions() {
-        updatePaymentStatus();
 
-    }
 
     @Override
     public List<AggregatorTransaction> getInstances(Search search, int offset, int limit) {
@@ -105,19 +101,19 @@ public class PaymentServiceImpl extends GenericServiceImpl<AggregatorTransaction
         if (memberCourse != null) {
             throw new ValidationFailedException("You already purchased this course. Go to My-Courses to view your course.");
         }
-        return initiatePayment(course.getDiscountedPrice() > 0 ? course.getDiscountedPrice() : course.getPrice(), student, course.getTitle(), course.id, TransactionType.COURSE_PAYMENT);
+        return initiatePayment(course.getDiscountedPrice() > 0 ? course.getDiscountedPrice() : course.getPrice(), student,"Course ("+ course.getTitle()+")", course.id, TransactionType.COURSE_PAYMENT);
 
     }
     public AggregatorTransaction initiateSubscriptionPlanPayment(long subscriptionPlanId, long studentId) throws IOException, OperationFailedException, ValidationFailedException {
         SubscriptionPlan subscriptionPlan = ApplicationContextProvider.getBean(SubscriptionPlanService.class).getInstanceByID(subscriptionPlanId);
         Student student = ApplicationContextProvider.getBean(StudentService.class).getInstanceByID(studentId);
-        return initiatePayment(subscriptionPlan.getCostPerYear() > 0 ? subscriptionPlan.getCostPerYear() : subscriptionPlan.getCostPerMonth(), student, subscriptionPlan.getName(), subscriptionPlan.id, TransactionType.SUBSCRIPTION_PAYMENT);
+        return initiatePayment(subscriptionPlan.getCostPerYear() > 0 ? subscriptionPlan.getCostPerYear() : subscriptionPlan.getCostPerMonth(), student,"Subscription Plan ("+ subscriptionPlan.getName()+")", subscriptionPlan.id, TransactionType.SUBSCRIPTION_PAYMENT);
 
     }
     public AggregatorTransaction initiateEventPayment(long subscriptionPlanId, long studentId) throws IOException, OperationFailedException, ValidationFailedException {
         Event event = ApplicationContextProvider.getBean(EventService.class).getInstanceByID(subscriptionPlanId);
         Student student = ApplicationContextProvider.getBean(StudentService.class).getInstanceByID(studentId);
-        return initiatePayment(event.getDiscountedPrice() > 0 ? event.getDiscountedPrice() : event.getOriginalPrice(), student, event.getTitle(), event.id, TransactionType.SUBSCRIPTION_PAYMENT);
+        return initiatePayment(event.getDiscountedPrice() > 0 ? event.getDiscountedPrice() : event.getOriginalPrice(), student,"Event ("+ event.getTitle()+")", event.id, TransactionType.SUBSCRIPTION_PAYMENT);
 
     }
     // Common method to initiate payments
