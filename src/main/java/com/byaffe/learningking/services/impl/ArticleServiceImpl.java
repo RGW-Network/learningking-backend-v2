@@ -7,6 +7,7 @@ import com.byaffe.learningking.models.NotificationDestinationActivity;
 import com.byaffe.learningking.models.courses.PublicationStatus;
 import com.byaffe.learningking.services.ArticleService;
 import com.byaffe.learningking.services.CategoryService;
+import com.byaffe.learningking.services.InstructorService;
 import com.byaffe.learningking.services.NotificationService;
 import com.byaffe.learningking.shared.constants.RecordStatus;
 import com.byaffe.learningking.shared.exceptions.OperationFailedException;
@@ -36,6 +37,9 @@ public class ArticleServiceImpl extends GenericServiceImpl<Article> implements A
     ModelMapper modelMapper;
     @Autowired
     CategoryService categoryService;
+
+    @Autowired
+    InstructorService instructorService;
 
     public static Search generateSearchObjectForArticles(String searchTerm) {
 
@@ -112,6 +116,9 @@ public class ArticleServiceImpl extends GenericServiceImpl<Article> implements A
 
         Article article=modelMapper.map(dto,Article.class);
         article.setCategory(categoryService.getInstanceByID(dto.getCategoryId()));
+        if(dto.getCategoryId()!=null){
+            article.setContributor(instructorService.getInstanceByID(dto.getContributorId()));
+        }
         article= saveInstance(article);
 
         if(dto.getCoverImage()!=null) {

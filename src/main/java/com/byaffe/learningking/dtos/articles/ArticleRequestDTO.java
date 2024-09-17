@@ -15,6 +15,7 @@ public class ArticleRequestDTO {
     private Long areaOfBusinessId;
     private ArticleType type ;
     private Long categoryId;
+    private Long contributorId;
     private String quote;
 
 }
