@@ -1,17 +1,18 @@
 package com.byaffe.learningking.services.impl;
 
 import com.byaffe.learningking.constants.TransactionStatus;
+import com.byaffe.learningking.constants.TransactionType;
+import com.byaffe.learningking.models.Event;
 import com.byaffe.learningking.models.Student;
-import com.byaffe.learningking.models.NotificationBuilder;
-import com.byaffe.learningking.models.NotificationDestinationActivity;
 import com.byaffe.learningking.models.SystemSetting;
 import com.byaffe.learningking.models.courses.Course;
 import com.byaffe.learningking.models.courses.CourseEnrollment;
-import com.byaffe.learningking.models.payments.CoursePayment;
+import com.byaffe.learningking.models.payments.AggregatorTransaction;
 import com.byaffe.learningking.models.payments.PaymentPrefixes;
+import com.byaffe.learningking.models.payments.SubscriptionPlan;
 import com.byaffe.learningking.services.*;
 import com.byaffe.learningking.services.flutterwave.FlutterReponse;
-import com.byaffe.learningking.services.flutterwave.FlutterwaveClient;
+import com.byaffe.learningking.services.flutterwave.FlutterWaveService;
 import com.byaffe.learningking.services.flutterwave.FlutterwaveTransactionStatus;
 import com.byaffe.learningking.shared.constants.RecordStatus;
 import com.byaffe.learningking.shared.exceptions.OperationFailedException;
@@ -19,54 +20,51 @@ import com.byaffe.learningking.shared.exceptions.ValidationFailedException;
 import com.byaffe.learningking.shared.utils.ApplicationContextProvider;
 import com.google.gson.Gson;
 import com.googlecode.genericdao.search.Search;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
-import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.Objects;
 
+@Slf4j
 @Service
 @Transactional
-public class PaymentServiceImpl extends GenericServiceImpl<CoursePayment> implements PaymentService {
+public class PaymentServiceImpl extends GenericServiceImpl<AggregatorTransaction> implements PaymentService {
 
     @Autowired
     CourseService courseService;
+
+    @Autowired
+    FlutterWaveService flutterWaveService;
     private float eventPricing;
 
 
     @Override
-    public CoursePayment saveInstance(CoursePayment payment) throws ValidationFailedException, OperationFailedException {
-        if (payment.getAmount()>0) {
-            throw new ValidationFailedException("CoursePayment missing amount");
-        }
-
-        if (payment.isNew()) {
-            payment = super.save(payment);
-            payment.setTransactionId(PaymentPrefixes.COURSE_PAYMENT_PREFIX + String.valueOf( payment.getId()).toUpperCase());
-        }
-        return super.save(payment);
-    }
-
-    @Override
-    public CoursePayment createNewPaymentInstanceWithTransactionId(CoursePayment payment) {
+    public AggregatorTransaction saveInstance(AggregatorTransaction payment) throws ValidationFailedException, OperationFailedException {
 
         return super.save(payment);
     }
 
     @Override
-    public CoursePayment updatePayment(String transactionid, String raveId) throws ValidationFailedException {
-        CoursePayment coursePayment = getPaymentByTransactionId(transactionid);
-        if (coursePayment == null) {
-            throw new ValidationFailedException("CoursePayment not found");
+    public AggregatorTransaction createNewPaymentInstanceWithTransactionId(AggregatorTransaction payment) {
+
+        return super.save(payment);
+    }
+
+    @Override
+    public AggregatorTransaction updatePayment(String transactionid, String raveId) throws ValidationFailedException {
+        AggregatorTransaction AggregatorTransaction = getPaymentByTransactionId(transactionid);
+        if (AggregatorTransaction == null) {
+            throw new ValidationFailedException("AggregatorTransaction not found");
         }
-        coursePayment.setRaveId(raveId);
-        return super.save(coursePayment);
+        AggregatorTransaction.setExternalReference(raveId);
+        return super.save(AggregatorTransaction);
 
     }
 
@@ -77,7 +75,7 @@ public class PaymentServiceImpl extends GenericServiceImpl<CoursePayment> implem
     }
 
     @Override
-    public List<CoursePayment> getInstances(Search search, int offset, int limit) {
+    public List<AggregatorTransaction> getInstances(Search search, int offset, int limit) {
         if (search == null) {
             search = new Search().addFilterEqual("recordStatus", RecordStatus.ACTIVE);
         }
@@ -87,123 +85,125 @@ public class PaymentServiceImpl extends GenericServiceImpl<CoursePayment> implem
     }
 
     @Override
-    public CoursePayment getPaymentByTransactionId(String storagePayment_id) {
-        return super.searchUniqueByPropertyEqual("transactionId", storagePayment_id);
+    public AggregatorTransaction getPaymentByTransactionId(String storagePayment_id) {
+        return super.searchUniqueByPropertyEqual("serialNumber", storagePayment_id);
     }
 
-    @Override
-    public void updatePaymentStatus() {
-
-        Search paymentSearch = new Search();
-        paymentSearch.addFilterEqual("status", TransactionStatus.LINK_GENERATED);
-        List<CoursePayment> fetchedCoursePayments = super.search(paymentSearch);
-
-        for (CoursePayment payment : fetchedCoursePayments) {
-            try {
-                FlutterReponse flutterReponse = new FlutterwaveClient().checkPaymentStatusByTransactionId(payment.getTransactionId());
-
-                payment.setLastPgwResponse(new Gson().toJson(flutterReponse));
-                payment.setDateChanged(LocalDateTime.now());
-                if (flutterReponse.status.equalsIgnoreCase("error")) {
-
-
-                    payment.setStatus(TransactionStatus.FAILED);
-                    saveInstance(payment);
-                } else if (FlutterwaveTransactionStatus.SUCCESSFULL.getStatusName().equals(flutterReponse.data.status)) {
-
-
-                    try {
-                        ApplicationContextProvider.getBean(CourseEnrollmentService.class).createSubscription(payment);
-                        payment.setStatus(TransactionStatus.SUCESSFULL);
-                        saveInstance(payment);
-                        ApplicationContextProvider.getBean(NotificationService.class)
-                                .sendNotificationsToStudent(
-                                        new NotificationBuilder()
-                                                .setTitle("Course Payment")
-                                                .setDescription("Your payment for " + payment.getCourse().getTitle() + " has been recieved")
-                                                .setDestinationActivity(NotificationDestinationActivity.DASHBOARD)
-                                                .setImageUrl(payment.getCourse().getCoverImageUrl())
-                                                .setDestinationInstanceId(String.valueOf(payment.getCourse().getId()))
-                                                .build(), payment.getSubscriber(),true);
-
-                    } catch (Exception ex) {
-                        payment.setFailureReason(ex.getLocalizedMessage());
-                        payment.setStatus(TransactionStatus.FAILED);
-                        saveInstance(payment);
-                        Logger.getLogger(PaymentServiceImpl.class.getName()).log(Level.SEVERE, null, ex);
-                    }
-
-                } else if (FlutterwaveTransactionStatus.FAILED.getStatusName().equals(flutterReponse.data.status) || (FlutterwaveTransactionStatus.ERROR.getStatusName().equals(flutterReponse.status) && "Transaction not found".equals(flutterReponse.message))) {
-
-                    payment.setStatus(TransactionStatus.FAILED);
-                    saveInstance(payment);
-
-                } else if (FlutterwaveTransactionStatus.CANCELLED.getStatusName().equals(flutterReponse.data.status) || FlutterwaveTransactionStatus.ABORTED.getStatusName().equals(flutterReponse.data.status)) {
-
-                    payment.setStatus(TransactionStatus.CANCELED);
-                    saveInstance(payment);
-
-                } else if (Duration.between(payment.getDateCreated(),LocalDateTime.now()).toDays() > 48) {
-
-                    payment.setStatus(TransactionStatus.INDETERMINATE);
-
-                    saveInstance(payment);
-
-                }
-
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-
-        }
-    }
 
     @Override
-    public boolean isDeletable(CoursePayment entity) throws OperationFailedException {
+    public boolean isDeletable(AggregatorTransaction entity) throws OperationFailedException {
         return false;
 
     }
 
     @Override
-    public CoursePayment initiatePayment(Course course, Student student) throws IOException, OperationFailedException, ValidationFailedException {
-
-        if (course == null) {
-            throw new ValidationFailedException("Course Not Found");
-        }
-
+    public AggregatorTransaction initiateCoursePayment(long courseId, long studentId) throws IOException, OperationFailedException, ValidationFailedException {
+        Course course = ApplicationContextProvider.getBean(CourseService.class).getInstanceByID(courseId);
+        Student student = ApplicationContextProvider.getBean(StudentService.class).getInstanceByID(studentId);
         CourseEnrollment memberCourse = ApplicationContextProvider.getBean(CourseEnrollmentService.class).getSerieSubscription(student, course);
         if (memberCourse != null) {
             throw new ValidationFailedException("You already purchased this course. Go to My-Courses to view your course.");
         }
+        return initiatePayment(course.getDiscountedPrice() > 0 ? course.getDiscountedPrice() : course.getPrice(), student, course.getTitle(), course.id, TransactionType.COURSE_PAYMENT);
 
-        SystemSetting setting = ApplicationContextProvider.getBean(SystemSettingService.class).getAppSetting();
-        if (setting == null || setting.getFlutterwaveEncryptionKey() == null || setting.getFlutterwavePublicKey() == null) {
-            throw new ValidationFailedException("Rave settings not yet configured");
+    }
+    public AggregatorTransaction initiateSubscriptionPlanPayment(long subscriptionPlanId, long studentId) throws IOException, OperationFailedException, ValidationFailedException {
+        SubscriptionPlan subscriptionPlan = ApplicationContextProvider.getBean(SubscriptionPlanService.class).getInstanceByID(subscriptionPlanId);
+        Student student = ApplicationContextProvider.getBean(StudentService.class).getInstanceByID(studentId);
+        return initiatePayment(subscriptionPlan.getCostPerYear() > 0 ? subscriptionPlan.getCostPerYear() : subscriptionPlan.getCostPerMonth(), student, subscriptionPlan.getName(), subscriptionPlan.id, TransactionType.SUBSCRIPTION_PAYMENT);
 
-        }
-        CoursePayment newPayment = new CoursePayment();
-        newPayment.setSubscriber(student);
-        newPayment.setCourse(course);
+    }
+    public AggregatorTransaction initiateEventPayment(long subscriptionPlanId, long studentId) throws IOException, OperationFailedException, ValidationFailedException {
+        Event event = ApplicationContextProvider.getBean(EventService.class).getInstanceByID(subscriptionPlanId);
+        Student student = ApplicationContextProvider.getBean(StudentService.class).getInstanceByID(studentId);
+        return initiatePayment(event.getDiscountedPrice() > 0 ? event.getDiscountedPrice() : event.getOriginalPrice(), student, event.getTitle(), event.id, TransactionType.SUBSCRIPTION_PAYMENT);
 
-        //set currency and amounts
-        newPayment.setCurrency(setting.getBaseCurrency());
-        newPayment.setAmount(course.getDiscountedPrice()>0?course.getDiscountedPrice():course.getPrice());
-        newPayment.setTitle("Payment For " + course.getTitle());
+    }
+    // Common method to initiate payments
+    private AggregatorTransaction initiatePayment(double amount, Student student, String description, long referenceRecordId, TransactionType transactionType) throws IOException, OperationFailedException {
+        AggregatorTransaction newPayment = new AggregatorTransaction();
+        newPayment.setStudent(student);
+        newPayment.setType(transactionType);
+        newPayment.setReferenceRecordId(referenceRecordId);
+        newPayment.setDescription("Payment For " + description);
+        newPayment.setAmountInitiated(amount);
 
-       
-        //make flutterwave request
-        FlutterReponse flutterReponse = new FlutterwaveClient().requestPaymentInitiation(newPayment, student);
+        // Make Flutterwave request
+        FlutterReponse flutterReponse = flutterWaveService.initiateDeposit(newPayment);
+        newPayment.setLastAggregatorResponse(new Gson().toJson(flutterReponse));
 
         if (StringUtils.isNotBlank(flutterReponse.data.link)) {
-            newPayment.setStatus(TransactionStatus.LINK_GENERATED);
-            newPayment.setLastRavePaymentLink(flutterReponse.data.link);
+            newPayment.setStatus(TransactionStatus.PENDING);
+            newPayment.setRedirectUrl(flutterReponse.data.link);
         } else {
-            newPayment.setStatus(TransactionStatus.LINK_GENERATION_FAILED);
-            newPayment.setLastRavePaymentLink(flutterReponse.message);
+            newPayment.setStatus(TransactionStatus.FAILED);
+            newPayment.setRedirectUrl(flutterReponse.message);
         }
-        
-          //save payment request
+
+        // Save payment request
         return saveInstance(newPayment);
+    }
+    public void updatePaymentStatus() {
+        Search paymentSearch = new Search();
+        log.debug("Started Payment Update job at " + LocalDateTime.now());
+        paymentSearch.addFilterIn("status", Arrays.asList(
+                TransactionStatus.PENDING, TransactionStatus.PENDING_3DS_AUTHORISATION,
+                TransactionStatus.PENDING_OTP_VALIDATION,
+                TransactionStatus.PENDING_PIN_AUTHORISATION,
+                TransactionStatus.PENDING_AVS_AUTHORISATION));
+
+        List<AggregatorTransaction> fetchedBookPayments = super.search(paymentSearch);
+        for (AggregatorTransaction payment : fetchedBookPayments) {
+            try {
+                FlutterReponse flutterResponse = flutterWaveService.checkPaymentStatus(payment.getSerialNumber());
+                updateStatus(flutterResponse, payment);
+            } catch (Exception ex) {
+                log.error(ex.getMessage());
+            }
+        }
+    }
+
+
+    private AggregatorTransaction updateStatus(FlutterReponse flutterResponse, AggregatorTransaction payment) {
+        payment.setLastAggregatorResponse(new Gson().toJson(flutterResponse));
+        payment.setDateChanged(LocalDateTime.now());
+
+        //update failed validation
+        if (Objects.equals(flutterResponse.status, "RequestFailed")) {
+            payment.setStatus(TransactionStatus.PENDING);
+            if (payment.getDateCreated().plusMinutes(30).isBefore(LocalDateTime.now())) {
+                payment.setStatus(TransactionStatus.INDETERMINATE);
+            }
+            if ((flutterResponse.message.contains("No transaction was found for this id") || flutterResponse.status.equalsIgnoreCase("error")) && payment.getDateCreated().plusMinutes(30).isBefore(LocalDateTime.now())) {
+                payment.setStatus(TransactionStatus.FAILED);
+            }
+        } else if (flutterResponse.data != null) {
+            if (FlutterwaveTransactionStatus.SUCCESSFULL.getStatusName().equals(flutterResponse.data.status)) {
+                log.debug("----Setting success payments------");
+                payment.setStatus(TransactionStatus.SUCCESSFUL);
+            } else if (FlutterwaveTransactionStatus.FAILED.getStatusName().equals(flutterResponse.data.status) || (FlutterwaveTransactionStatus.ERROR.getStatusName().equals(flutterResponse.status) && "Transaction not found".equals(flutterResponse.message))) {
+                log.debug("----Setting failed payments------");
+                payment.setStatus(TransactionStatus.FAILED);
+            } else if (FlutterwaveTransactionStatus.CANCELLED.getStatusName().equals(flutterResponse.data.status) || FlutterwaveTransactionStatus.ABORTED.getStatusName().equals(flutterResponse.data.status)) {
+                log.debug("----Setting cancelled payments------");
+                payment.setStatus(TransactionStatus.CANCELED);
+            } else if (Objects.equals(flutterResponse.data.status, "pending")) {
+                log.debug("----Setting pending payments------");
+                payment.setStatus(TransactionStatus.PENDING);
+            }
+        }
+        payment = super.save(payment);
+        if (payment.getStatus().equals(TransactionStatus.SUCCESSFUL)) {
+            if (payment.getType().equals(TransactionType.COURSE_PAYMENT)) {
+                ApplicationContextProvider.getBean(CourseEnrollmentService.class).createSubscription(payment);
+            } else if (payment.getType().equals(TransactionType.SUBSCRIPTION_PAYMENT)) {
+                ApplicationContextProvider.getBean(StudentSubscriptionPlanService.class).activate(payment);
+            }
+
+        }
+
+
+        return payment;
     }
 
 }

@@ -3,7 +3,7 @@ package com.byaffe.learningking.services.impl;
 import com.byaffe.learningking.models.SystemSetting;
 import com.byaffe.learningking.models.payments.Currency;
 import com.byaffe.learningking.models.payments.CurrencyConversionRate;
-import com.byaffe.learningking.models.payments.CurrencyConversionRateStatus;
+import com.byaffe.learningking.constants.CurrencyConversionRateStatus;
 import com.byaffe.learningking.services.CurrencyConversionRateService;
 import com.byaffe.learningking.services.SystemSettingService;
 import com.byaffe.learningking.shared.exceptions.OperationFailedException;

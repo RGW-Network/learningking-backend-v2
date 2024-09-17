@@ -1,6 +1,5 @@
 package com.byaffe.learningking.utilities;
 import com.byaffe.learningking.services.PaymentService;
-import com.byaffe.learningking.services.SubscriptionPlanPaymentService;
 import com.byaffe.learningking.shared.utils.ApplicationContextProvider;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;

@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.byaffe.learningking.models.payments;
+package com.byaffe.learningking.constants;
 
 /**
  * @author Mzee Sr.

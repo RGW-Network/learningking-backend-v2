@@ -3,9 +3,9 @@ package com.byaffe.learningking.services;
 import com.byaffe.learningking.models.Student;
 import com.byaffe.learningking.models.courses.Course;
 import com.byaffe.learningking.models.courses.CourseEnrollment;
+import com.byaffe.learningking.models.payments.AggregatorTransaction;
 import com.byaffe.learningking.models.payments.StudentSubscriptionPlan;
 import com.byaffe.learningking.models.payments.SubscriptionPlan;
-import com.byaffe.learningking.models.payments.SubscriptionPlanPayment;
 import com.byaffe.learningking.shared.exceptions.ValidationFailedException;
 
 /**
@@ -18,7 +18,7 @@ import com.byaffe.learningking.shared.exceptions.ValidationFailedException;
 
 public interface StudentSubscriptionPlanService extends GenericService<StudentSubscriptionPlan> {
 
-    public StudentSubscriptionPlan activate(SubscriptionPlanPayment  subscriptionPlanPayment) throws ValidationFailedException;
+    public StudentSubscriptionPlan activate(AggregatorTransaction subscriptionPlanPayment) throws ValidationFailedException;
   public StudentSubscriptionPlan getInstance(Student student, SubscriptionPlan plan) throws ValidationFailedException;
 
     

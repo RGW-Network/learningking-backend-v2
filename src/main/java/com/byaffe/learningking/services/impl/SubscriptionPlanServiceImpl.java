@@ -1,12 +1,9 @@
 package com.byaffe.learningking.services.impl;
 
 import com.byaffe.learningking.dtos.SubscriptionPlanRequestDTO;
-import com.byaffe.learningking.models.Article;
 import com.byaffe.learningking.models.courses.PublicationStatus;
-import com.byaffe.learningking.models.payments.SubscriptionContentRestrictionType;
 import com.byaffe.learningking.models.payments.SubscriptionPlan;
 import com.byaffe.learningking.services.SubscriptionPlanService;
-import com.byaffe.learningking.services.SubscriptionPlanToCourseMapperService;
 import com.byaffe.learningking.shared.constants.RecordStatus;
 import com.byaffe.learningking.shared.exceptions.OperationFailedException;
 import com.byaffe.learningking.shared.exceptions.ValidationFailedException;

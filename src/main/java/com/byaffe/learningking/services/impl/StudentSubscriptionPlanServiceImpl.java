@@ -4,13 +4,11 @@ import com.byaffe.learningking.models.Student;
 import com.byaffe.learningking.models.courses.Course;
 import com.byaffe.learningking.models.courses.CourseEnrollment;
 import com.byaffe.learningking.models.payments.*;
-import com.byaffe.learningking.services.CourseEnrollmentService;
-import com.byaffe.learningking.services.StudentSubscriptionPlanService;
-import com.byaffe.learningking.services.SubscriptionPlanToCategoryMapperService;
-import com.byaffe.learningking.services.SubscriptionPlanToCourseMapperService;
+import com.byaffe.learningking.services.*;
 import com.byaffe.learningking.shared.constants.RecordStatus;
 import com.byaffe.learningking.shared.exceptions.OperationFailedException;
 import com.byaffe.learningking.shared.exceptions.ValidationFailedException;
+import com.byaffe.learningking.shared.utils.ApplicationContextProvider;
 import com.googlecode.genericdao.search.Search;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -53,14 +51,14 @@ public class StudentSubscriptionPlanServiceImpl extends GenericServiceImpl<Stude
     }
 
     @Override
-    public StudentSubscriptionPlan activate(SubscriptionPlanPayment planPayment) throws ValidationFailedException {
-
+    public StudentSubscriptionPlan activate(AggregatorTransaction planPayment) throws ValidationFailedException {
+SubscriptionPlan subscriptionPlan= ApplicationContextProvider.getBean(SubscriptionPlanService.class).getInstanceByID(planPayment.getReferenceRecordId());
         StudentSubscriptionPlan memberSubscriptionPlan = new StudentSubscriptionPlan();
-        memberSubscriptionPlan.setSubscriptionPlan(planPayment.getSubscriptionPlan());
-        memberSubscriptionPlan.setStudent(planPayment.getSubscriber());
+        memberSubscriptionPlan.setSubscriptionPlan(subscriptionPlan);
+        memberSubscriptionPlan.setStudent(planPayment.getStudent());
         memberSubscriptionPlan.setActivatedOn(new Date());
-        memberSubscriptionPlan.setDurationInMonths(planPayment.getSubscriptionPlan().getDurationInMonths());
-        memberSubscriptionPlan.setCost(planPayment.getAmount());
+        memberSubscriptionPlan.setDurationInMonths(subscriptionPlan.getDurationInMonths());
+        memberSubscriptionPlan.setCost(planPayment.getAmountInitiated());
         memberSubscriptionPlan.setStatus(SubscriptionPlanStatus.ACTIVE);
 
         return super.save(memberSubscriptionPlan);

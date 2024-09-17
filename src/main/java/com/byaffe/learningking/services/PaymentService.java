@@ -1,33 +1,32 @@
 package com.byaffe.learningking.services;
 
-import com.byaffe.learningking.models.Student;
-import com.byaffe.learningking.models.Payment;
-import com.byaffe.learningking.models.courses.Course;
-import com.byaffe.learningking.models.payments.CoursePayment;
+import com.byaffe.learningking.models.payments.AggregatorTransaction;
 import com.byaffe.learningking.shared.exceptions.OperationFailedException;
 import com.byaffe.learningking.shared.exceptions.ValidationFailedException;
 
 import java.io.IOException;
 
 /**
- * Responsible for CRUD operations on {@link Payment}
+ * Responsible for CRUD operations on {@link AggregatorTransaction}
  *
  * @author Ray Gdhrt
  *
  */
-public interface PaymentService extends GenericService<CoursePayment> {
+public interface PaymentService extends GenericService<AggregatorTransaction> {
 
     
 
-    CoursePayment createNewPaymentInstanceWithTransactionId(CoursePayment payment);
-     CoursePayment initiatePayment(Course course, Student student)throws IOException, OperationFailedException, ValidationFailedException;
-    
+    AggregatorTransaction createNewPaymentInstanceWithTransactionId(AggregatorTransaction payment);
+     AggregatorTransaction initiateCoursePayment(long course, long student)throws IOException, OperationFailedException, ValidationFailedException;
+    AggregatorTransaction initiateSubscriptionPlanPayment(long course, long student)throws IOException, OperationFailedException, ValidationFailedException;
+    AggregatorTransaction initiateEventPayment(long event, long student)throws IOException, OperationFailedException, ValidationFailedException;
+
     /**
      *
      * @param transactionId
      * @return
      */
-    CoursePayment getPaymentByTransactionId(String transactionId);
+    AggregatorTransaction getPaymentByTransactionId(String transactionId);
 void updatePaymentStatus();
     /**
      *
@@ -35,7 +34,7 @@ void updatePaymentStatus();
      * @param raveId
      * @return
      */
-    CoursePayment updatePayment(String transactionid, String raveId)throws ValidationFailedException;
+    AggregatorTransaction updatePayment(String transactionid, String raveId)throws ValidationFailedException;
     
     /**
      * 

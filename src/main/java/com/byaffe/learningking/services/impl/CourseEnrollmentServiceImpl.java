@@ -4,7 +4,7 @@ import com.byaffe.learningking.constants.TransactionStatus;
 import com.byaffe.learningking.models.Student;
 import com.byaffe.learningking.models.ReadStatus;
 import com.byaffe.learningking.models.courses.*;
-import com.byaffe.learningking.models.payments.CoursePayment;
+import com.byaffe.learningking.models.payments.AggregatorTransaction;
 import com.byaffe.learningking.models.payments.StudentSubscriptionPlan;
 import com.byaffe.learningking.services.*;
 import com.byaffe.learningking.shared.constants.RecordStatus;
@@ -154,11 +154,12 @@ public class CourseEnrollmentServiceImpl extends BaseDAOImpl<CourseEnrollment> i
     }
 
     @Override
-    public CourseEnrollment createSubscription(CoursePayment coursePayment) throws ValidationFailedException {
-        if (coursePayment == null || !coursePayment.getStatus().equals(TransactionStatus.SUCESSFULL)) {
+    public CourseEnrollment createSubscription(AggregatorTransaction coursePayment) throws ValidationFailedException {
+        if (coursePayment == null || !coursePayment.getStatus().equals(TransactionStatus.SUCCESSFUL)) {
             return null;
         }
-        return createActualSubscription(coursePayment.getSubscriber(), coursePayment.getCourse());
+        Course course=ApplicationContextProvider.getBean(CourseService.class).getInstanceByID(coursePayment.getReferenceRecordId());
+        return createActualSubscription(coursePayment.getStudent(), course);
     }
 
     @Override
