@@ -5,8 +5,6 @@ import lombok.Data;
 
 @Data
 public class CourseDetailsResponseDTO {
-
-
     private CourseResponseDTO course;
     private CourseEnrollment subscription;
 

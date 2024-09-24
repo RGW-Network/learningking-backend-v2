@@ -118,6 +118,25 @@ public class CourseEnrollmentServiceImpl extends BaseDAOImpl<CourseEnrollment> i
         return super.save(courseEnrollment);
     }
 
+    @Override
+    public CourseEnrollment startCourse(Long studentId, Long courseId) throws ValidationFailedException {
+        Student member = ApplicationContextProvider.getBean(StudentService.class).getStudentById(studentId);
+        Course course = ApplicationContextProvider.getBean(CourseService.class).getInstanceByID(courseId);
+        if (course.getIsPaid()) {
+            throw new ValidationFailedException("This is a paid Course");
+        }
+
+        CourseEnrollment courseEnrollment = getSerieSubscription(member, course);
+        if (courseEnrollment == null) {
+            throw new ValidationFailedException("You have not enrolled for this course");
+        }
+        if (courseEnrollment.getReadStatus() != ReadStatus.NotStarted) {
+            throw new ValidationFailedException("You already started this course");
+        }
+        courseEnrollment.setReadStatus(ReadStatus.Inprogress);
+        return super.save(courseEnrollment);
+    }
+
     private CourseEnrollment createActualSubscription(Student member, Course course) {
         CourseEnrollment courseEnrollment = new CourseEnrollment();
         CourseLecture firstSubTopic = null;

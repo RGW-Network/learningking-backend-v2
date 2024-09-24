@@ -1,6 +1,7 @@
 package com.byaffe.learningking.dtos.courses;
 
 import com.byaffe.learningking.models.courses.Course;
+import com.byaffe.learningking.models.courses.CourseEnrollment;
 import com.byaffe.learningking.models.courses.Testimonial;
 import lombok.Data;
 
@@ -20,6 +21,7 @@ public class CourseResponseDTO extends Course {
     private int numberOfTopics;
     private double averageRating;
     private int ratingsCount;
-    private Double progress;
+
+    private CourseEnrollment  subscription;
 
 }

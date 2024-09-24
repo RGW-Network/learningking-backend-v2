@@ -7,6 +7,7 @@ import com.byaffe.learningking.services.*;
 import com.byaffe.learningking.shared.constants.RecordStatus;
 import com.byaffe.learningking.shared.exceptions.OperationFailedException;
 import com.byaffe.learningking.shared.exceptions.ValidationFailedException;
+import com.byaffe.learningking.shared.utils.CustomSearchUtils;
 import com.byaffe.learningking.utilities.ImageStorageService;
 import com.googlecode.genericdao.search.Search;
 import org.apache.commons.lang3.StringUtils;
@@ -15,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Arrays;
 import java.util.List;
 
 @Service
@@ -34,6 +36,8 @@ public class CompanyServiceImpl extends GenericServiceImpl<Organisation> impleme
     LookupValueService lookupValueService;
     @Autowired
     StudentService studentService;
+
+
 
 
     public Organisation saveOrganisation(CompanyRequestDTO dto) throws ValidationFailedException {
@@ -227,6 +231,12 @@ public class CompanyServiceImpl extends GenericServiceImpl<Organisation> impleme
 
         companyStudentDao.save(organisationStudent);
     }
+    public static Search generateSearchTermsForCompanyStudent(String searchTerm) {
+        com.googlecode.genericdao.search.Search search = CustomSearchUtils.generateSearchTerms(searchTerm,
+                Arrays.asList("title",
+                        "description"));
 
+        return search;
+    }
 
 }

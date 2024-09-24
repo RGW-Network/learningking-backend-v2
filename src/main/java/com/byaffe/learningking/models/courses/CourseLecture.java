@@ -24,6 +24,9 @@ public class CourseLecture extends BaseEntity {
     @Column(name = "position", length = 10)
     private int position = 1;
 
+    @Column(name = "is_preview")
+    private Boolean isPreview = false;
+
 
     @Column(name = "cover_image_url", columnDefinition = "TEXT")
     private String coverImageUrl;
@@ -31,6 +34,7 @@ public class CourseLecture extends BaseEntity {
     @Column(name = "video_url", columnDefinition = "TEXT")
     private String videoUrl;
 
+    @Column(name = "content_type")
     @Enumerated(EnumType.STRING)
 private ContentType contentType;
 

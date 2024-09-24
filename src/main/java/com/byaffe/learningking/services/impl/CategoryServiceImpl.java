@@ -8,6 +8,7 @@ import com.byaffe.learningking.shared.constants.RecordStatus;
 import com.byaffe.learningking.shared.exceptions.OperationFailedException;
 import com.byaffe.learningking.shared.exceptions.ValidationFailedException;
 import com.byaffe.learningking.shared.utils.CustomSearchUtils;
+import com.byaffe.learningking.utilities.ImageStorageService;
 import com.googlecode.genericdao.search.Search;
 import org.apache.commons.lang3.StringUtils;
 import org.modelmapper.ModelMapper;
@@ -21,6 +22,10 @@ public class CategoryServiceImpl
         extends GenericServiceImpl<Category> implements CategoryService {
 @Autowired
     ModelMapper modelMapper;
+
+@Autowired
+    ImageStorageService   imageStorageService;
+
     @Override
     public boolean isDeletable(Category entity) throws OperationFailedException {
         return true;
@@ -56,7 +61,18 @@ public class CategoryServiceImpl
         }
 
         Category category =modelMapper.map(dto, Category.class);
-        return super.save(category);
+        category=super.save(category);
+        if(dto.getIcon()!=null) {
+            String imageUrl=   imageStorageService.uploadImage(dto.getIcon(), "categories/icons/" + category.getId());
+            category.setIconUrl(imageUrl);
+            category=super.save(category);
+        }
+        if(dto.getIcon()!=null) {
+            String imageUrl=   imageStorageService.uploadImage(dto.getImage(), "categories/images/" + category.getId());
+            category.setImageUrl(imageUrl);
+            category=super.save(category);
+        }
+        return category;
     }
 
     

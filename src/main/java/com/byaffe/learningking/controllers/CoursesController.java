@@ -47,27 +47,37 @@ public class CoursesController {
     @Autowired
     CourseEnrollmentService subscriptionService;
     @GetMapping("")
-    public ResponseEntity<ResponseList<CourseResponseDTO>> getCourses(@Valid ArticlesFilterDTO queryParamModel) throws JSONException {
+    public ResponseEntity<ResponseList<CourseResponseDTO>> getCourses(@RequestParam(value = "searchTerm", required = false) String searchTerm,
+                                                                      @RequestParam(value = "offset", required = true) Integer offset,
+                                                                      @RequestParam(value = "limit", required = true) Integer limit,
+                                                                      @RequestParam(value = "sortBy", required = false) String sortBy,
+                                                                      @RequestParam(value = "sortDescending", required = false) Boolean sortDescending,
+                                                                      @RequestParam(value = "featured", required = false) Boolean featured,
+                                                                      @RequestParam(value = "categoryId", required = false) Long categoryId,
+                                                                      @RequestParam(value = "authorId", required = false) Long authorId
 
-        Search search = CourseServiceImpl.generateSearchObjectForCourses(queryParamModel.getSearchTerm())
+    ) throws JSONException {
+
+        Search search = CourseServiceImpl.generateSearchObjectForCourses(searchTerm)
                 .addFilterEqual("recordStatus", RecordStatus.ACTIVE)
                 .addFilterEqual("publicationStatus", PublicationStatus.ACTIVE);
-        if (queryParamModel.getCategoryId() != null) {
-            search.addFilterEqual("category.id", queryParamModel.getCategoryId());
+        if (categoryId != null) {
+            search.addFilterEqual("category.id", categoryId);
         }
-        if (queryParamModel.getAuthorId() != null) {
-            search.addFilterEqual("instructor.id", queryParamModel.getAuthorId());
-        }
-
-        if (queryParamModel.getFeatured() != null) {
-            search.addFilterEqual("isFeatured", queryParamModel.getFeatured());
+        if (authorId != null) {
+            search.addFilterEqual("instructor.id",authorId);
         }
 
-        if (queryParamModel.getSortBy() != null) {
-            search.addSort(queryParamModel.getSortBy(), queryParamModel.getSortDescending());
+        if (featured != null) {
+            search.addFilterEqual("isFeatured",featured);
         }
+
+        if (sortBy != null) {
+            search.addSort(sortBy, sortDescending);
+        }
+        long count =ApplicationContextProvider.getBean(CourseService.class).countInstances(search);
         List<CourseResponseDTO> courses = new ArrayList<>();
-        for (Course course : ApplicationContextProvider.getBean(CourseService.class).getInstances(search, queryParamModel.getOffset(), queryParamModel.getLimit())) {
+        for (Course course : ApplicationContextProvider.getBean(CourseService.class).getInstances(search,offset, limit)) {
 
             CourseResponseDTO dto = modelMapper.map(course, CourseResponseDTO.class);
 
@@ -93,24 +103,28 @@ public class CoursesController {
 
             courses.add(dto);
         }
-        return ResponseEntity.ok().body(new ResponseList<>(courses, (int) 0, queryParamModel.getOffset(), queryParamModel.getLimit()));
+        return ResponseEntity.ok().body(new ResponseList<>(courses, count,offset, limit));
 
     }
 
 
     @GetMapping("/by-categories")
-    public ResponseEntity<ResponseList<ByTopicResponseDTO>> getCoursesByCategories(@RequestParam ArticlesFilterDTO queryParamModel) throws JSONException {
+    public ResponseEntity<ResponseList<ByTopicResponseDTO>> getCoursesByCategories(@RequestParam(value = "offset", required = true) Integer topicOffset,
+                                                                                   @RequestParam(value = "limit", required = true) Integer topicLimit,
+                                                                                   @RequestParam(value = "offset", required = true) Integer courseOffset,
+                                                                                   @RequestParam(value = "limit", required = true) Integer courseLimit)  {
+        log.warn("Inside by categories....");
         List<ByTopicResponseDTO> records = new ArrayList<>();
-        for (Category devTopic : ApplicationContextProvider.getBean(CategoryService.class).getInstances(new Search().addFilterEqual("recordStatus", RecordStatus.ACTIVE), 0, 0)) {
+        for (Category devTopic : ApplicationContextProvider.getBean(CategoryService.class).getInstances(new Search().addFilterEqual("recordStatus", RecordStatus.ACTIVE), topicOffset, topicLimit)) {
             List<Course> coursesModels = ApplicationContextProvider.getBean(CourseService.class).getInstances(new Search()
                     .addFilterEqual("recordStatus", RecordStatus.ACTIVE)
                     .addFilterEqual("publicationStatus", PublicationStatus.ACTIVE)
-                    .addFilterEqual("category", devTopic), queryParamModel.getOffset(), queryParamModel.getLimit());
+                    .addFilterEqual("category", devTopic), courseOffset, courseLimit);
 
             ByTopicResponseDTO courseByTopicResponseDTO = modelMapper.map(devTopic, ByTopicResponseDTO.class);
             List<CourseResponseDTO> dtos = new ArrayList<>();
             for (Course course : coursesModels) {
-                CourseResponseDTO dto = (CourseResponseDTO) course;
+                CourseResponseDTO dto =modelMapper.map (course,CourseResponseDTO.class) ;
                 int lessonsCount = ApplicationContextProvider.getBean(CourseLessonService.class)
                         .countInstances(new Search().addFilterEqual("course", course).addFilterEqual("recordStatus", RecordStatus.ACTIVE));
                 double rattings = 0;
@@ -129,7 +143,7 @@ public class CoursesController {
             courseByTopicResponseDTO.setCourses(dtos);
             records.add(courseByTopicResponseDTO);
         }
-        return ResponseEntity.ok().body(new ResponseList<>(records, (int) 0, queryParamModel.getOffset(), queryParamModel.getLimit()));
+        return ResponseEntity.ok().body(new ResponseList<>(records, (int) 0, topicOffset, topicLimit));
 
     }
 
@@ -146,12 +160,10 @@ public class CoursesController {
                 .addFilterEqual("recordStatus", RecordStatus.ACTIVE)
                 .addSortAsc("position"), 0, 0);
         CourseEnrollment subscription = ApplicationContextProvider.getBean(CourseEnrollmentService.class).getSerieSubscription(member, course);
-        log.info("Lessons got: {}", lessons.stream().map(r -> r.id).toArray());
         for (CourseLesson lesson : lessons) {
             LessonResponseDTO lessonDto = modelMapper.map(lesson, LessonResponseDTO.class);
-            if (subscription != null) {
-                lessonDto.setProgress(ApplicationContextProvider.getBean(CourseLessonService.class).getProgress(subscription.getCurrentLecture()));
-            }
+                lessonDto.setSubscription(subscription);
+
             lessonDto.setIsPreview(lesson.getPosition() == 1);
 
             List<CourseTopic> topics = ApplicationContextProvider.getBean(CourseTopicService.class).getInstances(new Search()
@@ -182,7 +194,6 @@ public class CoursesController {
         courseObj.setAverageRating(rattings / 5);
         if (subscription != null) {
             courseObj.setEnrolled(true);
-            courseObj.setProgress(subscription.getProgress());
         }
         log.info("Lessons got: {}", lessons.stream().map(r -> r.id).toArray());
         //     .put("ratingsCount", ApplicationContextProvider.getBean(CourseRatingService.class).getRatingsCount(course))
@@ -200,7 +211,6 @@ public class CoursesController {
     @GetMapping("/lessons/{id}")
     public ResponseEntity<ResponseObject<LessonResponseDTO>> getLessons(@PathVariable("id") Long id) throws JSONException {
         LessonResponseDTO result = new LessonResponseDTO();
-        Student member = new Student();
 
         CourseLesson lesson = ApplicationContextProvider.getBean(CourseLessonService.class).getInstanceByID(id);
         if (lesson == null) {
@@ -212,12 +222,12 @@ public class CoursesController {
                 .addFilterEqual("recordStatus", RecordStatus.ACTIVE)
                 .addFilterEqual("courseLesson", lesson)
                 .addSortAsc("position"), 0, 0);
-        CourseEnrollment subscription = ApplicationContextProvider.getBean(CourseEnrollmentService.class).getSerieSubscription(member, lesson.getCourse());
+        CourseEnrollment subscription = ApplicationContextProvider.getBean(CourseEnrollmentService.class).getSerieSubscription(UserDetailsContext.getLoggedInStudent(), lesson.getCourse());
 
         for (CourseTopic topic : topics) {
             CourseTopicResponseDTO topicJSONObject = modelMapper.map(topic, CourseTopicResponseDTO.class);
             if (subscription != null) {
-                topicJSONObject.setProgress(courseSubTopicService.getProgress(subscription.getCurrentLecture()));
+                topicJSONObject.setSubscription(subscription);
             }
             List<CourseLecture> lectures = ApplicationContextProvider.getBean(CourseLectureService.class).getInstances(new Search()
                     .addFilterEqual("courseTopic", topic)
@@ -228,11 +238,8 @@ public class CoursesController {
 
             result.getTopics().add(topicJSONObject);
         }
+        result.setSubscription(subscription);
         result.setIsPreview(lesson.getPosition() == 1);
-        if (subscription != null) {
-
-            result.setProgress(ApplicationContextProvider.getBean(CourseLessonService.class).getProgress(subscription.getCurrentLecture()));
-        }
         return ResponseEntity.ok().body(new ResponseObject<>(result));
     }
 
@@ -240,7 +247,7 @@ public class CoursesController {
     @GetMapping("/topic/{id}")
     public ResponseEntity<ResponseObject<CourseTopicResponseDTO>> getTopicById(@PathVariable("id") Long id) throws JSONException {
         CourseTopicResponseDTO result = new CourseTopicResponseDTO();
-        Student member = new Student();
+        Student member = UserDetailsContext.getLoggedInStudent();
 
         CourseTopic topic = ApplicationContextProvider.getBean(CourseTopicService.class).getInstanceByID(id);
         if (topic == null) {
@@ -258,9 +265,7 @@ public class CoursesController {
             LectureResponseDTO jSONObject = modelMapper.map(subTopic, LectureResponseDTO.class);
             result.getLectures().add(jSONObject);
         }
-        if (subscription != null) {
-            result.setProgress(ApplicationContextProvider.getBean(CourseTopicService.class).getProgress(subscription.getCurrentLecture()));
-        }
+        result.setSubscription(subscription);
         return ResponseEntity.ok().body(new ResponseObject<>(result));
 
     }
@@ -274,6 +279,15 @@ public class CoursesController {
         return ResponseEntity.ok().body(new ResponseObject<>(courseEnrollment));
 
     }
+
+    @PostMapping("/start/{id}")
+    public ResponseEntity<ResponseObject<CourseEnrollment>> start(@PathVariable("id") Long id) throws JSONException {
+        Student member = UserDetailsContext.getLoggedInStudent();
+        assert member != null;
+        CourseEnrollment courseEnrollment = subscriptionService.enrolForFreeCourse(member.getId(), id);
+        return ResponseEntity.ok().body(new ResponseObject<>(courseEnrollment));
+    }
+
 
 
     @PostMapping("/rating")
@@ -336,27 +350,23 @@ public class CoursesController {
 
 
     @GetMapping("/mycourses")
-    public ResponseEntity<List<CourseResponseDTO>> getStudentCourses(@RequestParam ArticlesFilterDTO queryParamModel) throws JSONException {
+    public ResponseEntity<ResponseList<CourseResponseDTO>> getStudentCourses(@RequestParam(value = "searchTerm", required = false) String searchTerm,
+                                                                     @RequestParam(value = "offset", required = true) Integer offset,
+                                                                     @RequestParam(value = "limit", required = true) Integer limit,
+                                                                     @RequestParam(value = "sortBy", required = false) String sortBy,
+                                                                     @RequestParam(value = "sortDescending", required = false) Boolean sortDescending,
+                                                                     @RequestParam(value = "featured", required = false) Boolean featured) throws JSONException {
 
-        Search search = CourseServiceImpl.generateSearchObjectForCourses(queryParamModel.getSearchTerm())
+        Search search = CourseServiceImpl.generateSearchObjectForCourses(searchTerm)
                 .addFilterEqual("recordStatus", RecordStatus.ACTIVE);
-        if (queryParamModel.getCategoryId() != null) {
-            search.addFilterEqual("course.category.id", queryParamModel.getCategoryId());
-        }
-        if (queryParamModel.getAuthorId() != null) {
-            search.addFilterEqual("course.instructor.id", queryParamModel.getAuthorId());
-        }
 
-        if (queryParamModel.getFeatured() != null) {
-            search.addFilterEqual("course.isFeatured", queryParamModel.getFeatured());
-        }
-
-        if (queryParamModel.getSortBy() != null) {
-            search.addSort(queryParamModel.getSortBy(), queryParamModel.getSortDescending());
+long totalRecords=ApplicationContextProvider.getBean(CourseEnrollmentService.class).countInstances(search);
+        if (sortBy != null) {
+            search.addSort(sortBy, sortDescending);
         }
         List<CourseResponseDTO> courses = new ArrayList<>();
-        for (CourseEnrollment course : ApplicationContextProvider.getBean(CourseEnrollmentService.class).getInstances(search, queryParamModel.getOffset(), queryParamModel.getLimit())) {
-            CourseResponseDTO dto = (CourseResponseDTO) course.getCourse();
+        for (CourseEnrollment course : ApplicationContextProvider.getBean(CourseEnrollmentService.class).getInstances(search, offset, limit)) {
+            CourseResponseDTO dto = modelMapper.map (course.getCourse(),CourseResponseDTO.class);
             int lessonsCount = ApplicationContextProvider.getBean(CourseLessonService.class)
                     .countInstances(new Search()
                             .addFilterEqual("course", course.getCourse())
@@ -370,11 +380,12 @@ public class CoursesController {
             CourseEnrollment subscription = ApplicationContextProvider.getBean(CourseEnrollmentService.class).getSerieSubscription(UserDetailsContext.getLoggedInStudent(), course.getCourse());
             dto.setEnrolled(subscription != null);
             dto.setNumberOfLessons(lessonsCount);
+            dto.setSubscription(subscription);
             dto.setAverageRating((rattings / 5));
             dto.setRatingsCount(ApplicationContextProvider.getBean(CourseRatingService.class).getRatingsCount(course.getCourse()));
             courses.add(dto);
         }
-        return ResponseEntity.ok().body((courses));
+        return ResponseEntity.ok().body(new ResponseList<>(courses,totalRecords,offset,limit));
 
 
     }
@@ -395,34 +406,5 @@ public class CoursesController {
     }
 
 
-    @GetMapping("/categories")
-    public ResponseEntity<JSONObject> getTopics(@RequestParam ArticlesFilterDTO queryParamModel) throws JSONException {
-        JSONObject result = new JSONObject();
-
-        Search search = new Search().addFilterEqual("recordStatus", RecordStatus.ACTIVE);
-        if (StringUtils.isNotBlank(queryParamModel.getSortBy())) {
-            search.addSort(queryParamModel.getSortBy(), queryParamModel.getSortDescending());
-        }
-        if (StringUtils.isNotBlank(queryParamModel.getType())) {
-            CourseAcademyType academyType = CourseAcademyType.valueOf(queryParamModel.getType());
-            search.addFilterEqual("academy", academyType);
-        }
-        JSONArray topics = new JSONArray();
-        for (Category topic : ApplicationContextProvider.getBean(CategoryService.class).getInstances(search, queryParamModel.getOffset(), queryParamModel.getLimit())) {
-            int count = ApplicationContextProvider.getBean(CourseService.class).countInstances(new Search().addFilterEqual("recordStatus", RecordStatus.ACTIVE).addFilterEqual("category", topic));
-            topics.put(
-                    new JSONObject()
-                            .put("id", topic.getId())
-                            .put("name", topic.getName())
-                            .put("colorCode", topic.getColorCode())
-                            .put("imageUrl", topic.getImageUrl())
-                            .put("coursesCount", count)
-            );
-        }
-        //topics= ApiUtils.sortJsonArray(topics, "seriesCount",false);
-
-        result.put("courseCategories", topics);
-        return ResponseEntity.ok().body((result));
-    }
 
 }

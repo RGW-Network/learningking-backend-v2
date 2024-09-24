@@ -66,7 +66,7 @@ public class Student extends BaseEntity {
 
     @Transient
     public String getFullName() {
-        return StringUtils.capitalize(this.firstName + " " + this.lastName);
+        return StringUtils.capitalize(this.userAccount.getFirstName() + " " + this.userAccount.getLastName());
     }
 
     @Override

@@ -10,7 +10,7 @@ package com.byaffe.learningking.models;
  * @author Ray Gdhrt
  */
 public enum ReadStatus {
-    Unread,
+    NotStarted,
     Inprogress,
     Completed
 }

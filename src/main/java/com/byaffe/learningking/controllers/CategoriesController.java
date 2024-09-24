@@ -13,9 +13,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import javax.validation.Valid;
 import javax.xml.bind.ValidationException;
 import java.util.Arrays;
 import java.util.List;
@@ -34,9 +37,10 @@ public class CategoriesController {
 
 
     @GetMapping("")
-    public ResponseEntity<ResponseList<Category>> getLookupValue(@RequestParam(required = false, value = "searchTerm") String searchTerm,
+    public ResponseEntity<ResponseList<Category>> getCategories(@RequestParam(required = false, value = "searchTerm") String searchTerm,
                                                                  @RequestParam("offset") int offset,
                                                                  @RequestParam("limit") int limit,
+                                                                 @RequestParam(required = false, value = "isFeatured") Boolean isFeatured,
                                                                  @RequestParam(required = false, value = "commaSeparatedTypes") String commaSeparatedTypes,
                                                                  @RequestParam(required = false, value = "commaSeparatedAcademies") String commaSeparatedAcademies){
         Search search = CategoryServiceImpl.composeSearchObject(searchTerm);
@@ -50,15 +54,24 @@ public class CategoriesController {
             List<CourseAcademyType> lookupTypes= Arrays.stream(list).map(CourseAcademyType::valueOf).collect(Collectors.toList());
             search.addFilterIn("academy", lookupTypes);
         }
+        if(isFeatured!=null){
+          search.addFilterEqual("isFeatured", isFeatured);
+        }
 
         long totalRecords = categoryService.countInstances(search);
         return ResponseEntity.ok().body(new ResponseList<>(categoryService.getInstances(search, offset, limit), totalRecords, offset, limit));
 
     }
 
-    @PostMapping("")
-    public ResponseEntity<ResponseObject<Category>> saveLookupValue(@RequestBody CourseCategoryRequestDTO courseCategoryRequestDTO) throws ValidationException {
-        return ResponseEntity.ok().body(new ResponseObject<>( categoryService.saveInstance(courseCategoryRequestDTO)));
+    @PostMapping(path = "", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+
+    public ResponseEntity<ResponseObject<Category>> saveLookupValue(@RequestPart @Valid CourseCategoryRequestDTO dto
+    ,@RequestPart(value = "icon",required = false) MultipartFile icon,
+    @RequestPart(value = "image",required = false) MultipartFile image
+    ) throws ValidationException {
+        dto.setIcon(icon);
+        dto.setImage(image);
+        return ResponseEntity.ok().body(new ResponseObject<>( categoryService.saveInstance(dto)));
     }
 
 
