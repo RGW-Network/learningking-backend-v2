@@ -2,6 +2,7 @@ package com.byaffe.learningking.config;
 
 import com.byaffe.learningking.shared.security.TokenProvider;
 import com.byaffe.learningking.shared.security.UserDetailsContext;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -27,7 +28,6 @@ public class JWTFilter extends GenericFilterBean {
     TokenProvider tokenProvider;
 
 
-
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
         try {
@@ -44,12 +44,13 @@ public class JWTFilter extends GenericFilterBean {
                 return;
             }
             if (FilterUtils.allowedAuth(httpServletRequest.getRequestURI())) {
+                String authorisationHeader = httpServletRequest.getHeader(HttpHeaders.AUTHORIZATION);
+                processAuthDetails(authorisationHeader, false);
                 filterChain.doFilter(httpServletRequest, httpServletResponse);
             } else {
                 try {
                     String authorisationHeader = httpServletRequest.getHeader(HttpHeaders.AUTHORIZATION);
-                    String accessToken = authorisationHeader.substring("Bearer ".length());
-                    tokenProvider.validateToken(accessToken);
+                    processAuthDetails(authorisationHeader, true);
                     filterChain.doFilter(httpServletRequest, httpServletResponse);
                 } catch (Exception ex) {
                     httpServletResponse.setHeader("error", ex.getMessage());
@@ -63,4 +64,24 @@ public class JWTFilter extends GenericFilterBean {
             UserDetailsContext.clear();
         }
     }
+
+    private void processAuthDetails(String authorisationHeader, boolean mandatory) {
+
+        if (mandatory) {
+            //throw appropriate errors
+            String accessToken = authorisationHeader.substring("Bearer ".length());
+            tokenProvider.validateToken(accessToken);
+        } else
+            try {
+                if(StringUtils.isNotEmpty(authorisationHeader)) {
+
+                    //Catch errors, no need to throw
+                    String accessToken = authorisationHeader.substring("Bearer ".length());
+                    tokenProvider.validateToken(accessToken);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+    }
+
 }

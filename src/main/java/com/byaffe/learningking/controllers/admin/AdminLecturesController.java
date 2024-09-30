@@ -50,13 +50,12 @@ CourseLectureService modelService;
         return ResponseEntity.ok().body(new BaseResponse(true));
     }
 
-
     @GetMapping("/{id}")
     public ResponseEntity<ResponseObject<LectureResponseDTO>> getById(@PathVariable(name = "id") long id) throws JSONException {
         CourseLecture course=modelService.getInstanceByID(id);
         return ResponseEntity.ok().body(new ResponseObject<>(modelMapper.map(course, LectureResponseDTO.class)));
-
     }
+
     @DeleteMapping("/{id}/delete")
     public ResponseEntity<BaseResponse> deleteCourse(@PathVariable long id) throws JSONException {
         CourseLecture course=modelService.getInstanceByID(id);
@@ -68,16 +67,17 @@ CourseLectureService modelService;
                                                                        @RequestParam(value = "offset", required = true) Integer offset,
                                                                        @RequestParam(value = "limit", required = true) Integer limit,
                                                                        @RequestParam(value = "topicId", required = false) Integer topicId,
-                                                                       @RequestParam(value = "lessonId", required = false) Integer lessonId
+                                                                       @RequestParam(value = "courseId", required = false) Long courseId
 
     ) throws JSONException {
         Search search = CourseServiceImpl.generateSearchObjectForCourses(searchTerm)
                 .addFilterEqual("recordStatus", RecordStatus.ACTIVE)
                 .addSortAsc("position");
-                ;
-
         if (topicId!= null) {
             search.addFilterEqual("courseTopic.id", topicId);
+        }
+        if (courseId!= null) {
+            search.addFilterEqual("courseTopic.courseLesson.course.id", courseId);
         }
         List<CourseLecture> courses = modelService.getInstances(search,offset, limit);
         long count = modelService.countInstances(search);

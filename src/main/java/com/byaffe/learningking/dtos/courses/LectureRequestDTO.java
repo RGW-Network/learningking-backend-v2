@@ -21,6 +21,7 @@ public class LectureRequestDTO {
     private String videoUrl;
     private String audioUrl;
     private String fullDescription;
+    private Boolean isPreview = false;
     private Set<ExternalResource> externalLinks;
     private Long courseTopicId;
     private ContentType contentType;

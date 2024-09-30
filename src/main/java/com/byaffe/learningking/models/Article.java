@@ -5,6 +5,7 @@ import com.byaffe.learningking.models.courses.Category;
 
 import javax.persistence.*;
 
+import com.byaffe.learningking.models.courses.CourseInstructor;
 import com.byaffe.learningking.models.courses.PublicationStatus;
 import com.byaffe.learningking.shared.models.BaseEntity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -24,6 +25,9 @@ public class Article extends BaseEntity {
     @Column(name = "quote")
     private String quote;
 
+    @ManyToOne
+    @JoinColumn(name = "contributor_id")
+    private CourseInstructor contributor;
     @Column(name = "description", columnDefinition = "TEXT")
     private String description;
 

@@ -7,7 +7,7 @@ public class CourseRatingDTO  {
 
     private Long courseId;
     private String ratingText;
-    private Float stars;
+    private Double stars;
 
 
 

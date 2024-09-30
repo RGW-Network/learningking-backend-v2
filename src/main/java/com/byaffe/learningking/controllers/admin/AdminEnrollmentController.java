@@ -1,9 +1,7 @@
 package com.byaffe.learningking.controllers.admin;
 
-import com.byaffe.learningking.dtos.courses.CourseTopicRequestDTO;
 import com.byaffe.learningking.models.courses.CourseEnrollment;
-import com.byaffe.learningking.models.courses.CourseTopic;
-import com.byaffe.learningking.services.CourseSubscriptionService;
+import com.byaffe.learningking.services.CourseEnrollmentService;
 import com.byaffe.learningking.services.impl.CourseServiceImpl;
 import com.byaffe.learningking.shared.api.BaseResponse;
 import com.byaffe.learningking.shared.api.ResponseList;
@@ -30,7 +28,7 @@ public class AdminEnrollmentController {
     ModelMapper modelMapper;
 
 @Autowired
-CourseSubscriptionService modelService;
+CourseEnrollmentService modelService;
 
     @GetMapping("/{id}")
     public ResponseEntity<ResponseObject<CourseEnrollment>> getById(@PathVariable(name = "id") long id) throws JSONException {

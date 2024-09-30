@@ -1,14 +1,19 @@
 package com.byaffe.learningking.services.impl;
 
+import com.byaffe.learningking.dtos.courses.CourseRatingDTO;
 import com.byaffe.learningking.models.courses.Course;
 import com.byaffe.learningking.models.courses.CourseRating;
 import com.byaffe.learningking.models.courses.PublicationStatus;
 import com.byaffe.learningking.services.CourseRatingService;
+import com.byaffe.learningking.services.CourseService;
 import com.byaffe.learningking.shared.constants.RecordStatus;
 import com.byaffe.learningking.shared.exceptions.OperationFailedException;
 import com.byaffe.learningking.shared.exceptions.ValidationFailedException;
+import com.byaffe.learningking.shared.security.UserDetailsContext;
+import com.byaffe.learningking.shared.utils.ApplicationContextProvider;
 import com.googlecode.genericdao.search.Field;
 import com.googlecode.genericdao.search.Search;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,6 +22,9 @@ import java.util.List;
 @Service
 @Transactional
 public class CourseRatingServiceImpl extends GenericServiceImpl<CourseRating> implements CourseRatingService {
+@Autowired
+CourseService courseService;
+
 
   
     @Override
@@ -34,6 +42,16 @@ public class CourseRatingServiceImpl extends GenericServiceImpl<CourseRating> im
         }
 
         return super.save(instance);
+
+    }
+    public CourseRating saveInstance(CourseRatingDTO dto)  {
+        Course course = courseService.getInstanceByID(dto.getCourseId());
+        CourseRating courseRating = new CourseRating();
+        courseRating.setCourse(course);
+        courseRating.setStudent(UserDetailsContext.getLoggedInStudent());
+        courseRating.setReviewText(dto.getRatingText());
+        courseRating.setStarsCount(dto.getStars());
+        return super.save(courseRating);
 
     }
 

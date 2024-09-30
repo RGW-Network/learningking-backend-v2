@@ -98,7 +98,7 @@ public abstract class GenericServiceImpl<T extends BaseEntity> extends BaseDAOIm
 	@Override
 	public T getInstanceByID(Long arg0) {
 		// TODO Auto-generated method stub
-		return super.findById(arg0).orElseThrow(()->new ValidationFailedException("Record not fund with id "+arg0));
+		return super.findById(arg0).orElseThrow(()->new ValidationFailedException("Record not found with id "+arg0));
 	}
 
 

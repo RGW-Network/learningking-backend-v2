@@ -5,11 +5,11 @@ import com.byaffe.learningking.models.Student;
 import com.byaffe.learningking.models.courses.Course;
 import com.byaffe.learningking.models.courses.CourseLecture;
 import com.byaffe.learningking.models.courses.CourseEnrollment;
-import com.byaffe.learningking.models.payments.CoursePayment;
+import com.byaffe.learningking.models.payments.AggregatorTransaction;
 import com.byaffe.learningking.models.payments.StudentSubscriptionPlan;
 import com.byaffe.learningking.shared.exceptions.ValidationFailedException;
 
-public interface CourseSubscriptionService extends GenericService<CourseEnrollment> {
+public interface CourseEnrollmentService extends GenericService<CourseEnrollment> {
 
     /**
      * 
@@ -19,8 +19,10 @@ public interface CourseSubscriptionService extends GenericService<CourseEnrollme
      */
     CourseEnrollment getSerieSubscription(Student member, Course serie);
     CourseEnrollment createSubscription(Student member, Course serie)throws ValidationFailedException;
-     CourseEnrollment createSubscription(CoursePayment coursePayment)throws ValidationFailedException;
+     CourseEnrollment createSubscription(AggregatorTransaction coursePayment)throws ValidationFailedException;
      CourseEnrollment enrolForFreeCourse(Long studentId, Long courseId) throws ValidationFailedException;
+    CourseEnrollment startCourse(Long studentId, Long courseId) throws ValidationFailedException;
+
     /**
      * 
      * @param member

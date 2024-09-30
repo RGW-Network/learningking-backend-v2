@@ -18,6 +18,9 @@ public class Category extends BaseEntity {
     @Column(name = "color_code")
     private String colorCode;
 
+    @Column(name = "featured")
+    private Boolean featured;
+
     @Column(name = "description", columnDefinition = "TEXT")
     private String description;
 
@@ -34,6 +37,9 @@ public class Category extends BaseEntity {
     @Enumerated(EnumType.ORDINAL)
     @Column(name = "type")
     private CategoryType type;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "publication_status")
+    private PublicationStatus publicationStatus;
 
     @Transient
     public String getTypeName(){

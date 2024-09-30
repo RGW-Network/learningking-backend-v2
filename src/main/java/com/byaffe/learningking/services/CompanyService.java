@@ -20,6 +20,7 @@ public interface CompanyService  extends GenericService<Organisation> {
     
     public Organisation activate(Organisation plan) throws ValidationFailedException;
     public void addStudentToCompany(long organizationId, String studentEmail) throws ValidationFailedException ;
+    public int countCompanyStudentInstances(Search arg0) ;
 
     public Organisation deActivate(Organisation plan);
     public Organisation saveOrganisation(CompanyRequestDTO dto);

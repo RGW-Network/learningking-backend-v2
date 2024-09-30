@@ -49,7 +49,7 @@ public class CourseEnrollment extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "progress_status")
-    private ReadStatus readStatus = ReadStatus.Inprogress;
+    private ReadStatus readStatus = ReadStatus.NotStarted;
     @Transient
     public String  getCurrentLectureName(){
 

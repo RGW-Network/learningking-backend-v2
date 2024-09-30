@@ -1,5 +1,6 @@
 package com.byaffe.learningking.services;
 
+import com.byaffe.learningking.dtos.courses.CourseRatingDTO;
 import com.byaffe.learningking.models.courses.Course;
 import com.byaffe.learningking.models.courses.Category;
 import com.byaffe.learningking.models.courses.CourseRating;
@@ -17,7 +18,7 @@ import java.util.List;
  */
 public interface CourseRatingService  extends GenericService<CourseRating> {
 
-    
+    public CourseRating saveInstance(CourseRatingDTO dto);
     public CourseRating activate(CourseRating plan) throws ValidationFailedException;
 
     public CourseRating deActivate(CourseRating plan);

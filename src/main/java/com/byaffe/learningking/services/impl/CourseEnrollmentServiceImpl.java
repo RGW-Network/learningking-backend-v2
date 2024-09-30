@@ -4,14 +4,13 @@ import com.byaffe.learningking.constants.TransactionStatus;
 import com.byaffe.learningking.models.Student;
 import com.byaffe.learningking.models.ReadStatus;
 import com.byaffe.learningking.models.courses.*;
-import com.byaffe.learningking.models.payments.CoursePayment;
+import com.byaffe.learningking.models.payments.AggregatorTransaction;
 import com.byaffe.learningking.models.payments.StudentSubscriptionPlan;
 import com.byaffe.learningking.services.*;
 import com.byaffe.learningking.shared.constants.RecordStatus;
 import com.byaffe.learningking.shared.dao.BaseDAOImpl;
 import com.byaffe.learningking.shared.exceptions.OperationFailedException;
 import com.byaffe.learningking.shared.exceptions.ValidationFailedException;
-import com.byaffe.learningking.shared.security.UserDetailsContext;
 import com.byaffe.learningking.shared.utils.ApplicationContextProvider;
 import com.googlecode.genericdao.search.Search;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +22,7 @@ import java.util.List;
 
 @Transactional
 @Repository
-public class CourseSubscriptionServiceImpl extends BaseDAOImpl<CourseEnrollment> implements CourseSubscriptionService {
+public class CourseEnrollmentServiceImpl extends BaseDAOImpl<CourseEnrollment> implements CourseEnrollmentService {
 
 
     @Autowired
@@ -90,7 +89,7 @@ public class CourseSubscriptionServiceImpl extends BaseDAOImpl<CourseEnrollment>
     @Override
     public CourseEnrollment createSubscription(Student member, Course course) throws ValidationFailedException {
 
-        if (course.isPaid()) {
+        if (course.getIsPaid()) {
             throw new ValidationFailedException("This is a paid Course");
         }
         return createActualSubscription(member, course);
@@ -100,7 +99,7 @@ public class CourseSubscriptionServiceImpl extends BaseDAOImpl<CourseEnrollment>
     public CourseEnrollment enrolForFreeCourse(Long studentId, Long courseId) throws ValidationFailedException {
         Student member = ApplicationContextProvider.getBean(StudentService.class).getStudentById(studentId);
         Course course = ApplicationContextProvider.getBean(CourseService.class).getInstanceByID(courseId);
-        if (course.isPaid()) {
+        if (course.getIsPaid()) {
             throw new ValidationFailedException("This is a paid Course");
         }
 
@@ -115,6 +114,25 @@ public class CourseSubscriptionServiceImpl extends BaseDAOImpl<CourseEnrollment>
         courseEnrollment.setCourse(course);
         courseEnrollment.setProgress(0.0);
         courseEnrollment.setCurrentLecture(firstSubTopic);
+        courseEnrollment.setReadStatus(ReadStatus.Inprogress);
+        return super.save(courseEnrollment);
+    }
+
+    @Override
+    public CourseEnrollment startCourse(Long studentId, Long courseId) throws ValidationFailedException {
+        Student member = ApplicationContextProvider.getBean(StudentService.class).getStudentById(studentId);
+        Course course = ApplicationContextProvider.getBean(CourseService.class).getInstanceByID(courseId);
+        if (course.getIsPaid()) {
+            throw new ValidationFailedException("This is a paid Course");
+        }
+
+        CourseEnrollment courseEnrollment = getSerieSubscription(member, course);
+        if (courseEnrollment == null) {
+            throw new ValidationFailedException("You have not enrolled for this course");
+        }
+        if (courseEnrollment.getReadStatus() != ReadStatus.NotStarted) {
+            throw new ValidationFailedException("You already started this course");
+        }
         courseEnrollment.setReadStatus(ReadStatus.Inprogress);
         return super.save(courseEnrollment);
     }
@@ -155,11 +173,12 @@ public class CourseSubscriptionServiceImpl extends BaseDAOImpl<CourseEnrollment>
     }
 
     @Override
-    public CourseEnrollment createSubscription(CoursePayment coursePayment) throws ValidationFailedException {
-        if (coursePayment == null || !coursePayment.getStatus().equals(TransactionStatus.SUCESSFULL)) {
+    public CourseEnrollment createSubscription(AggregatorTransaction coursePayment) throws ValidationFailedException {
+        if (coursePayment == null || !coursePayment.getStatus().equals(TransactionStatus.SUCCESSFUL)) {
             return null;
         }
-        return createActualSubscription(coursePayment.getSubscriber(), coursePayment.getCourse());
+        Course course=ApplicationContextProvider.getBean(CourseService.class).getInstanceByID(coursePayment.getReferenceRecordId());
+        return createActualSubscription(coursePayment.getStudent(), course);
     }
 
     @Override

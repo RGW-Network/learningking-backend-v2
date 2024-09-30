@@ -10,13 +10,14 @@ import java.util.logging.Logger;
 
 @RestController
 @RequestMapping("/health/check")
-public class ApiHealthChecks {
+public class HealthChecksController {
 
-    private static final Logger LOGGER = Logger.getLogger(ApiHealthChecks.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(HealthChecksController.class.getName());
 
     @GetMapping("/")
     public ResponseEntity<BaseResponse> isAppAlive() {
         return ResponseEntity.ok().body(new BaseResponse(true));
     }
+
 
 }
