@@ -64,7 +64,6 @@ public class CategoriesController {
     }
 
     @PostMapping(path = "", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
-
     public ResponseEntity<ResponseObject<Category>> saveLookupValue(@RequestPart @Valid CourseCategoryRequestDTO dto
     ,@RequestPart(value = "icon",required = false) MultipartFile icon,
     @RequestPart(value = "image",required = false) MultipartFile image

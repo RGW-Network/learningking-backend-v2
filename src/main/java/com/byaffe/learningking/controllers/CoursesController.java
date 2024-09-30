@@ -46,6 +46,7 @@ public class CoursesController {
 
     @Autowired
     CourseEnrollmentService subscriptionService;
+
     @GetMapping("")
     public ResponseEntity<ResponseList<CourseResponseDTO>> getCourses(@RequestParam(value = "searchTerm", required = false) String searchTerm,
                                                                       @RequestParam(value = "offset", required = true) Integer offset,
@@ -65,19 +66,19 @@ public class CoursesController {
             search.addFilterEqual("category.id", categoryId);
         }
         if (authorId != null) {
-            search.addFilterEqual("instructor.id",authorId);
+            search.addFilterEqual("instructor.id", authorId);
         }
 
         if (featured != null) {
-            search.addFilterEqual("isFeatured",featured);
+            search.addFilterEqual("isFeatured", featured);
         }
 
         if (sortBy != null) {
             search.addSort(sortBy, sortDescending);
         }
-        long count =ApplicationContextProvider.getBean(CourseService.class).countInstances(search);
+        long count = ApplicationContextProvider.getBean(CourseService.class).countInstances(search);
         List<CourseResponseDTO> courses = new ArrayList<>();
-        for (Course course : ApplicationContextProvider.getBean(CourseService.class).getInstances(search,offset, limit)) {
+        for (Course course : ApplicationContextProvider.getBean(CourseService.class).getInstances(search, offset, limit)) {
 
             CourseResponseDTO dto = modelMapper.map(course, CourseResponseDTO.class);
 
@@ -103,7 +104,7 @@ public class CoursesController {
 
             courses.add(dto);
         }
-        return ResponseEntity.ok().body(new ResponseList<>(courses, count,offset, limit));
+        return ResponseEntity.ok().body(new ResponseList<>(courses, count, offset, limit));
 
     }
 
@@ -112,7 +113,7 @@ public class CoursesController {
     public ResponseEntity<ResponseList<ByTopicResponseDTO>> getCoursesByCategories(@RequestParam(value = "offset", required = true) Integer topicOffset,
                                                                                    @RequestParam(value = "limit", required = true) Integer topicLimit,
                                                                                    @RequestParam(value = "offset", required = true) Integer courseOffset,
-                                                                                   @RequestParam(value = "limit", required = true) Integer courseLimit)  {
+                                                                                   @RequestParam(value = "limit", required = true) Integer courseLimit) {
         log.warn("Inside by categories....");
         List<ByTopicResponseDTO> records = new ArrayList<>();
         for (Category devTopic : ApplicationContextProvider.getBean(CategoryService.class).getInstances(new Search().addFilterEqual("recordStatus", RecordStatus.ACTIVE), topicOffset, topicLimit)) {
@@ -124,7 +125,7 @@ public class CoursesController {
             ByTopicResponseDTO courseByTopicResponseDTO = modelMapper.map(devTopic, ByTopicResponseDTO.class);
             List<CourseResponseDTO> dtos = new ArrayList<>();
             for (Course course : coursesModels) {
-                CourseResponseDTO dto =modelMapper.map (course,CourseResponseDTO.class) ;
+                CourseResponseDTO dto = modelMapper.map(course, CourseResponseDTO.class);
                 int lessonsCount = ApplicationContextProvider.getBean(CourseLessonService.class)
                         .countInstances(new Search().addFilterEqual("course", course).addFilterEqual("recordStatus", RecordStatus.ACTIVE));
                 double rattings = 0;
@@ -162,7 +163,7 @@ public class CoursesController {
         CourseEnrollment subscription = ApplicationContextProvider.getBean(CourseEnrollmentService.class).getSerieSubscription(member, course);
         for (CourseLesson lesson : lessons) {
             LessonResponseDTO lessonDto = modelMapper.map(lesson, LessonResponseDTO.class);
-                lessonDto.setSubscription(subscription);
+            lessonDto.setSubscription(subscription);
 
             lessonDto.setIsPreview(lesson.getPosition() == 1);
 
@@ -289,46 +290,39 @@ public class CoursesController {
     }
 
 
-
     @PostMapping("/rating")
     public ResponseEntity<ResponseObject<CourseRating>> rateCourse(@RequestBody CourseRatingDTO courseRatingDTO) throws JSONException {
         Student member = UserDetailsContext.getLoggedInStudent();
-        if(member==null){
+        if (member == null) {
             throw new ValidationFailedException("Student Not Found");
         }
-        CourseService courseService = ApplicationContextProvider.getBean(CourseService.class);
-        Course course = courseService.getInstanceByID(courseRatingDTO.getCourseId());
-        CourseRating courseRating = new CourseRating();
-        courseRating.setCourse(course);
-        courseRating.setStudent(member);
-        courseRating.setReviewText(courseRatingDTO.getRatingText());
-        courseRating.setStarsCount(courseRatingDTO.getStars());
-        courseRating = ApplicationContextProvider.getBean(CourseRatingService.class).saveInstance(courseRating);
-        return ResponseEntity.ok().body(new ResponseObject<>(courseRating));
+        return ResponseEntity.ok().body(new ResponseObject<>(ApplicationContextProvider.getBean(CourseRatingService.class).saveInstance(courseRatingDTO)));
     }
 
 
-    @GetMapping("/rating/{courseId}")
-    public ResponseEntity<ResponseList<CourseRatingResponseDTO>> getRatings(@PathVariable("courseId") Long courseId) throws JSONException {
+    @GetMapping("/ratings")
+    public ResponseEntity<ResponseList<CourseRatingResponseDTO>> getRatings(@RequestParam(value = "courseId", required = false) Long courseId,
+                                                                            @RequestParam(value = "offset", required = true) Integer offset,
+                                                                            @RequestParam(value = "limit", required = true) Integer limit) throws JSONException {
+        Search search = new Search().addFilterEqual("recordStatus", RecordStatus.ACTIVE).addFilterEqual("publicationStatus", PublicationStatus.ACTIVE);
 
-        List<CourseRating> courseRatings = ApplicationContextProvider.getBean(CourseRatingService.class)
-                .getInstances(new Search().
-                                addFilterEqual("course.id", courseId).
-                                addFilterEqual("recordStatus", RecordStatus.ACTIVE).
-                                addFilterEqual("publicationStatus", PublicationStatus.ACTIVE),
-                        0, 0);
+        if (courseId != null) {
+            search.addFilterEqual("course.id", courseId);
+        }
+
+        List<CourseRating> courseRatings = ApplicationContextProvider.getBean(CourseRatingService.class).getInstances(search, offset, limit);
 
         List<CourseRatingResponseDTO> ratings = new ArrayList<>();
         for (CourseRating courseRating : courseRatings) {
             CourseRatingResponseDTO dto = new CourseRatingResponseDTO();
             dto.setStars(courseRating.getStarsCount());
             dto.setDateCreated(ApiUtils.ENGLISH_DATE_FORMAT.format(courseRating.getDateCreated()));
-            dto.setMemberFullName(courseRating.getStudent().getFullName());
+            dto.setStudentFullName(courseRating.getStudent().getFullName());
             dto.setRatingText(courseRating.getReviewText());
             ratings.add(dto);
 
         }
-        return ResponseEntity.ok().body(new ResponseList<>(ratings, 0, 0, 0));
+        return ResponseEntity.ok().body(new ResponseList<>(ratings, 0, offset, limit));
 
     }
 
@@ -336,7 +330,7 @@ public class CoursesController {
     @PostMapping("/lectures/complete/{id}")
     public ResponseEntity<CourseEnrollment> completeSubTopic(@PathVariable("id") Long id) throws JSONException {
         Student member = UserDetailsContext.getLoggedInStudent();
-        if(member==null){
+        if (member == null) {
             throw new ValidationFailedException("Student Not Found");
         }
         CourseLecture topic = ApplicationContextProvider.getBean(CourseLectureService.class).getInstanceByID(id);
@@ -351,22 +345,22 @@ public class CoursesController {
 
     @GetMapping("/mycourses")
     public ResponseEntity<ResponseList<CourseResponseDTO>> getStudentCourses(@RequestParam(value = "searchTerm", required = false) String searchTerm,
-                                                                     @RequestParam(value = "offset", required = true) Integer offset,
-                                                                     @RequestParam(value = "limit", required = true) Integer limit,
-                                                                     @RequestParam(value = "sortBy", required = false) String sortBy,
-                                                                     @RequestParam(value = "sortDescending", required = false) Boolean sortDescending,
-                                                                     @RequestParam(value = "featured", required = false) Boolean featured) throws JSONException {
+                                                                             @RequestParam(value = "offset", required = true) Integer offset,
+                                                                             @RequestParam(value = "limit", required = true) Integer limit,
+                                                                             @RequestParam(value = "sortBy", required = false) String sortBy,
+                                                                             @RequestParam(value = "sortDescending", required = false) Boolean sortDescending,
+                                                                             @RequestParam(value = "featured", required = false) Boolean featured) throws JSONException {
 
         Search search = CourseServiceImpl.generateSearchObjectForCourses(searchTerm)
                 .addFilterEqual("recordStatus", RecordStatus.ACTIVE);
 
-long totalRecords=ApplicationContextProvider.getBean(CourseEnrollmentService.class).countInstances(search);
+        long totalRecords = ApplicationContextProvider.getBean(CourseEnrollmentService.class).countInstances(search);
         if (sortBy != null) {
             search.addSort(sortBy, sortDescending);
         }
         List<CourseResponseDTO> courses = new ArrayList<>();
         for (CourseEnrollment course : ApplicationContextProvider.getBean(CourseEnrollmentService.class).getInstances(search, offset, limit)) {
-            CourseResponseDTO dto = modelMapper.map (course.getCourse(),CourseResponseDTO.class);
+            CourseResponseDTO dto = modelMapper.map(course.getCourse(), CourseResponseDTO.class);
             int lessonsCount = ApplicationContextProvider.getBean(CourseLessonService.class)
                     .countInstances(new Search()
                             .addFilterEqual("course", course.getCourse())
@@ -385,7 +379,7 @@ long totalRecords=ApplicationContextProvider.getBean(CourseEnrollmentService.cla
             dto.setRatingsCount(ApplicationContextProvider.getBean(CourseRatingService.class).getRatingsCount(course.getCourse()));
             courses.add(dto);
         }
-        return ResponseEntity.ok().body(new ResponseList<>(courses,totalRecords,offset,limit));
+        return ResponseEntity.ok().body(new ResponseList<>(courses, totalRecords, offset, limit));
 
 
     }
@@ -404,7 +398,6 @@ long totalRecords=ApplicationContextProvider.getBean(CourseEnrollmentService.cla
         List<CourseInstructor> courses = ApplicationContextProvider.getBean(InstructorService.class).getInstances(search, offset, limit);
         return ResponseEntity.ok().body(new ResponseList<>(courses.stream().map(r -> modelMapper.map(r, InstructorResponseDTO.class)).collect(Collectors.toList()), count, offset, limit));
     }
-
 
 
 }

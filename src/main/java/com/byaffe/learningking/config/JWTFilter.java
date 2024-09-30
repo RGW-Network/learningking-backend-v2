@@ -2,6 +2,7 @@ package com.byaffe.learningking.config;
 
 import com.byaffe.learningking.shared.security.TokenProvider;
 import com.byaffe.learningking.shared.security.UserDetailsContext;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -72,9 +73,12 @@ public class JWTFilter extends GenericFilterBean {
             tokenProvider.validateToken(accessToken);
         } else
             try {
-                //Catch errors, no need to throw
-                String accessToken = authorisationHeader.substring("Bearer ".length());
-                tokenProvider.validateToken(accessToken);
+                if(StringUtils.isNotEmpty(authorisationHeader)) {
+
+                    //Catch errors, no need to throw
+                    String accessToken = authorisationHeader.substring("Bearer ".length());
+                    tokenProvider.validateToken(accessToken);
+                }
             } catch (Exception e) {
                 e.printStackTrace();
             }

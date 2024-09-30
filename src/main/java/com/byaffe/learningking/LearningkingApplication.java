@@ -38,19 +38,19 @@ public class LearningkingApplication {
     @Bean
     CommandLineRunner run(BackgroundJobService backgroundJobService, UserService userService, RestService restService, LookupValueService LookupValueService) {
         return args -> {
-
+backgroundJobService.registerBgJobs();
             try {
-                Role super_admin_role = userService.saveRole(new Role(SecurityConstants.SUPER_ADMIN_ROLE, "Super admin role"));
+                 userService.saveRole(new Role(SecurityConstants.SUPER_ADMIN_ROLE, "Super admin role"));
             } catch (Exception ex) {
 
             }
             try {
-                Role shop_owner = userService.saveRole(new Role(AppUtils.INSTRUCTOR_ROLE_NAME, "Instructor"));
+                userService.saveRole(new Role(AppUtils.INSTRUCTOR_ROLE_NAME, "Instructor"));
             } catch (Exception ex) {
 
             }
             try {
-                Role shop_attendant = userService.saveRole(new Role(AppUtils.STUDENT_ROLE_NAME, "Student"));
+                 userService.saveRole(new Role(AppUtils.STUDENT_ROLE_NAME, "Student"));
             } catch (Exception ex) {
 
             }

@@ -17,9 +17,7 @@ public class CourseCategoryRequestDTO {
     private String imageUrl;
     private CourseAcademyType academy;
     private CategoryType type;
-    private RecordStatus recordStatus;
     private PublicationStatus publicationStatus;
-
     private MultipartFile image;
     private MultipartFile icon;
 }

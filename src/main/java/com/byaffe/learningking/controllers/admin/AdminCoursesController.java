@@ -139,7 +139,7 @@ Course course=ApplicationContextProvider.getBean(CourseService.class).saveInstan
             CourseRatingResponseDTO dto = new CourseRatingResponseDTO();
             dto.setStars(courseRating.getStarsCount());
             dto.setDateCreated(ApiUtils.ENGLISH_DATE_FORMAT.format(courseRating.getDateCreated()));
-            dto.setMemberFullName(courseRating.getStudent().getFullName());
+            dto.setStudentFullName(courseRating.getStudent().getFullName());
             dto.setRatingText(courseRating.getReviewText());
             ratings.add(dto);
 

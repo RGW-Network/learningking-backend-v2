@@ -1,12 +1,14 @@
 package com.byaffe.learningking.services.impl;
 
 import com.byaffe.learningking.dtos.student.CompanyRequestDTO;
+import com.byaffe.learningking.models.LookupType;
 import com.byaffe.learningking.models.Student;
 import com.byaffe.learningking.models.courses.*;
 import com.byaffe.learningking.services.*;
 import com.byaffe.learningking.shared.constants.RecordStatus;
 import com.byaffe.learningking.shared.exceptions.OperationFailedException;
 import com.byaffe.learningking.shared.exceptions.ValidationFailedException;
+import com.byaffe.learningking.shared.security.UserDetailsContext;
 import com.byaffe.learningking.shared.utils.CustomSearchUtils;
 import com.byaffe.learningking.utilities.ImageStorageService;
 import com.googlecode.genericdao.search.Search;
@@ -53,17 +55,33 @@ public class CompanyServiceImpl extends GenericServiceImpl<Organisation> impleme
             throw new ValidationFailedException("Missing Description");
         }
 
-
         Organisation article = modelMapper.map(dto, Organisation.class);
+        article.setPublicationStatus(PublicationStatus.ACTIVE);
         article.setCountry(lookupValueService.getCountryById(dto.getCountryId()));
+        article.setAreaOfBusiness(lookupValueService.getByType(LookupType.PROFESSIONS,dto.getAreaOfBusinessId()));
         article = saveInstance(article);
 
         if (dto.getCoverImage() != null) {
-            String imageUrl = imageStorageService.uploadImage(dto.getCoverImage(), "companies/" + article.getId());
+            String imageUrl = imageStorageService.uploadImage(dto.getCoverImage(), "companies/cover-images/" + article.getId());
             article.setCoverImageUrl(imageUrl);
             article = super.save(article);
         }
+        if (dto.getLogoImage()!= null) {
+            String imageUrl = imageStorageService.uploadImage(dto.getLogoImage(), "companies/logos/" + article.getId());
+            article.setLogoImageUrl(imageUrl);
+            article = super.save(article);
+        }
+        {
+            //add creator to company
+            OrganisationStudent existsOnCompany = getCompanyStudent(article, UserDetailsContext.getLoggedInStudent());
 
+            if (existsOnCompany == null) {
+                OrganisationStudent organisationStudent = new OrganisationStudent();
+                organisationStudent.setStudent(UserDetailsContext.getLoggedInStudent());
+                organisationStudent.setOrganisation(article);
+                companyStudentDao.save(organisationStudent);
+            }
+        }
         return article;
     }
 
@@ -98,6 +116,12 @@ public class CompanyServiceImpl extends GenericServiceImpl<Organisation> impleme
     }
 
     @Override
+    public int countCompanyStudentInstances(Search arg0) {
+        return companyStudentDao.count(arg0);
+
+    }
+
+    @Override
     public Organisation activate(Organisation plan) throws ValidationFailedException {
         plan.setPublicationStatus(PublicationStatus.ACTIVE);
 
@@ -113,7 +137,7 @@ public class CompanyServiceImpl extends GenericServiceImpl<Organisation> impleme
     public List<CompanyCourse> getCompanyCourses(Organisation organisation) {
         Search search = new Search().addSortAsc("position");
 
-        search.addFilterEqual("company", organisation);
+        search.addFilterEqual("organisation", organisation);
         search.addFilterEqual("recordStatus", RecordStatus.ACTIVE);
 
         return companyCourseDao.search(search);
@@ -122,7 +146,7 @@ public class CompanyServiceImpl extends GenericServiceImpl<Organisation> impleme
     @Override
     public CompanyCourse getCompanyCourse(Organisation organisation, Course course) {
         Search search = new Search();
-        search.addFilterEqual("company", organisation);
+        search.addFilterEqual("organisation", organisation);
         search.addFilterEqual("course", course);
         search.addFilterEqual("recordStatus", RecordStatus.ACTIVE);
 
@@ -188,8 +212,8 @@ public class CompanyServiceImpl extends GenericServiceImpl<Organisation> impleme
     @Override
     public OrganisationStudent getCompanyStudent(Organisation organisation, Student student) {
         Search search = new Search();
-        search.addFilterEqual("company", organisation);
-        search.addFilterEqual("member", student);
+        search.addFilterEqual("organisation", organisation);
+        search.addFilterEqual("student", student);
         search.addFilterEqual("recordStatus", RecordStatus.ACTIVE);
 
         return companyStudentDao.searchUnique(search);
@@ -232,11 +256,8 @@ public class CompanyServiceImpl extends GenericServiceImpl<Organisation> impleme
         companyStudentDao.save(organisationStudent);
     }
     public static Search generateSearchTermsForCompanyStudent(String searchTerm) {
-        com.googlecode.genericdao.search.Search search = CustomSearchUtils.generateSearchTerms(searchTerm,
-                Arrays.asList("title",
-                        "description"));
 
-        return search;
+        return CustomSearchUtils.generateSearchTerms(searchTerm, Arrays.asList("title", "description"));
     }
 
 }

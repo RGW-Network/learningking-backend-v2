@@ -9,8 +9,8 @@ public class CourseRatingResponseDTO  {
     private Long courseId;
     private String ratingText;
     private String dateCreated;
-    private String memberFullName;
-    private float stars;
+    private String studentFullName;
+    private Double stars;
 
 
 
