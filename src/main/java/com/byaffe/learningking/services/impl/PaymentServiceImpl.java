@@ -2,6 +2,7 @@ package com.byaffe.learningking.services.impl;
 
 import com.byaffe.learningking.constants.TransactionStatus;
 import com.byaffe.learningking.constants.TransactionType;
+import com.byaffe.learningking.dtos.SubscriptionPaymentRequestDTO;
 import com.byaffe.learningking.models.Event;
 import com.byaffe.learningking.models.Student;
 import com.byaffe.learningking.models.SystemSetting;
@@ -104,7 +105,10 @@ public class PaymentServiceImpl extends GenericServiceImpl<AggregatorTransaction
         return initiatePayment(course.getDiscountedPrice() > 0 ? course.getDiscountedPrice() : course.getPrice(), student,"Course ("+ course.getTitle()+")", course.id, TransactionType.COURSE_PAYMENT);
 
     }
-    public AggregatorTransaction initiateSubscriptionPlanPayment(long subscriptionPlanId, long studentId) throws IOException, OperationFailedException, ValidationFailedException {
+    public AggregatorTransaction initiateSubscriptionPlanPayment(long subscriptionPlanId, long studentId, SubscriptionPaymentRequestDTO dto) throws IOException, OperationFailedException, ValidationFailedException {
+        if(dto==null||dto.getType()==null){
+            throw new ValidationFailedException("Missing subscription payment type");
+        }
         SubscriptionPlan subscriptionPlan = ApplicationContextProvider.getBean(SubscriptionPlanService.class).getInstanceByID(subscriptionPlanId);
         Student student = ApplicationContextProvider.getBean(StudentService.class).getInstanceByID(studentId);
         return initiatePayment(subscriptionPlan.getCostPerYear() > 0 ? subscriptionPlan.getCostPerYear() : subscriptionPlan.getCostPerMonth(), student,"Subscription Plan ("+ subscriptionPlan.getName()+")", subscriptionPlan.id, TransactionType.SUBSCRIPTION_PAYMENT);
@@ -146,11 +150,7 @@ newPayment.generateInternalReference();
     public void updatePaymentStatus() {
         Search paymentSearch = new Search();
         log.debug("Started Payment Update job at " + LocalDateTime.now());
-        paymentSearch.addFilterIn("status", Arrays.asList(
-                TransactionStatus.PENDING, TransactionStatus.PENDING_3DS_AUTHORISATION,
-                TransactionStatus.PENDING_OTP_VALIDATION,
-                TransactionStatus.PENDING_PIN_AUTHORISATION,
-                TransactionStatus.PENDING_AVS_AUTHORISATION));
+        paymentSearch.addFilterEqual("status",TransactionStatus.PENDING);
 
         List<AggregatorTransaction> fetchedBookPayments = super.search(paymentSearch);
         for (AggregatorTransaction payment : fetchedBookPayments) {

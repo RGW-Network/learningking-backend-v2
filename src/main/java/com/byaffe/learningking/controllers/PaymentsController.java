@@ -2,6 +2,7 @@ package com.byaffe.learningking.controllers;
 
 import com.byaffe.learningking.constants.TransactionStatus;
 import com.byaffe.learningking.constants.TransactionType;
+import com.byaffe.learningking.dtos.SubscriptionPaymentRequestDTO;
 import com.byaffe.learningking.models.courses.PublicationStatus;
 import com.byaffe.learningking.models.payments.AggregatorTransaction;
 import com.byaffe.learningking.models.payments.SubscriptionPlan;
@@ -57,12 +58,13 @@ public class PaymentsController {
     }
 
     @PostMapping("/pay/{type}/{recordId}")
-    public ResponseEntity<ResponseObject<AggregatorTransaction>> save(@PathVariable(name = "type", required = true) TransactionType type, @PathVariable(name = "recordId", required = true) Long recordId) throws ValidationFailedException, IOException {
+    public ResponseEntity<ResponseObject<AggregatorTransaction>> save(@PathVariable(name = "type", required = true) TransactionType type, @PathVariable(name = "recordId", required = true) Long recordId, @RequestBody(required = false) SubscriptionPaymentRequestDTO dto) throws ValidationFailedException, IOException {
         AggregatorTransaction response = null;
         if (type.equals(TransactionType.COURSE_PAYMENT)) {
             response = paymentService.initiateCoursePayment(recordId, Objects.requireNonNull(UserDetailsContext.getLoggedInStudent()).getId());
         } else if (type.equals(TransactionType.SUBSCRIPTION_PAYMENT)) {
-            response = paymentService.initiateSubscriptionPlanPayment(recordId, Objects.requireNonNull(UserDetailsContext.getLoggedInStudent()).getId());
+
+            response = paymentService.initiateSubscriptionPlanPayment(recordId, Objects.requireNonNull(UserDetailsContext.getLoggedInStudent()).getId(), dto);
         } else if (type.equals(TransactionType.EVENT_PAYMENT)) {
             response = paymentService.initiateEventPayment(recordId, Objects.requireNonNull(UserDetailsContext.getLoggedInStudent()).getId());
         }
