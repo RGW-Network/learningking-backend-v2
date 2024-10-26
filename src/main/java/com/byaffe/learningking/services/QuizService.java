@@ -1,7 +1,5 @@
 package com.byaffe.learningking.services;
 
-import com.byaffe.learningking.dtos.articles.ArticleRequestDTO;
-import com.byaffe.learningking.dtos.quiz.AnswerRequestDTO;
 import com.byaffe.learningking.dtos.quiz.QuizQuestionRequestDTO;
 import com.byaffe.learningking.dtos.quiz.QuizRequestDTO;
 import com.byaffe.learningking.models.Article;
@@ -31,7 +29,6 @@ public interface QuizService  {
     List<Question> getQuizQuestions(Search search, int offset, int limit) ;
     long countQuizQuestions(Search search) ;
 
-    AnswerOption saveAnswerOption(AnswerRequestDTO dto) throws ValidationFailedException;
 
 
 }

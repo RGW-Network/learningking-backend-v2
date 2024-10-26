@@ -15,6 +15,8 @@ public class CourseRequestDTO {
     private int numberOfTopics = 0;
     private String coverImageUrl;
     private MultipartFile coverImage;
+    private Boolean isAdvertised;
+
     private String welcomeVideoUrl;
     private List<String>  tags= new ArrayList<>();
     public String  getCommaSeparatedTags(){

@@ -7,9 +7,11 @@ import com.byaffe.learningking.dtos.instructor.*;
 import com.byaffe.learningking.dtos.courses.CourseResponseDTO;
 import com.byaffe.learningking.dtos.courses.CourseTopicResponseDTO;
 import com.byaffe.learningking.dtos.courses.LessonResponseDTO;
+import com.byaffe.learningking.models.ReadStatus;
 import com.byaffe.learningking.models.Student;
 import com.byaffe.learningking.models.courses.*;
 import com.byaffe.learningking.services.*;
+import com.byaffe.learningking.services.impl.CourseEnrollmentServiceImpl;
 import com.byaffe.learningking.services.impl.CourseServiceImpl;
 import com.byaffe.learningking.services.impl.InstructorServiceImpl;
 import com.byaffe.learningking.shared.api.ResponseList;
@@ -30,6 +32,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -54,6 +58,7 @@ public class CoursesController {
                                                                       @RequestParam(value = "sortBy", required = false) String sortBy,
                                                                       @RequestParam(value = "sortDescending", required = false) Boolean sortDescending,
                                                                       @RequestParam(value = "featured", required = false) Boolean featured,
+                                                                      @RequestParam(value = "advertised", required = false) Boolean advertised,
                                                                       @RequestParam(value = "categoryId", required = false) Long categoryId,
                                                                       @RequestParam(value = "authorId", required = false) Long authorId
 
@@ -285,7 +290,7 @@ public class CoursesController {
     public ResponseEntity<ResponseObject<CourseEnrollment>> start(@PathVariable("id") Long id) throws JSONException {
         Student member = UserDetailsContext.getLoggedInStudent();
         assert member != null;
-        CourseEnrollment courseEnrollment = subscriptionService.enrolForFreeCourse(member.getId(), id);
+        CourseEnrollment courseEnrollment = subscriptionService.startCourse(member.getId(), id);
         return ResponseEntity.ok().body(new ResponseObject<>(courseEnrollment));
     }
 
@@ -316,7 +321,8 @@ public class CoursesController {
         for (CourseRating courseRating : courseRatings) {
             CourseRatingResponseDTO dto = new CourseRatingResponseDTO();
             dto.setStars(courseRating.getStarsCount());
-            dto.setDateCreated(ApiUtils.ENGLISH_DATE_FORMAT.format(courseRating.getDateCreated()));
+            dto.setDateCreated(courseRating.getDateCreated());
+            dto.setFeatured(courseRating.getFeatured());
             dto.setStudentFullName(courseRating.getStudent().getFullName());
             dto.setRatingText(courseRating.getReviewText());
             ratings.add(dto);
@@ -349,14 +355,17 @@ public class CoursesController {
                                                                              @RequestParam(value = "limit", required = true) Integer limit,
                                                                              @RequestParam(value = "sortBy", required = false) String sortBy,
                                                                              @RequestParam(value = "sortDescending", required = false) Boolean sortDescending,
-                                                                             @RequestParam(value = "featured", required = false) Boolean featured) throws JSONException {
+                                                                             @RequestParam(value = "status", required = false) ReadStatus status) throws JSONException {
 
-        Search search = CourseServiceImpl.generateSearchObjectForCourses(searchTerm)
+        Search search = CourseEnrollmentServiceImpl.generateSearchObjectForEnrollments(searchTerm)
                 .addFilterEqual("recordStatus", RecordStatus.ACTIVE);
 
         long totalRecords = ApplicationContextProvider.getBean(CourseEnrollmentService.class).countInstances(search);
         if (sortBy != null) {
             search.addSort(sortBy, sortDescending);
+        }
+        if (status != null) {
+            search.addFilterEqual("readStatus", status);
         }
         List<CourseResponseDTO> courses = new ArrayList<>();
         for (CourseEnrollment course : ApplicationContextProvider.getBean(CourseEnrollmentService.class).getInstances(search, offset, limit)) {

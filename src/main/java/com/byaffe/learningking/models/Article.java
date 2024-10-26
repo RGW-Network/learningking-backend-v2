@@ -28,6 +28,10 @@ public class Article extends BaseEntity {
     @ManyToOne
     @JoinColumn(name = "contributor_id")
     private CourseInstructor contributor;
+
+    @Column(name = "short_description", length = 1000)
+    private String shortDescription;
+
     @Column(name = "description", columnDefinition = "TEXT")
     private String description;
 

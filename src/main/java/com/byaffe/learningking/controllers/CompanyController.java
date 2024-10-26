@@ -49,7 +49,7 @@ public class CompanyController {
             search.addSort(sortBy, sortDescending);
         }
         List<OrganisationStudent> Articles = companyService.getCompanyStudents(search, offset, limit);
-        long count = companyService.countInstances(search);
+        long count = companyService.countCompanyStudentInstances(search);
         return ResponseEntity.ok().body(new ResponseList<>(Articles, (int) count, offset, limit));
 
     }

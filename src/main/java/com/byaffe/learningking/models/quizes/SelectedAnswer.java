@@ -15,14 +15,15 @@ public class SelectedAnswer extends BaseEntity {
     @ManyToOne
     @JoinColumn(name = "quiz_attempt_id")
     private QuizAttempt quizAttempt;
-
     @ManyToOne
     @JoinColumn(name = "question_id")
     private Question question;
+    @Column(name = "score")
+    private Double score;
+    @Column(name = "text_response", length = 1000)
+    private String textResponse;
+    @Column(name = "attachment_response_url", length = 1000)
+    private String attachmentResponseUrl;
 
-    @ManyToOne
-    @JoinColumn(name = "answer_id")
-    private AnswerOption answerOption;
 
-    // Getters and Setters
 }

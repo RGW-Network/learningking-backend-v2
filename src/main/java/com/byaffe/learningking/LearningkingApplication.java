@@ -17,6 +17,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -36,11 +37,17 @@ public class LearningkingApplication {
     }
 
     @Bean
-    CommandLineRunner run(BackgroundJobService backgroundJobService, UserService userService, RestService restService, LookupValueService LookupValueService) {
+    CommandLineRunner run(BackgroundJobService backgroundJobService, JdbcTemplate jdbcTemplate, UserService userService, RestService restService, LookupValueService LookupValueService) {
         return args -> {
-backgroundJobService.registerBgJobs();
+            backgroundJobService.registerBgJobs();
             try {
-                 userService.saveRole(new Role(SecurityConstants.SUPER_ADMIN_ROLE, "Super admin role"));
+                String sql = String.format("ALTER TABLE %s DROP COLUMN %s", "courses", "number_of_topics");
+                jdbcTemplate.execute(sql);
+            } catch (Exception ex) {
+
+            }
+            try {
+                userService.saveRole(new Role(SecurityConstants.SUPER_ADMIN_ROLE, "Super admin role"));
             } catch (Exception ex) {
 
             }
@@ -50,7 +57,7 @@ backgroundJobService.registerBgJobs();
 
             }
             try {
-                 userService.saveRole(new Role(AppUtils.STUDENT_ROLE_NAME, "Student"));
+                userService.saveRole(new Role(AppUtils.STUDENT_ROLE_NAME, "Student"));
             } catch (Exception ex) {
 
             }

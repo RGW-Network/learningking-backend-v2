@@ -12,12 +12,14 @@ import com.byaffe.learningking.shared.dao.BaseDAOImpl;
 import com.byaffe.learningking.shared.exceptions.OperationFailedException;
 import com.byaffe.learningking.shared.exceptions.ValidationFailedException;
 import com.byaffe.learningking.shared.utils.ApplicationContextProvider;
+import com.byaffe.learningking.shared.utils.CustomSearchUtils;
 import com.googlecode.genericdao.search.Search;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
 
 @Transactional
@@ -33,6 +35,11 @@ public class CourseEnrollmentServiceImpl extends BaseDAOImpl<CourseEnrollment> i
 
     @Autowired
     CourseLectureService courseLectureService;
+
+    public static Search generateSearchObjectForEnrollments(String searchTerm) {
+        return CustomSearchUtils.generateSearchTerms(searchTerm,
+                Arrays.asList("course.title", "course.description"));
+    }
 
     @Override
     public CourseEnrollment saveInstance(CourseEnrollment subscription) throws ValidationFailedException {
@@ -114,7 +121,7 @@ public class CourseEnrollmentServiceImpl extends BaseDAOImpl<CourseEnrollment> i
         courseEnrollment.setCourse(course);
         courseEnrollment.setProgress(0.0);
         courseEnrollment.setCurrentLecture(firstSubTopic);
-        courseEnrollment.setReadStatus(ReadStatus.Inprogress);
+        courseEnrollment.setReadStatus(ReadStatus.NotStarted);
         return super.save(courseEnrollment);
     }
 
@@ -122,9 +129,6 @@ public class CourseEnrollmentServiceImpl extends BaseDAOImpl<CourseEnrollment> i
     public CourseEnrollment startCourse(Long studentId, Long courseId) throws ValidationFailedException {
         Student member = ApplicationContextProvider.getBean(StudentService.class).getStudentById(studentId);
         Course course = ApplicationContextProvider.getBean(CourseService.class).getInstanceByID(courseId);
-        if (course.getIsPaid()) {
-            throw new ValidationFailedException("This is a paid Course");
-        }
 
         CourseEnrollment courseEnrollment = getSerieSubscription(member, course);
         if (courseEnrollment == null) {
@@ -206,37 +210,35 @@ public class CourseEnrollmentServiceImpl extends BaseDAOImpl<CourseEnrollment> i
     }
 
     @Override
-    public CourseEnrollment completeSubTopic(Student member, CourseLecture subTopic) throws ValidationFailedException {
-        if (subTopic == null || subTopic.isNew()) {
+    public CourseEnrollment completeSubTopic(Student member, CourseLecture lecture) throws ValidationFailedException {
+        if (lecture == null || lecture.isNew()) {
             throw new ValidationFailedException("Missing subTopic");
         }
-        CourseEnrollment courseEnrollment = getSerieSubscription(member, subTopic.getCourseTopic().getCourseLesson().getCourse());
+        CourseEnrollment courseEnrollment = getSerieSubscription(member, lecture.getCourseTopic().getCourseLesson().getCourse());
 
         if (courseEnrollment == null) {
             throw new ValidationFailedException("Not enrolled for this course");
         }
 
-        if (courseEnrollment.getCurrentLecture().getCourseTopic() != subTopic.getCourseTopic()) {
-
+        if (courseEnrollment.getCurrentLecture().getCourseTopic() != lecture.getCourseTopic()) {
             throw new ValidationFailedException("Your previous topic hasnt been completed yet. Please complete all the subtopics in it");
-
         }
 
-        if (subTopic.getPosition() > courseEnrollment.getCurrentLecture().getPosition()) {
-            throw new ValidationFailedException("You can't skip previous subtopics. Please complete all the subtopics in order");
+        if (lecture.getPosition() > courseEnrollment.getCurrentLecture().getPosition()) {
+            throw new ValidationFailedException("You can't skip previous lectures. Please complete all the lectures in order");
 
         }
 
         List<CourseLecture> subTopics = courseLectureService.getInstances(
                 new Search()
                         .addSortAsc("position")
-                        .addFilterEqual("courseTopic", subTopic.getCourseTopic())
-                        .addFilterGreaterOrEqual("position", subTopic.getPosition()), 0, 1);
+                        .addFilterEqual("courseTopic", lecture.getCourseTopic())
+                        .addFilterGreaterOrEqual("position", lecture.getPosition()), 0, 1);
 
         long totalSubTopics= courseLectureService.countInstances(
                 new Search().addFilterEqual("courseTopic.courseLesson.course.id", courseEnrollment.getCourseId()));
         long completedSubTopics= courseLectureService.countInstances(
-                new Search().addFilterEqual("courseTopic.courseLesson.course.id", courseEnrollment.getCourseId()).addFilterGreaterOrEqual("id",subTopic.getId()));
+                new Search().addFilterEqual("courseTopic.courseLesson.course.id", courseEnrollment.getCourseId()).addFilterGreaterOrEqual("id",lecture.getId()));
        //Compute Progress
         if(totalSubTopics>0) {
            double progress = ((double) completedSubTopics / totalSubTopics) * 100;
@@ -258,8 +260,8 @@ public class CourseEnrollmentServiceImpl extends BaseDAOImpl<CourseEnrollment> i
         //look for next topic
         List<CourseTopic> topics = courseTopicService.getInstances(
                 new Search()
-                        .addFilterGreaterOrEqual("position", subTopic.getCourseTopic().getPosition() + 1)
-                        .addFilterEqual("courseLesson", subTopic.getCourseTopic().getCourseLesson())
+                        .addFilterGreaterOrEqual("position", lecture.getCourseTopic().getPosition() + 1)
+                        .addFilterEqual("courseLesson", lecture.getCourseTopic().getCourseLesson())
                         .addSortAsc("position"), 0, 1);
         CourseTopic nextTopic = topics.get(0);
 
@@ -276,8 +278,8 @@ public class CourseEnrollmentServiceImpl extends BaseDAOImpl<CourseEnrollment> i
         // Fetch next lesson
         List<CourseLesson> lessons = courseLessonService.getInstances(
                 new Search()
-                        .addFilterEqual("position", subTopic.getCourseTopic().getCourseLesson().getPosition() + 1)
-                        .addFilterEqual("course", subTopic.getCourseTopic().getCourseLesson().getCourse())
+                        .addFilterEqual("position", lecture.getCourseTopic().getCourseLesson().getPosition() + 1)
+                        .addFilterEqual("course", lecture.getCourseTopic().getCourseLesson().getCourse())
                         .addSortAsc("position"), 0, 1);
         CourseLesson nextLesson = lessons.get(0);
 

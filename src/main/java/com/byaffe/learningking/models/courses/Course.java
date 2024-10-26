@@ -54,6 +54,7 @@ public class Course extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private CourseAcademyType academy;
     private Boolean isFeatured;
+    private Boolean isAdvertised;
     private Boolean isPaid;
     private Double price;
     private Double discountedPrice;

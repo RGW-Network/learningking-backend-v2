@@ -138,7 +138,7 @@ Course course=ApplicationContextProvider.getBean(CourseService.class).saveInstan
         for (CourseRating courseRating : courseRatings) {
             CourseRatingResponseDTO dto = new CourseRatingResponseDTO();
             dto.setStars(courseRating.getStarsCount());
-            dto.setDateCreated(ApiUtils.ENGLISH_DATE_FORMAT.format(courseRating.getDateCreated()));
+            dto.setDateCreated(courseRating.getDateCreated());
             dto.setStudentFullName(courseRating.getStudent().getFullName());
             dto.setRatingText(courseRating.getReviewText());
             ratings.add(dto);

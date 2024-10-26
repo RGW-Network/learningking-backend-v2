@@ -1,0 +1,102 @@
+package com.byaffe.learningking.controllers;
+
+import com.byaffe.learningking.dtos.quiz.QuizQuestionRequestDTO;
+import com.byaffe.learningking.dtos.quiz.QuizRequestDTO;
+import com.byaffe.learningking.models.Article;
+import com.byaffe.learningking.models.quizes.Question;
+import com.byaffe.learningking.models.quizes.Quiz;
+import com.byaffe.learningking.services.ArticleService;
+import com.byaffe.learningking.services.QuizService;
+import com.byaffe.learningking.services.impl.QuizServiceImpl;
+import com.byaffe.learningking.shared.api.BaseResponse;
+import com.byaffe.learningking.shared.api.ResponseList;
+import com.byaffe.learningking.shared.api.ResponseObject;
+import com.byaffe.learningking.shared.constants.RecordStatus;
+import com.byaffe.learningking.shared.utils.ApplicationContextProvider;
+import com.googlecode.genericdao.search.Search;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
+import org.json.JSONException;
+import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+/**
+ * @author Ray Gdhrt
+ */
+@Slf4j
+@RestController
+@RequestMapping("api/v1/quizes")
+public class QuizController {
+    @Autowired
+    QuizService quizService;
+
+    @Autowired
+    ModelMapper modelMapper;
+
+
+
+    @GetMapping("/{id}")
+    public ResponseEntity<ResponseObject<Quiz>> getById(@PathVariable(name = "id") long id) throws JSONException {
+        Quiz quiz = quizService.getById(id);
+        return ResponseEntity.ok().body(new ResponseObject<>(quiz));
+
+    }
+
+    @GetMapping("/questions")
+    public ResponseEntity<ResponseList<Question>> getQuestions(@RequestParam(value = "searchTerm", required = false) String searchTerm,
+                                                               @RequestParam(value = "offset", required = true) Integer offset,
+                                                               @RequestParam(value = "limit", required = true) Integer limit,
+                                                               @RequestParam(value = "sortBy", required = false) String sortBy,
+                                                               @RequestParam(value = "sortDescending", required = false) Boolean sortDescending,
+                                                               @RequestParam(value = "quizId", required = false) Long quizId) throws JSONException {
+        Search search = QuizServiceImpl.generateSearchTermsForQuizes(searchTerm)
+                .addFilterEqual("recordStatus", RecordStatus.ACTIVE);
+        if (quizId != null) {
+            search.addFilterEqual("quiz.id", quizId);
+        }
+        if (StringUtils.isNotEmpty(sortBy)) {
+            search.addSort(sortBy, sortDescending);
+        }
+        List<Question> models = quizService.getQuizQuestions(search, offset, limit);
+        long count = quizService.countQuizQuestions(search);
+        return ResponseEntity.ok().body(new ResponseList<>(models, (int) count, offset, limit));
+
+
+    }
+
+
+
+    @GetMapping("")
+    public ResponseEntity<ResponseList<Quiz>> getQuizes(@RequestParam(value = "searchTerm", required = false) String searchTerm,
+                                                        @RequestParam(value = "offset", required = true) Integer offset,
+                                                        @RequestParam(value = "limit", required = true) Integer limit,
+                                                        @RequestParam(value = "sortBy", required = false) String sortBy,
+                                                        @RequestParam(value = "sortDescending", required = false) Boolean sortDescending,
+                                                        @RequestParam(value = "lectureId", required = false) Long lectureId,
+                                                        @RequestParam(value = "courseId", required = false) Long courseId) throws JSONException {
+
+        Search search = QuizServiceImpl.generateSearchTermsForQuizes(searchTerm)
+                .addFilterEqual("recordStatus", RecordStatus.ACTIVE);
+        if (lectureId != null) {
+            search.addFilterEqual("courseLecture.id", lectureId);
+        }
+        if (courseId != null) {
+            search.addFilterEqual("courseLecture.courseTopic.courseLesson.course.id", courseId);
+        }
+
+
+        if (StringUtils.isNotEmpty(sortBy)) {
+            search.addSort(sortBy, sortDescending);
+        }
+        List<Quiz> models = quizService.getQuizes(search, offset, limit);
+        long count = quizService.countQuizes(search);
+        return ResponseEntity.ok().body(new ResponseList<>(models, (int) count, offset, limit));
+
+    }
+
+
+}

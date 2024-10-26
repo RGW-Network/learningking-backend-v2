@@ -1,13 +1,11 @@
 package com.byaffe.learningking.models.quizes;
 
 import com.byaffe.learningking.shared.models.BaseEntity;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.Entity;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 @Data
 @NoArgsConstructor
@@ -17,9 +15,18 @@ public class AnswerOption extends BaseEntity {
     private String name;
     private Boolean correct;
 
+    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "question_id")
     private Question question;
 
-    // Getters and Setters
+    @Transient
+    public String getQuestionName(){
+        return question.getName();
+    }
+
+    @Transient
+    public Long getQuestionId(){
+        return question.getId();
+    }
 }

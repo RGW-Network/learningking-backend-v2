@@ -80,7 +80,7 @@ public class JWTFilter extends GenericFilterBean {
                     tokenProvider.validateToken(accessToken);
                 }
             } catch (Exception e) {
-                e.printStackTrace();
+               // e.printStackTrace();
             }
     }
 

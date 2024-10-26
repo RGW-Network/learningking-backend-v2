@@ -3,7 +3,6 @@ package com.byaffe.learningking.services.impl;
 import com.byaffe.learningking.daos.AnswerDao;
 import com.byaffe.learningking.daos.QuestionDao;
 import com.byaffe.learningking.daos.QuizDao;
-import com.byaffe.learningking.dtos.quiz.AnswerRequestDTO;
 import com.byaffe.learningking.dtos.quiz.QuizQuestionRequestDTO;
 import com.byaffe.learningking.dtos.quiz.QuizRequestDTO;
 import com.byaffe.learningking.models.quizes.AnswerOption;
@@ -39,7 +38,7 @@ public class QuizServiceImpl implements QuizService {
     @Autowired
     ModelMapper modelMapper;
 
-    public static Search generateSearchTermsForCompanyStudent(String searchTerm) {
+    public static Search generateSearchTermsForQuizes(String searchTerm) {
 
         return CustomSearchUtils.generateSearchTerms(searchTerm, Arrays.asList("title", "description"));
     }
@@ -53,7 +52,7 @@ public class QuizServiceImpl implements QuizService {
             throw new ValidationFailedException("Missing description");
         }
         Quiz quiz = modelMapper.map(dto, Quiz.class);
-        quiz.setCourseLecture(lectureService.getInstanceByID(dto.getCourseLectureId()));
+        quiz.setCourseLecture(lectureService.getInstanceByID(dto.getLectureId()));
 
         return quizDao.save(quiz);
     }
@@ -85,8 +84,13 @@ public class QuizServiceImpl implements QuizService {
         Question quiz = modelMapper.map(dto, Question.class);
         quiz.setQuiz(getById(dto.getQuizId()));
         //todo some position reorganisation
-
-        return questionDao.save(quiz);
+        quiz=questionDao.save(quiz);
+        for(QuizQuestionRequestDTO.AnswerRequestDTO answerDTO:dto.getAnswerOptions()){
+            AnswerOption answerOption = modelMapper.map(answerDTO, AnswerOption.class);
+            answerOption.setQuestion(quiz);
+            answerDao.save(answerOption);
+        }
+        return questionDao.findById(quiz.getId()).orElse(null);
     }
 
 
@@ -104,19 +108,7 @@ public class QuizServiceImpl implements QuizService {
     public Question getQuestionById(Long id) throws ValidationFailedException {
         return questionDao.findById(id).orElseThrow(() -> new ValidationFailedException("Record Not Found"));
     }
-    @Override
-    public AnswerOption saveAnswerOption(AnswerRequestDTO dto) throws ValidationFailedException {
-        if (StringUtils.isEmpty(dto.getName())) {
-            throw new ValidationFailedException("Missing name");
-        }
-        if (dto.getQuestionId()==null) {
-            throw new ValidationFailedException("Missing question id");
-        }
-        AnswerOption quiz = modelMapper.map(dto, AnswerOption.class);
-        quiz.setQuestion(getQuestionById(dto.getQuestionId()));
 
-        return answerDao.save(quiz);
-    }
 
 
 }

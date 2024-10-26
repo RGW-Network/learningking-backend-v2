@@ -20,4 +20,5 @@ public class CourseCategoryRequestDTO {
     private PublicationStatus publicationStatus;
     private MultipartFile image;
     private MultipartFile icon;
+   private Boolean featured;
 }

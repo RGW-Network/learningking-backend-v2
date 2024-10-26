@@ -1,8 +1,8 @@
 package com.byaffe.learningking.services.impl;
 
 import com.byaffe.learningking.constants.AccountStatus;
+import com.byaffe.learningking.daos.StudentDao;
 import com.byaffe.learningking.models.Student;
-import com.byaffe.learningking.services.StudentDao;
 import com.byaffe.learningking.services.StudentHeaderService;
 import com.byaffe.learningking.services.StudentService;
 import com.byaffe.learningking.services.UserService;

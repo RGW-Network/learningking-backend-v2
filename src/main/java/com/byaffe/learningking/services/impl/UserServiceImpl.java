@@ -2,7 +2,6 @@ package com.byaffe.learningking.services.impl;
 
 import com.byaffe.learningking.dtos.auth.UserRegistrationRequestDTO;
 import com.byaffe.learningking.models.Student;
-import com.byaffe.learningking.services.StudentDao;
 import com.byaffe.learningking.shared.exceptions.ValidationFailedException;
 import com.byaffe.learningking.shared.utils.MailService;
 import com.googlecode.genericdao.search.Search;

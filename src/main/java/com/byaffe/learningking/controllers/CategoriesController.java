@@ -1,16 +1,19 @@
 package com.byaffe.learningking.controllers;
 
-import com.byaffe.learningking.dtos.courses.CourseCategoryRequestDTO;
-import com.byaffe.learningking.models.courses.CategoryType;
-import com.byaffe.learningking.models.courses.Category;
-import com.byaffe.learningking.models.courses.CourseAcademyType;
-import com.byaffe.learningking.services.CategoryService;
+import com.byaffe.learningking.dtos.courses.*;
+import com.byaffe.learningking.models.Student;
+import com.byaffe.learningking.models.courses.*;
+import com.byaffe.learningking.services.*;
 import com.byaffe.learningking.services.impl.CategoryServiceImpl;
 import com.byaffe.learningking.shared.api.ResponseList;
 import com.byaffe.learningking.shared.api.ResponseObject;
+import com.byaffe.learningking.shared.constants.RecordStatus;
+import com.byaffe.learningking.shared.security.UserDetailsContext;
+import com.byaffe.learningking.shared.utils.ApplicationContextProvider;
 import com.googlecode.genericdao.search.Search;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.json.JSONException;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -73,6 +76,11 @@ public class CategoriesController {
         return ResponseEntity.ok().body(new ResponseObject<>( categoryService.saveInstance(dto)));
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<ResponseObject<Category>> getCategoryDetails(@PathVariable("id") Long id) throws JSONException {
+         Category category = categoryService.getInstanceByID(id);
+         return ResponseEntity.ok().body(new ResponseObject<>(category));
+    }
 
 
 }

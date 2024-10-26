@@ -48,7 +48,9 @@ CourseService courseService;
         Course course = courseService.getInstanceByID(dto.getCourseId());
         CourseRating courseRating = new CourseRating();
         courseRating.setCourse(course);
-        courseRating.setStudent(UserDetailsContext.getLoggedInStudent());
+        if(UserDetailsContext.getLoggedInStudent()!=null) {
+            courseRating.setStudent(UserDetailsContext.getLoggedInStudent());
+        }
         courseRating.setReviewText(dto.getRatingText());
         courseRating.setStarsCount(dto.getStars());
         return super.save(courseRating);

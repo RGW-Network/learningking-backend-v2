@@ -16,7 +16,6 @@ public class QuizRequestDTO {
     public Long id;
     private String title;
     private String description;
-    private Long courseLectureId;
-    private List<QuizQuestionRequestDTO> questions;
+    private Long lectureId;
 
 }

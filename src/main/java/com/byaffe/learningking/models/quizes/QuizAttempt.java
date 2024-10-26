@@ -24,8 +24,6 @@ public class QuizAttempt extends BaseEntity {
     @JoinColumn(name = "quiz_id")
     private Quiz quiz;
 
-    private LocalDateTime attemptDate;
-
     private Integer score;
 
     @OneToMany(mappedBy = "quizAttempt", cascade = CascadeType.ALL)
