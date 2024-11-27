@@ -4,6 +4,7 @@ import com.byaffe.learningking.constants.TransactionStatus;
 import com.byaffe.learningking.constants.TransactionType;
 import com.byaffe.learningking.dtos.SubscriptionPaymentRequestDTO;
 import com.byaffe.learningking.models.Event;
+import com.byaffe.learningking.models.EventStatus;
 import com.byaffe.learningking.models.Student;
 import com.byaffe.learningking.models.SystemSetting;
 import com.byaffe.learningking.models.courses.Course;
@@ -71,7 +72,6 @@ public class PaymentServiceImpl extends GenericServiceImpl<AggregatorTransaction
     }
 
 
-
     @Override
     public List<AggregatorTransaction> getInstances(Search search, int offset, int limit) {
         if (search == null) {
@@ -102,24 +102,28 @@ public class PaymentServiceImpl extends GenericServiceImpl<AggregatorTransaction
         if (memberCourse != null) {
             throw new ValidationFailedException("You already purchased this course. Go to My-Courses to view your course.");
         }
-        return initiatePayment(course.getDiscountedPrice() > 0 ? course.getDiscountedPrice() : course.getPrice(), student,"Course ("+ course.getTitle()+")", course.id, TransactionType.COURSE_PAYMENT);
+        return initiatePayment(course.getDiscountedPrice() > 0 ? course.getDiscountedPrice() : course.getPrice(), student, "Course (" + course.getTitle() + ")", course.id, TransactionType.COURSE_PAYMENT);
 
     }
+
     public AggregatorTransaction initiateSubscriptionPlanPayment(long subscriptionPlanId, long studentId, SubscriptionPaymentRequestDTO dto) throws IOException, OperationFailedException, ValidationFailedException {
-        if(dto==null||dto.getType()==null){
+        if (dto == null || dto.getType() == null) {
             throw new ValidationFailedException("Missing subscription payment type");
         }
         SubscriptionPlan subscriptionPlan = ApplicationContextProvider.getBean(SubscriptionPlanService.class).getInstanceByID(subscriptionPlanId);
         Student student = ApplicationContextProvider.getBean(StudentService.class).getInstanceByID(studentId);
-        return initiatePayment(subscriptionPlan.getCostPerYear() > 0 ? subscriptionPlan.getCostPerYear() : subscriptionPlan.getCostPerMonth(), student,"Subscription Plan ("+ subscriptionPlan.getName()+")", subscriptionPlan.id, TransactionType.SUBSCRIPTION_PAYMENT);
+        return initiatePayment(subscriptionPlan.getCostPerYear() > 0 ? subscriptionPlan.getCostPerYear() : subscriptionPlan.getCostPerMonth(), student, "Subscription Plan (" + subscriptionPlan.getName() + ")", subscriptionPlan.id, TransactionType.SUBSCRIPTION_PAYMENT);
 
     }
+
     public AggregatorTransaction initiateEventPayment(long subscriptionPlanId, long studentId) throws IOException, OperationFailedException, ValidationFailedException {
         Event event = ApplicationContextProvider.getBean(EventService.class).getInstanceByID(subscriptionPlanId);
         Student student = ApplicationContextProvider.getBean(StudentService.class).getInstanceByID(studentId);
-        return initiatePayment(event.getDiscountedPrice() > 0 ? event.getDiscountedPrice() : event.getOriginalPrice(), student,"Event ("+ event.getTitle()+")", event.id, TransactionType.SUBSCRIPTION_PAYMENT);
+        ApplicationContextProvider.getBean(EventAttendanceService.class).validateEventAttendance(event, student);
+        return initiatePayment(event.getDiscountedPrice() > 0 ? event.getDiscountedPrice() : event.getOriginalPrice(), student, "Event (" + event.getTitle() + ")", event.id, TransactionType.EVENT_PAYMENT);
 
     }
+
     // Common method to initiate payments
     private AggregatorTransaction initiatePayment(double amount, Student student, String description, long referenceRecordId, TransactionType transactionType) throws IOException, OperationFailedException {
         AggregatorTransaction newPayment = new AggregatorTransaction();
@@ -130,8 +134,8 @@ public class PaymentServiceImpl extends GenericServiceImpl<AggregatorTransaction
         newPayment.setDescription("Payment For " + description);
         newPayment.setAmountInitiated(amount);
         newPayment.setAmountChargedFromUser(amount);
-newPayment=super.save(newPayment);
-newPayment.generateInternalReference();
+        newPayment = super.save(newPayment);
+        newPayment.generateInternalReference();
         // Make Flutterwave request
         FlutterReponse flutterReponse = flutterWaveService.initiateDeposit(newPayment);
         newPayment.setLastAggregatorResponse(new Gson().toJson(flutterReponse));
@@ -147,10 +151,11 @@ newPayment.generateInternalReference();
         // Save payment request
         return saveInstance(newPayment);
     }
+
     public void updatePaymentStatus() {
         Search paymentSearch = new Search();
         log.debug("Started Payment Update job at " + LocalDateTime.now());
-        paymentSearch.addFilterEqual("status",TransactionStatus.PENDING);
+        paymentSearch.addFilterEqual("status", TransactionStatus.PENDING);
 
         List<AggregatorTransaction> fetchedBookPayments = super.search(paymentSearch);
         for (AggregatorTransaction payment : fetchedBookPayments) {
@@ -198,6 +203,8 @@ newPayment.generateInternalReference();
                 ApplicationContextProvider.getBean(CourseEnrollmentService.class).createSubscription(payment);
             } else if (payment.getType().equals(TransactionType.SUBSCRIPTION_PAYMENT)) {
                 ApplicationContextProvider.getBean(StudentSubscriptionPlanService.class).activate(payment);
+            } else if (payment.getType().equals(TransactionType.EVENT_PAYMENT)) {
+                ApplicationContextProvider.getBean(EventAttendanceService.class).attendPaidEvent(payment);
             }
 
         }
@@ -205,9 +212,10 @@ newPayment.generateInternalReference();
 
         return payment;
     }
+
     public static Search composeSearchObject(String searchTerm) {
         com.googlecode.genericdao.search.Search search = CustomSearchUtils.generateSearchTerms(searchTerm,
-                Arrays.asList("serialNumber","description"));
+                Arrays.asList("serialNumber", "description"));
 
         return search;
     }

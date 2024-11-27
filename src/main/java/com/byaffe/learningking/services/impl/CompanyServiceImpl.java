@@ -39,7 +39,8 @@ public class CompanyServiceImpl extends GenericServiceImpl<Organisation> impleme
     @Autowired
     StudentService studentService;
 
-
+@Autowired
+SystemSettingService settingService;
 
 
     public Organisation saveOrganisation(CompanyRequestDTO dto) throws ValidationFailedException {
@@ -56,6 +57,10 @@ public class CompanyServiceImpl extends GenericServiceImpl<Organisation> impleme
         }
 
         Organisation article = modelMapper.map(dto, Organisation.class);
+        if(article.isNew()||StringUtils.isEmpty(article.getTrainingMandate())){
+            article.setTrainingMandate(settingService.getAppSetting().getDefaultTrainingMandate());
+
+        }
         article.setPublicationStatus(PublicationStatus.ACTIVE);
         article.setCountry(lookupValueService.getCountryById(dto.getCountryId()));
         article.setAreaOfBusiness(lookupValueService.getByType(LookupType.PROFESSIONS,dto.getAreaOfBusinessId()));

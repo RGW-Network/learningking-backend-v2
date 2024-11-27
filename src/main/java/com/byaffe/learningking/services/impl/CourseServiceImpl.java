@@ -143,7 +143,6 @@ public class CourseServiceImpl extends GenericServiceImpl<Course> implements Cou
                         .addSortAsc("position"), 0, 1);
         if (subTopics.isEmpty()) {
             throw new ValidationFailedException("No lectures in first Course lesson topic");
-
         }
 
         return subTopics.get(0);

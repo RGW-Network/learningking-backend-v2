@@ -5,6 +5,7 @@ import com.byaffe.learningking.models.Event;
 import com.byaffe.learningking.models.NotificationBuilder;
 import com.byaffe.learningking.models.NotificationDestinationActivity;
 import com.byaffe.learningking.models.courses.PublicationStatus;
+import com.byaffe.learningking.services.EventAttendanceService;
 import com.byaffe.learningking.services.EventService;
 import com.byaffe.learningking.services.CategoryService;
 import com.byaffe.learningking.services.NotificationService;
@@ -37,33 +38,10 @@ public class EventServiceImpl extends GenericServiceImpl<Event> implements Event
     @Autowired
     CategoryService categoryService;
 
-    public static Search generateSearchObjectForEvents(String searchTerm) {
-    return new Search();
-    }
 
     @Override
     public Event saveInstance(Event event) throws ValidationFailedException {
-
-        if (event.getCategory() == null) {
-            throw new ValidationFailedException("Mising category");
-        }
-
-        if (StringUtils.isBlank(event.getTitle())) {
-            throw new ValidationFailedException("Missing Title");
-        }
-
-        if (StringUtils.isBlank(event.getDescription())) {
-            throw new ValidationFailedException("Missing Description");
-        }
-
-        Event existingWithTitle = getByTitle(event.getTitle());
-
-        if (existingWithTitle != null && !existingWithTitle.getId().equals(event.getId())) {
-            throw new ValidationFailedException("An event with the same title already exists!");
-        }
-        event.setPublicationStatus(PublicationStatus.INACTIVE);
-
-        return super.merge(event);
+        return super.save(event);
 
     }
 
@@ -114,7 +92,7 @@ public class EventServiceImpl extends GenericServiceImpl<Event> implements Event
         }
 
         Event event=modelMapper.map(dto,Event.class);
-        //event.setCategory(categoryService.getInstanceByID(dto.getCategoryId()));
+        event.setCategory(categoryService.getInstanceByID(dto.getCategoryId()));
         event= saveInstance(event);
 
         if(dto.getCoverImage()!=null) {
@@ -124,6 +102,13 @@ public class EventServiceImpl extends GenericServiceImpl<Event> implements Event
         }
 
         return event;
+    }
+
+    @Override
+    public void updateEventAttendance(long eventId) {
+        Event event = getById(eventId);
+        event.setAttendees(Long.valueOf(ApplicationContextProvider.getBean(EventAttendanceService.class).countAttendances(eventId)));
+        super.save(event);
     }
 
     @Override

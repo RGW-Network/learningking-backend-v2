@@ -14,7 +14,7 @@ public interface EventService extends GenericService<Event> {
 
 
     Event save(EventRequestDTO dto) throws ValidationFailedException;
-
+void updateEventAttendance(long value);
 
     Event activate(long plan) throws ValidationFailedException;
 

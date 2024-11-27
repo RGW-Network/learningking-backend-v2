@@ -21,6 +21,7 @@ public class FilterUtils {
                     "/api/v1/auth/student/verify-otp",
                     "/api/v1/auth/instructor/verify-otp",
                     "/api/v1/payments/subscription-plans",
+                    "/api/v1/reviews",
                     "/api/v1/status"
             )
     );

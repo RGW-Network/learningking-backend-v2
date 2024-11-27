@@ -19,6 +19,8 @@ public class Organisation extends BaseEntity {
     private String name;
     private String description;
     private String website;
+    public String mobileNumber;
+    private String telephoneNumber;
     @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "country_id")
@@ -32,7 +34,8 @@ public class Organisation extends BaseEntity {
     private String coverImageUrl;
     private String logoImageUrl;
     private PublicationStatus publicationStatus = PublicationStatus.ACTIVE;
-
+    @Column(name = "training_mandate", columnDefinition = "TEXT")
+    private String trainingMandate;
     @Transient
     public Long getAreaOfBusinessId() {
         return areaOfBusiness!=null?areaOfBusiness.getId():null;

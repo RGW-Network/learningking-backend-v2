@@ -42,7 +42,7 @@ public class EventsController {
                                                          @RequestParam(value = "sortDescending", required = false) Boolean sortDescending,
                                                          @RequestParam(value = "featured", required = false) Boolean featured) throws JSONException {
 
-        Search search = EventServiceImpl.generateSearchObjectForEvents(searchTerm);
+        Search search = EventServiceImpl.generateSearchTermsForEvents(searchTerm);
         if (featured != null) {
             search.addFilterEqual("isFeatured", featured);
         }

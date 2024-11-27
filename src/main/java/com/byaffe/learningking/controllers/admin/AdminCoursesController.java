@@ -1,6 +1,5 @@
 package com.byaffe.learningking.controllers.admin;
 
-import com.byaffe.learningking.controllers.constants.ApiUtils;
 import com.byaffe.learningking.dtos.articles.ArticlesFilterDTO;
 import com.byaffe.learningking.dtos.courses.*;
 import com.byaffe.learningking.models.courses.*;
@@ -109,7 +108,7 @@ Course course=ApplicationContextProvider.getBean(CourseService.class).saveInstan
 
         double rattings = 1;
         try {
-            rattings = ApplicationContextProvider.getBean(CourseRatingService.class).getTotalCourseRatings(course) / 5;
+            rattings = ApplicationContextProvider.getBean(CourseRatingService.class).getTotalCourseRatings(ReviewType.COURSE, course.getId()) / 5;
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -122,31 +121,6 @@ Course course=ApplicationContextProvider.getBean(CourseService.class).saveInstan
         return ResponseEntity.ok().body(new ResponseObject<>(responseDTO));
     }
 
-
-
-    @GetMapping("/rating/{courseId}")
-    public ResponseEntity<ResponseList<CourseRatingResponseDTO>> getRatings(@PathVariable("courseId") Long courseId) throws JSONException {
-
-        List<CourseRating> courseRatings = ApplicationContextProvider.getBean(CourseRatingService.class)
-                .getInstances(new Search().
-                                addFilterEqual("course.id", courseId).
-                                addFilterEqual("recordStatus", RecordStatus.ACTIVE).
-                                addFilterEqual("publicationStatus", PublicationStatus.ACTIVE),
-                        0, 0);
-
-        List<CourseRatingResponseDTO> ratings = new ArrayList<>();
-        for (CourseRating courseRating : courseRatings) {
-            CourseRatingResponseDTO dto = new CourseRatingResponseDTO();
-            dto.setStars(courseRating.getStarsCount());
-            dto.setDateCreated(courseRating.getDateCreated());
-            dto.setStudentFullName(courseRating.getStudent().getFullName());
-            dto.setRatingText(courseRating.getReviewText());
-            ratings.add(dto);
-
-        }
-        return ResponseEntity.ok().body(new ResponseList<>(ratings, 0, 0, 0));
-
-    }
 
 
 }

@@ -44,7 +44,8 @@ public class CategoriesController {
                                                                  @RequestParam("offset") int offset,
                                                                  @RequestParam("limit") int limit,
                                                                  @RequestParam(required = false, value = "isFeatured") Boolean isFeatured,
-                                                                 @RequestParam(required = false, value = "commaSeparatedTypes") String commaSeparatedTypes,
+
+                                                                @RequestParam(required = false, value = "commaSeparatedTypes") String commaSeparatedTypes,
                                                                  @RequestParam(required = false, value = "commaSeparatedAcademies") String commaSeparatedAcademies){
         Search search = CategoryServiceImpl.composeSearchObject(searchTerm);
         if(StringUtils.isNotEmpty(commaSeparatedTypes)){
@@ -58,7 +59,7 @@ public class CategoriesController {
             search.addFilterIn("academy", lookupTypes);
         }
         if(isFeatured!=null){
-          search.addFilterEqual("isFeatured", isFeatured);
+          search.addFilterEqual("featured", isFeatured);
         }
 
         long totalRecords = categoryService.countInstances(search);

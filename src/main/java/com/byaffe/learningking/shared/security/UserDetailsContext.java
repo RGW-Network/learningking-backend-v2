@@ -8,7 +8,6 @@ import com.byaffe.learningking.shared.models.User;
  * This class is used to store the current request's bearer token. We have used the
  * InheritableThreadLocal variable. This enables the child threads created from
  * the main thread in our application to use the bearer token of the Parent Thread.
- *
  */
 public class UserDetailsContext {
 
@@ -19,33 +18,41 @@ public class UserDetailsContext {
     private static ThreadLocal<SessionDTO> bearerToken = new InheritableThreadLocal<>();
 
     public static void setLoggedInUser(User id) {
-        SessionDTO  dto= bearerToken.get();
-        if(dto==null){
-            dto= new SessionDTO();
+        SessionDTO dto = bearerToken.get();
+        if (dto == null) {
+            dto = new SessionDTO();
         }
         dto.setLoggedInUser(id);
         bearerToken.set(dto);
     }
+
     public static User getLoggedInUser() {
 
-        SessionDTO sessionDTO=bearerToken.get();
-        if(sessionDTO!=null){
+        SessionDTO sessionDTO = bearerToken.get();
+        if (sessionDTO != null) {
             return sessionDTO.getLoggedInUser();
         }
         return null;
     }
 
+    public static boolean isSuperAdmin() {
+        User user = getLoggedInUser();
+        if (user != null) return user.hasAdministrativePrivileges();
+        return false;
+    }
+
     public static void setLoggedInStudent(Student id) {
-        SessionDTO  dto= bearerToken.get();
-        if(dto==null){
-            dto= new SessionDTO();
+        SessionDTO dto = bearerToken.get();
+        if (dto == null) {
+            dto = new SessionDTO();
         }
         dto.setLoggedInStudent(id);
         bearerToken.set(dto);
     }
+
     public static Student getLoggedInStudent() {
-        SessionDTO sessionDTO=bearerToken.get();
-        if(sessionDTO!=null){
+        SessionDTO sessionDTO = bearerToken.get();
+        if (sessionDTO != null) {
             return sessionDTO.getLoggedInStudent();
         }
         return null;

@@ -3,6 +3,7 @@ package com.byaffe.learningking.models;
 import com.byaffe.learningking.models.courses.Category;
 import com.byaffe.learningking.models.courses.PublicationStatus;
 import com.byaffe.learningking.shared.models.BaseEntity;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -30,6 +31,7 @@ public class Event extends BaseEntity {
     @Column(name = "cover_image_url")
     private String coverImageUrl;
 
+    @JsonIgnore
     @ManyToOne(optional = true)
     @JoinColumn(name = "event_category_id")
     private Category category;
@@ -85,8 +87,15 @@ public class Event extends BaseEntity {
     @Column(name = "discounted_price")
     private Double discountedPrice = 0.0;
     @Column(name = "maximum_attendees")
-    private Long maximumAttendees;
+    private Long maximumAttendees=1l;
 
+    @Column(name = "attendees")
+    private Long attendees=0l;
+
+    @Transient
+    public Boolean isFull() {
+        return this.attendees!=null && this.attendees>= maximumAttendees;
+    }
     @Override
     public String toString() {
         return this.title;

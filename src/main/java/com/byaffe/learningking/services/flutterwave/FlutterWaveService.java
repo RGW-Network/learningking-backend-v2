@@ -129,7 +129,7 @@ public class FlutterWaveService {
         fluterwaveRequest.setRedirect_url(redirectUrl);
 
         CustomerDTO customerDTO = new CustomerDTO();
-        customerDTO.setEmail(payment.getStudent().getEmailAddress());
+        customerDTO.setEmail(payment.getStudent().getUserAccount().getEmailAddress());
         customerDTO.setName(payment.getStudent().getFullName());
         customerDTO.setPhonenumber(payment.getStudent().getPhoneNumber());
         fluterwaveRequest.setCustomer(customerDTO);

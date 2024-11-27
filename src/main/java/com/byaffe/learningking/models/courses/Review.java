@@ -9,25 +9,24 @@ import javax.persistence.*;
 
 @Data
 @Entity
-@Table(name = "course_ratings_new")
-public class CourseRating extends BaseEntity {
+@Table(name = "reviews")
+public class Review extends BaseEntity {
 
     private static final long serialVersionUID = 1L;
-    @Column(name = "review_text", length = 1000)
-    private String reviewText;
 
+    @Column(name = "comment", length = 1000)
+    private String comment;
 
     @Column(name = "stars_count")
     private Double starsCount;//out of 5
-    @JsonIgnore
-    @ManyToOne
-    @JoinColumn(name = "student_reference")
-    private Student student;
 
-    @JsonIgnore
-    @ManyToOne
-    @JoinColumn(name = "course_reference")
-    private Course course;
+    @Column(name = "type")
+    private ReviewType type;
+
+    @Column(name = "record_id")
+    private Long recordId;
+    @Column(name = "record_name")
+    private String recordName;//auto set by system
 
     @Enumerated(EnumType.STRING)
     @JoinColumn(name="status")
@@ -35,10 +34,17 @@ public class CourseRating extends BaseEntity {
 
     @JoinColumn(name="featured")
     private Boolean featured;
+    @Column(name = "reviewer_name")
+    private String reviewerName;
+    @Column(name = "reviewer_designation")
+    private String reviewerDesignation;//title, job tittle,profession, location
+
+    @Column(name = "reviewer_image_url")
+    private String reviewerImageUrl;
 
     @Override
     public boolean equals(Object object) {
-        return object instanceof CourseRating && (super.getId() != null) ? super.getId().equals(((CourseRating) object).getId())
+        return object instanceof Review && (super.getId() != null) ? super.getId().equals(((Review) object).getId())
                 : (object == this);
     }
 

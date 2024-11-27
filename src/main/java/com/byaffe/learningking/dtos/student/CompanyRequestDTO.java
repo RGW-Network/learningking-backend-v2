@@ -10,6 +10,8 @@ public class CompanyRequestDTO  {
     public String name;
     public String description;
     private String website;
+    public String mobileNumber;
+    private String telephoneNumber;
     private Long countryId;
     private Long areaOfBusinessId;
     private String emailAddress;
