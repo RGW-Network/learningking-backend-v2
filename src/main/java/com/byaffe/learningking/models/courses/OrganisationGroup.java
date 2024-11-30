@@ -1,14 +1,16 @@
 package com.byaffe.learningking.models.courses;
 
 import com.byaffe.learningking.shared.models.BaseEntity;
+import lombok.Data;
 
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
+@Data
 @Entity
 @Table(name = "organisation_groups")
-public class OrganisationStudentGroup extends BaseEntity {
+public class OrganisationGroup extends BaseEntity {
 
     private static final long serialVersionUID = 1L;
     private String name;
@@ -17,12 +19,10 @@ public class OrganisationStudentGroup extends BaseEntity {
     @JoinColumn(name = "organisation_id")
     private Organisation organisation;
 
-    @OneToMany
-    private List<OrganisationStudent> students= new ArrayList<>();
-
+  
     @Override
     public boolean equals(Object object) {
-        return object instanceof OrganisationStudentGroup && (super.getId() != null) ? super.getId().equals(((OrganisationStudentGroup) object).getId())
+        return object instanceof OrganisationGroup && (super.getId() != null) ? super.getId().equals(((OrganisationGroup) object).getId())
                 : (object == this);
     }
 

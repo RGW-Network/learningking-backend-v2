@@ -27,7 +27,7 @@ import java.util.Objects;
 @Slf4j
 @RestController
 @RequestMapping("/api/v1/payments")
-public class PaymentsController {
+public class  PaymentsController {
 
     @Autowired
     SubscriptionPlanService subscriptionPlanService;

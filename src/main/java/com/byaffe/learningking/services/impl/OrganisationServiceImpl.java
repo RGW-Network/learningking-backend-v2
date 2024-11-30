@@ -1,5 +1,6 @@
 package com.byaffe.learningking.services.impl;
 
+import com.byaffe.learningking.daos.OrganisationStudentDao;
 import com.byaffe.learningking.dtos.student.CompanyRequestDTO;
 import com.byaffe.learningking.models.LookupType;
 import com.byaffe.learningking.models.Student;
@@ -23,14 +24,13 @@ import java.util.List;
 
 @Service
 @Transactional
-public class CompanyServiceImpl extends GenericServiceImpl<Organisation> implements CompanyService {
+public class OrganisationServiceImpl extends GenericServiceImpl<Organisation> implements OrganisationService {
 
-    @Autowired
-    CompanyCourseDao companyCourseDao;
+
     @Autowired
     ModelMapper modelMapper;
     @Autowired
-    CompanyStudentDao companyStudentDao;
+    OrganisationStudentDao companyStudentDao;
 
     @Autowired
     ImageStorageService imageStorageService;
@@ -139,57 +139,7 @@ SystemSettingService settingService;
         return super.save(plan);
     }
 
-    public List<CompanyCourse> getCompanyCourses(Organisation organisation) {
-        Search search = new Search().addSortAsc("position");
 
-        search.addFilterEqual("organisation", organisation);
-        search.addFilterEqual("recordStatus", RecordStatus.ACTIVE);
-
-        return companyCourseDao.search(search);
-    }
-
-    @Override
-    public CompanyCourse getCompanyCourse(Organisation organisation, Course course) {
-        Search search = new Search();
-        search.addFilterEqual("organisation", organisation);
-        search.addFilterEqual("course", course);
-        search.addFilterEqual("recordStatus", RecordStatus.ACTIVE);
-
-        return (CompanyCourse) companyCourseDao.searchUnique(search);
-    }
-
-    @Override
-    public void delete(CompanyCourse companyCourse) {
-
-        companyCourse.setRecordStatus(RecordStatus.DELETED);
-
-        companyCourseDao.save(companyCourse);
-    }
-
-    @Override
-    public void saveCompanyCourse(CompanyCourse companyCourse) throws ValidationFailedException {
-        if (companyCourse.getCourse() == null) {
-            throw new ValidationFailedException("Missing Course");
-
-        }
-
-        if (companyCourse.getCompany() == null) {
-            throw new ValidationFailedException("Missing Company");
-
-        }
-
-        if (companyCourse.getPosition() <= 0) {
-            throw new ValidationFailedException("Missing Position");
-
-        }
-        CompanyCourse existsOnCompany = getCompanyCourse(companyCourse.getCompany(), companyCourse.getCourse());
-
-        if (existsOnCompany != null && !existsOnCompany.getId().equals(companyCourse.getId())) {
-            throw new ValidationFailedException("Course Exists on this Company");
-        }
-
-        companyCourseDao.save(companyCourse);
-    }
 
 
     @Override
@@ -203,6 +153,12 @@ SystemSettingService settingService;
     public OrganisationStudent deActivate(OrganisationStudent plan) {
         plan.setRecordStatus(RecordStatus.DELETED);
         return companyStudentDao.save(plan);
+    }
+
+    @Override
+    public OrganisationStudent getOrganisationStudentById(long organisationStudentId) {
+        return companyStudentDao.findById(organisationStudentId).orElseThrow(() -> new ValidationFailedException("Group Student With Id not found"));
+
     }
 
 

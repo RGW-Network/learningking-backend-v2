@@ -291,7 +291,7 @@ public class CoursesController {
 
 
     @PostMapping("/lectures/complete/{id}")
-    public ResponseEntity<CourseEnrollment> completeSubTopic(@PathVariable("id") Long id) throws JSONException {
+    public ResponseEntity<ResponseObject<CourseEnrollment>> completeSubTopic(@PathVariable("id") Long id) throws JSONException {
         Student member = UserDetailsContext.getLoggedInStudent();
         if (member == null) {
             throw new ValidationFailedException("Student Not Found");
@@ -302,7 +302,7 @@ public class CoursesController {
         }
         CourseEnrollment courseEnrollment = ApplicationContextProvider.getBean(CourseEnrollmentService.class).completeSubTopic(member, topic);
 
-        return ResponseEntity.ok().body(courseEnrollment);
+        return ResponseEntity.ok().body(new ResponseObject<>(courseEnrollment));
     }
 
 
