@@ -41,25 +41,25 @@ public class CategoriesController {
 
     @GetMapping("")
     public ResponseEntity<ResponseList<Category>> getCategories(@RequestParam(required = false, value = "searchTerm") String searchTerm,
-                                                                 @RequestParam("offset") int offset,
-                                                                 @RequestParam("limit") int limit,
-                                                                 @RequestParam(required = false, value = "isFeatured") Boolean isFeatured,
+                                                                @RequestParam("offset") int offset,
+                                                                @RequestParam("limit") int limit,
+                                                                @RequestParam(required = false, value = "isFeatured") Boolean isFeatured,
 
                                                                 @RequestParam(required = false, value = "commaSeparatedTypes") String commaSeparatedTypes,
-                                                                 @RequestParam(required = false, value = "commaSeparatedAcademies") String commaSeparatedAcademies){
+                                                                @RequestParam(required = false, value = "commaSeparatedAcademies") String commaSeparatedAcademies) {
         Search search = CategoryServiceImpl.composeSearchObject(searchTerm);
-        if(StringUtils.isNotEmpty(commaSeparatedTypes)){
+        if (StringUtils.isNotEmpty(commaSeparatedTypes)) {
             String[] list = commaSeparatedTypes.split(",");
-            List<CategoryType> lookupTypes= Arrays.stream(list).map(CategoryType::valueOf).collect(Collectors.toList());
+            List<CategoryType> lookupTypes = Arrays.stream(list).map(CategoryType::valueOf).collect(Collectors.toList());
             search.addFilterIn("type", lookupTypes);
         }
-        if(StringUtils.isNotEmpty(commaSeparatedAcademies)){
+        if (StringUtils.isNotEmpty(commaSeparatedAcademies)) {
             String[] list = commaSeparatedAcademies.split(",");
-            List<CourseAcademyType> lookupTypes= Arrays.stream(list).map(CourseAcademyType::valueOf).collect(Collectors.toList());
+            List<CourseAcademyType> lookupTypes = Arrays.stream(list).map(CourseAcademyType::valueOf).collect(Collectors.toList());
             search.addFilterIn("academy", lookupTypes);
         }
-        if(isFeatured!=null){
-          search.addFilterEqual("featured", isFeatured);
+        if (isFeatured != null) {
+            search.addFilterEqual("featured", isFeatured);
         }
 
         long totalRecords = categoryService.countInstances(search);
@@ -69,18 +69,18 @@ public class CategoriesController {
 
     @PostMapping(path = "", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<ResponseObject<Category>> saveLookupValue(@RequestPart @Valid CourseCategoryRequestDTO dto
-    ,@RequestPart(value = "icon",required = false) MultipartFile icon,
-    @RequestPart(value = "image",required = false) MultipartFile image
+            , @RequestPart(value = "icon", required = false) MultipartFile icon,
+                                                                    @RequestPart(value = "image", required = false) MultipartFile image
     ) throws ValidationException {
         dto.setIcon(icon);
         dto.setImage(image);
-        return ResponseEntity.ok().body(new ResponseObject<>( categoryService.saveInstance(dto)));
+        return ResponseEntity.ok().body(new ResponseObject<>(categoryService.saveInstance(dto)));
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<ResponseObject<Category>> getCategoryDetails(@PathVariable("id") Long id) throws JSONException {
-         Category category = categoryService.getInstanceByID(id);
-         return ResponseEntity.ok().body(new ResponseObject<>(category));
+        Category category = categoryService.getInstanceByID(id);
+        return ResponseEntity.ok().body(new ResponseObject<>(category));
     }
 
 

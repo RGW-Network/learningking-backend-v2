@@ -11,7 +11,6 @@ import java.util.List;
 @Entity
 @Table(name = "organisation_groups")
 public class OrganisationGroup extends BaseEntity {
-
     private static final long serialVersionUID = 1L;
     private String name;
     private String description;
@@ -19,7 +18,7 @@ public class OrganisationGroup extends BaseEntity {
     @JoinColumn(name = "organisation_id")
     private Organisation organisation;
 
-  
+
     @Override
     public boolean equals(Object object) {
         return object instanceof OrganisationGroup && (super.getId() != null) ? super.getId().equals(((OrganisationGroup) object).getId())

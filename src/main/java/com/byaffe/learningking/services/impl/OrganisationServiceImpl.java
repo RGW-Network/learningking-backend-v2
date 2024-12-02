@@ -9,8 +9,15 @@ import com.byaffe.learningking.services.*;
 import com.byaffe.learningking.shared.constants.RecordStatus;
 import com.byaffe.learningking.shared.exceptions.OperationFailedException;
 import com.byaffe.learningking.shared.exceptions.ValidationFailedException;
+import com.byaffe.learningking.shared.models.MessageTemplate;
+import com.byaffe.learningking.shared.models.MessageTemplateChannel;
+import com.byaffe.learningking.shared.models.MessageTemplateType;
 import com.byaffe.learningking.shared.security.UserDetailsContext;
+import com.byaffe.learningking.shared.services.MessageTemplateService;
+import com.byaffe.learningking.shared.services.MessageTemplateUtils;
+import com.byaffe.learningking.shared.utils.ApplicationContextProvider;
 import com.byaffe.learningking.shared.utils.CustomSearchUtils;
+import com.byaffe.learningking.shared.utils.MailService;
 import com.byaffe.learningking.utilities.ImageStorageService;
 import com.googlecode.genericdao.search.Search;
 import org.apache.commons.lang3.StringUtils;
@@ -39,8 +46,8 @@ public class OrganisationServiceImpl extends GenericServiceImpl<Organisation> im
     @Autowired
     StudentService studentService;
 
-@Autowired
-SystemSettingService settingService;
+    @Autowired
+    SystemSettingService settingService;
 
 
     public Organisation saveOrganisation(CompanyRequestDTO dto) throws ValidationFailedException {
@@ -57,13 +64,13 @@ SystemSettingService settingService;
         }
 
         Organisation article = modelMapper.map(dto, Organisation.class);
-        if(article.isNew()||StringUtils.isEmpty(article.getTrainingMandate())){
+        if (article.isNew() || StringUtils.isEmpty(article.getTrainingMandate())) {
             article.setTrainingMandate(settingService.getAppSetting().getDefaultTrainingMandate());
 
         }
         article.setPublicationStatus(PublicationStatus.ACTIVE);
         article.setCountry(lookupValueService.getCountryById(dto.getCountryId()));
-        article.setAreaOfBusiness(lookupValueService.getByType(LookupType.PROFESSIONS,dto.getAreaOfBusinessId()));
+        article.setAreaOfBusiness(lookupValueService.getByType(LookupType.PROFESSIONS, dto.getAreaOfBusinessId()));
         article = saveInstance(article);
 
         if (dto.getCoverImage() != null) {
@@ -71,7 +78,7 @@ SystemSettingService settingService;
             article.setCoverImageUrl(imageUrl);
             article = super.save(article);
         }
-        if (dto.getLogoImage()!= null) {
+        if (dto.getLogoImage() != null) {
             String imageUrl = imageStorageService.uploadImage(dto.getLogoImage(), "companies/logos/" + article.getId());
             article.setLogoImageUrl(imageUrl);
             article = super.save(article);
@@ -140,13 +147,10 @@ SystemSettingService settingService;
     }
 
 
-
-
     @Override
     public boolean isDeletable(Organisation entity) throws OperationFailedException {
         return true;
     }
-
 
 
     @Override
@@ -192,12 +196,15 @@ SystemSettingService settingService;
     public void addStudentToCompany(long organizationId, String studentEmail) throws ValidationFailedException {
         if (StringUtils.isEmpty(studentEmail)) {
             throw new ValidationFailedException("Missing email");
-
         }
         Student student = studentService.getStudentByEmail(studentEmail);
         if (student == null) {
-            throw new ValidationFailedException("User with email not found");
-
+            //To-do send invitation email
+            MessageTemplate emailTemplate = ApplicationContextProvider.getBean(MessageTemplateService.class).getActiveTemplate(MessageTemplateChannel.EMAIL, MessageTemplateType.SIGNUP_INVITATION);
+            String subject =MessageTemplateUtils.resolveLkInvitationMessageTemplate(studentEmail,UserDetailsContext.getLoggedInUser(),emailTemplate.getSubject());
+            String body =MessageTemplateUtils.resolveLkInvitationMessageTemplate(studentEmail,UserDetailsContext.getLoggedInUser(),emailTemplate.getBody());
+            ApplicationContextProvider.getBean(MailService.class).sendEmail(studentEmail, subject,body);
+            return;
         }
         Organisation organisation = getReference(organizationId);
         if (organisation == null) {
@@ -213,9 +220,16 @@ SystemSettingService settingService;
         OrganisationStudent organisationStudent = new OrganisationStudent();
         organisationStudent.setStudent(student);
         organisationStudent.setOrganisation(organisation);
-
+        {//send email
+            MessageTemplate emailTemplate = ApplicationContextProvider.getBean(MessageTemplateService.class).getActiveTemplate(MessageTemplateChannel.EMAIL, MessageTemplateType.ORGANISATION_INVITATION);
+            String subject =MessageTemplateUtils.resolveLkInvitationMessageTemplate(studentEmail,UserDetailsContext.getLoggedInUser(),emailTemplate.getSubject());
+            String body =MessageTemplateUtils.resolveLkInvitationMessageTemplate(studentEmail,UserDetailsContext.getLoggedInUser(),emailTemplate.getBody());
+            ApplicationContextProvider.getBean(MailService.class).sendEmail(studentEmail, subject,body);
+           
+        }
         companyStudentDao.save(organisationStudent);
     }
+
     public static Search generateSearchTermsForCompanyStudent(String searchTerm) {
 
         return CustomSearchUtils.generateSearchTerms(searchTerm, Arrays.asList("title", "description"));
