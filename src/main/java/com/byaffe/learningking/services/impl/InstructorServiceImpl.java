@@ -11,6 +11,7 @@ import com.byaffe.learningking.shared.exceptions.OperationFailedException;
 import com.byaffe.learningking.shared.exceptions.ValidationFailedException;
 import com.byaffe.learningking.shared.models.Country;
 import com.byaffe.learningking.shared.models.User;
+import com.byaffe.learningking.shared.services.MessageTemplateService;
 import com.byaffe.learningking.shared.utils.CustomSearchUtils;
 import com.byaffe.learningking.shared.utils.MailService;
 import com.byaffe.learningking.shared.utils.PassEncTech4;
@@ -53,7 +54,7 @@ public class InstructorServiceImpl extends GenericServiceImpl<CourseInstructor> 
     private SystemSettingService settingService;
 
     @Autowired
-    private EmailTemplateService emailTemplateService;
+    private MessageTemplateService emailTemplateService;
 
     @Override
     public CourseInstructor sendOTP(String email) {
@@ -83,7 +84,6 @@ public class InstructorServiceImpl extends GenericServiceImpl<CourseInstructor> 
         if (existingWithEmail != null && !existingWithEmail.getId().equals(courseInstructor.getId())) {
             throw new ValidationFailedException("A member with the same email already exists!");
         }
-
         return super.merge(courseInstructor);
     }
 

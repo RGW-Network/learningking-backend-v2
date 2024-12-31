@@ -10,6 +10,7 @@ import com.byaffe.learningking.shared.api.ResponseList;
 import com.byaffe.learningking.shared.api.ResponseObject;
 import com.byaffe.learningking.shared.exceptions.ValidationFailedException;
 import com.googlecode.genericdao.search.Search;
+import io.swagger.v3.oas.annotations.Hidden;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.modelmapper.ModelMapper;
@@ -23,6 +24,7 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @RestController
+@Hidden
 @RequestMapping("/api/v1/admin/subscription-plans")
 public class AdminSubscriptionPlansController {
 

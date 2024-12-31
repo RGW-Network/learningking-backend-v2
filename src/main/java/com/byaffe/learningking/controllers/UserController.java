@@ -9,6 +9,7 @@ import com.byaffe.learningking.services.impl.UserServiceImpl;
 import com.byaffe.learningking.shared.api.BaseResponse;
 import com.byaffe.learningking.shared.api.ResponseList;
 import com.byaffe.learningking.shared.models.User;
+import io.swagger.v3.oas.annotations.Hidden;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.modelmapper.ModelMapper;
@@ -23,6 +24,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @RestController
 @RequestMapping("/api/v1/users")
+@Hidden
 public class UserController {
 
     @Autowired

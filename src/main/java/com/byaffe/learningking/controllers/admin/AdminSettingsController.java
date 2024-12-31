@@ -6,14 +6,17 @@ import com.byaffe.learningking.services.SystemSettingService;
 import com.byaffe.learningking.shared.api.BaseResponse;
 import com.byaffe.learningking.shared.api.ResponseList;
 import com.byaffe.learningking.shared.api.ResponseObject;
+import com.byaffe.learningking.shared.exceptions.ValidationFailedException;
 import com.byaffe.learningking.shared.models.MessageTemplate;
 import com.byaffe.learningking.shared.models.MessageTemplateRequestDto;
 import com.byaffe.learningking.shared.models.MessageTemplateChannel;
-import com.byaffe.learningking.shared.security.UserDetailsContext;
+import com.byaffe.learningking.shared.models.MessageTemplateType;
+import com.byaffe.learningking.shared.security.SessionContext;
 import com.byaffe.learningking.shared.services.MessageTemplateService;
 import com.byaffe.learningking.shared.services.MessageTemplateServiceImpl;
 import com.byaffe.learningking.shared.services.MessageTemplateUtils;
 import com.googlecode.genericdao.search.Search;
+import io.swagger.v3.oas.annotations.Hidden;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONException;
 import org.modelmapper.ModelMapper;
@@ -30,6 +33,7 @@ import java.util.List;
  */
 @Slf4j
 @RestController
+@Hidden
 @RequestMapping("api/v1/admin/settings")
 public class AdminSettingsController {
     @Autowired
@@ -51,10 +55,8 @@ public class AdminSettingsController {
     }
 
     @PostMapping("/message-templates")
-    public ResponseEntity<MessageTemplate> saveMessageTemplate(@RequestBody MessageTemplateRequestDto userDTO) throws ValidationException {
-        if(!UserDetailsContext.getLoggedInUser().hasAdministrativePrivileges()){
-            throw new AccessControlException("Access Denied");
-        }
+    public ResponseEntity<MessageTemplate> saveMessageTemplate(@RequestBody MessageTemplateRequestDto userDTO)  {
+        SessionContext.superAdminProtection();
         return ResponseEntity.ok().body(messageTemplateService.saveInstance(userDTO));
     }
 
@@ -63,14 +65,16 @@ public class AdminSettingsController {
     public ResponseEntity<ResponseList<MessageTemplate>> getMessageTemplates(@RequestParam(value = "searchTerm", required = false) String searchTerm,
                                                                              @RequestParam(value = "offset", required = true) Integer offset,
                                                                              @RequestParam(value = "limit", required = true) Integer limit,
-                                                                             @RequestParam(value = "type", required = false) MessageTemplateChannel type) {
-        if(!UserDetailsContext.getLoggedInUser().hasAdministrativePrivileges()){
-            throw new AccessControlException("Access Denied");
-        }
+                                                                             @RequestParam(value = "type", required = false) MessageTemplateType type,
+                                                                             @RequestParam(value = "channel", required = false) MessageTemplateChannel channel) {
+        SessionContext.superAdminProtection();
         Search search = MessageTemplateServiceImpl.composeSearchObject(searchTerm);
 
         if (type != null) {
             search.addFilterEqual("type", type);
+        }
+        if (channel != null) {
+            search.addFilterEqual("channel", channel);
         }
         if (limit == 0) {
             limit = 1000;
@@ -84,15 +88,13 @@ public class AdminSettingsController {
 
     @GetMapping("/message-templates/params")
     public ResponseEntity<ResponseList<String>> getMessageTemplates() {
-        return ResponseEntity.ok().body(new ResponseList<>(MessageTemplateUtils.getDisplayNames(), MessageTemplateUtils.getDisplayNames().size(), 0, 0));
-
+        SessionContext.superAdminProtection();
+        return ResponseEntity.ok().body(new ResponseList<>(MessageTemplateUtils.getDisplayNames(),MessageTemplateUtils.getDisplayNames().size(), 0, 0));
     }
 
     @DeleteMapping("/message-templates/{id}")
-    public ResponseEntity<BaseResponse> deleteTemplate(@PathVariable(value = "id", required = true) long paymentId) throws ValidationException {
-        if(!UserDetailsContext.getLoggedInUser().hasAdministrativePrivileges()){
-            throw new AccessControlException("Access Denied");
-        }
+    public ResponseEntity<BaseResponse> deleteTemplate(@PathVariable(value = "id", required = true) long paymentId) throws ValidationFailedException {
+        SessionContext.superAdminProtection();
         messageTemplateService.deleteInstance(paymentId);
         return ResponseEntity.ok().body(new BaseResponse(true));
     }

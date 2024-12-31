@@ -1,20 +1,13 @@
 package com.byaffe.learningking.controllers;
 
-import com.byaffe.learningking.dtos.courses.ReviewRequestDTO;
 import com.byaffe.learningking.models.EventAttendance;
 import com.byaffe.learningking.models.EventAttendanceStatus;
-import com.byaffe.learningking.models.courses.PublicationStatus;
-import com.byaffe.learningking.models.courses.Review;
-import com.byaffe.learningking.models.courses.ReviewType;
-import com.byaffe.learningking.services.CourseRatingService;
 import com.byaffe.learningking.services.EventAttendanceService;
-import com.byaffe.learningking.services.impl.CourseRatingServiceImpl;
 import com.byaffe.learningking.services.impl.EventAttendanceServiceImpl;
 import com.byaffe.learningking.shared.api.BaseResponse;
 import com.byaffe.learningking.shared.api.ResponseList;
 import com.byaffe.learningking.shared.api.ResponseObject;
-import com.byaffe.learningking.shared.security.UserDetailsContext;
-import com.byaffe.learningking.shared.utils.ApplicationContextProvider;
+import com.byaffe.learningking.shared.security.SessionContext;
 import com.googlecode.genericdao.search.Search;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONException;
@@ -37,7 +30,7 @@ public class AttendancesController {
 
     @PostMapping("/{eventId}/attend")
     public ResponseEntity<ResponseObject<EventAttendance>> attend(@PathVariable("eventId") Long eventId) throws JSONException {
-        return ResponseEntity.ok().body(new ResponseObject<>(eventAttendanceService.attendFreeEvent(eventId, UserDetailsContext.getLoggedInStudent().getId())));
+        return ResponseEntity.ok().body(new ResponseObject<>(eventAttendanceService.attendFreeEvent(eventId, SessionContext.getLoggedInStudent().getId())));
     }
     @PostMapping("/{eventAttendanceId}/cancel")
     public ResponseEntity<BaseResponse> cancel(@PathVariable("eventAttendanceId") Long eventAttendanceId, @RequestBody String notes) throws JSONException {
@@ -59,8 +52,8 @@ public class AttendancesController {
         if (eventId != null) {
             search.addFilterEqual("event.id", eventId);
         }
-        if (UserDetailsContext.getLoggedInStudent()!=null) {
-            search.addFilterEqual("student.id",UserDetailsContext.getLoggedInStudent().getId());
+        if (SessionContext.getLoggedInStudent()!=null) {
+            search.addFilterEqual("student.id", SessionContext.getLoggedInStudent().getId());
         }
         List<EventAttendance> records = eventAttendanceService.getInstances(search, offset, limit);
         long count = eventAttendanceService.countInstances(search);

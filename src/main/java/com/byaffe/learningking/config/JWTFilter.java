@@ -1,7 +1,7 @@
 package com.byaffe.learningking.config;
 
 import com.byaffe.learningking.shared.security.TokenProvider;
-import com.byaffe.learningking.shared.security.UserDetailsContext;
+import com.byaffe.learningking.shared.security.SessionContext;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -61,7 +61,7 @@ public class JWTFilter extends GenericFilterBean {
             }
 
         } finally {
-            UserDetailsContext.clear();
+            SessionContext.clear();
         }
     }
 

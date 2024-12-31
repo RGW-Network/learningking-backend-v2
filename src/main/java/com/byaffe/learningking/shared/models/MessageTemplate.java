@@ -1,6 +1,5 @@
 package com.byaffe.learningking.shared.models;
 
-import com.byaffe.learningking.constants.TemplateType;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -24,10 +23,12 @@ public class MessageTemplate extends BaseEntity {
     private MessageTemplateChannel channel;
 
     @Enumerated(EnumType.STRING)
-    private TemplateType type;
+    private MessageTemplateType type;
     @Column(name = "body", columnDefinition = "TEXT")
     private String body;
-
-
+@Transient
+public String getChannelName(){return this.channel!=null?this.channel.getDisplayName():null;}
+    @Transient
+    public String getTypeName(){return this.type!=null?this.type.getDisplayName():null;}
 
 }

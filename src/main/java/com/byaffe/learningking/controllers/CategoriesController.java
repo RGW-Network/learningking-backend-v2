@@ -1,15 +1,11 @@
 package com.byaffe.learningking.controllers;
 
 import com.byaffe.learningking.dtos.courses.*;
-import com.byaffe.learningking.models.Student;
 import com.byaffe.learningking.models.courses.*;
 import com.byaffe.learningking.services.*;
 import com.byaffe.learningking.services.impl.CategoryServiceImpl;
 import com.byaffe.learningking.shared.api.ResponseList;
 import com.byaffe.learningking.shared.api.ResponseObject;
-import com.byaffe.learningking.shared.constants.RecordStatus;
-import com.byaffe.learningking.shared.security.UserDetailsContext;
-import com.byaffe.learningking.shared.utils.ApplicationContextProvider;
 import com.googlecode.genericdao.search.Search;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;

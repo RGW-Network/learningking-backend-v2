@@ -60,8 +60,8 @@ public class TokenProvider {
             String username = decodedJWT.getSubject();
             User userAccount = userService.getUserByUsername(username);
             Student student=studentService.getStudentByUserAccount(userAccount);
-            UserDetailsContext.setLoggedInStudent(student);
-            UserDetailsContext.setLoggedInUser(userAccount);
+            SessionContext.setLoggedInStudent(student);
+            SessionContext.setLoggedInUser(userAccount);
             if (userAccount == null) {
                 throw new JWTVerificationException("Invalid Credentials in Token");
             }

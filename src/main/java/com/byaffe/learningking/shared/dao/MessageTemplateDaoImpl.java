@@ -1,6 +1,6 @@
 package com.byaffe.learningking.shared.dao;
 
-import com.jabuya.system.models.MessageTemplate;
+import com.byaffe.learningking.shared.models.MessageTemplate;
 import org.springframework.stereotype.Repository;
 
 /**

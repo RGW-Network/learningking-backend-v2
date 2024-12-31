@@ -2,7 +2,6 @@ package com.byaffe.learningking.services.impl;
 
 import com.byaffe.learningking.dtos.courses.ReviewRequestDTO;
 import com.byaffe.learningking.models.Student;
-import com.byaffe.learningking.models.courses.Course;
 import com.byaffe.learningking.models.courses.Review;
 import com.byaffe.learningking.models.courses.PublicationStatus;
 import com.byaffe.learningking.models.courses.ReviewType;
@@ -10,7 +9,7 @@ import com.byaffe.learningking.services.*;
 import com.byaffe.learningking.shared.constants.RecordStatus;
 import com.byaffe.learningking.shared.exceptions.OperationFailedException;
 import com.byaffe.learningking.shared.exceptions.ValidationFailedException;
-import com.byaffe.learningking.shared.security.UserDetailsContext;
+import com.byaffe.learningking.shared.security.SessionContext;
 import com.byaffe.learningking.shared.utils.ApplicationContextProvider;
 import com.byaffe.learningking.shared.utils.CustomSearchUtils;
 import com.googlecode.genericdao.search.Field;
@@ -54,7 +53,7 @@ public class CourseRatingServiceImpl extends GenericServiceImpl<Review> implemen
         review.setType(dto.getType());
         review.setRecordId(dto.getRecordId());
         review.setRecordName(generateReferenceRecordName(dto.getType(), dto.getRecordId()));
-        Student student = UserDetailsContext.getLoggedInStudent();
+        Student student = SessionContext.getLoggedInStudent();
         if (student != null) {
             review.setReviewerName(student.getFullName());
             review.setReviewerDesignation("Learningking Student");

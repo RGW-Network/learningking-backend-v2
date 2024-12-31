@@ -10,11 +10,10 @@ import com.byaffe.learningking.services.PaymentService;
 import com.byaffe.learningking.services.SubscriptionPlanService;
 import com.byaffe.learningking.services.impl.CategoryServiceImpl;
 import com.byaffe.learningking.services.impl.PaymentServiceImpl;
-import com.byaffe.learningking.shared.api.BaseResponse;
 import com.byaffe.learningking.shared.api.ResponseList;
 import com.byaffe.learningking.shared.api.ResponseObject;
 import com.byaffe.learningking.shared.exceptions.ValidationFailedException;
-import com.byaffe.learningking.shared.security.UserDetailsContext;
+import com.byaffe.learningking.shared.security.SessionContext;
 import com.googlecode.genericdao.search.Search;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,8 +48,8 @@ public class  PaymentsController {
                                                                    @RequestParam("offset") int offset,
                                                                    @RequestParam("limit") int limit) {
         Search search = PaymentServiceImpl.composeSearchObject(searchTerm);
-        if(!Objects.requireNonNull(UserDetailsContext.getLoggedInUser()).hasAdministrativePrivileges()) {
-            search.addFilterEqual("student.id", Objects.requireNonNull(UserDetailsContext.getLoggedInStudent()).getId());
+        if(!Objects.requireNonNull(SessionContext.getLoggedInUser()).hasAdministrativePrivileges()) {
+            search.addFilterEqual("student.id", Objects.requireNonNull(SessionContext.getLoggedInStudent()).getId());
             search.addFilterEqual("status", TransactionStatus.SUCCESSFUL);
         }
         long totalRecords = paymentService.countInstances(search);
@@ -61,12 +60,12 @@ public class  PaymentsController {
     public ResponseEntity<ResponseObject<AggregatorTransaction>> save(@PathVariable(name = "type", required = true) TransactionType type, @PathVariable(name = "recordId", required = true) Long recordId, @RequestBody(required = false) SubscriptionPaymentRequestDTO dto) throws ValidationFailedException, IOException {
         AggregatorTransaction response = null;
         if (type.equals(TransactionType.COURSE_PAYMENT)) {
-            response = paymentService.initiateCoursePayment(recordId, Objects.requireNonNull(UserDetailsContext.getLoggedInStudent()).getId());
+            response = paymentService.initiateCoursePayment(recordId, Objects.requireNonNull(SessionContext.getLoggedInStudent()).getId());
         } else if (type.equals(TransactionType.SUBSCRIPTION_PAYMENT)) {
 
-            response = paymentService.initiateSubscriptionPlanPayment(recordId, Objects.requireNonNull(UserDetailsContext.getLoggedInStudent()).getId(), dto);
+            response = paymentService.initiateSubscriptionPlanPayment(recordId, Objects.requireNonNull(SessionContext.getLoggedInStudent()).getId(), dto);
         } else if (type.equals(TransactionType.EVENT_PAYMENT)) {
-            response = paymentService.initiateEventPayment(recordId, Objects.requireNonNull(UserDetailsContext.getLoggedInStudent()).getId());
+            response = paymentService.initiateEventPayment(recordId, Objects.requireNonNull(SessionContext.getLoggedInStudent()).getId());
         }
 
         return ResponseEntity.ok().body(new ResponseObject<>(response));

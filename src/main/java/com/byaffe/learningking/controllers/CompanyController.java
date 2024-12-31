@@ -13,7 +13,7 @@ import com.byaffe.learningking.shared.api.BaseResponse;
 import com.byaffe.learningking.shared.api.ResponseList;
 import com.byaffe.learningking.shared.api.ResponseObject;
 import com.byaffe.learningking.shared.constants.RecordStatus;
-import com.byaffe.learningking.shared.security.UserDetailsContext;
+import com.byaffe.learningking.shared.security.SessionContext;
 import com.googlecode.genericdao.search.Search;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONException;
@@ -51,7 +51,7 @@ public class CompanyController {
 
         Search search = OrganisationServiceImpl.generateSearchTermsForCompanyStudent(searchTerm)
                 .addFilterEqual("recordStatus", RecordStatus.ACTIVE);
-        search.addFilterEqual("student", UserDetailsContext.getLoggedInStudent());
+        search.addFilterEqual("student", SessionContext.getLoggedInStudent());
         if (sortBy != null) {
             search.addSort(sortBy, sortDescending);
         }
@@ -69,8 +69,8 @@ public class CompanyController {
         long count = 0;
         Search search = OrganisationServiceImpl.generateSearchTermsForCompanyStudent(searchTerm).addFilterEqual("recordStatus", RecordStatus.ACTIVE);
         List<Organisation> organisations = new ArrayList<>();
-        if (!Objects.requireNonNull(UserDetailsContext.getLoggedInUser()).hasAdministrativePrivileges()) {
-            search.addFilterEqual("student", UserDetailsContext.getLoggedInStudent());
+        if (!Objects.requireNonNull(SessionContext.getLoggedInUser()).hasAdministrativePrivileges()) {
+            search.addFilterEqual("student", SessionContext.getLoggedInStudent());
             organisations = organisationService.getCompanyStudents(search, offset, limit).stream().map(OrganisationStudent::getOrganisation).collect(Collectors.toList());
             count = organisationService.countCompanyStudentInstances(search);
         } else {

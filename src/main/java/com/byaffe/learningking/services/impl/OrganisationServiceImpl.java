@@ -12,7 +12,7 @@ import com.byaffe.learningking.shared.exceptions.ValidationFailedException;
 import com.byaffe.learningking.shared.models.MessageTemplate;
 import com.byaffe.learningking.shared.models.MessageTemplateChannel;
 import com.byaffe.learningking.shared.models.MessageTemplateType;
-import com.byaffe.learningking.shared.security.UserDetailsContext;
+import com.byaffe.learningking.shared.security.SessionContext;
 import com.byaffe.learningking.shared.services.MessageTemplateService;
 import com.byaffe.learningking.shared.services.MessageTemplateUtils;
 import com.byaffe.learningking.shared.utils.ApplicationContextProvider;
@@ -85,11 +85,11 @@ public class OrganisationServiceImpl extends GenericServiceImpl<Organisation> im
         }
         {
             //add creator to company
-            OrganisationStudent existsOnCompany = getCompanyStudent(article, UserDetailsContext.getLoggedInStudent());
+            OrganisationStudent existsOnCompany = getCompanyStudent(article, SessionContext.getLoggedInStudent());
 
             if (existsOnCompany == null) {
                 OrganisationStudent organisationStudent = new OrganisationStudent();
-                organisationStudent.setStudent(UserDetailsContext.getLoggedInStudent());
+                organisationStudent.setStudent(SessionContext.getLoggedInStudent());
                 organisationStudent.setOrganisation(article);
                 companyStudentDao.save(organisationStudent);
             }
@@ -201,8 +201,8 @@ public class OrganisationServiceImpl extends GenericServiceImpl<Organisation> im
         if (student == null) {
             //To-do send invitation email
             MessageTemplate emailTemplate = ApplicationContextProvider.getBean(MessageTemplateService.class).getActiveTemplate(MessageTemplateChannel.EMAIL, MessageTemplateType.SIGNUP_INVITATION);
-            String subject =MessageTemplateUtils.resolveLkInvitationMessageTemplate(studentEmail,UserDetailsContext.getLoggedInUser(),emailTemplate.getSubject());
-            String body =MessageTemplateUtils.resolveLkInvitationMessageTemplate(studentEmail,UserDetailsContext.getLoggedInUser(),emailTemplate.getBody());
+            String subject =MessageTemplateUtils.resolveLkInvitationMessageTemplate(studentEmail, SessionContext.getLoggedInUser(),emailTemplate.getSubject());
+            String body =MessageTemplateUtils.resolveLkInvitationMessageTemplate(studentEmail, SessionContext.getLoggedInUser(),emailTemplate.getBody());
             ApplicationContextProvider.getBean(MailService.class).sendEmail(studentEmail, subject,body);
             return;
         }
@@ -222,8 +222,8 @@ public class OrganisationServiceImpl extends GenericServiceImpl<Organisation> im
         organisationStudent.setOrganisation(organisation);
         {//send email
             MessageTemplate emailTemplate = ApplicationContextProvider.getBean(MessageTemplateService.class).getActiveTemplate(MessageTemplateChannel.EMAIL, MessageTemplateType.ORGANISATION_INVITATION);
-            String subject =MessageTemplateUtils.resolveLkInvitationMessageTemplate(studentEmail,UserDetailsContext.getLoggedInUser(),emailTemplate.getSubject());
-            String body =MessageTemplateUtils.resolveLkInvitationMessageTemplate(studentEmail,UserDetailsContext.getLoggedInUser(),emailTemplate.getBody());
+            String subject =MessageTemplateUtils.resolveLkInvitationMessageTemplate(studentEmail, SessionContext.getLoggedInUser(),emailTemplate.getSubject());
+            String body =MessageTemplateUtils.resolveLkInvitationMessageTemplate(studentEmail, SessionContext.getLoggedInUser(),emailTemplate.getBody());
             ApplicationContextProvider.getBean(MailService.class).sendEmail(studentEmail, subject,body);
            
         }

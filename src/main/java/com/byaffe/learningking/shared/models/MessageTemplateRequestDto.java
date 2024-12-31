@@ -7,6 +7,7 @@ public class MessageTemplateRequestDto {
     private Long id;
     private String name;
     private String subject;// For only push and emails
-    private MessageTemplateChannel type;
+    private MessageTemplateChannel channel;
+    private MessageTemplateType type;
     private String body;
 }

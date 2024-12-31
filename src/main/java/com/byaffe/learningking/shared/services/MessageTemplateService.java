@@ -1,5 +1,6 @@
 package com.byaffe.learningking.shared.services;
 
+import com.byaffe.learningking.shared.exceptions.ValidationFailedException;
 import com.byaffe.learningking.shared.models.MessageTemplate;
 import com.byaffe.learningking.shared.models.MessageTemplateChannel;
 import com.byaffe.learningking.shared.models.MessageTemplateRequestDto;
@@ -18,7 +19,7 @@ public interface MessageTemplateService {
      * @param dto
      * @return
      */
-    MessageTemplate saveInstance(MessageTemplateRequestDto dto) throws ValidationException;
+    MessageTemplate saveInstance(MessageTemplateRequestDto dto) throws ValidationFailedException;
     MessageTemplate getActiveTemplate(MessageTemplateChannel channel, MessageTemplateType templateType);
 
     /**
@@ -26,7 +27,7 @@ public interface MessageTemplateService {
      * @param id
      * @throws ValidationException
      */
-    void deleteInstance(long id) throws ValidationException;
+    void deleteInstance(long id) throws ValidationFailedException;
 
     /**
      * Gets a list of Damages following a supplied search term, offset and limit

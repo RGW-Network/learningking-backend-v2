@@ -7,6 +7,7 @@ import com.byaffe.learningking.shared.exceptions.ValidationFailedException;
 import com.byaffe.learningking.shared.models.MessageTemplate;
 import com.byaffe.learningking.shared.models.MessageTemplateRequestDto;
 import com.byaffe.learningking.shared.models.MessageTemplateChannel;
+import com.byaffe.learningking.shared.models.MessageTemplateType;
 import com.byaffe.learningking.shared.utils.CustomSearchUtils;
 import com.googlecode.genericdao.search.Search;
 import org.apache.commons.lang3.StringUtils;
@@ -15,7 +16,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
-import javax.xml.bind.ValidationException;
 import java.util.Arrays;
 import java.util.List;
 
@@ -36,12 +36,10 @@ public class MessageTemplateServiceImpl implements MessageTemplateService {
         if (dto.getType()==null) {
             throw new ValidationFailedException("Missing Type");
         }
-        if (dto.getType().equals(MessageTemplateChannel.EMAIL) && (StringUtils.isEmpty( dto.getSubject()))) {
+        if (dto.getChannel().equals(MessageTemplateChannel.EMAIL) && (StringUtils.isEmpty( dto.getSubject()))) {
             throw new ValidationFailedException("Subject is required for email templates");
         }
-
         MessageTemplate messageTemplate= new MessageTemplate();
-
         if(dto.getId()!=null&&dto.getId()>0){
             messageTemplate= getInstanceById(dto.getId());
         }
@@ -49,12 +47,16 @@ public class MessageTemplateServiceImpl implements MessageTemplateService {
         return messageTemplateDao.save(messageTemplate);
     }
 
+    @Override
+    public MessageTemplate getActiveTemplate(MessageTemplateChannel channel, MessageTemplateType templateType) {
+        return messageTemplateDao.searchUnique(new Search().addFilterEqual("channel",channel).addFilterEqual("type",templateType).addFilterEqual("recordStatus",RecordStatus.ACTIVE));
+    }
 
 
     @Override
-    public void deleteInstance(long id) throws ValidationException {
+    public void deleteInstance(long id) throws ValidationFailedException {
         if (id == 0) {
-            throw new ValidationException("Missing Id");
+            throw new ValidationFailedException("Missing Id");
         }
         MessageTemplate existsWithId = getInstanceById(id);
         if (existsWithId != null) {
@@ -83,10 +85,8 @@ public class MessageTemplateServiceImpl implements MessageTemplateService {
 
 
     public static Search composeSearchObject(String searchTerm) {
-        Search search = CustomSearchUtils.generateSearchTerms(searchTerm,
+       return CustomSearchUtils.generateSearchTerms(searchTerm,
                 Arrays.asList("subject", "name"));
-
-        return search;
     }
 
 

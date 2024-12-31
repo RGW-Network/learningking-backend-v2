@@ -2,6 +2,8 @@ package com.byaffe.learningking.shared.security;
 
 import com.byaffe.learningking.config.SessionDTO;
 import com.byaffe.learningking.models.Student;
+import com.byaffe.learningking.shared.constants.PermissionConstant;
+import com.byaffe.learningking.shared.exceptions.PermissionDeniedException;
 import com.byaffe.learningking.shared.models.User;
 
 /**
@@ -9,9 +11,9 @@ import com.byaffe.learningking.shared.models.User;
  * InheritableThreadLocal variable. This enables the child threads created from
  * the main thread in our application to use the bearer token of the Parent Thread.
  */
-public class UserDetailsContext {
+public class SessionContext {
 
-    private UserDetailsContext() {
+    private SessionContext() {
         // Add a private constructor to hide the implicit public one.
     }
 
@@ -58,6 +60,38 @@ public class UserDetailsContext {
         return null;
     }
 
+
+    /**
+     * Checks if logged-in user is a super admin. If No, a PermissionDeniedException will be thrown
+     */
+    public static void superAdminProtection() {
+        if (!isSuperAdmin()) {
+            throw new PermissionDeniedException();
+        }
+    }
+
+    /**
+     * Checks if logged-in user has a given permission. If permission is not found return true else returns false
+     *
+     * @return
+     */
+    public static boolean hasPermission(PermissionConstant permissionConstant) {
+        User user = getLoggedInUser();
+        if (user == null || !user.hasPermission(permissionConstant)) return false;
+
+        return true;
+    }
+
+    /**
+     * Checks if logged-in user has a given permission. If permission is not found a PermissionDeniedException will be thrown
+     *
+     * @param permissionConstant
+     */
+    public static void permissionProtection(PermissionConstant permissionConstant) {
+        if (!hasPermission(permissionConstant)) {
+            throw new PermissionDeniedException();
+        }
+    }
     public static void clear() {
         bearerToken.remove();
     }
