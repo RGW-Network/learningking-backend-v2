@@ -29,12 +29,13 @@ public class CourseRequestDTO {
     private List<String> whatYouWillLearn= new ArrayList<>();
     private String guidelineVideoUrl;
     private String welcomeRemarks;
-    private String certificateTemplate;
+    private Long certificateTemplateId;
     private Long categoryId;
     private CourseOwnerShipType ownershipType ;
     private long company;
     private Long instructorId;
     private Integer academyId;
+    private boolean offersCertificate=false;
     private Boolean isFeatured;
     private Boolean isPaid;
     private float price;

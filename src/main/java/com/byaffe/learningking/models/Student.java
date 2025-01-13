@@ -11,11 +11,11 @@ import lombok.ToString;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.Set;
 
 @Data
-@EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
 @Entity
 @Table(name = "members")
@@ -52,12 +52,13 @@ public class Student extends BaseEntity {
     private String passKey;
     private String lastEmailVerificationCode;
     private String lastPhoneVerificationCode;
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date lastCodeSentAt;
+    private LocalDateTime lastCodeSentAt;
     private String deviceId;
     @OneToOne
     @JoinColumn(name = "user_id")
     private User userAccount;
+
+    @JsonIgnore
     @ElementCollection
     @CollectionTable(name = "student_interest_names_mapping", joinColumns = @JoinColumn(name = "student_id"))
     @Column(name = "list")

@@ -101,6 +101,13 @@ public class AuthController {
         return ResponseEntity.ok().body(new BaseResponse("Success", true));
     }
 
+    @PostMapping("/instructor")
+    public ResponseEntity<BaseResponse> updateInstructor(@RequestBody InstructorRequestDTO userDTO) throws ValidationException {
+
+        instructorService.doRegister(userDTO);
+        return ResponseEntity.ok().body(new BaseResponse("Success", true));
+    }
+
 
     @PostMapping("/instructor/verify-otp")
     public ResponseEntity<BaseResponse> verifyInstructorOtp(@RequestBody UserEmailVerificationRequestDTO userDTO) throws Exception {

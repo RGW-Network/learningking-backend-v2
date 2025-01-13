@@ -14,6 +14,7 @@ import com.byaffe.learningking.shared.models.*;
 import com.byaffe.learningking.shared.services.MessageTemplateService;
 import com.byaffe.learningking.shared.services.MessageTemplateUtils;
 import com.byaffe.learningking.shared.utils.ApplicationContextProvider;
+import com.byaffe.learningking.shared.utils.CustomSearchUtils;
 import com.byaffe.learningking.shared.utils.MailService;
 import com.byaffe.learningking.shared.utils.PassEncTech4;
 import com.byaffe.learningking.utilities.AppUtils;
@@ -51,6 +52,13 @@ public class StudentServiceImpl extends GenericServiceImpl<Student> implements S
 
     @Autowired
     SystemSettingService settingService;
+
+    public static Search generateSearchTermsForStudents(String searchTerm) {
+        Search search = CustomSearchUtils.generateSearchTerms(searchTerm,
+                Arrays.asList("firstName", "lastName","username","emailAddress","phoneNumber"));
+
+        return search;
+    }
 
     public Student sendOTP(String email) {
         Student user = super.searchUnique(new Search()

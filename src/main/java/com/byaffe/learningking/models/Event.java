@@ -1,6 +1,7 @@
 package com.byaffe.learningking.models;
 
 import com.byaffe.learningking.models.courses.Category;
+import com.byaffe.learningking.models.courses.CourseInstructor;
 import com.byaffe.learningking.models.courses.PublicationStatus;
 import com.byaffe.learningking.shared.models.BaseEntity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -10,6 +11,8 @@ import lombok.NoArgsConstructor;
 import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.HashSet;
+import java.util.Set;
 
 @Data
 @NoArgsConstructor
@@ -67,10 +70,7 @@ public class Event extends BaseEntity {
     @Column(name = "what_you_will_gain", columnDefinition = "TEXT")
     private String whatYouWillGain;
 
-    @Column(name = "start_time")
-    private LocalTime startTime;
-    @Column(name = "end_time")
-    private LocalTime endTime;
+
 
     @Column(name = "start_date")
     private LocalDateTime startDate;
@@ -91,10 +91,25 @@ public class Event extends BaseEntity {
 
     @Column(name = "attendees")
     private Long attendees=0l;
+    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.MERGE)
+    @JoinTable(name = "event_speakers", joinColumns = @JoinColumn(name = "event_id"), inverseJoinColumns = @JoinColumn(name = "speaker_id"))
+    private Set<CourseInstructor> speakers;
 
     @Transient
     public Boolean isFull() {
         return this.attendees!=null && this.attendees>= maximumAttendees;
+    }
+
+    @Transient
+    public Set<Long> getSpeakerIds() {
+        Set<Long> ids = new HashSet<>();
+        if(speakers!=null ){
+            for(CourseInstructor courseInstructor :speakers){
+                ids.add(courseInstructor.getId());
+            }
+        }
+
+        return ids;
     }
     @Override
     public String toString() {

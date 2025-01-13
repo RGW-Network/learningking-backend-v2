@@ -1,6 +1,8 @@
 package com.byaffe.learningking.models.courses;
 
+import com.byaffe.learningking.models.CertificateTemplate;
 import com.byaffe.learningking.shared.models.BaseEntity;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.ToString;
 import org.apache.commons.lang3.StringUtils;
@@ -34,8 +36,7 @@ public class Course extends BaseEntity {
     private List<String> whatYouWillLearn;//new
     private String guidelineVideoUrl;
     private String welcomeRemarks;
-    @Column(name = "certificate_template", columnDefinition = "BIGTEXT")
-    private String certificateTemplate;
+
     @Enumerated(EnumType.STRING)
     private PublicationStatus publicationStatus = PublicationStatus.ACTIVE;
     private LocalDate discountStartDate;//new
@@ -63,6 +64,10 @@ public class Course extends BaseEntity {
     @JoinTable(name = "course_testimonials", joinColumns = @JoinColumn(name = "course_id"), inverseJoinColumns = @JoinColumn(name = "testimonial_id"))
     private Set<Testimonial> testimonials;
 
+    @JsonIgnore
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "certificate_template_id")
+    private CertificateTemplate certificateTemplate;
     public long getDaysToEndOfDiscount(){
         if(this.discountEndDate!=null){
             return ChronoUnit.DAYS.between(this.discountEndDate,LocalDate.now());

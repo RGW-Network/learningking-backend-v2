@@ -23,6 +23,8 @@ public interface CourseEnrollmentService extends GenericService<CourseEnrollment
      CourseEnrollment enrolForFreeCourse(Long studentId, Long courseId) throws ValidationFailedException;
     CourseEnrollment startCourse(Long studentId, Long courseId) throws ValidationFailedException;
 
+
+    String generateHtmlCertificate(Long enrolmentId);
     /**
      * 
      * @param member

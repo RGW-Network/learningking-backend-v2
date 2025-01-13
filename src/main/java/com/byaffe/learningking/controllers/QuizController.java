@@ -88,7 +88,6 @@ public class QuizController {
             search.addFilterEqual("courseLecture.courseTopic.courseLesson.course.id", courseId);
         }
 
-
         if (StringUtils.isNotEmpty(sortBy)) {
             search.addSort(sortBy, sortDescending);
         }

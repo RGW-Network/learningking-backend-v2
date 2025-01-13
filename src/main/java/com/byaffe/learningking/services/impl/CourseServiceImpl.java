@@ -39,6 +39,9 @@ public class CourseServiceImpl extends GenericServiceImpl<Course> implements Cou
     @Autowired
     InstructorService instructorService;
 
+    @Autowired
+    CertificateTemplateService certificateTemplateService;
+
     public static Search generateSearchObjectForCourses(String searchTerm) {
         Search search = CustomSearchUtils.generateSearchTerms(searchTerm,
                 Arrays.asList("title", "description"));
@@ -63,6 +66,13 @@ public class CourseServiceImpl extends GenericServiceImpl<Course> implements Cou
         course.setCategory(categoryService.getInstanceByID(plan.getCategoryId()));
         course.setCommaSeparatedTags(plan.getCommaSeparatedTags());
         course.setInstructor(instructorService.getInstanceByID(plan.getInstructorId()));
+        if (plan.isOffersCertificate()) {
+            if (plan.getCertificateTemplateId() == null) {
+                throw new ValidationFailedException("Missing certificate template");
+            }
+            course.setOffersCertificate(true);
+            course.setCertificateTemplate(certificateTemplateService.getInstanceByID(plan.getCertificateTemplateId()));
+        }
         course = saveInstance(course);
 
         if (plan.getCoverImage() != null) {

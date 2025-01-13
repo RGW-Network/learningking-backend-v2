@@ -4,11 +4,9 @@ import com.byaffe.learningking.dtos.articles.EventRequestDTO;
 import com.byaffe.learningking.models.Event;
 import com.byaffe.learningking.models.NotificationBuilder;
 import com.byaffe.learningking.models.NotificationDestinationActivity;
+import com.byaffe.learningking.models.courses.CourseInstructor;
 import com.byaffe.learningking.models.courses.PublicationStatus;
-import com.byaffe.learningking.services.EventAttendanceService;
-import com.byaffe.learningking.services.EventService;
-import com.byaffe.learningking.services.CategoryService;
-import com.byaffe.learningking.services.NotificationService;
+import com.byaffe.learningking.services.*;
 import com.byaffe.learningking.shared.constants.RecordStatus;
 import com.byaffe.learningking.shared.exceptions.OperationFailedException;
 import com.byaffe.learningking.shared.exceptions.ValidationFailedException;
@@ -23,7 +21,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -37,7 +37,8 @@ public class EventServiceImpl extends GenericServiceImpl<Event> implements Event
     ModelMapper modelMapper;
     @Autowired
     CategoryService categoryService;
-
+    @Autowired
+    InstructorService instructorService;
 
     @Override
     public Event saveInstance(Event event) throws ValidationFailedException {
@@ -56,7 +57,8 @@ public class EventServiceImpl extends GenericServiceImpl<Event> implements Event
         super.save(event);
 
     }
- @Override
+
+    @Override
     public List<Event> getInstances(Search search, int offset, int limit) {
         if (search == null) {
             search = new Search();
@@ -65,6 +67,7 @@ public class EventServiceImpl extends GenericServiceImpl<Event> implements Event
         search.setFirstResult(offset);
         return super.search(search);
     }
+
     @Override
     public Event getInstanceByID(Long event_id) {
         return super.getInstanceByID(event_id);
@@ -91,14 +94,24 @@ public class EventServiceImpl extends GenericServiceImpl<Event> implements Event
             throw new ValidationFailedException("An event with the same title already exists!");
         }
 
-        Event event=modelMapper.map(dto,Event.class);
-        event.setCategory(categoryService.getInstanceByID(dto.getCategoryId()));
-        event= saveInstance(event);
+        if (dto.getStartDate().isAfter(dto.getEndDate())) {
+            throw new ValidationFailedException("Start date cant be after end date");
+        }
 
-        if(dto.getCoverImage()!=null) {
-            String imageUrl=   imageStorageService.uploadImage(dto.getCoverImage(), "events/" + event.getId());
+        Event event = modelMapper.map(dto, Event.class);
+        Set<CourseInstructor> speakers = new HashSet<>();
+        event.setSpeakers(speakers);
+        for (Long speakerId : dto.getSpeakerIds()) {
+            speakers.add(instructorService.getInstanceByID(speakerId));
+        }
+        event.setSpeakers(speakers);
+        event.setCategory(categoryService.getInstanceByID(dto.getCategoryId()));
+        event = saveInstance(event);
+
+        if (dto.getCoverImage() != null) {
+            String imageUrl = imageStorageService.uploadImage(dto.getCoverImage(), "events/" + event.getId());
             event.setCoverImageUrl(imageUrl);
-            event=super.save(event);
+            event = super.save(event);
         }
 
         return event;
@@ -113,7 +126,7 @@ public class EventServiceImpl extends GenericServiceImpl<Event> implements Event
 
     @Override
     public Event activate(long eventId) throws ValidationFailedException {
-        Event event=getInstanceByID(eventId);
+        Event event = getInstanceByID(eventId);
         event.setPublicationStatus(PublicationStatus.ACTIVE);
 
         Event savedDevotionEvent = super.save(event);
@@ -138,7 +151,7 @@ public class EventServiceImpl extends GenericServiceImpl<Event> implements Event
 
     @Override
     public Event deActivate(long id) {
-        Event event=getInstanceByID(id);
+        Event event = getInstanceByID(id);
         event.setPublicationStatus(PublicationStatus.INACTIVE);
         return super.save(event);
     }
@@ -155,7 +168,7 @@ public class EventServiceImpl extends GenericServiceImpl<Event> implements Event
 
     @Override
     public Event getById(Long id) {
-        return super.findById(id).orElseThrow(()->new ValidationFailedException("No record Found"));
+        return super.findById(id).orElseThrow(() -> new ValidationFailedException("No record Found"));
     }
 
 
@@ -173,5 +186,5 @@ public class EventServiceImpl extends GenericServiceImpl<Event> implements Event
         return true; // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
 
-    
+
 }

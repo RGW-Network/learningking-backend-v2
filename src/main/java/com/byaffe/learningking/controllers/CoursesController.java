@@ -23,12 +23,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.json.JSONException;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+
 
 /**
  * @author Ray Gdhrt
@@ -69,7 +71,7 @@ public class CoursesController {
         if (featured != null) {
             search.addFilterEqual("isFeatured", featured);
         }
-        if(advertised!=null){
+        if (advertised != null) {
             search.addFilterEqual("isAdvertised", advertised);
         }
         if (sortBy != null) {
@@ -289,7 +291,6 @@ public class CoursesController {
     }
 
 
-
     @PostMapping("/lectures/complete/{id}")
     public ResponseEntity<ResponseObject<CourseEnrollment>> completeSubTopic(@PathVariable("id") Long id) throws JSONException {
         Student member = SessionContext.getLoggedInStudent();
@@ -303,6 +304,16 @@ public class CoursesController {
         CourseEnrollment courseEnrollment = ApplicationContextProvider.getBean(CourseEnrollmentService.class).completeSubTopic(member, topic);
 
         return ResponseEntity.ok().body(new ResponseObject<>(courseEnrollment));
+    }
+
+    @GetMapping("/enrollments/{enrollmentId}/download-certificate")
+    public ResponseEntity<String> generateCertificate(@PathVariable("enrollmentId") Long enrollmentId)  {
+
+        String htmlStringTemplate = ApplicationContextProvider.getBean(CourseEnrollmentService.class).generateHtmlCertificate(enrollmentId);
+        // Return HTML content as a response
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.TEXT_HTML_VALUE)
+                .body(htmlStringTemplate);
     }
 
 

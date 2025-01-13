@@ -28,7 +28,7 @@ public interface InstructorService extends GenericService<CourseInstructor> {
     CourseInstructor quickSave(CourseInstructor CourseInstructor) throws ValidationFailedException;
     CourseInstructor doRegister(InstructorRequestDTO dto) throws ValidationFailedException;
 
-
+    CourseInstructor save(InstructorRequestDTO dto) throws ValidationFailedException ;
     /**
      *
      * @param email

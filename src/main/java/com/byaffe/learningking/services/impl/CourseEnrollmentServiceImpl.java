@@ -18,7 +18,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
 
@@ -35,6 +37,9 @@ public class CourseEnrollmentServiceImpl extends BaseDAOImpl<CourseEnrollment> i
 
     @Autowired
     CourseLectureService courseLectureService;
+
+    @Autowired
+    CertificateTemplateService certificateTemplateService;
 
     public static Search generateSearchObjectForEnrollments(String searchTerm) {
         return CustomSearchUtils.generateSearchTerms(searchTerm,
@@ -93,6 +98,19 @@ public class CourseEnrollmentServiceImpl extends BaseDAOImpl<CourseEnrollment> i
         return super.searchUniqueByPropertyEqual("id", member_plan_id, RecordStatus.ACTIVE);
     }
 
+    public CourseEnrollment getInstanceByID(Long member_plan_id, boolean includeTemplate) {
+        if (member_plan_id == null) {
+            return null;
+        }
+        Search search = new Search().addFilterEqual("id", member_plan_id).addFilterEqual("recordStatus", RecordStatus.ACTIVE);
+        if (includeTemplate) {
+            search.addFetch("course.certificateTemplate");
+        }
+
+
+        return super.searchUnique(search);
+    }
+
     @Override
     public CourseEnrollment createSubscription(Student member, Course course) throws ValidationFailedException {
 
@@ -141,6 +159,43 @@ public class CourseEnrollmentServiceImpl extends BaseDAOImpl<CourseEnrollment> i
         return super.save(courseEnrollment);
     }
 
+    @Override
+    public String generateHtmlCertificate(Long enrolmentId) {
+        CourseEnrollment enrollment = getInstanceByID(enrolmentId, true);
+
+        if (enrollment==null) {
+            throw new ValidationFailedException("Record not found");
+        }
+
+        if (!enrollment.getReadStatus().equals(ReadStatus.Completed)) {
+            throw new ValidationFailedException("Certificate not yet available");
+        }
+
+        if (enrollment.getCourse() == null) {
+            throw new ValidationFailedException("Missing course");
+        }
+
+        if (enrollment.getStudent() == null) {
+            throw new ValidationFailedException("Missing student");
+        }
+        if (!enrollment.getCourse().getOffersCertificate()) {
+            throw new ValidationFailedException("Course offers no certificates");
+        }
+
+        if (enrollment.getCourse().getCertificateTemplate() == null) {
+            throw new ValidationFailedException("Course has no certificate template");
+        }
+
+        String template = enrollment.getCourse().getCertificateTemplate().getTemplate();
+        template = template.replace("{StudentFirstName}", enrollment.getStudent().getUserAccount().getFirstName());
+        template = template.replace("{StudentLastName}", enrollment.getStudent().getUserAccount().getLastName());
+        template = template.replace("{CourseTitle}", enrollment.getCourse().getTitle());
+        template = template.replace("{CompletionDate}", enrollment.getDateCompleted().format(DateTimeFormatter.ISO_DATE));
+        template = template.replace("{InstructorName}", enrollment.getCourse().getInstructor().getFullName());
+
+        return template;
+    }
+
     private CourseEnrollment createActualSubscription(Student member, Course course) {
         CourseEnrollment courseEnrollment = new CourseEnrollment();
         CourseLecture firstSubTopic = null;
@@ -181,7 +236,7 @@ public class CourseEnrollmentServiceImpl extends BaseDAOImpl<CourseEnrollment> i
         if (coursePayment == null || !coursePayment.getStatus().equals(TransactionStatus.SUCCESSFUL)) {
             return null;
         }
-        Course course=ApplicationContextProvider.getBean(CourseService.class).getInstanceByID(coursePayment.getReferenceRecordId());
+        Course course = ApplicationContextProvider.getBean(CourseService.class).getInstanceByID(coursePayment.getReferenceRecordId());
         return createActualSubscription(coursePayment.getStudent(), course);
     }
 
@@ -235,21 +290,21 @@ public class CourseEnrollmentServiceImpl extends BaseDAOImpl<CourseEnrollment> i
                         .addFilterEqual("courseTopic", lecture.getCourseTopic())
                         .addFilterGreaterOrEqual("position", lecture.getPosition()), 0, 1);
 
-        long totalSubTopics= courseLectureService.countInstances(
+        long totalSubTopics = courseLectureService.countInstances(
                 new Search().addFilterEqual("courseTopic.courseLesson.course.id", courseEnrollment.getCourseId()));
-        long completedSubTopics= courseLectureService.countInstances(
-                new Search().addFilterEqual("courseTopic.courseLesson.course.id", courseEnrollment.getCourseId()).addFilterGreaterOrEqual("id",lecture.getId()));
-       //Compute Progress
-        if(totalSubTopics>0) {
-           double progress = ((double) completedSubTopics / totalSubTopics) * 100;
-           courseEnrollment.setProgress(progress);
-           if(progress>=100){
-               courseEnrollment.setReadStatus(ReadStatus.Completed);
-               courseEnrollment.setDateCompleted(LocalDateTime.now());
+        long completedSubTopics = courseLectureService.countInstances(
+                new Search().addFilterEqual("courseTopic.courseLesson.course.id", courseEnrollment.getCourseId()).addFilterGreaterOrEqual("id", lecture.getId()));
+        //Compute Progress
+        if (totalSubTopics > 0) {
+            double progress = ((double) completedSubTopics / totalSubTopics) * 100;
+            courseEnrollment.setProgress(progress);
+            if (progress >= 100) {
+                courseEnrollment.setReadStatus(ReadStatus.Completed);
+                courseEnrollment.setDateCompleted(LocalDateTime.now());
 
-               return save(courseEnrollment);
-           }
-       }
+                return save(courseEnrollment);
+            }
+        }
         //If subtopic of higher position exists in topic
         if (!subTopics.isEmpty()) {
             courseEnrollment.setCurrentLecture(subTopics.get(0));
