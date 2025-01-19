@@ -98,54 +98,71 @@ public class CompanyController {
     }
 
     @PostMapping(path = "/groups")
-    public ResponseEntity<ResponseObject<OrganisationGroup>> createGroup(@PathVariable Long organisationId, @RequestBody OrganisationGroupRequestDTO  dto) {
-        dto.setOrganisationId(organisationId);
+    public ResponseEntity<ResponseObject<OrganisationGroup>> createGroup(@RequestBody OrganisationGroupRequestDTO dto) {
         return ResponseEntity.ok().body(new ResponseObject<>(organisationGroupService.createGroup(dto)));
     }
+
     @GetMapping("/groups")
     public ResponseEntity<ResponseList<OrganisationGroup>> getGroups(@RequestParam(value = "searchTerm", required = false) String searchTerm,
-                                                                   @RequestParam(value = "offset", required = true) Integer offset,
-                                                                   @RequestParam(value = "limit", required = true) Integer limit,
-                                                                   @RequestParam(value = "sortBy", required = false) String sortBy) throws JSONException {
+                                                                     @RequestParam(value = "offset", required = true) Integer offset,
+                                                                     @RequestParam(value = "limit", required = true) Integer limit,
+                                                                     @RequestParam(value = "organisationId", required = true) Long organisationId,
+                                                                     @RequestParam(value = "sortBy", required = false) String sortBy) throws JSONException {
         long count = 0;
         Search search = OrganisationGroupServiceImpl.generateSearchTermsForGroup(searchTerm).addFilterEqual("recordStatus", RecordStatus.ACTIVE);
+        if (organisationId != null) search.addFilterEqual("organisation.Id", organisationId);
+        if (sortBy != null) search.addSortDesc(sortBy);
+
         List<OrganisationGroup> organisations = organisationGroupService.getGroups(search, offset, limit);
 
         return ResponseEntity.ok().body(new ResponseList<>(organisations, (int) count, offset, limit));
     }
 
     @PostMapping(path = "/groups/students")
-    public ResponseEntity<ResponseObject<OrganisationGroupStudent>> createGroupStudents( @RequestBody OrganisationGroupStudentRequestDTO dto) {
+    public ResponseEntity<ResponseObject<OrganisationGroupStudent>> createGroupStudents(@RequestBody OrganisationGroupStudentRequestDTO dto) {
 
-        return ResponseEntity.ok().body(new ResponseObject<>(organisationGroupService.addGroupStudent(dto.getOrganisationGroupId(),dto.getOrganisationStudentId())));
+        return ResponseEntity.ok().body(new ResponseObject<>(organisationGroupService.addGroupStudent(dto.getOrganisationGroupId(), dto.getOrganisationStudentId())));
     }
+
     @PostMapping(path = "/groups/{groupId}/add-all-students")
-    public ResponseEntity<ResponseObject<OrganisationGroup>> addAllStudentsToGroup( @RequestParam(value = "groupId") Long groupId) {
+    public ResponseEntity<ResponseObject<OrganisationGroup>> addAllStudentsToGroup(@RequestParam(value = "groupId") Long groupId) {
 
         return ResponseEntity.ok().body(new ResponseObject<>(organisationGroupService.addAllStudentsToGroup(groupId)));
     }
-    @GetMapping("/groups/students")
+
+    @GetMapping("/students")
     public ResponseEntity<ResponseList<OrganisationGroupStudent>> getGroupStudents(@RequestParam(value = "searchTerm", required = false) String searchTerm,
-                                                                     @RequestParam(value = "offset", required = true) Integer offset,
-                                                                     @RequestParam(value = "limit", required = true) Integer limit,
-                                                                     @RequestParam(value = "sortBy", required = false) String sortBy) throws JSONException {
+                                                                                   @RequestParam(value = "offset", required = true) Integer offset,
+                                                                                   @RequestParam(value = "limit", required = true) Integer limit,
+                                                                                   @RequestParam(value = "sortBy", required = false) String sortBy,
+                                                                                   @RequestParam(value = "organisationId", required = false) Long organisationId,
+                                                                                   @RequestParam(value = "groupId", required = false) Long groupId) throws JSONException {
         long count = 0;
         Search search = OrganisationGroupServiceImpl.generateSearchTermsForStudent(searchTerm).addFilterEqual("recordStatus", RecordStatus.ACTIVE);
+
+        if (organisationId != null) search.addFilterEqual("organisationGroup.organisation.id", organisationId);
+        if (groupId != null) search.addFilterEqual("organisationGroup.id", groupId);
+
         List<OrganisationGroupStudent> organisations = organisationGroupService.getGroupStudents(search, offset, limit);
         return ResponseEntity.ok().body(new ResponseList<>(organisations, (int) count, offset, limit));
     }
 
     @PostMapping(path = "/groups/courses")
     public ResponseEntity<ResponseObject<OrganisationGroupCourse>> createGroupCourses(@RequestBody OrganisationGroupCourseRequestDTO dto) {
-        return ResponseEntity.ok().body(new ResponseObject<>(organisationGroupService.addGroupCourse(dto.getOrganisationGroupId() ,dto.getCourseId())));
+        return ResponseEntity.ok().body(new ResponseObject<>(organisationGroupService.addGroupCourse(dto.getOrganisationGroupId(), dto.getCourseId())));
     }
+
     @GetMapping("/groups/courses")
     public ResponseEntity<ResponseList<OrganisationGroupCourse>> getGroupCourses(@RequestParam(value = "searchTerm", required = false) String searchTerm,
-                                                                                   @RequestParam(value = "offset", required = true) Integer offset,
-                                                                                   @RequestParam(value = "limit", required = true) Integer limit,
-                                                                                   @RequestParam(value = "sortBy", required = false) String sortBy) throws JSONException {
+                                                                                 @RequestParam(value = "offset", required = true) Integer offset,
+                                                                                 @RequestParam(value = "limit", required = true) Integer limit,
+                                                                                 @RequestParam(value = "organisationId", required = true) Long organisationId,
+                                                                                 @RequestParam(value = "groupId", required = true) Long groupId,
+                                                                                 @RequestParam(value = "sortBy", required = false) String sortBy) throws JSONException {
         long count = 0;
         Search search = OrganisationGroupServiceImpl.generateSearchTermsForCourse(searchTerm).addFilterEqual("recordStatus", RecordStatus.ACTIVE);
+        if (organisationId != null) search.addFilterEqual("organisationGroup.organisation.id", organisationId);
+        if (groupId != null) search.addFilterEqual("organisationGroup.id", groupId);
         List<OrganisationGroupCourse> organisations = organisationGroupService.getGroupCourses(search, offset, limit);
         return ResponseEntity.ok().body(new ResponseList<>(organisations, (int) count, offset, limit));
     }

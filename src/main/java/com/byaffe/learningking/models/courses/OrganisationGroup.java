@@ -14,6 +14,7 @@ public class OrganisationGroup extends BaseEntity {
     private static final long serialVersionUID = 1L;
     private String name;
     private String description;
+    private Long memberCount=1l;
     @OneToOne
     @JoinColumn(name = "organisation_id")
     private Organisation organisation;
