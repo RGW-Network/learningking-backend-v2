@@ -57,6 +57,9 @@ public class OrganisationGroupServiceImpl implements OrganisationGroupService {
     public OrganisationGroup getGroupById(long id) {
         return organisationGroupDao.findById(id).orElseThrow(() -> new ValidationFailedException("Group With Id not found"));
     }
+    public OrganisationGroup getInstanceById(Long id) {
+        return organisationGroupDao.findById(id).orElseThrow(() -> new ValidationFailedException("Group With Id not found"));
+    }
 
     @Override
     public void deleteGroup(Long id) {

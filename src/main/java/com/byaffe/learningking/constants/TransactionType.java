@@ -1,9 +1,12 @@
 package com.byaffe.learningking.constants;
 
 public enum TransactionType {
-    COURSE_PAYMENT(0,"Deposit"),
-    SUBSCRIPTION_PAYMENT(1,"Withdraw"),
-    EVENT_PAYMENT(2,"Withdraw");
+    COURSE_PAYMENT(0,"Course Payment"),
+    SUBSCRIPTION_PAYMENT(1,"Subscription Payment"),
+    EVENT_PAYMENT(2,"Event Payment"),
+    BULK_COURSE_PAYMENT(3,"Bulk Course Payment"),
+    BULK_SUBSCRIPTION_PAYMENT(4,"Bulk Subscription Payment"),
+    BULK_EVENT_PAYMENT(5,"Bulk Event Payment");
 
 
     private String uiName;
@@ -14,21 +17,14 @@ public enum TransactionType {
         this.id=id;
     }
 
-    public String getUiName() {
+    public String getDisplayName() {
         return uiName;
-    }
-
-    public void setUiName(String uiName) {
-        this.uiName = uiName;
     }
 
     public int getId() {
         return id;
     }
 
-    public void setId(int id) {
-        this.id = id;
-    }
 
     public static TransactionType getById(int id){
         for(TransactionType enumValue: TransactionType.values()){

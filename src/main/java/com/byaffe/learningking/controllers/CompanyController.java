@@ -110,7 +110,7 @@ public class CompanyController {
                                                                      @RequestParam(value = "sortBy", required = false) String sortBy) throws JSONException {
         long count = 0;
         Search search = OrganisationGroupServiceImpl.generateSearchTermsForGroup(searchTerm).addFilterEqual("recordStatus", RecordStatus.ACTIVE);
-        if (organisationId != null) search.addFilterEqual("organisation.Id", organisationId);
+        if (organisationId != null) search.addFilterEqual("organisation.id", organisationId);
         if (sortBy != null) search.addSortDesc(sortBy);
 
         List<OrganisationGroup> organisations = organisationGroupService.getGroups(search, offset, limit);
@@ -147,12 +147,9 @@ public class CompanyController {
         return ResponseEntity.ok().body(new ResponseList<>(organisations, (int) count, offset, limit));
     }
 
-    @PostMapping(path = "/groups/courses")
-    public ResponseEntity<ResponseObject<OrganisationGroupCourse>> createGroupCourses(@RequestBody OrganisationGroupCourseRequestDTO dto) {
-        return ResponseEntity.ok().body(new ResponseObject<>(organisationGroupService.addGroupCourse(dto.getOrganisationGroupId(), dto.getCourseId())));
-    }
 
-    @GetMapping("/groups/courses")
+
+    @GetMapping("/courses")
     public ResponseEntity<ResponseList<OrganisationGroupCourse>> getGroupCourses(@RequestParam(value = "searchTerm", required = false) String searchTerm,
                                                                                  @RequestParam(value = "offset", required = true) Integer offset,
                                                                                  @RequestParam(value = "limit", required = true) Integer limit,

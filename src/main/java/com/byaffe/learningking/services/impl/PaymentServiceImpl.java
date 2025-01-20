@@ -2,15 +2,10 @@ package com.byaffe.learningking.services.impl;
 
 import com.byaffe.learningking.constants.TransactionStatus;
 import com.byaffe.learningking.constants.TransactionType;
-import com.byaffe.learningking.dtos.SubscriptionPaymentRequestDTO;
 import com.byaffe.learningking.models.Event;
-import com.byaffe.learningking.models.EventStatus;
 import com.byaffe.learningking.models.Student;
-import com.byaffe.learningking.models.SystemSetting;
-import com.byaffe.learningking.models.courses.Course;
-import com.byaffe.learningking.models.courses.CourseEnrollment;
+import com.byaffe.learningking.models.courses.*;
 import com.byaffe.learningking.models.payments.AggregatorTransaction;
-import com.byaffe.learningking.models.payments.PaymentPrefixes;
 import com.byaffe.learningking.models.payments.SubscriptionPlan;
 import com.byaffe.learningking.services.*;
 import com.byaffe.learningking.services.flutterwave.FlutterReponse;
@@ -106,13 +101,52 @@ public class PaymentServiceImpl extends GenericServiceImpl<AggregatorTransaction
 
     }
 
-    public AggregatorTransaction initiateSubscriptionPlanPayment(long subscriptionPlanId, long studentId, SubscriptionPaymentRequestDTO dto) throws IOException, OperationFailedException, ValidationFailedException {
-        if (dto == null || dto.getType() == null) {
-            throw new ValidationFailedException("Missing subscription payment type");
+    @Override
+    public AggregatorTransaction initiateBulkCoursePayment(long courseId, long studentId, long groupId) throws IOException, OperationFailedException, ValidationFailedException {
+        Course course = ApplicationContextProvider.getBean(CourseService.class).getInstanceByID(courseId);
+        Student loggedInStudent = ApplicationContextProvider.getBean(StudentService.class).getInstanceByID(studentId);
+        OrganisationGroup group = ApplicationContextProvider.getBean(OrganisationGroupService.class).getInstanceById(groupId);
+        List<OrganisationGroupStudent> students = ApplicationContextProvider.getBean(OrganisationGroupService.class).getGroupStudents(new Search().addFilterEqual("organisationGroup", group).addFilterEqual("recordStatus", RecordStatus.ACTIVE), 0, 0);
+        long userCount = 0;
+        String errors = "";
+        for (OrganisationGroupStudent organisationStudent : students) {
+            Student student = organisationStudent.getOrganisationStudent().getStudent();
+            try {
+                CourseEnrollment memberCourse = ApplicationContextProvider.getBean(CourseEnrollmentService.class).getSerieSubscription(student, course);
+                if (memberCourse != null) {
+                    throw new ValidationFailedException("Already purchased this course.");
+                }
+                userCount++;
+            } catch (Exception e) {
+                errors = errors.concat("{"+student.getEmailAddress() + ": " + e.getMessage()+"} ");
+            }
         }
+
+        double totalCost = course.getDiscountedPrice() > 0 ? course.getDiscountedPrice()*userCount : course.getPrice()*userCount;
+        return initiateBulkPayment(totalCost, loggedInStudent, "Bulk Course (" + course.getTitle() + ")", course.id,group,errors, TransactionType.BULK_COURSE_PAYMENT);
+
+    }
+
+    public AggregatorTransaction initiateSubscriptionPlanPayment(long subscriptionPlanId, long studentId) throws IOException, OperationFailedException, ValidationFailedException {
+
         SubscriptionPlan subscriptionPlan = ApplicationContextProvider.getBean(SubscriptionPlanService.class).getInstanceByID(subscriptionPlanId);
         Student student = ApplicationContextProvider.getBean(StudentService.class).getInstanceByID(studentId);
         return initiatePayment(subscriptionPlan.getCostPerYear() > 0 ? subscriptionPlan.getCostPerYear() : subscriptionPlan.getCostPerMonth(), student, "Subscription Plan (" + subscriptionPlan.getName() + ")", subscriptionPlan.id, TransactionType.SUBSCRIPTION_PAYMENT);
+
+    }
+
+    @Override
+    public AggregatorTransaction initiateBulkSubscriptionPlanPayment(long subscriptionPlanId, long studentId, long groupId) throws IOException, OperationFailedException, ValidationFailedException {
+        SubscriptionPlan subscriptionPlan = ApplicationContextProvider.getBean(SubscriptionPlanService.class).getInstanceByID(subscriptionPlanId);
+        Student loggedInStudent = ApplicationContextProvider.getBean(StudentService.class).getInstanceByID(studentId);
+        OrganisationGroup group = ApplicationContextProvider.getBean(OrganisationGroupService.class).getInstanceById(groupId);
+        List<OrganisationGroupStudent> students = ApplicationContextProvider.getBean(OrganisationGroupService.class).getGroupStudents(new Search().addFilterEqual("organisationGroup", group).addFilterEqual("recordStatus", RecordStatus.ACTIVE), 0, 0);
+        long userCount = students.size();
+        String errors = "";
+
+
+        double totalCost = subscriptionPlan.getCostPerMonth() *userCount ;
+        return initiateBulkPayment(totalCost, loggedInStudent, "Bulk Course (" + subscriptionPlan.getName() + ")", subscriptionPlan.id,group,errors, TransactionType.BULK_SUBSCRIPTION_PAYMENT);
 
     }
 
@@ -121,6 +155,29 @@ public class PaymentServiceImpl extends GenericServiceImpl<AggregatorTransaction
         Student student = ApplicationContextProvider.getBean(StudentService.class).getInstanceByID(studentId);
         ApplicationContextProvider.getBean(EventAttendanceService.class).validateEventAttendance(event, student);
         return initiatePayment(event.getDiscountedPrice() > 0 ? event.getDiscountedPrice() : event.getOriginalPrice(), student, "Event (" + event.getTitle() + ")", event.id, TransactionType.EVENT_PAYMENT);
+
+    }
+
+    @Override
+    public AggregatorTransaction initiateBulkEventPayment(long eventId, long studentId, long organisationId) throws IOException, OperationFailedException, ValidationFailedException {
+        Event event = ApplicationContextProvider.getBean(EventService.class).getInstanceByID(eventId);
+        Student loggedInStudent = ApplicationContextProvider.getBean(StudentService.class).getInstanceByID(studentId);
+        OrganisationGroup group = ApplicationContextProvider.getBean(OrganisationGroupService.class).getInstanceById(organisationId);
+        List<OrganisationGroupStudent> students = ApplicationContextProvider.getBean(OrganisationGroupService.class).getGroupStudents(new Search().addFilterEqual("organisationGroup", group).addFilterEqual("recordStatus", RecordStatus.ACTIVE), 0, 0);
+        long userCount = 0;
+        String errors = "";
+        for (OrganisationGroupStudent organisationStudent : students) {
+            Student student = organisationStudent.getOrganisationStudent().getStudent();
+            try {
+                ApplicationContextProvider.getBean(EventAttendanceService.class).validateEventAttendance(event, student);
+                userCount++;
+            } catch (Exception e) {
+                errors = errors.concat("{"+student.getEmailAddress() + ": " + e.getMessage()+"} ");
+            }
+        }
+
+        double totalCost = event.getDiscountedPrice() > 0 ? event.getDiscountedPrice()*userCount : event.getOriginalPrice()*userCount;
+        return initiateBulkPayment(totalCost, loggedInStudent, "Bulk Event (" + event.getTitle() + ")", event.id,group,errors, TransactionType.BULK_EVENT_PAYMENT);
 
     }
 
@@ -134,6 +191,35 @@ public class PaymentServiceImpl extends GenericServiceImpl<AggregatorTransaction
         newPayment.setDescription("Payment For " + description);
         newPayment.setAmountInitiated(amount);
         newPayment.setAmountChargedFromUser(amount);
+        newPayment = super.save(newPayment);
+        newPayment.generateInternalReference();
+        // Make Flutterwave request
+        FlutterReponse flutterReponse = flutterWaveService.initiateDeposit(newPayment);
+        newPayment.setLastAggregatorResponse(new Gson().toJson(flutterReponse));
+
+        if (StringUtils.isNotBlank(flutterReponse.data.link)) {
+            newPayment.setStatus(TransactionStatus.PENDING);
+            newPayment.setRedirectUrl(flutterReponse.data.link);
+        } else {
+            newPayment.setStatus(TransactionStatus.FAILED);
+            newPayment.setRedirectUrl(flutterReponse.message);
+        }
+
+        // Save payment request
+        return saveInstance(newPayment);
+    }
+
+    private AggregatorTransaction initiateBulkPayment(double amount, Student student, String description, long referenceRecordId, OrganisationGroup organisationGroup, String bulkExceptions,TransactionType transactionType) throws IOException, OperationFailedException {
+        AggregatorTransaction newPayment = new AggregatorTransaction();
+        newPayment.setStudent(student);
+        newPayment.setType(transactionType);
+        newPayment.setTimestamp(LocalDateTime.now());
+        newPayment.setReferenceRecordId(referenceRecordId);
+        newPayment.setDescription("Bulk Payment For " + description + " on " + organisationGroup.getName());
+        newPayment.setAmountInitiated(amount);
+        newPayment.setReferenceBulkRecordId(organisationGroup.getId());
+        newPayment.setAmountChargedFromUser(amount);
+        newPayment.setBulkExceptions(bulkExceptions);
         newPayment = super.save(newPayment);
         newPayment.generateInternalReference();
         // Make Flutterwave request

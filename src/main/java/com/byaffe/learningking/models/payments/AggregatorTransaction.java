@@ -40,6 +40,8 @@ public class AggregatorTransaction extends BaseEntity {
     private String phoneNumber;
     private String redirectUrl;
     private Long referenceRecordId;
+    private Long referenceBulkRecordId;
+    private String bulkExceptions;
 
     @JsonIgnore
     @ManyToOne

@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Data
-public class SubscriptionPaymentRequestDTO {
+public class BulkPaymentRequestDTO {
 private Long organisationGroupId;
-    private SubscriptionPlanPaymentType type;
 }

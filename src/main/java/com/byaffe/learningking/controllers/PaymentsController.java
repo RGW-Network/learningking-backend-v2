@@ -2,7 +2,7 @@ package com.byaffe.learningking.controllers;
 
 import com.byaffe.learningking.constants.TransactionStatus;
 import com.byaffe.learningking.constants.TransactionType;
-import com.byaffe.learningking.dtos.SubscriptionPaymentRequestDTO;
+import com.byaffe.learningking.dtos.BulkPaymentRequestDTO;
 import com.byaffe.learningking.models.courses.Course;
 import com.byaffe.learningking.models.courses.PublicationStatus;
 import com.byaffe.learningking.models.payments.AggregatorTransaction;
@@ -14,7 +14,6 @@ import com.byaffe.learningking.services.StudentSubscriptionPlanService;
 import com.byaffe.learningking.services.SubscriptionPlanService;
 import com.byaffe.learningking.services.impl.CategoryServiceImpl;
 import com.byaffe.learningking.services.impl.PaymentServiceImpl;
-import com.byaffe.learningking.services.impl.StudentSubscriptionPlanServiceImpl;
 import com.byaffe.learningking.shared.api.BaseResponse;
 import com.byaffe.learningking.shared.api.ResponseList;
 import com.byaffe.learningking.shared.api.ResponseObject;
@@ -67,14 +66,26 @@ public class  PaymentsController {
     }
 
     @PostMapping("/pay/{type}/{recordId}")
-    public ResponseEntity<ResponseObject<AggregatorTransaction>> save(@PathVariable(name = "type", required = true) TransactionType type, @PathVariable(name = "recordId", required = true) Long recordId, @RequestBody(required = false) SubscriptionPaymentRequestDTO dto) throws ValidationFailedException, IOException {
+    public ResponseEntity<ResponseObject<AggregatorTransaction>> save(@PathVariable(name = "type", required = true) TransactionType type, @PathVariable(name = "recordId", required = true) Long recordId, @RequestBody(required = false) BulkPaymentRequestDTO dto) throws ValidationFailedException, IOException {
         AggregatorTransaction response = null;
         if (type.equals(TransactionType.COURSE_PAYMENT)) {
             response = paymentService.initiateCoursePayment(recordId, Objects.requireNonNull(SessionContext.getLoggedInStudent()).getId());
         } else if (type.equals(TransactionType.SUBSCRIPTION_PAYMENT)) {
-            response = paymentService.initiateSubscriptionPlanPayment(recordId, Objects.requireNonNull(SessionContext.getLoggedInStudent()).getId(), dto);
+            response = paymentService.initiateSubscriptionPlanPayment(recordId, Objects.requireNonNull(SessionContext.getLoggedInStudent()).getId());
         } else if (type.equals(TransactionType.EVENT_PAYMENT)) {
             response = paymentService.initiateEventPayment(recordId, Objects.requireNonNull(SessionContext.getLoggedInStudent()).getId());
+        }
+        else if (type.equals(TransactionType.BULK_EVENT_PAYMENT)) {
+            if(dto==null||dto.getOrganisationGroupId()==null) throw  new ValidationFailedException("Missing Group Id for bulk purchase.");
+            response = paymentService.initiateBulkEventPayment(recordId, Objects.requireNonNull(SessionContext.getLoggedInStudent()).getId(),dto.getOrganisationGroupId());
+        }
+        else if (type.equals(TransactionType.BULK_SUBSCRIPTION_PAYMENT)) {
+            if(dto==null||dto.getOrganisationGroupId()==null) throw  new ValidationFailedException("Missing Group Id for bulk purchase.");
+            response = paymentService.initiateBulkSubscriptionPlanPayment(recordId, Objects.requireNonNull(SessionContext.getLoggedInStudent()).getId(),dto.getOrganisationGroupId());
+        }
+        else if (type.equals(TransactionType.BULK_COURSE_PAYMENT)) {
+            if(dto==null||dto.getOrganisationGroupId()==null) throw  new ValidationFailedException("Missing Group Id for bulk purchase.");
+            response = paymentService.initiateBulkCoursePayment(recordId, Objects.requireNonNull(SessionContext.getLoggedInStudent()).getId(),dto.getOrganisationGroupId());
         }
 
         return ResponseEntity.ok().body(new ResponseObject<>(response));

@@ -20,6 +20,7 @@ public interface OrganisationGroupService {
     OrganisationGroup createGroup(OrganisationGroupRequestDTO dto);
 
     List<OrganisationGroup> getGroups(Search search, int offset, int limit);
+    OrganisationGroup getInstanceById(Long id);
 
     void deleteGroup(Long id);
 
