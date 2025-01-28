@@ -73,7 +73,7 @@ public class CourseServiceImpl extends GenericServiceImpl<Course> implements Cou
             course.setOffersCertificate(true);
             course.setCertificateTemplate(certificateTemplateService.getInstanceByID(plan.getCertificateTemplateId()));
         }
-        
+
         course.setDescription(plan.getDescription().replaceAll("[^\\p{ASCII}]", ""));
         course = saveInstance(course);
 
