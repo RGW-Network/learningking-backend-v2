@@ -67,12 +67,14 @@ public class CourseServiceImpl extends GenericServiceImpl<Course> implements Cou
         course.setCommaSeparatedTags(plan.getCommaSeparatedTags());
         course.setInstructor(instructorService.getInstanceByID(plan.getInstructorId()));
         if (plan.isOffersCertificate()) {
-            if (plan.getCertificateTemplateId() == null) {
+            if (plan.getCertificateTemplateId() == null||plan.getCertificateTemplateId() == 0) {
                 throw new ValidationFailedException("Missing certificate template");
             }
             course.setOffersCertificate(true);
             course.setCertificateTemplate(certificateTemplateService.getInstanceByID(plan.getCertificateTemplateId()));
         }
+        
+        course.setDescription(plan.getDescription().replaceAll("[^\\p{ASCII}]", ""));
         course = saveInstance(course);
 
         if (plan.getCoverImage() != null) {
