@@ -1,6 +1,8 @@
 package com.byaffe.learningking.dtos.courses;
 
 import com.byaffe.learningking.models.courses.*;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -14,6 +16,7 @@ public class CourseRequestDTO {
     private String description;
     private int numberOfTopics = 0;
     private String coverImageUrl;
+    @JsonIgnore
     private MultipartFile coverImage;
     private Boolean isAdvertised;
 

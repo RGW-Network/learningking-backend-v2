@@ -5,6 +5,8 @@ import com.byaffe.learningking.shared.models.BaseEntity;
 import com.byaffe.learningking.shared.models.Country;
 import com.byaffe.learningking.shared.models.User;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonIncludeProperties;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
@@ -16,7 +18,6 @@ import java.util.Date;
 import java.util.Set;
 
 @Data
-@ToString(callSuper = true)
 @Entity
 @Table(name = "members")
 @Inheritance(strategy = InheritanceType.JOINED)
@@ -33,7 +34,7 @@ public class Student extends BaseEntity {
     private String emailAddress;
     @Column(name = "phone_number", length = 20)
     private String phoneNumber;
-    @JsonIgnore
+    @JsonIncludeProperties({"name","id"})
     @ManyToOne
     @JoinColumn(name = "country_id")
     private Country country;
@@ -46,6 +47,8 @@ public class Student extends BaseEntity {
     private String twitterHandle;
     private String facebookUsername;
     private String website;
+
+    @JsonIncludeProperties({"value","id"})
     @ManyToOne
     @JoinColumn(name = "profession_id")
     private LookupValue profession;
@@ -54,11 +57,13 @@ public class Student extends BaseEntity {
     private String lastPhoneVerificationCode;
     private LocalDateTime lastCodeSentAt;
     private String deviceId;
+
+    @JsonIncludeProperties({"username","id"})
     @OneToOne
     @JoinColumn(name = "user_id")
     private User userAccount;
 
-    @JsonIgnore
+
     @ElementCollection
     @CollectionTable(name = "student_interest_names_mapping", joinColumns = @JoinColumn(name = "student_id"))
     @Column(name = "list")

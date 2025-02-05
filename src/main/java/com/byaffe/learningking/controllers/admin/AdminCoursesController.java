@@ -42,7 +42,9 @@ Course course=ApplicationContextProvider.getBean(CourseService.class).saveInstan
     }
     @PostMapping(path = "/multipart", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<BaseResponse> uploadCSV(@RequestPart  CourseRequestDTO dto, @RequestPart(value = "file",required = false) MultipartFile file)  {
-      dto.setCoverImage(file);
+     if(file!=null) {
+         dto.setCoverImage(file);
+     }
          ApplicationContextProvider.getBean(CourseService.class).saveInstance(dto);
         return ResponseEntity.ok().body(new BaseResponse(true));
     }

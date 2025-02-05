@@ -8,6 +8,7 @@ import com.byaffe.learningking.models.Article;
 import com.byaffe.learningking.models.Student;
 import com.byaffe.learningking.services.ArticleService;
 import com.byaffe.learningking.services.DashboardService;
+import com.byaffe.learningking.services.StudentService;
 import com.byaffe.learningking.services.impl.ArticleServiceImpl;
 import com.byaffe.learningking.shared.api.BaseResponse;
 import com.byaffe.learningking.shared.api.ResponseList;
@@ -39,7 +40,7 @@ public class AdminDashboardController {
     @Autowired
     DashboardService dashboardService;
     @Autowired
-    StudentDao studentDao;
+    StudentService studentService;
 
     @GetMapping("")
     public ResponseEntity<ResponseObject<DashboardDto>> getById() throws JSONException {
@@ -55,7 +56,7 @@ public class AdminDashboardController {
 
     @GetMapping("/recent-students")
     public ResponseEntity<ResponseList<Student>> getRecentStudents() {
-        List<Student> students = studentDao.search(new Search().addFilterEqual("recordStatus", RecordStatus.ACTIVE).addSortDesc("id").setMaxResults(10));
+        List<Student> students = studentService.getStudents(new Search().addFilterEqual("recordStatus", RecordStatus.ACTIVE).addSortDesc("id"),0,10);
         return ResponseEntity.ok().body(new ResponseList<>(students, 10, 0, 0));
     }
 
