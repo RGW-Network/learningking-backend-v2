@@ -17,6 +17,7 @@ import java.util.List;
 public class Quiz extends BaseEntity {
 
     private String title;
+    private Long durationInMinutes=5L;
     private String description;
 
     @JsonIgnore

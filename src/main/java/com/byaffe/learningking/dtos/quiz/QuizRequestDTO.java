@@ -17,5 +17,6 @@ public class QuizRequestDTO {
     private String title;
     private String description;
     private Long lectureId;
+    private Long durationInMinutes=5L;
 
 }

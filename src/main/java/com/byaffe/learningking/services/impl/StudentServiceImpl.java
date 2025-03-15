@@ -11,6 +11,7 @@ import com.byaffe.learningking.shared.constants.RecordStatus;
 import com.byaffe.learningking.shared.exceptions.OperationFailedException;
 import com.byaffe.learningking.shared.exceptions.ValidationFailedException;
 import com.byaffe.learningking.shared.models.*;
+import com.byaffe.learningking.shared.security.SessionContext;
 import com.byaffe.learningking.shared.services.MessageTemplateService;
 import com.byaffe.learningking.shared.services.MessageTemplateUtils;
 import com.byaffe.learningking.shared.utils.ApplicationContextProvider;
@@ -49,7 +50,8 @@ public class StudentServiceImpl extends GenericServiceImpl<Student> implements S
     MailService mailService;
     @Autowired
     CountryDao countryDao;
-
+@Autowired
+MessageTemplateService  messageTemplateService;
     @Autowired
     SystemSettingService settingService;
 
@@ -192,15 +194,15 @@ public class StudentServiceImpl extends GenericServiceImpl<Student> implements S
         Student finalStudent = student;
         new Thread(() -> {
             try {
-                mailService.sendEmail(
-                        finalStudent.getEmailAddress(),
-                        USER_REGISTRATION_EMAIL_SUBJECT,
-                        MessageFormat.format(USER_REGISTRATION_EMAIL_CONTENT, finalStudent.getLastEmailVerificationCode())
-                );
 
+                MessageTemplate messageTemplate=messageTemplateService.getActiveTemplate(MessageTemplateChannel.EMAIL, MessageTemplateType.NEW_STUDENT_SIGNUP_OTP);
+                if(messageTemplate!=null) {
+                    String subject = MessageTemplateUtils.resolveOTPMessageTemplate(finalStudent, messageTemplate.getSubject());
+                    String body = MessageTemplateUtils.resolveOTPMessageTemplate(finalStudent,messageTemplate.getBody());
+                    mailService.sendEmail( finalStudent.getEmailAddress(),  subject,body);
+                }
             } catch (Exception e) {
                 e.printStackTrace();
-                throw new RuntimeException(e);
             }
         }).run();
 
@@ -244,75 +246,7 @@ public class StudentServiceImpl extends GenericServiceImpl<Student> implements S
         return super.searchUnique(search);
     }
 
-    @Override
-    public Student doLogin(String username, String password) throws ValidationFailedException {
 
-        User userAccount = ApplicationContextProvider.getBean(UserService.class)
-                .authenticateUser(username, password);
-
-        if (userAccount == null) {
-            throw new ValidationFailedException("User not found or bad credentials");
-        }
-        Student student = getStudentByUserAccount(userAccount);
-
-        if (student == null || !student.getAccountStatus().equals(AccountStatus.Active)) {
-            throw new ValidationFailedException("Student account not found or account inactive");
-        }
-
-        return student;
-
-    }
-
-    @Override
-    public Student doRegister(String firstName, String lastName, String username, String password) throws ValidationFailedException {
-
-        try {
-            Student newStudent = new Student();
-            Student withSameEmail = getStudentByEmail(username);
-            if (withSameEmail != null && !withSameEmail.getAccountStatus().equals(AccountStatus.PendingActivation)) {
-                throw new ValidationFailedException("Student with same email exists");
-            }
-            if (withSameEmail != null) {
-                newStudent = withSameEmail;
-            }
-            Student withSameUsername = getStudentByUsername(username);
-            if (withSameUsername != null && !withSameUsername.getAccountStatus().equals(AccountStatus.PendingActivation)) {
-                throw new ValidationFailedException("Student with same username");
-            }
-            if (withSameUsername != null) {
-                newStudent = withSameUsername;
-            }
-            MessageTemplateService emailTemplateService = ApplicationContextProvider.getBean(MessageTemplateService.class);
-
-            newStudent.setFirstName(firstName);
-            newStudent.setLastName(lastName);
-            newStudent.setEmailAddress(username);
-            newStudent.setUsername(username);
-            newStudent.setCountry(null);
-            newStudent.setPassKey(password);
-            newStudent.setDeviceId(null);
-            newStudent.setAccountStatus(AccountStatus.PendingActivation);
-            String code = new AppUtils().generateVerificationCode();
-            newStudent.setLastEmailVerificationCode(code);
-
-            newStudent = super.save(newStudent);
-
-            if (settingService.getAppSetting() != null && newStudent != null) {
-                MessageTemplate emailTemplate = emailTemplateService.getActiveTemplate(MessageTemplateChannel.EMAIL, MessageTemplateType.USERACCOUNT_REGISTRATION);
-                if (emailTemplate == null) {
-                    throw new ValidationFailedException("No email template configured");
-                }
-                String subject = MessageTemplateUtils.resolveOTPMessageTemplate(newStudent, emailTemplate.getSubject());
-                String body = MessageTemplateUtils.resolveOTPMessageTemplate(newStudent, emailTemplate.getBody());
-                ApplicationContextProvider.getBean(MailService.class).sendEmail(newStudent.getEmailAddress(), subject, body);
-
-            }
-            return newStudent;
-        } catch (Exception ex) {
-            throw new ValidationFailedException(ex.getMessage());
-        }
-
-    }
 
     @Override
     public Student getStudentByUserAccount(User user) {
@@ -424,7 +358,7 @@ public class StudentServiceImpl extends GenericServiceImpl<Student> implements S
         user.setLastName(student.getLastName());
         user.setEmailAddress(student.getEmailAddress());
         user.setPassword(student.getPassKey());
-        user.addRole(ApplicationContextProvider.getBean(UserService.class).getRoleByName(AppUtils.NORMAL_USER_ROLE_NAME));
+        user.addRole(ApplicationContextProvider.getBean(UserService.class).getRoleByName(AppUtils.STUDENT_ROLE_NAME));
         user.setApiPassword(student.getPassKey());
         student.setPassKey(null);
         student.setUserAccount(ApplicationContextProvider.getBean(UserService.class).saveUser(user));
@@ -432,45 +366,6 @@ public class StudentServiceImpl extends GenericServiceImpl<Student> implements S
 
     }
 
-    private User createDefaultUser(Student student, String password) throws ValidationFailedException {
-        System.out.println("Creating user account...");
-
-        User user = new User();
-        user.setUsername(student.getEmailAddress());
-        user.setFirstName(student.getFirstName());
-        user.setLastName(student.getLastName());
-        user.setEmailAddress(student.getEmailAddress());
-        user.setPassword(password);
-        UserService userService = ApplicationContextProvider.getBean(UserService.class);
-        user.addRole(userService.getRoleByName(AppUtils.STUDENT_ROLE_NAME));
-
-        return ApplicationContextProvider.getBean(UserService.class).saveUser(user);
-
-    }
-
-    private User blockUser(User user) throws ValidationFailedException {
-        System.out.println("Bolcking user account...");
-
-        user.setRecordStatus(RecordStatus.ACTIVE_LOCKED);
-
-        UserService userService = ApplicationContextProvider.getBean(UserService.class);
-        user.removeRole(userService.getRoleByName(AppUtils.STUDENT_ROLE_NAME));
-
-        return userService.saveUser(user);
-
-    }
-
-    private User unBlockUser(User user) throws ValidationFailedException {
-        System.out.println("Unblocking user account...");
-
-        user.setRecordStatus(RecordStatus.ACTIVE);
-
-        UserService userService = ApplicationContextProvider.getBean(UserService.class);
-        user.addRole(userService.getRoleByName(AppUtils.STUDENT_ROLE_NAME));
-
-        return userService.saveUser(user);
-
-    }
 
     @Override
     public Student quickSave(Student student) throws ValidationFailedException {

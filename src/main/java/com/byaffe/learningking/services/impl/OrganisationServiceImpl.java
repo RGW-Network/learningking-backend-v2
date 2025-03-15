@@ -179,6 +179,7 @@ public class OrganisationServiceImpl extends GenericServiceImpl<Organisation> im
         Search search = new Search();
         search.addFilterEqual("organisation", organisation);
         search.addFilterEqual("student", student);
+        search.setMaxResults(1);
         search.addFilterEqual("recordStatus", RecordStatus.ACTIVE);
 
         return companyStudentDao.searchUnique(search);
@@ -200,7 +201,7 @@ public class OrganisationServiceImpl extends GenericServiceImpl<Organisation> im
         Student student = studentService.getStudentByEmail(studentEmail);
         if (student == null) {
             //To-do send invitation email
-            MessageTemplate emailTemplate = ApplicationContextProvider.getBean(MessageTemplateService.class).getActiveTemplate(MessageTemplateChannel.EMAIL, MessageTemplateType.ORGANISATION_INVITATION);
+            MessageTemplate emailTemplate = ApplicationContextProvider.getBean(MessageTemplateService.class).getActiveTemplate(MessageTemplateChannel.EMAIL, MessageTemplateType.NON_STUDENT_ORGANISATION_INVITATION);
             if(emailTemplate!=null) {
                 String subject = MessageTemplateUtils.resolveLkInvitationMessageTemplate(studentEmail, SessionContext.getLoggedInUser(), emailTemplate.getSubject());
                 String body = MessageTemplateUtils.resolveLkInvitationMessageTemplate(studentEmail, SessionContext.getLoggedInUser(), emailTemplate.getBody());
@@ -208,7 +209,7 @@ public class OrganisationServiceImpl extends GenericServiceImpl<Organisation> im
             }
             return;
         }
-        Organisation organisation = getReference(organizationId);
+        Organisation organisation = getInstanceByID(organizationId);
         if (organisation == null) {
             throw new ValidationFailedException("Organisation with Id  not found");
         }
@@ -220,7 +221,7 @@ public class OrganisationServiceImpl extends GenericServiceImpl<Organisation> im
         organisationStudent.setStudent(student);
         organisationStudent.setOrganisation(organisation);
         {//send email
-            MessageTemplate emailTemplate = ApplicationContextProvider.getBean(MessageTemplateService.class).getActiveTemplate(MessageTemplateChannel.EMAIL, MessageTemplateType.ORGANISATION_INVITATION);
+            MessageTemplate emailTemplate = ApplicationContextProvider.getBean(MessageTemplateService.class).getActiveTemplate(MessageTemplateChannel.EMAIL, MessageTemplateType.STUDENT_ORGANISATION_INVITATION);
            if(emailTemplate!=null) {
                String subject = MessageTemplateUtils.resolveLkInvitationMessageTemplate(studentEmail, SessionContext.getLoggedInUser(), emailTemplate.getSubject());
                String body = MessageTemplateUtils.resolveLkInvitationMessageTemplate(studentEmail, SessionContext.getLoggedInUser(), emailTemplate.getBody());

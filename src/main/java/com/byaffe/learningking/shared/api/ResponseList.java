@@ -8,21 +8,19 @@ import java.util.List;
 @Data
 public class ResponseList<T> extends BaseResponse {
 
-	private long totalItems;
-	private int offset;
-	private int limit;
-	private List<T> records;
+    private long totalItems;
+    private int offset;
+    private int limit;
+    private List<T> records;
 
-	public ResponseList(List<T> records, long totalItems, int offset, int limit) {
+    public ResponseList(List<T> records, long totalItems, int offset, int limit) {
+        super(true);
+        this.totalItems = totalItems;
+        this.offset = offset;
+        this.limit = limit;
+        this.records = records;
 
-		this.totalItems = totalItems;
-		this.offset = offset;
-		this.limit = limit;
-		this.records = records;
-		this.setMessage("Records fetched successfully");
-		this.setStatus("Success");
-
-	}
+    }
 
 
 }

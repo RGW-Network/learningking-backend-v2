@@ -4,10 +4,7 @@ import com.byaffe.learningking.shared.constants.RecordStatus;
 import com.byaffe.learningking.shared.dao.MessageTemplateDao;
 import com.byaffe.learningking.shared.exceptions.OperationFailedException;
 import com.byaffe.learningking.shared.exceptions.ValidationFailedException;
-import com.byaffe.learningking.shared.models.MessageTemplate;
-import com.byaffe.learningking.shared.models.MessageTemplateRequestDto;
-import com.byaffe.learningking.shared.models.MessageTemplateChannel;
-import com.byaffe.learningking.shared.models.MessageTemplateType;
+import com.byaffe.learningking.shared.models.*;
 import com.byaffe.learningking.shared.utils.CustomSearchUtils;
 import com.googlecode.genericdao.search.Search;
 import org.apache.commons.lang3.StringUtils;
@@ -15,6 +12,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.jws.soap.SOAPBinding;
 import javax.transaction.Transactional;
 import java.util.Arrays;
 import java.util.List;
@@ -49,7 +47,7 @@ public class MessageTemplateServiceImpl implements MessageTemplateService {
 
     @Override
     public MessageTemplate getActiveTemplate(MessageTemplateChannel channel, MessageTemplateType templateType) {
-        return messageTemplateDao.searchUnique(new Search().addFilterEqual("channel",channel).addFilterEqual("type",templateType).addFilterEqual("recordStatus",RecordStatus.ACTIVE));
+        return messageTemplateDao.searchUnique(new Search().addFilterEqual("channel",channel).addFilterEqual("type",templateType).addFilterEqual("recordStatus",RecordStatus.ACTIVE).setMaxResults(1));
     }
 
 
@@ -89,5 +87,11 @@ public class MessageTemplateServiceImpl implements MessageTemplateService {
                 Arrays.asList("subject", "name"));
     }
 
-
+public  static String format(String string,User user,String token){
+   String result = string       ;
+    result = result.replace("{firstName}", user.getFirstName());
+    result = result.replace("{lastName}", user.getLastName());
+    result = result.replace("{token}", token);
+    return result;
+}
 }

@@ -95,6 +95,7 @@ public class Event extends BaseEntity {
     @JoinTable(name = "event_speakers", joinColumns = @JoinColumn(name = "event_id"), inverseJoinColumns = @JoinColumn(name = "speaker_id"))
     private Set<CourseInstructor> speakers;
 
+
     @Transient
     public Boolean isFull() {
         return this.attendees!=null && this.attendees>= maximumAttendees;
@@ -111,6 +112,11 @@ public class Event extends BaseEntity {
 
         return ids;
     }
+    @Transient
+    public String getAttendenceId(){
+        return null;
+    }
+
     @Override
     public String toString() {
         return this.title;

@@ -6,21 +6,12 @@ import org.apache.commons.lang3.StringUtils;
 
 @Getter
 public enum MessageTemplateType {
-
-	RESET_PASSWORD("Reset Password"),
-	
-	EMAIL_VERIFICATION("Email verification"),
-        
-    LOGIN_CREDENTIALS("Login credentials"),
-	
+	NEW_STUDENT_SIGNUP_OTP("New Student Signup OTP"),
+	NEW_STUDENT_SIGNUP_SUCCESS("New Student Signup Success"),
+	RESET_PASSWORD_OTP("Reset Password OTP"),
 	SUCCESS_PAYMENT("Success payment"),
-	
-	SUBSCRIPTION_REMINDER("Subscription reminder"),
-	
-	TOKEN_RESEND("Token Resend"),
-	SIGNUP_INVITATION("Signup invitation"),
-	ORGANISATION_INVITATION("Organisation invitation"),
-	USERACCOUNT_REGISTRATION("UserAccount Registration");
+	STUDENT_ORGANISATION_INVITATION("Student Organisation invitation"),
+	NON_STUDENT_ORGANISATION_INVITATION("Non Student Organisation invitation");
 
 	private String displayName;
 

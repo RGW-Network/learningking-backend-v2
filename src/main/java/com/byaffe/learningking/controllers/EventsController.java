@@ -1,6 +1,8 @@
 package com.byaffe.learningking.controllers;
 
+import com.byaffe.learningking.dtos.EventResponseDto;
 import com.byaffe.learningking.models.Event;
+import com.byaffe.learningking.services.EventAttendanceService;
 import com.byaffe.learningking.services.EventService;
 import com.byaffe.learningking.services.impl.EventServiceImpl;
 import com.byaffe.learningking.shared.api.ResponseList;
@@ -16,6 +18,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author Ray Gdhrt
@@ -27,15 +30,16 @@ public class EventsController {
     @Autowired
     ModelMapper modelMapper;
     
-
+@Autowired
+    EventAttendanceService  attendanceService;
     @GetMapping("/{id}")
-    public ResponseEntity<ResponseObject<Event>> getById(@PathVariable(name = "id") long id) throws JSONException {
+    public ResponseEntity<ResponseObject<EventResponseDto>> getById(@PathVariable(name = "id") long id) throws JSONException {
        Event event=ApplicationContextProvider.getBean(EventService.class).getInstanceByID(id);
-        return ResponseEntity.ok().body(new ResponseObject<>(event));
+        return ResponseEntity.ok().body(new ResponseObject<>(new EventResponseDto().fromModel(event,attendanceService)));
 
     }
     @GetMapping("")
-    public ResponseEntity<ResponseList<Event>> getEvents(@RequestParam(value = "searchTerm", required = false) String searchTerm,
+    public ResponseEntity<ResponseList<EventResponseDto>> getEvents(@RequestParam(value = "searchTerm", required = false) String searchTerm,
                                                          @RequestParam(value = "offset", required = true) Integer offset,
                                                          @RequestParam(value = "limit", required = true) Integer limit,
                                                          @RequestParam(value = "sortBy", required = false) String sortBy,
@@ -51,7 +55,7 @@ public class EventsController {
         }
         List<Event> events = ApplicationContextProvider.getBean(EventService.class).getInstances(search, offset, limit);
         long count = ApplicationContextProvider.getBean(EventService.class).countInstances(search);
-        return ResponseEntity.ok().body(new ResponseList<>(events, (int) count, offset, limit));
+        return ResponseEntity.ok().body(new ResponseList<>(events.stream().map((r)->new EventResponseDto().fromModel(r,attendanceService)).collect(Collectors.toList()), (int) count, offset, limit));
 
     }
 

@@ -129,6 +129,11 @@ public class EventAttendanceServiceImpl extends GenericServiceImpl<EventAttendan
     }
 
     @Override
+    public EventAttendance getByUser(long eventId, long studentId) {
+        return searchUnique(new Search().addFilterEqual("event.id",eventId).addFilterEqual("student.id",studentId).setMaxResults(0));
+    }
+
+    @Override
     public EventAttendance cancel(long eventId, String notes) throws ValidationFailedException {
         EventAttendance event = getInstanceByID(eventId);
         event.setStatus(EventAttendanceStatus.CANCELLED);

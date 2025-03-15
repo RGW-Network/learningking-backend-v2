@@ -23,6 +23,9 @@ public class Course extends BaseEntity {
     private String title;
     @Column(columnDefinition = "TEXT")
     private String description;
+
+    @Column(columnDefinition = "TEXT")
+    private String fullDescription;
     private String coverImageUrl;
     private String welcomeVideoUrl;
     private Boolean offersCertificate = false;

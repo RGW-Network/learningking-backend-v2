@@ -33,30 +33,33 @@ import java.util.List;
 @Hidden
 @RequestMapping("api/v1/admin/events")
 public class AdminEventController {
-@Autowired
+    @Autowired
     EventService eventService;
+
     @PostMapping("")
     public ResponseEntity<ResponseObject<Event>> addEvent(@RequestBody EventRequestDTO dto) throws JSONException {
-Event event=ApplicationContextProvider.getBean(EventService.class).save(dto);
+        Event event = ApplicationContextProvider.getBean(EventService.class).save(dto);
         return ResponseEntity.ok().body(new ResponseObject<>(event));
-
     }
+
     @PostMapping(path = "/multipart", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
-    public ResponseEntity<BaseResponse> uploadCSV(@RequestPart  EventRequestDTO dto, @RequestPart(value = "file",required = false) MultipartFile file)  {
-      dto.setCoverImage(file);
-         ApplicationContextProvider.getBean(EventService.class).save(dto);
+    public ResponseEntity<BaseResponse> uploadCSV(@RequestPart EventRequestDTO dto, @RequestPart(value = "file", required = false) MultipartFile file) {
+        dto.setCoverImage(file);
+        ApplicationContextProvider.getBean(EventService.class).save(dto);
         return ResponseEntity.ok().body(new BaseResponse(true));
     }
+
     @PostMapping("/{id}/publish")
     public ResponseEntity<BaseResponse> publishEvent(@PathVariable long id) throws JSONException {
-        Event event=ApplicationContextProvider.getBean(EventService.class).getInstanceByID(id);
+        Event event = ApplicationContextProvider.getBean(EventService.class).getInstanceByID(id);
         ApplicationContextProvider.getBean(EventService.class).activate(id);
         return ResponseEntity.ok().body(new BaseResponse(true));
 
     }
+
     @PostMapping("/{id}/unpublish")
     public ResponseEntity<BaseResponse> unPublishEvent(@PathVariable long id) throws JSONException {
-        Event event=ApplicationContextProvider.getBean(EventService.class).getInstanceByID(id);
+        Event event = ApplicationContextProvider.getBean(EventService.class).getInstanceByID(id);
         ApplicationContextProvider.getBean(EventService.class).deActivate(id);
         return ResponseEntity.ok().body(new BaseResponse(true));
 
@@ -64,17 +67,18 @@ Event event=ApplicationContextProvider.getBean(EventService.class).save(dto);
 
     @GetMapping("/{id}")
     public ResponseEntity<ResponseObject<Event>> getById(@PathVariable(name = "id") long id) throws JSONException {
-       System.out.println("ID======="+id);
-        Event event=ApplicationContextProvider.getBean(EventService.class).getById(id);
+        Event event = ApplicationContextProvider.getBean(EventService.class).getById(id);
         return ResponseEntity.ok().body(new ResponseObject<>(event));
 
     }
+
     @DeleteMapping("/{id}/delete")
     public ResponseEntity<BaseResponse> deleteEvent(@PathVariable long id) throws JSONException {
-        Event event=ApplicationContextProvider.getBean(EventService.class).getInstanceByID(id);
+        Event event = ApplicationContextProvider.getBean(EventService.class).getInstanceByID(id);
         ApplicationContextProvider.getBean(EventService.class).deleteInstance(event);
         return ResponseEntity.ok().body(new BaseResponse(true));
     }
+
     @GetMapping("")
     public ResponseEntity<ResponseList<Event>> getEvents(
             @RequestParam(value = "searchTerm", required = false) String searchTerm,
@@ -83,7 +87,7 @@ Event event=ApplicationContextProvider.getBean(EventService.class).save(dto);
             @RequestParam(value = "featured", required = false) Boolean featured,
             @RequestParam(value = "offset", required = true) Integer offset,
             @RequestParam(value = "limit", required = true) Integer limit) throws JSONException {
-        System.out.println("ID======="+offset);
+        System.out.println("ID=======" + offset);
         Search search = EventServiceImpl.generateSearchTermsForEvents(searchTerm);
 
 
@@ -105,8 +109,6 @@ Event event=ApplicationContextProvider.getBean(EventService.class).save(dto);
         return ResponseEntity.ok().body(new ResponseList<>(events, (int) count, offset, limit));
 
     }
-
-
 
 
 }

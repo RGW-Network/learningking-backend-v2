@@ -45,6 +45,8 @@ public class CoursesController {
     @Autowired
     CourseEnrollmentService subscriptionService;
 
+
+
     @GetMapping("")
     public ResponseEntity<ResponseList<CourseResponseDTO>> getCourses(@RequestParam(value = "searchTerm", required = false) String searchTerm,
                                                                       @RequestParam(value = "offset", required = true) Integer offset,
@@ -265,6 +267,7 @@ public class CoursesController {
 
         for (CourseLecture subTopic : subTopics) {
             LectureResponseDTO jSONObject = modelMapper.map(subTopic, LectureResponseDTO.class);
+            jSONObject.setQuizes(ApplicationContextProvider.getBean(QuizService.class).getQuizes(new Search().addFilterEqual("lecture.id",subTopic.getId()).addFilterEqual("recordStatus",RecordStatus.ACTIVE),0,0));
             result.getLectures().add(jSONObject);
         }
         result.setSubscription(subscription);

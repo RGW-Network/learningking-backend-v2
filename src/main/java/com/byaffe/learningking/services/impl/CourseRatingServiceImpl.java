@@ -48,6 +48,10 @@ public class CourseRatingServiceImpl extends GenericServiceImpl<Review> implemen
             throw new ValidationFailedException("Missing Comment");
         }
         Review review = new Review();
+        if(dto.getId()!=null){
+            review=getInstanceByID(dto.getId());
+        }
+
         review.setComment(dto.getComment());
         review.setStarsCount(dto.getStarsCount());
         review.setType(dto.getType());

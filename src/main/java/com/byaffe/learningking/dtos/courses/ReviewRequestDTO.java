@@ -6,6 +6,7 @@ import lombok.Data;
 
 @Data
 public class ReviewRequestDTO {
+    private Long id;
     private String comment;
     private Double starsCount;//out of 5
     private ReviewType type=ReviewType.GENERAL;

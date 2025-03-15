@@ -14,11 +14,10 @@ public class CourseRequestDTO {
     private Long id;
     private String title;
     private String description;
-    private int numberOfTopics = 0;
     private String coverImageUrl;
     @JsonIgnore
     private MultipartFile coverImage;
-    private Boolean isAdvertised;
+    private Boolean isAdvertised=false;
 
     private String welcomeVideoUrl;
     private List<String>  tags= new ArrayList<>();
@@ -35,14 +34,13 @@ public class CourseRequestDTO {
     private Long certificateTemplateId;
     private Long categoryId;
     private CourseOwnerShipType ownershipType ;
-    private long company;
     private Long instructorId;
     private Integer academyId;
-    private boolean offersCertificate=false;
-    private Boolean isFeatured;
-    private Boolean isPaid;
-    private float price;
-    private float discountedPrice;
+    private Boolean offersCertificate=false;
+    private Boolean isFeatured=false;
+    private Boolean isPaid=false;
+    private Float price;
+    private Float discountedPrice;
     private String fullDescription;
   private CourseAcademyType academy;
 

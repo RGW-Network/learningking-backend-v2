@@ -21,6 +21,7 @@ public interface EventAttendanceService extends GenericService<EventAttendance> 
 
     EventAttendance attendFreeEvent(long eventId,long studentId);
     EventAttendance attendPaidEvent( AggregatorTransaction aggregatorTransaction);
+    EventAttendance getByUser(long eventId,long studentId);
 
     EventAttendance cancel(long eventId,String cancellationNotes);
     void validateEventAttendance(Event event,Student student);

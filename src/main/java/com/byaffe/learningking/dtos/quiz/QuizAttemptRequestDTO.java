@@ -7,7 +7,6 @@ import java.util.List;
 
 @Data
 public class QuizAttemptRequestDTO {
-    private Long id;
     private Long enrollmentId;
     private Long quizId;
     private Integer score;

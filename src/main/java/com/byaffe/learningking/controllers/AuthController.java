@@ -5,14 +5,17 @@ import com.byaffe.learningking.dtos.instructor.InstructorRequestDTO;
 import com.byaffe.learningking.dtos.student.StudentProfileUpdateRequestDTO;
 import com.byaffe.learningking.models.Student;
 import com.byaffe.learningking.services.InstructorService;
+import com.byaffe.learningking.services.PasswordResetService;
 import com.byaffe.learningking.services.StudentService;
 import com.byaffe.learningking.services.UserService;
 import com.byaffe.learningking.shared.api.BaseResponse;
 import com.byaffe.learningking.shared.api.ResponseObject;
 import com.byaffe.learningking.shared.security.TokenProvider;
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,6 +24,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.bind.ValidationException;
+import java.util.Map;
 
 @Slf4j
 @RestController
@@ -39,6 +43,24 @@ public class AuthController {
     @Autowired
     InstructorService instructorService;
 
+    @Autowired
+    private PasswordResetService passwordResetService;
+
+    @PostMapping("/reset-password/initiate")
+    public ResponseEntity<ResponseObject<String>> initiatePasswordReset(@RequestBody InitiatePasswordDto dto) {
+        passwordResetService.initiatePasswordReset(dto.getEmail());
+        return ResponseEntity.ok(new ResponseObject<>("Password reset link has been sent to your email."));
+    }
+
+    @Data
+    public static class InitiatePasswordDto{
+        String email;
+    }
+    @PostMapping("/reset-password")
+    public ResponseEntity<ResponseObject<String>> resetPassword( @RequestBody PasswordResetRequestDTO body) {
+         passwordResetService.resetPassword(body.getToken(), body.getNewPassword());
+        return ResponseEntity.ok(new ResponseObject<>("Password has been reset successfully."));
+    }
     /**
      * Endpoint to register a microservice
      *
@@ -72,7 +94,7 @@ public class AuthController {
 
     @PostMapping(path = "/student/{id}/update-profile", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<ResponseObject<Student>> updateProfile(@PathVariable(value = "id", required = true) long id,
-                                                                 @RequestBody StudentProfileUpdateRequestDTO userDTO,
+                                                                 @RequestPart StudentProfileUpdateRequestDTO userDTO,
                                                                  @RequestPart(value = "profileImage", required = false) MultipartFile profileImage,
                                                                  @RequestPart(value = "coverImage", required = false) MultipartFile coverImage) throws ValidationException {
         userDTO.setProfileImage(profileImage);

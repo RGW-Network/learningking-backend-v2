@@ -3,6 +3,8 @@ package com.byaffe.learningking.shared.api;
 public class ResponseObject<T> extends BaseResponse {
 	private T data;
 	public ResponseObject(T object) {
+
+		super(true);
 		this.data=object;
 	}
 

@@ -19,6 +19,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author Ray Gdhrt
@@ -26,7 +27,7 @@ import java.util.List;
 @Slf4j
 @RestController
 @RequestMapping("api/v1/reviews")
-public class ReviewsController {
+public class  ReviewsController {
     @Autowired
     CourseRatingService  ratingService;
 
@@ -41,6 +42,15 @@ public class ReviewsController {
       if(SessionContext.isSuperAdmin()){
           ratingService.updateStatus(id, PublicationStatus.ACTIVE);
       }
+        return ResponseEntity.ok().body(new BaseResponse(true));
+
+    }
+    @DeleteMapping("/{id}/delete")
+    public ResponseEntity<BaseResponse> delete(@PathVariable("id") Long id) throws JSONException {
+      Review review=ratingService.getInstanceByID(id);
+       if(Objects.requireNonNull(SessionContext.getLoggedInUser()).getId().equals(review.getCreatedById())){
+            ratingService.deleteInstance(review);
+        }
         return ResponseEntity.ok().body(new BaseResponse(true));
 
     }
@@ -89,7 +99,7 @@ public class ReviewsController {
             search.addFilterEqual("recordId", recordId);
         }
         if (byMe != null) {
-            search.addFilterEqual("createdById", SessionContext.getLoggedInUser().id);
+            search.addFilterEqual("createdById", Objects.requireNonNull(SessionContext.getLoggedInUser()).id);
         }
         if (SessionContext.getLoggedInStudent()!=null) {
             search.addFilterEqual("publicationStatus", PublicationStatus.ACTIVE);

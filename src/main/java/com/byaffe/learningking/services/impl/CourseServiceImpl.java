@@ -66,7 +66,7 @@ public class CourseServiceImpl extends GenericServiceImpl<Course> implements Cou
         course.setCategory(categoryService.getInstanceByID(plan.getCategoryId()));
         course.setCommaSeparatedTags(plan.getCommaSeparatedTags());
         course.setInstructor(instructorService.getInstanceByID(plan.getInstructorId()));
-        if (plan.isOffersCertificate()) {
+        if (plan.getOffersCertificate()!=null&& (plan.getOffersCertificate())) {
             if (plan.getCertificateTemplateId() == null||plan.getCertificateTemplateId() == 0) {
                 throw new ValidationFailedException("Missing certificate template");
             }
@@ -75,6 +75,7 @@ public class CourseServiceImpl extends GenericServiceImpl<Course> implements Cou
         }
 
         course.setDescription(plan.getDescription().replaceAll("[^\\p{ASCII}]", ""));
+       course.setFullDescription(plan.getFullDescription());
         course = saveInstance(course);
 
         if (plan.getCoverImage() != null) {
@@ -125,7 +126,7 @@ public class CourseServiceImpl extends GenericServiceImpl<Course> implements Cou
             return 0;
         }
         int currentPosition = allSubTopics.indexOf(currentSubTopic) + 1;//the +1 caters for zero based indexing
-        return currentPosition * 100 / allSubTopics.size();
+        return (float) (currentPosition * 100) / allSubTopics.size();
 
     }
 

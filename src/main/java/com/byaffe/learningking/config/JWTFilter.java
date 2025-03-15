@@ -33,7 +33,6 @@ public class JWTFilter extends GenericFilterBean {
         try {
             HttpServletRequest httpServletRequest = (HttpServletRequest) servletRequest;
             HttpServletResponse httpServletResponse = (HttpServletResponse) servletResponse;
-            System.out.println("Endpoint hit on >>>" + httpServletRequest.getRequestURI());
             httpServletResponse.setHeader("Access-Control-Allow-Origin", "*");
             httpServletResponse.setHeader("Access-Control-Allow-Credentials", "true");
             httpServletResponse.setHeader("Access-Control-Allow-Methods", "POST, GET,PUT, OPTIONS, DELETE");
