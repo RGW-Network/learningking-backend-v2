@@ -41,9 +41,9 @@ public class WishListController {
       WishList wishList=  wishListService.addToWishList(courseId);
         return ResponseEntity.ok().body(new ResponseObject<>(wishList));
     }
-    @PostMapping("/remove/{wishListId}")
-    public ResponseEntity<BaseResponse> remove(@PathVariable(name = "wishListId") long wishListId) throws JSONException {
-        wishListService.removeFromWishList(wishListId);
+    @PostMapping("/remove/{courseId}")
+    public ResponseEntity<BaseResponse> remove(@PathVariable(name = "courseId") long courseId) throws JSONException {
+        wishListService.removeCourseFromWishList(courseId);
         return ResponseEntity.ok().body(new BaseResponse(true));
     }
     @PostMapping("/clear")

@@ -76,7 +76,7 @@ public class VertxMailServiceImpl implements MailService{
             message.setCc(cc);
             message.setBcc(System.getenv(EnvironmentConstants.DEFAULT_BCC_EMAIL));
             message.setSubject(subject);
-            message.setHtml(EmailTemplate.buildTeplatedEmail(subject, body));
+            message.setHtml( body);
 
             mailClient.sendMail(message, result -> {
                 if (result.succeeded()) {

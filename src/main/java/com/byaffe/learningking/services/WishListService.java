@@ -17,4 +17,6 @@ public interface WishListService extends GenericService<WishList> {
     public WishList addToWishList(Long courseId);
     public void removeFromWishList(Long wishListId);
     public void clearWishList();
+   WishList getByCourse(Long courseId);
+    public void removeCourseFromWishList(Long courseId);
 }

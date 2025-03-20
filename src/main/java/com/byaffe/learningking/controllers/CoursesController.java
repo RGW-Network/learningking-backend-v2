@@ -27,6 +27,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -45,8 +46,11 @@ public class CoursesController {
     @Autowired
     CourseEnrollmentService subscriptionService;
 
+    @Autowired
+    WishListService wishListService;
 
-
+@Autowired
+CourseRatingService ratingService;
     @GetMapping("")
     public ResponseEntity<ResponseList<CourseResponseDTO>> getCourses(@RequestParam(value = "searchTerm", required = false) String searchTerm,
                                                                       @RequestParam(value = "offset", required = true) Integer offset,
@@ -92,19 +96,19 @@ public class CoursesController {
             double rattings = 0;
 
             try {
-                rattings = ApplicationContextProvider.getBean(CourseRatingService.class).getTotalCourseRatings(ReviewType.COURSE, course.getId()) / 5;
+                rattings = ratingService.getTotalCourseRatings(ReviewType.COURSE, course.getId()) / 5;
             } catch (Exception e) {
                 e.printStackTrace();
             }
             if (SessionContext.getLoggedInStudent() != null) {
-                CourseEnrollment subscription = ApplicationContextProvider.getBean(CourseEnrollmentService.class).getSerieSubscription(SessionContext.getLoggedInStudent(), course);
+                CourseEnrollment subscription =subscriptionService.getSerieSubscription(SessionContext.getLoggedInStudent(), course);
 
                 dto.setEnrolled(subscription != null);
             }
             dto.setNumberOfLessons(lessonsCount);
             dto.setAverageRating((rattings / 5));
-            dto.setRatingsCount(ApplicationContextProvider.getBean(CourseRatingService.class).getRatingsCount(ReviewType.COURSE, course.getId()));
-
+            dto.setRatingsCount(ratingService.getRatingsCount(ReviewType.COURSE, course.getId()));
+            dto.setWishListed(wishListService.getByCourse(course.getId()) != null);
             courses.add(dto);
         }
         return ResponseEntity.ok().body(new ResponseList<>(courses, count, offset, limit));
@@ -267,7 +271,7 @@ public class CoursesController {
 
         for (CourseLecture subTopic : subTopics) {
             LectureResponseDTO jSONObject = modelMapper.map(subTopic, LectureResponseDTO.class);
-            jSONObject.setQuizes(ApplicationContextProvider.getBean(QuizService.class).getQuizes(new Search().addFilterEqual("lecture.id",subTopic.getId()).addFilterEqual("recordStatus",RecordStatus.ACTIVE),0,0));
+            jSONObject.setQuizes(ApplicationContextProvider.getBean(QuizService.class).getQuizes(new Search().addFilterEqual("lecture.id", subTopic.getId()).addFilterEqual("recordStatus", RecordStatus.ACTIVE), 0, 0));
             result.getLectures().add(jSONObject);
         }
         result.setSubscription(subscription);
@@ -310,7 +314,7 @@ public class CoursesController {
     }
 
     @GetMapping("/enrollments/{enrollmentId}/download-certificate")
-    public ResponseEntity<String> generateCertificate(@PathVariable("enrollmentId") Long enrollmentId)  {
+    public ResponseEntity<String> generateCertificate(@PathVariable("enrollmentId") Long enrollmentId) {
 
         String htmlStringTemplate = ApplicationContextProvider.getBean(CourseEnrollmentService.class).generateHtmlCertificate(enrollmentId);
         // Return HTML content as a response

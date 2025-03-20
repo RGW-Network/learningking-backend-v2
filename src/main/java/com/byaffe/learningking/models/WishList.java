@@ -21,12 +21,13 @@ import java.util.Set;
 public class WishList extends BaseEntity {
 
     private static final long serialVersionUID = 1L;
-
-    @ManyToOne
+    @JsonIgnore
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "student_id")
     private Student student;
 
-    @ManyToOne
+    @JsonIgnore
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "course_id")
     private Course course;
 

@@ -33,40 +33,43 @@ public class PasswordResetServiceImpl extends GenericServiceImpl<PasswordResetTo
 
     public void initiatePasswordReset(String email) {
         User user = userRepository.getUserByUsername(email);
-        if (user != null) {
-            // Generate reset token
-            String token = UUID.randomUUID().toString();
-
-            PasswordResetToken resetToken = new PasswordResetToken();
-            resetToken.setToken(token);
-            resetToken.setExpiryDate(LocalDateTime.now().plusHours(1)); // Token expires in 1 hour
-            resetToken.setUser(user);
-            save(resetToken);
-
-            MessageTemplate emailTemplate = ApplicationContextProvider.getBean(MessageTemplateService.class).getActiveTemplate(MessageTemplateChannel.EMAIL, MessageTemplateType.RESET_PASSWORD_OTP);
-            if(emailTemplate==null) {throw new ValidationFailedException("No email template");}
-            String subject = MessageTemplateServiceImpl.format(emailTemplate.getSubject(),user,token);
-            String body = MessageTemplateServiceImpl.format(emailTemplate.getBody(),user,token);
-
-            mailService.sendEmail(user.getEmailAddress(), subject, body);
-        } else {
-            throw new IllegalArgumentException("No user found with this email");
+        if (user == null) {
+            throw new ValidationFailedException("No user found with this email");
         }
+
+        // Generate reset token
+        String token = PassEncTech4.generateOTP(6);
+
+        PasswordResetToken resetToken = new PasswordResetToken();
+        resetToken.setToken(token);
+        resetToken.setExpiryDate(LocalDateTime.now().plusHours(1)); // Token expires in 1 hour
+        resetToken.setUser(user);
+        save(resetToken);
+
+        MessageTemplate emailTemplate = ApplicationContextProvider.getBean(MessageTemplateService.class).getActiveTemplate(MessageTemplateChannel.EMAIL, MessageTemplateType.RESET_PASSWORD_OTP);
+        if (emailTemplate == null) {
+            throw new ValidationFailedException("No email template");
+        }
+        String subject = MessageTemplateServiceImpl.format(emailTemplate.getSubject(), user, token);
+        String body = MessageTemplateServiceImpl.format(emailTemplate.getBody(), user, token);
+
+        mailService.sendEmail(user.getEmailAddress(), subject, body);
+
     }
 
 
     public void resetPassword(String token, String newPassword) {
         PasswordResetToken resetToken = searchUniqueByPropertyEqual("token", token);
-        if(StringUtils.isEmpty(newPassword)){
+        if (StringUtils.isEmpty(newPassword)) {
             throw new ValidationFailedException("Password cannot be empty");
         }
 
         if (resetToken == null || resetToken.getExpiryDate().isBefore(LocalDateTime.now())) {
-            throw  new ValidationFailedException("Missing or expired token");
+            throw new ValidationFailedException("Missing or expired token");
         }
-            User user = resetToken.getUser();
-            user.setPassword(PassEncTech4.generateSecurePassword( newPassword)); // Set the new password
-            userRepository.saveUser(user);
+        User user = resetToken.getUser();
+        user.setPassword(PassEncTech4.generateSecurePassword(newPassword)); // Set the new password
+        userRepository.saveUser(user);
     }
 
     @Override
