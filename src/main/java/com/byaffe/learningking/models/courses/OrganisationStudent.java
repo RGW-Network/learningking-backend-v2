@@ -1,5 +1,6 @@
 package com.byaffe.learningking.models.courses;
 
+import com.byaffe.learningking.models.InvitationStatus;
 import com.byaffe.learningking.models.Student;
 import com.byaffe.learningking.shared.models.BaseEntity;
 import lombok.Data;
@@ -16,6 +17,9 @@ public class OrganisationStudent extends BaseEntity {
     @ManyToOne
     @JoinColumn(name = "organisation_id")
     private Organisation organisation;
+
+    @Enumerated(EnumType.STRING)
+    private InvitationStatus invitationStatus=InvitationStatus.Pending;
 
     @Override
     public boolean equals(Object object) {

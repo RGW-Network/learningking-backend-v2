@@ -11,7 +11,8 @@ public enum MessageTemplateType {
 	RESET_PASSWORD_OTP("Reset Password OTP"),
 	SUCCESS_PAYMENT("Success payment"),
 	STUDENT_ORGANISATION_INVITATION("Student Organisation invitation"),
-	NON_STUDENT_ORGANISATION_INVITATION("Non Student Organisation invitation");
+	NON_STUDENT_ORGANISATION_INVITATION("Non Student Organisation invitation"),
+	VERIFY_ORGANISATION("Verify Organisation");
 
 	private String displayName;
 

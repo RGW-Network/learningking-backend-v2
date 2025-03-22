@@ -9,7 +9,6 @@ import java.util.List;
 public class QuizAttemptRequestDTO {
     private Long enrollmentId;
     private Long quizId;
-    private Integer score;
-    private List<SelectedAnswer> selectedAnswers;
+    private List<QuizAttemptAnswerRequestDTO> answers;
 
 }

@@ -72,7 +72,7 @@ public class OrganisationGroupServiceImpl implements OrganisationGroupService {
 
     @Override
     public OrganisationGroupStudent addGroupStudent(long groupId, long organisationStudentId) throws ValidationFailedException {
-        OrganisationStudent organisationStudent = ApplicationContextProvider.getBean(OrganisationService.class).getOrganisationStudentById(organisationStudentId);
+        OrganisationStudent organisationStudent = ApplicationContextProvider.getBean(OrganisationStudentService.class).getInstanceByID(organisationStudentId);
         OrganisationGroup organisationGroup = getGroupById(groupId);
         return addGroupStudent(organisationGroup, organisationStudent);
     }
@@ -91,7 +91,7 @@ public class OrganisationGroupServiceImpl implements OrganisationGroupService {
     @Override
     public OrganisationGroup addAllStudentsToGroup(long groupId) throws ValidationFailedException {
         OrganisationGroup group = getGroupById(groupId);
-        List<OrganisationStudent> students = ApplicationContextProvider.getBean(OrganisationService.class).getCompanyStudents(new Search().addFilterEqual("organisation.id", group.getOrganisation().getId()), 0, 0);
+        List<OrganisationStudent> students = ApplicationContextProvider.getBean(OrganisationStudentService.class).getInstances(new Search().addFilterEqual("organisation.id", group.getOrganisation().getId()), 0, 0);
         for (OrganisationStudent student : students) {
             addGroupStudent(group, student);
         }

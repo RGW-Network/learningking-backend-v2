@@ -31,4 +31,6 @@ public String getChannelName(){return this.channel!=null?this.channel.getDisplay
     @Transient
     public String getTypeName(){return this.type!=null?this.type.getDisplayName():null;}
 
+
+
 }

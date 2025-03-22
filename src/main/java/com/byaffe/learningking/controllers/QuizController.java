@@ -1,11 +1,15 @@
 package com.byaffe.learningking.controllers;
 
+import com.byaffe.learningking.dtos.InitQuizRequestDTO;
+import com.byaffe.learningking.dtos.quiz.QuizAttemptRequestDTO;
 import com.byaffe.learningking.dtos.quiz.QuizQuestionRequestDTO;
 import com.byaffe.learningking.dtos.quiz.QuizRequestDTO;
 import com.byaffe.learningking.models.Article;
 import com.byaffe.learningking.models.quizes.Question;
 import com.byaffe.learningking.models.quizes.Quiz;
+import com.byaffe.learningking.models.quizes.QuizAttempt;
 import com.byaffe.learningking.services.ArticleService;
+import com.byaffe.learningking.services.QuizAttemptService;
 import com.byaffe.learningking.services.QuizService;
 import com.byaffe.learningking.services.impl.QuizServiceImpl;
 import com.byaffe.learningking.shared.api.BaseResponse;
@@ -35,7 +39,7 @@ public class QuizController {
     QuizService quizService;
 
     @Autowired
-    ModelMapper modelMapper;
+    QuizAttemptService quizAttemptService;
 
 
 
@@ -44,6 +48,16 @@ public class QuizController {
         Quiz quiz = quizService.getById(id);
         return ResponseEntity.ok().body(new ResponseObject<>(quiz));
 
+    }
+    @PostMapping("/start")
+    public ResponseEntity<ResponseObject<QuizAttempt>> start(@RequestBody InitQuizRequestDTO dto) throws JSONException {
+        QuizAttempt quiz = quizAttemptService.init(dto.getQuizId(),dto.getCourseEnrollmentId());
+        return ResponseEntity.ok().body(new ResponseObject<>(quiz));
+    }
+    @PostMapping("/submit")
+    public ResponseEntity<ResponseObject<QuizAttempt>> submitQuizAttempt(@RequestBody QuizAttemptRequestDTO dto) throws JSONException {
+        QuizAttempt quiz = quizAttemptService.saveQuizAttempt(dto);
+        return ResponseEntity.ok().body(new ResponseObject<>(quiz));
     }
 
     @GetMapping("/questions")

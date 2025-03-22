@@ -60,6 +60,14 @@ public class QuizAttemptServiceImpl implements QuizAttemptService {
     }
 
     @Override
+    public QuizAttempt init(long quizId, long enrollmentId) throws ValidationFailedException {
+        QuizAttempt quizAttempt= new QuizAttempt();
+        quizAttempt.setQuiz(quizDao.findById(quizId).orElseThrow(()->new ValidationFailedException("Quize not found")));
+        quizAttempt.setEnrollment(courseEnrollmentService.getInstanceByID(enrollmentId));
+        return quizAttemptDao.save(quizAttempt);
+    }
+
+    @Override
     public List<QuizAttempt> getQuizAttempts(Search search, int offset, int limit) {
         search.setMaxResults(limit).setFirstResult(offset);
         return quizDao.search(search);

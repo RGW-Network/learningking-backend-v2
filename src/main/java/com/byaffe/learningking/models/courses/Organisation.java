@@ -1,6 +1,7 @@
 package com.byaffe.learningking.models.courses;
 
 
+import com.byaffe.learningking.constants.AccountStatus;
 import com.byaffe.learningking.models.LookupValue;
 import com.byaffe.learningking.shared.models.BaseEntity;
 import com.byaffe.learningking.shared.models.Country;
@@ -33,9 +34,12 @@ public class Organisation extends BaseEntity {
     private String emailAddress;
     private String coverImageUrl;
     private String logoImageUrl;
-    private PublicationStatus publicationStatus = PublicationStatus.ACTIVE;
+    @Enumerated(EnumType.STRING)
+    private AccountStatus status = AccountStatus.PendingActivation;
     @Column(name = "training_mandate", columnDefinition = "TEXT")
     private String trainingMandate;
+
+    private String lastVerificationCode;
     @Transient
     public Long getAreaOfBusinessId() {
         return areaOfBusiness!=null?areaOfBusiness.getId():null;

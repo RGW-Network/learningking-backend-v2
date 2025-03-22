@@ -23,6 +23,7 @@ public interface QuizAttemptService {
 
 
     QuizAttempt saveQuizAttempt(QuizAttemptRequestDTO dto) throws ValidationFailedException;
+    QuizAttempt init(long quizId, long enrollmentId) throws ValidationFailedException;
     List<QuizAttempt> getQuizAttempts(Search search, int offset, int limit) ;
     long countQuizAttempts(Search search) ;
     QuizAttempt saveQuizAttemptAnswer(QuizAttemptAnswerRequestDTO dto) throws ValidationFailedException;

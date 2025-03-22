@@ -1,5 +1,6 @@
 package com.byaffe.learningking.services.impl;
 
+import com.byaffe.learningking.constants.AccountStatus;
 import com.byaffe.learningking.daos.OrganisationStudentDao;
 import com.byaffe.learningking.dtos.student.CompanyRequestDTO;
 import com.byaffe.learningking.models.LookupType;
@@ -18,6 +19,7 @@ import com.byaffe.learningking.shared.services.MessageTemplateUtils;
 import com.byaffe.learningking.shared.utils.ApplicationContextProvider;
 import com.byaffe.learningking.shared.utils.CustomSearchUtils;
 import com.byaffe.learningking.shared.utils.MailService;
+import com.byaffe.learningking.shared.utils.PassEncTech4;
 import com.byaffe.learningking.utilities.ImageStorageService;
 import com.googlecode.genericdao.search.Search;
 import org.apache.commons.lang3.StringUtils;
@@ -28,6 +30,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @Transactional
@@ -68,7 +71,6 @@ public class OrganisationServiceImpl extends GenericServiceImpl<Organisation> im
             article.setTrainingMandate(settingService.getAppSetting().getDefaultTrainingMandate());
 
         }
-        article.setPublicationStatus(PublicationStatus.ACTIVE);
         article.setCountry(lookupValueService.getCountryById(dto.getCountryId()));
         article.setAreaOfBusiness(lookupValueService.getByType(LookupType.PROFESSIONS, dto.getAreaOfBusinessId()));
         article = saveInstance(article);
@@ -85,7 +87,7 @@ public class OrganisationServiceImpl extends GenericServiceImpl<Organisation> im
         }
         {
             //add creator to company
-            OrganisationStudent existsOnCompany = getCompanyStudent(article, SessionContext.getLoggedInStudent());
+            OrganisationStudent existsOnCompany =ApplicationContextProvider.getBean(OrganisationStudentService.class).getCompanyStudent(article, SessionContext.getLoggedInStudent());
 
             if (existsOnCompany == null) {
                 OrganisationStudent organisationStudent = new OrganisationStudent();
@@ -116,33 +118,26 @@ public class OrganisationServiceImpl extends GenericServiceImpl<Organisation> im
 
     }
 
-    @Override
-    public List<Organisation> getInstances(Search arg0, int arg1, int arg2) {
-        return super.getInstances(arg0, arg1, arg2);
+
+    public Organisation verifyEmail(String verificationCode)  {
+        Organisation organisation = searchUnique(new Search().addFilterEqual("lastVerificationCode", verificationCode).setMaxResults(1));
+        if (organisation == null) throw new ValidationFailedException("Invalid verification code");
+        organisation.setLastVerificationCode(null);
+        organisation.setStatus(AccountStatus.Active);
+        return super.save(organisation);
     }
 
-    @Override
-    public int countInstances(Search arg0) {
-        return super.countInstances(arg0);
+    public Organisation initiateVerification(Organisation plan) throws ValidationFailedException {
+        String lastVerification = UUID.randomUUID().toString();
+        plan.setLastVerificationCode(lastVerification);
+        MessageTemplate messageTemplate = ApplicationContextProvider.getBean(MessageTemplateService.class).getActiveTemplate(MessageTemplateChannel.EMAIL, MessageTemplateType.VERIFY_ORGANISATION);
 
-    }
+        if (messageTemplate == null) throw new ValidationFailedException("Missing message template");
+        String subject = MessageTemplateUtils.resolveOrganisationInvitation(plan, messageTemplate.getSubject());
+        String body = MessageTemplateUtils.resolveOrganisationInvitation(plan, messageTemplate.getBody());
+        ApplicationContextProvider.getBean(MailService.class).sendEmail(plan.getEmailAddress(), subject, body);
+        plan.setStatus(AccountStatus.PendingActivation);
 
-    @Override
-    public int countCompanyStudentInstances(Search arg0) {
-        return companyStudentDao.count(arg0);
-
-    }
-
-    @Override
-    public Organisation activate(Organisation plan) throws ValidationFailedException {
-        plan.setPublicationStatus(PublicationStatus.ACTIVE);
-
-        return super.save(plan);
-    }
-
-    @Override
-    public Organisation deActivate(Organisation plan) {
-        plan.setPublicationStatus(PublicationStatus.INACTIVE);
         return super.save(plan);
     }
 
@@ -159,79 +154,8 @@ public class OrganisationServiceImpl extends GenericServiceImpl<Organisation> im
         return companyStudentDao.save(plan);
     }
 
-    @Override
-    public OrganisationStudent getOrganisationStudentById(long organisationStudentId) {
-        return companyStudentDao.findById(organisationStudentId).orElseThrow(() -> new ValidationFailedException("Group Student With Id not found"));
 
-    }
-
-
-    @Override
-    public List<OrganisationStudent> getCompanyStudents(Search search, int offset, int limit) {
-        search.setMaxResults(limit);
-        search.setFirstResult(offset);
-
-        return companyStudentDao.search(search);
-    }
-
-    @Override
-    public OrganisationStudent getCompanyStudent(Organisation organisation, Student student) {
-        Search search = new Search();
-        search.addFilterEqual("organisation", organisation);
-        search.addFilterEqual("student", student);
-        search.setMaxResults(1);
-        search.addFilterEqual("recordStatus", RecordStatus.ACTIVE);
-
-        return companyStudentDao.searchUnique(search);
-    }
-
-    @Override
-    public void delete(OrganisationStudent companyCourse) {
-
-        companyCourse.setRecordStatus(RecordStatus.DELETED);
-
-        companyStudentDao.save(companyCourse);
-    }
-
-
-    public void addStudentToCompany(long organizationId, String studentEmail) throws ValidationFailedException {
-        if (StringUtils.isEmpty(studentEmail)) {
-            throw new ValidationFailedException("Missing email");
-        }
-        Student student = studentService.getStudentByEmail(studentEmail);
-        if (student == null) {
-            //To-do send invitation email
-            MessageTemplate emailTemplate = ApplicationContextProvider.getBean(MessageTemplateService.class).getActiveTemplate(MessageTemplateChannel.EMAIL, MessageTemplateType.NON_STUDENT_ORGANISATION_INVITATION);
-            if(emailTemplate!=null) {
-                String subject = MessageTemplateUtils.resolveLkInvitationMessageTemplate(studentEmail, SessionContext.getLoggedInUser(), emailTemplate.getSubject());
-                String body = MessageTemplateUtils.resolveLkInvitationMessageTemplate(studentEmail, SessionContext.getLoggedInUser(), emailTemplate.getBody());
-                ApplicationContextProvider.getBean(MailService.class).sendEmail(studentEmail, subject, body);
-            }
-            return;
-        }
-        Organisation organisation = getInstanceByID(organizationId);
-        if (organisation == null) {
-            throw new ValidationFailedException("Organisation with Id  not found");
-        }
-        OrganisationStudent existsOnCompany = getCompanyStudent(organisation, student);
-        if (existsOnCompany != null) {
-            throw new ValidationFailedException("User already exists on this org");
-        }
-        OrganisationStudent organisationStudent = new OrganisationStudent();
-        organisationStudent.setStudent(student);
-        organisationStudent.setOrganisation(organisation);
-        {//send email
-            MessageTemplate emailTemplate = ApplicationContextProvider.getBean(MessageTemplateService.class).getActiveTemplate(MessageTemplateChannel.EMAIL, MessageTemplateType.STUDENT_ORGANISATION_INVITATION);
-           if(emailTemplate!=null) {
-               String subject = MessageTemplateUtils.resolveLkInvitationMessageTemplate(studentEmail, SessionContext.getLoggedInUser(), emailTemplate.getSubject());
-               String body = MessageTemplateUtils.resolveLkInvitationMessageTemplate(studentEmail, SessionContext.getLoggedInUser(), emailTemplate.getBody());
-               ApplicationContextProvider.getBean(MailService.class).sendEmail(studentEmail, subject, body);
-           }
-        }
-        companyStudentDao.save(organisationStudent);
-    }
-
-    public static Search generateSearchTermsForCompanyStudent(String searchTerm) {
+    public static Search generateSearchTermsForCompanies(String searchTerm) {
 
         return CustomSearchUtils.generateSearchTerms(searchTerm, Arrays.asList("title", "description"));
     }

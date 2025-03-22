@@ -7,6 +7,7 @@ public enum MessageTemplateParams {
     PHONE_NUMBER("{PhoneNumber}"),
     EMAIL_ADDRESS("{EmailAddress}"),
     OTP("{OTP}"),
+    COMPANY_NAME("{CompanyName}"),
     VERIFICATION_LINK("{VerificationLink}");
     private String displayName;
 

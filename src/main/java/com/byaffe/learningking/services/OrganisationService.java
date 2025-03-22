@@ -1,12 +1,21 @@
 package com.byaffe.learningking.services;
 
+import com.byaffe.learningking.constants.AccountStatus;
 import com.byaffe.learningking.dtos.student.CompanyRequestDTO;
 import com.byaffe.learningking.models.Student;
 import com.byaffe.learningking.models.courses.*;
 import com.byaffe.learningking.shared.exceptions.ValidationFailedException;
+import com.byaffe.learningking.shared.models.MessageTemplate;
+import com.byaffe.learningking.shared.models.MessageTemplateChannel;
+import com.byaffe.learningking.shared.models.MessageTemplateType;
+import com.byaffe.learningking.shared.services.MessageTemplateService;
+import com.byaffe.learningking.shared.services.MessageTemplateUtils;
+import com.byaffe.learningking.shared.utils.ApplicationContextProvider;
+import com.byaffe.learningking.shared.utils.MailService;
 import com.googlecode.genericdao.search.Search;
 
 import java.util.List;
+import java.util.UUID;
 
 ;
 /**
@@ -16,25 +25,12 @@ import java.util.List;
  *
  */
 public interface OrganisationService extends GenericService<Organisation> {
-
     
-    Organisation activate(Organisation plan) throws ValidationFailedException;
-    void addStudentToCompany(long organizationId, String studentEmail) throws ValidationFailedException ;
-    int countCompanyStudentInstances(Search arg0) ;
+     Organisation saveOrganisation(CompanyRequestDTO dto);
 
-    Organisation deActivate(Organisation plan);
-    Organisation saveOrganisation(CompanyRequestDTO dto);
+    public Organisation verifyEmail(String verificationCode) ;
 
-
-    
-     List<OrganisationStudent> getCompanyStudents(Search search, int offset, int limit);
-
-    OrganisationStudent getCompanyStudent(Organisation organisation, Student student);
-
-    void delete(OrganisationStudent organisationStudent);
+    public Organisation initiateVerification(Organisation plan) ;
 
     OrganisationStudent deActivate(OrganisationStudent plan);
-
-
-    OrganisationStudent getOrganisationStudentById(long organisationStudentId);
 }

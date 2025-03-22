@@ -7,6 +7,7 @@ import com.byaffe.learningking.models.payments.AggregatorTransaction;
 import com.byaffe.learningking.services.*;
 import com.byaffe.learningking.shared.constants.RecordStatus;
 import com.byaffe.learningking.shared.exceptions.OperationFailedException;
+import com.byaffe.learningking.shared.exceptions.PermissionDeniedException;
 import com.byaffe.learningking.shared.exceptions.ValidationFailedException;
 import com.byaffe.learningking.shared.security.SessionContext;
 import com.byaffe.learningking.shared.utils.ApplicationContextProvider;
@@ -31,6 +32,8 @@ public class WishListServiceImpl extends GenericServiceImpl<WishList> implements
     CourseService courseService;
 
     public WishList addToWishList(Long courseId) {
+        Student loggedInStudent = SessionContext.getLoggedInStudent();
+        if (loggedInStudent == null) throw new PermissionDeniedException();
         WishList wishList = new WishList();
         WishList exists = getByCourse(courseId);
         if (exists != null) {
@@ -58,6 +61,8 @@ public class WishListServiceImpl extends GenericServiceImpl<WishList> implements
 
     @Override
     public WishList getByCourse(Long courseId) {
+        Student loggedInStudent = SessionContext.getLoggedInStudent();
+        if (loggedInStudent == null) return null;
         return searchUnique(new Search()
                 .addFilterEqual("course.id", courseId)
                 .addFilterEqual("student.id", SessionContext.getLoggedInStudent().getId())
