@@ -49,7 +49,7 @@ public class EventAttendanceServiceImpl extends GenericServiceImpl<EventAttendan
 
         int currentAttendances = countAttendances(eventAttendance.getEventId());
         if (currentAttendances >= eventAttendance.getEvent().getMaximumAttendees()) {
-           // throw new ValidationFailedException("Sorry, the attendance list is full");
+            // throw new ValidationFailedException("Sorry, the attendance list is full");
         }
         EventAttendance exists = getAttendance(eventAttendance.getEvent(), eventAttendance.getStudent());
         if (exists != null) {
@@ -130,12 +130,26 @@ public class EventAttendanceServiceImpl extends GenericServiceImpl<EventAttendan
 
     @Override
     public void bulkAttend(AggregatorTransaction aggregatorTransaction) {
+        if (aggregatorTransaction == null || !aggregatorTransaction.getStatus().equals(TransactionStatus.SUCCESSFUL)) {
+            return;
+        }
+        StudentService studentService = ApplicationContextProvider.getBean(StudentService.class);
 
+        for (Long studentId : aggregatorTransaction.getEntryIds()) {
+            Student student = studentService.getStudentById(studentId);
+            Event event = eventService.getById(aggregatorTransaction.getReferenceRecordId());
+            EventAttendance eventAttendance = new EventAttendance();
+            eventAttendance.setStatus(EventAttendanceStatus.ATTENDING);
+            eventAttendance.setStudent(student);
+            eventAttendance.setEvent(event);
+            eventAttendance.setAggregatorTransaction(aggregatorTransaction);
+            saveInstance(eventAttendance);
+        }
     }
 
     @Override
     public EventAttendance getByUser(long eventId, long studentId) {
-        return searchUnique(new Search().addFilterEqual("event.id",eventId).addFilterEqual("student.id",studentId).setMaxResults(0));
+        return searchUnique(new Search().addFilterEqual("event.id", eventId).addFilterEqual("student.id", studentId).setMaxResults(0));
     }
 
     @Override
@@ -149,12 +163,12 @@ public class EventAttendanceServiceImpl extends GenericServiceImpl<EventAttendan
 
     @Override
     public void validateEventAttendance(Event event, Student student) {
-       // if (event.isFull()) throw new ValidationFailedException("Event Attendance List is full");
+        // if (event.isFull()) throw new ValidationFailedException("Event Attendance List is full");
         if (!event.getStatus().equals(EventStatus.UPCOMING))
             throw new ValidationFailedException("Event is already " + event.getStatus().getUiName());
         if (!event.getPublicationStatus().equals(PublicationStatus.ACTIVE))
             throw new ValidationFailedException("Event is not published");
-       /// if (!event.getIsPaidFor()) throw new ValidationFailedException("This Event isn't paid for");
+        /// if (!event.getIsPaidFor()) throw new ValidationFailedException("This Event isn't paid for");
         EventAttendance eventAttendance = getAttendance(event, student);
         if (eventAttendance != null) throw new ValidationFailedException("User aldready has an existing attendance");
     }

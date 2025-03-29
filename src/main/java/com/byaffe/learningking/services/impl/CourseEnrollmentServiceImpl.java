@@ -163,7 +163,7 @@ public class CourseEnrollmentServiceImpl extends BaseDAOImpl<CourseEnrollment> i
     public String generateHtmlCertificate(Long enrolmentId) {
         CourseEnrollment enrollment = getInstanceByID(enrolmentId, true);
 
-        if (enrollment==null) {
+        if (enrollment == null) {
             throw new ValidationFailedException("Record not found");
         }
 
@@ -243,15 +243,14 @@ public class CourseEnrollmentServiceImpl extends BaseDAOImpl<CourseEnrollment> i
     @Override
     public void createBulkSubscriptions(AggregatorTransaction coursePayment) throws ValidationFailedException {
         if (coursePayment == null || !coursePayment.getStatus().equals(TransactionStatus.SUCCESSFUL)) {
-            return ;
+            return;
         }
         Course course = ApplicationContextProvider.getBean(CourseService.class).getInstanceByID(coursePayment.getReferenceRecordId());
-StudentService studentService=ApplicationContextProvider.getBean(StudentService.class);
-        for(Long studentId:coursePayment.getEntryIds()){
-    Student student=studentService.getStudentById(studentId);
+        StudentService studentService = ApplicationContextProvider.getBean(StudentService.class);
+        for (Long studentId : coursePayment.getEntryIds()) {
+            Student student = studentService.getStudentById(studentId);
             createActualSubscription(student, course);
-}
-
+        }
 
     }
 
