@@ -18,6 +18,7 @@ import com.byaffe.learningking.shared.api.ResponseObject;
 import com.byaffe.learningking.shared.constants.RecordStatus;
 import com.byaffe.learningking.shared.exceptions.ValidationFailedException;
 import com.byaffe.learningking.shared.security.SessionContext;
+import com.google.gson.Gson;
 import com.googlecode.genericdao.search.Search;
 import io.swagger.v3.oas.annotations.Hidden;
 import lombok.extern.slf4j.Slf4j;
@@ -63,9 +64,9 @@ public class CompanyController {
         if (sortBy != null) {
             search.addSort(sortBy, sortDescending);
         }
-        List<OrganisationStudent> Articles = organisationStudentService.getInstances(search, offset, limit);
-        long count = organisationService.countInstances(search);
-        return ResponseEntity.ok().body(new ResponseList<>(Articles, (int) count, offset, limit));
+        List<OrganisationStudent> records = organisationStudentService.getInstances(search, offset, limit);
+        long count = organisationStudentService.countInstances(search);
+        return ResponseEntity.ok().body(new ResponseList<>(records, (int) count, offset, limit));
 
     }
 
@@ -78,13 +79,11 @@ public class CompanyController {
         Search search = OrganisationServiceImpl.generateSearchTermsForCompanies(searchTerm).addFilterEqual("recordStatus", RecordStatus.ACTIVE);
         List<Organisation> organisations = new ArrayList<>();
         if (!Objects.requireNonNull(SessionContext.getLoggedInUser()).hasAdministrativePrivileges()) {
-            search.addFilterEqual("createdById", SessionContext.getLoggedInUser().getCreatedById());
-            organisations = organisationStudentService.getInstances(search, offset, limit).stream().map(OrganisationStudent::getOrganisation).collect(Collectors.toList());
-            count = organisationStudentService.countInstances(search);
-        } else {
-            organisations = organisationService.getInstances(search, offset, limit);
-            count = organisationService.countInstances(search);
+            search.addFilterEqual("createdById", SessionContext.getLoggedInUser().getId());
         }
+        organisations = organisationService.getInstances(search, offset, limit);
+        count = organisationService.countInstances(search);
+
 
         return ResponseEntity.ok().body(new ResponseList<>(organisations, (int) count, offset, limit));
     }
@@ -104,25 +103,26 @@ public class CompanyController {
         }
         return ResponseEntity.ok().body(new BaseResponse(true));
     }
+
     @PostMapping(path = "/{organisationId}/trigger-verification")
     public ResponseEntity<BaseResponse> verify(@PathVariable Long organisationId) {
-        Organisation organisation= organisationService.getInstanceByID(organisationId);
-        if(StringUtils.isEmpty(organisation.getEmailAddress())){
+        Organisation organisation = organisationService.getInstanceByID(organisationId);
+        if (StringUtils.isEmpty(organisation.getEmailAddress())) {
             throw new ValidationFailedException("Missing Email Address");
         }
-        if(StringUtils.isEmpty(organisation.getTelephoneNumber())){
+        if (StringUtils.isEmpty(organisation.getTelephoneNumber())) {
             throw new ValidationFailedException("Missing Telephone number");
         }
         organisationService.initiateVerification(organisation);
-       //To-Do
-        return ResponseEntity.ok().body(new BaseResponse("Verification link has been sent successfully to your organisation email",true));
+        //To-Do
+        return ResponseEntity.ok().body(new BaseResponse("Verification link has been sent successfully to your organisation email", true));
     }
 
 
     @DeleteMapping(path = "/{organisationId}")
     public ResponseEntity<BaseResponse> delete(@PathVariable Long organisationId) {
-        Organisation  organisation= organisationService.getInstanceByID(organisationId);
-       organisationService.deleteInstance(organisation);
+        Organisation organisation = organisationService.getInstanceByID(organisationId);
+        organisationService.deleteInstance(organisation);
         return ResponseEntity.ok().body(new BaseResponse(true));
     }
 
@@ -160,33 +160,32 @@ public class CompanyController {
     }
 
     @GetMapping("/students")
-    public ResponseEntity<ResponseList<OrganisationGroupStudent>> getGroupStudents(@RequestParam(value = "searchTerm", required = false) String searchTerm,
+    public ResponseEntity<ResponseList<OrganisationStudent>> getOrgStudents(@RequestParam(value = "searchTerm", required = false) String searchTerm,
                                                                                    @RequestParam(value = "offset", required = true) Integer offset,
                                                                                    @RequestParam(value = "limit", required = true) Integer limit,
                                                                                    @RequestParam(value = "sortBy", required = false) String sortBy,
                                                                                    @RequestParam(value = "organisationId", required = false) Long organisationId,
                                                                                    @RequestParam(value = "groupId", required = false) Long groupId) throws JSONException {
         long count = 0;
-        Search search = OrganisationGroupServiceImpl.generateSearchTermsForStudent(searchTerm).addFilterEqual("recordStatus", RecordStatus.ACTIVE);
+        Search search = OrganisationStudentServiceImpl.generateSearchTerms(searchTerm).addFilterEqual("recordStatus", RecordStatus.ACTIVE);
 
-        if (organisationId != null) search.addFilterEqual("organisationGroup.organisation.id", organisationId);
-        if (groupId != null) search.addFilterEqual("organisationGroup.id", groupId);
+        if (organisationId != null) search.addFilterEqual("organisation.id", organisationId);
 
-        List<OrganisationGroupStudent> organisations = organisationGroupService.getGroupStudents(search, offset, limit);
+        //if (groupId != null) search.addFilterIn("organisationGroup.id", groupId);
+
+        List<OrganisationStudent> organisations = organisationStudentService.getInstances(search, offset, limit);
+        count = organisationStudentService.countInstances(search);
         return ResponseEntity.ok().body(new ResponseList<>(organisations, (int) count, offset, limit));
     }
 
 
-
-
-
     @PostMapping(path = "/student/{organisationStudentId}/accept-invitation")
-    public ResponseEntity<ResponseObject<OrganisationStudent>> acceptInvitation(@RequestParam(value = "organisationStudentId") Long organisationStudentId) {
+    public ResponseEntity<ResponseObject<OrganisationStudent>> acceptInvitation(@PathVariable(value = "organisationStudentId") Long organisationStudentId) {
         return ResponseEntity.ok().body(new ResponseObject<>(organisationStudentService.acceptInvitation(organisationStudentId)));
     }
 
     @PostMapping(path = "/student/{organisationStudentId}/decline-invitation")
-    public ResponseEntity<ResponseObject<OrganisationStudent>> declineInvitation(@RequestParam(value = "organisationStudentId") Long organisationStudentId) {
+    public ResponseEntity<ResponseObject<OrganisationStudent>> declineInvitation(@PathVariable(value = "organisationStudentId") Long organisationStudentId) {
         return ResponseEntity.ok().body(new ResponseObject<>(organisationStudentService.declineInvitation(organisationStudentId)));
     }
 
@@ -212,7 +211,7 @@ public class CompanyController {
                 "<div class='container'>" +
                 "<h1>✅ Organisation Email Verified Successfully!</h1>" +
                 "<p>Your organisation email has been verified. You can now add students and purchase courses with it.</p>" +
-                "<a href='http://learningking.academy' class='button'>Go back to learningking</a>" +
+                "<a href='http://learningking.academy/student/manage-organization' class='button'>Take me back to learningking</a>" +
                 "</div>" +
                 "</body>" +
                 "</html>";

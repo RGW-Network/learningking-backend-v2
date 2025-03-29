@@ -117,7 +117,7 @@ public class OrganisationStudentServiceImpl extends GenericServiceImpl<Organisat
 
     public static Search generateSearchTerms(String searchTerm) {
 
-        return CustomSearchUtils.generateSearchTerms(searchTerm, Arrays.asList("student.firstName", "student.lastName", "organisation.title", "organisation.description"));
+        return CustomSearchUtils.generateSearchTerms(searchTerm, Arrays.asList("student.firstName", "student.lastName", "organisation.name", "organisation.description"));
     }
 
     @Override
@@ -127,6 +127,6 @@ public class OrganisationStudentServiceImpl extends GenericServiceImpl<Organisat
 
     @Override
     public OrganisationStudent saveInstance(OrganisationStudent instance) throws ValidationFailedException, OperationFailedException {
-        return null;
+        return save(instance);
     }
 }

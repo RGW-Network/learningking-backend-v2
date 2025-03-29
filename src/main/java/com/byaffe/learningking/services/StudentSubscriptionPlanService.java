@@ -19,7 +19,10 @@ import com.byaffe.learningking.shared.exceptions.ValidationFailedException;
 public interface StudentSubscriptionPlanService extends GenericService<StudentSubscriptionPlan> {
 
     public StudentSubscriptionPlan activate(AggregatorTransaction subscriptionPlanPayment) throws ValidationFailedException;
-  public StudentSubscriptionPlan getInstance(Student student, SubscriptionPlan plan) throws ValidationFailedException;
+
+    public void bulkActivate(AggregatorTransaction subscriptionPlanPayment) throws ValidationFailedException;
+
+    public StudentSubscriptionPlan getInstance(Student student, SubscriptionPlan plan) throws ValidationFailedException;
 
     
      public StudentSubscriptionPlan expire(StudentSubscriptionPlan plan);

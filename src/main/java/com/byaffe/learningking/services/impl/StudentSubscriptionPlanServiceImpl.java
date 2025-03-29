@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Service
@@ -56,12 +57,17 @@ SubscriptionPlan subscriptionPlan= ApplicationContextProvider.getBean(Subscripti
         StudentSubscriptionPlan memberSubscriptionPlan = new StudentSubscriptionPlan();
         memberSubscriptionPlan.setSubscriptionPlan(subscriptionPlan);
         memberSubscriptionPlan.setStudent(planPayment.getStudent());
-        memberSubscriptionPlan.setActivatedOn(new Date());
+        memberSubscriptionPlan.setActivatedOn(LocalDateTime.now());
         memberSubscriptionPlan.setDurationInMonths(subscriptionPlan.getDurationInMonths());
         memberSubscriptionPlan.setCost(planPayment.getAmountInitiated());
         memberSubscriptionPlan.setStatus(SubscriptionPlanStatus.ACTIVE);
 
         return super.save(memberSubscriptionPlan);
+    }
+
+    @Override
+    public void bulkActivate(AggregatorTransaction subscriptionPlanPayment) throws ValidationFailedException {
+
     }
 
     @Override
@@ -85,14 +91,14 @@ SubscriptionPlan subscriptionPlan= ApplicationContextProvider.getBean(Subscripti
 
     @Override
     public StudentSubscriptionPlan expire(StudentSubscriptionPlan plan) {
-        plan.setExpiredOn(new Date());
+        plan.setExpiredOn(LocalDateTime.now());
         plan.setStatus(SubscriptionPlanStatus.EXPIRED);
         return super.save(plan);
     }
 
     @Override
     public StudentSubscriptionPlan deplete(StudentSubscriptionPlan plan) {
-        plan.setDepletedOn(new Date());
+        plan.setDepletedOn(LocalDateTime.now());
         plan.setStatus(SubscriptionPlanStatus.DEPLETED);
         return super.save(plan);
     }

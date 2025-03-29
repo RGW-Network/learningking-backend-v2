@@ -129,6 +129,11 @@ public class EventAttendanceServiceImpl extends GenericServiceImpl<EventAttendan
     }
 
     @Override
+    public void bulkAttend(AggregatorTransaction aggregatorTransaction) {
+
+    }
+
+    @Override
     public EventAttendance getByUser(long eventId, long studentId) {
         return searchUnique(new Search().addFilterEqual("event.id",eventId).addFilterEqual("student.id",studentId).setMaxResults(0));
     }

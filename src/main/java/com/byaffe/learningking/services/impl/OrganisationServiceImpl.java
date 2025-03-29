@@ -66,37 +66,48 @@ public class OrganisationServiceImpl extends GenericServiceImpl<Organisation> im
             throw new ValidationFailedException("Missing Description");
         }
 
-        Organisation article = modelMapper.map(dto, Organisation.class);
-        if (article.isNew() || StringUtils.isEmpty(article.getTrainingMandate())) {
-            article.setTrainingMandate(settingService.getAppSetting().getDefaultTrainingMandate());
-
+        if (StringUtils.isBlank(dto.getTelephoneNumber())) {
+            throw new ValidationFailedException("Missing Telephone Number");
         }
-        article.setCountry(lookupValueService.getCountryById(dto.getCountryId()));
-        article.setAreaOfBusiness(lookupValueService.getByType(LookupType.PROFESSIONS, dto.getAreaOfBusinessId()));
-        article = saveInstance(article);
+
+        if (StringUtils.isBlank(dto.getMobileNumber())) {
+            throw new ValidationFailedException("Missing Mobile Number");
+        }
+        Organisation model = new Organisation();
+        if (dto.getId() != null && dto.getId() > 0) {
+            model = getInstanceByID(dto.getId());
+        }
+
+        modelMapper.map(dto, model);
+        if (model.isNew() || StringUtils.isEmpty(model.getTrainingMandate())) {
+            model.setTrainingMandate(settingService.getAppSetting().getDefaultTrainingMandate());
+        }
+        model.setCountry(lookupValueService.getCountryById(dto.getCountryId()));
+        model.setAreaOfBusiness(lookupValueService.getByType(LookupType.PROFESSIONS, dto.getAreaOfBusinessId()));
+        model = saveInstance(model);
 
         if (dto.getCoverImage() != null) {
-            String imageUrl = imageStorageService.uploadImage(dto.getCoverImage(), "companies/cover-images/" + article.getId());
-            article.setCoverImageUrl(imageUrl);
-            article = super.save(article);
+            String imageUrl = imageStorageService.uploadImage(dto.getCoverImage(), "companies/cover-images/" + model.getId());
+            model.setCoverImageUrl(imageUrl);
+            model = super.save(model);
         }
         if (dto.getLogoImage() != null) {
-            String imageUrl = imageStorageService.uploadImage(dto.getLogoImage(), "companies/logos/" + article.getId());
-            article.setLogoImageUrl(imageUrl);
-            article = super.save(article);
+            String imageUrl = imageStorageService.uploadImage(dto.getLogoImage(), "companies/logos/" + model.getId());
+            model.setLogoImageUrl(imageUrl);
+            model = super.save(model);
         }
         {
             //add creator to company
-            OrganisationStudent existsOnCompany =ApplicationContextProvider.getBean(OrganisationStudentService.class).getCompanyStudent(article, SessionContext.getLoggedInStudent());
+            OrganisationStudent existsOnCompany = ApplicationContextProvider.getBean(OrganisationStudentService.class).getCompanyStudent(model, SessionContext.getLoggedInStudent());
 
             if (existsOnCompany == null) {
                 OrganisationStudent organisationStudent = new OrganisationStudent();
                 organisationStudent.setStudent(SessionContext.getLoggedInStudent());
-                organisationStudent.setOrganisation(article);
+                organisationStudent.setOrganisation(model);
                 companyStudentDao.save(organisationStudent);
             }
         }
-        return article;
+        return model;
     }
 
     @Override
@@ -119,7 +130,7 @@ public class OrganisationServiceImpl extends GenericServiceImpl<Organisation> im
     }
 
 
-    public Organisation verifyEmail(String verificationCode)  {
+    public Organisation verifyEmail(String verificationCode) {
         Organisation organisation = searchUnique(new Search().addFilterEqual("lastVerificationCode", verificationCode).setMaxResults(1));
         if (organisation == null) throw new ValidationFailedException("Invalid verification code");
         organisation.setLastVerificationCode(null);

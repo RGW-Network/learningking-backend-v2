@@ -36,6 +36,7 @@ public class FilterUtils {
                 path.startsWith("/api/v1/categories") ||
                 path.startsWith("/api/v1/articles")||
                 path.startsWith("/api/v1/events")||
+                path.startsWith("/api/v1/organisations/verify-email")||
                 path.equals("/api/v1/user-submissions")||
                 path.contains("download-certificate")) {
             return true;

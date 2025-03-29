@@ -241,6 +241,21 @@ public class CourseEnrollmentServiceImpl extends BaseDAOImpl<CourseEnrollment> i
     }
 
     @Override
+    public void createBulkSubscriptions(AggregatorTransaction coursePayment) throws ValidationFailedException {
+        if (coursePayment == null || !coursePayment.getStatus().equals(TransactionStatus.SUCCESSFUL)) {
+            return ;
+        }
+        Course course = ApplicationContextProvider.getBean(CourseService.class).getInstanceByID(coursePayment.getReferenceRecordId());
+StudentService studentService=ApplicationContextProvider.getBean(StudentService.class);
+        for(Long studentId:coursePayment.getEntryIds()){
+    Student student=studentService.getStudentById(studentId);
+            createActualSubscription(student, course);
+}
+
+
+    }
+
+    @Override
     public CourseEnrollment getSerieSubscription(Student member, Course course) {
         if (member == null || course == null) {
             return null;
