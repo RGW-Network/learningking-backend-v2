@@ -110,6 +110,9 @@ public class PaymentServiceImpl extends GenericServiceImpl<AggregatorTransaction
         long userCount = 0;
         String errors = "";
         Set<Long> entryIds=new HashSet<>();
+        if(students.isEmpty()){
+            throw new ValidationFailedException("This group has no students");
+        }
         for (OrganisationGroupStudent organisationStudent : students) {
             Student student = organisationStudent.getOrganisationStudent().getStudent();
             try {

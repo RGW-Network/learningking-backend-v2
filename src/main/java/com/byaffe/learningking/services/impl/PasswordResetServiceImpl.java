@@ -58,7 +58,7 @@ public class PasswordResetServiceImpl extends GenericServiceImpl<PasswordResetTo
     }
 
 
-    public void resetPassword(String token, String newPassword) {
+    public User resetPassword(String token, String newPassword) {
         PasswordResetToken resetToken = searchUniqueByPropertyEqual("token", token);
         if (StringUtils.isEmpty(newPassword)) {
             throw new ValidationFailedException("Password cannot be empty");
@@ -67,9 +67,11 @@ public class PasswordResetServiceImpl extends GenericServiceImpl<PasswordResetTo
         if (resetToken == null || resetToken.getExpiryDate().isBefore(LocalDateTime.now())) {
             throw new ValidationFailedException("Missing or expired token");
         }
+        resetToken.setExpiryDate(LocalDateTime.now());
+        save(resetToken);
         User user = resetToken.getUser();
         user.setPassword(PassEncTech4.generateSecurePassword(newPassword)); // Set the new password
-        userRepository.saveUser(user);
+     return   userRepository.saveUser(user);
     }
 
     @Override

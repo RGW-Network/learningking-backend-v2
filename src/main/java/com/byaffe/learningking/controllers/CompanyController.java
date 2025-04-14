@@ -135,11 +135,15 @@ public class CompanyController {
     public ResponseEntity<ResponseList<OrganisationGroup>> getGroups(@RequestParam(value = "searchTerm", required = false) String searchTerm,
                                                                      @RequestParam(value = "offset", required = true) Integer offset,
                                                                      @RequestParam(value = "limit", required = true) Integer limit,
-                                                                     @RequestParam(value = "organisationId", required = true) Long organisationId,
+                                                                    @RequestParam(value = "organisationId", required = false) Long organisationId,
                                                                      @RequestParam(value = "sortBy", required = false) String sortBy) throws JSONException {
         long count = 0;
         Search search = OrganisationGroupServiceImpl.generateSearchTermsForGroup(searchTerm).addFilterEqual("recordStatus", RecordStatus.ACTIVE);
-        if (organisationId != null) search.addFilterEqual("organisation.id", organisationId);
+
+        if (!Objects.requireNonNull(SessionContext.getLoggedInUser()).hasAdministrativePrivileges()) {
+            search.addFilterEqual("organisation.createdById", SessionContext.getLoggedInUser().getId() );
+        }
+
         if (sortBy != null) search.addSortDesc(sortBy);
 
         List<OrganisationGroup> organisations = organisationGroupService.getGroups(search, offset, limit);

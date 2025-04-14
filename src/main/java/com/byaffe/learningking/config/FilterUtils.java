@@ -17,11 +17,14 @@ public class FilterUtils {
                     "/api/v1/auth/student/register",
                     "/api/v1/auth/instructor/register",
                     "/api/v1/auth/student/send-otp",
+                    "/api/v1/auth/reset-password/initiate",
+                    "/api/v1/auth/reset-password",
                     "/api/v1/auth/instructor/send-otp",
                     "/api/v1/auth/student/verify-otp",
                     "/api/v1/auth/instructor/verify-otp",
                     "/api/v1/payments/subscription-plans",
                     "/api/v1/reviews",
+
                     "/api/v1/status"
             )
     );

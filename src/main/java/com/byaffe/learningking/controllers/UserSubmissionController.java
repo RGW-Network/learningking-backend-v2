@@ -7,6 +7,7 @@ import com.byaffe.learningking.models.SubmissionStatus;
 import com.byaffe.learningking.models.SubmissionType;
 import com.byaffe.learningking.models.UserSubmission;
 import com.byaffe.learningking.models.courses.PublicationStatus;
+import com.byaffe.learningking.services.CourseCustomisationRequestService;
 import com.byaffe.learningking.services.EventService;
 import com.byaffe.learningking.services.UserSubmissionService;
 import com.byaffe.learningking.services.impl.EventServiceImpl;
@@ -44,6 +45,9 @@ public class UserSubmissionController {
     @Autowired
     UserSubmissionService userSubmissionService;
 
+    @Autowired
+    CourseCustomisationRequestService courseCustomisationRequestService;
+
     private final ObjectMapper objectMapper = new ObjectMapper(); // For JSON conversion
 
 
@@ -80,4 +84,5 @@ public class UserSubmissionController {
         }
 
     }
+
 }

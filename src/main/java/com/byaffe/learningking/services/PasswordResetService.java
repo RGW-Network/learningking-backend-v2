@@ -21,6 +21,6 @@ public interface PasswordResetService extends GenericService<PasswordResetToken>
 
 
 
-    public void resetPassword(String token, String newPassword);
+    public User resetPassword(String token, String newPassword);
 
 }

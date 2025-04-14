@@ -10,6 +10,7 @@ import com.byaffe.learningking.services.StudentService;
 import com.byaffe.learningking.services.UserService;
 import com.byaffe.learningking.shared.api.BaseResponse;
 import com.byaffe.learningking.shared.api.ResponseObject;
+import com.byaffe.learningking.shared.models.User;
 import com.byaffe.learningking.shared.security.TokenProvider;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -53,14 +54,19 @@ public class AuthController {
     }
 
     @Data
-    public static class InitiatePasswordDto{
+    public static class InitiatePasswordDto {
         String email;
     }
+
     @PostMapping("/reset-password")
-    public ResponseEntity<ResponseObject<String>> resetPassword( @RequestBody PasswordResetRequestDTO body) {
-         passwordResetService.resetPassword(body.getToken(), body.getNewPassword());
-        return ResponseEntity.ok(new ResponseObject<>("Password has been reset successfully."));
+    public ResponseEntity<ResponseObject<FullUserDTO>> resetPassword(@RequestBody PasswordResetRequestDTO body) {
+        User user = passwordResetService.resetPassword(body.getToken(), body.getNewPassword());
+        Student student = studentService.getStudentByUserAccount(user);
+        UserDTO dto = UserDTO.fromModel(student.getUserAccount(), student, null);
+        TokenProvider.TokenPair tokenPair = tokenProvider.createToken(dto, false);
+        return ResponseEntity.ok().body(new ResponseObject<>(new FullUserDTO(dto, tokenPair)));
     }
+
     /**
      * Endpoint to register a microservice
      *
@@ -105,9 +111,11 @@ public class AuthController {
     }
 
     @PostMapping("/student/verify-otp")
-    public ResponseEntity<ResponseObject<Student>> verifyOtp(@RequestBody UserEmailVerificationRequestDTO userDTO) throws Exception {
+    public ResponseEntity<ResponseObject<FullUserDTO>> verifyOtp(@RequestBody UserEmailVerificationRequestDTO userDTO) throws Exception {
         Student student = studentService.activateStudentAccount(userDTO.emailAddress, userDTO.getOtp());
-        return ResponseEntity.ok().body(new ResponseObject<>(student));
+        UserDTO dto = UserDTO.fromModel(student.getUserAccount(), student, null);
+        TokenProvider.TokenPair tokenPair = tokenProvider.createToken(dto, false);
+        return ResponseEntity.ok().body(new ResponseObject<>(new FullUserDTO(dto, tokenPair)));
     }
 
     @PostMapping("/student/resend-otp")
