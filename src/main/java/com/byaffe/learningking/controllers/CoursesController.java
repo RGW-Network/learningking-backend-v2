@@ -65,8 +65,11 @@ CourseRatingService ratingService;
     ) throws JSONException {
 
         Search search = CourseServiceImpl.generateSearchObjectForCourses(searchTerm)
-                .addFilterEqual("recordStatus", RecordStatus.ACTIVE)
-                .addFilterEqual("publicationStatus", PublicationStatus.ACTIVE);
+                .addFilterEqual("recordStatus", RecordStatus.ACTIVE);
+
+        if(!SessionContext.isSuperAdmin()){
+            search.addFilterEqual("publicationStatus", PublicationStatus.ACTIVE);
+        }
         if (categoryId != null) {
             search.addFilterEqual("category.id", categoryId);
         }

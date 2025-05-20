@@ -10,4 +10,5 @@ import java.util.List;
 @Data
 public class BulkPaymentRequestDTO {
 private Long organisationGroupId;
+private String callBackUrl;
 }

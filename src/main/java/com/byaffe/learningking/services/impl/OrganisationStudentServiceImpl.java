@@ -82,21 +82,22 @@ public class OrganisationStudentServiceImpl extends GenericServiceImpl<Organisat
         if (StringUtils.isEmpty(studentEmail)) {
             throw new ValidationFailedException("Missing email");
         }
+        Organisation organisation = ApplicationContextProvider.getBean(OrganisationService.class).getInstanceByID(organizationId);
+        if (organisation == null) {
+            throw new ValidationFailedException("Organisation with Id  not found");
+        }
         Student student = studentService.getStudentByEmail(studentEmail);
         if (student == null) {
             //To-do send invitation email
             MessageTemplate emailTemplate = ApplicationContextProvider.getBean(MessageTemplateService.class).getActiveTemplate(MessageTemplateChannel.EMAIL, MessageTemplateType.NON_STUDENT_ORGANISATION_INVITATION);
             if (emailTemplate != null) {
-                String subject = MessageTemplateUtils.resolveLkInvitationMessageTemplate(studentEmail, SessionContext.getLoggedInUser(), emailTemplate.getSubject());
-                String body = MessageTemplateUtils.resolveLkInvitationMessageTemplate(studentEmail, SessionContext.getLoggedInUser(), emailTemplate.getBody());
+                String subject = MessageTemplateUtils.resolveLkInvitationMessageTemplate(studentEmail, SessionContext.getLoggedInUser(),organisation.getName(), emailTemplate.getSubject());
+                String body = MessageTemplateUtils.resolveLkInvitationMessageTemplate(studentEmail, SessionContext.getLoggedInUser(),organisation.getName(), emailTemplate.getBody());
                 ApplicationContextProvider.getBean(MailService.class).sendEmail(studentEmail, subject, body);
             }
             return;
         }
-        Organisation organisation = ApplicationContextProvider.getBean(OrganisationService.class).getInstanceByID(organizationId);
-        if (organisation == null) {
-            throw new ValidationFailedException("Organisation with Id  not found");
-        }
+
         OrganisationStudent existsOnCompany = getCompanyStudent(organisation, student);
         if (existsOnCompany != null) {
             throw new ValidationFailedException("User already exists on this org");
@@ -107,8 +108,8 @@ public class OrganisationStudentServiceImpl extends GenericServiceImpl<Organisat
         {//send email
             MessageTemplate emailTemplate = ApplicationContextProvider.getBean(MessageTemplateService.class).getActiveTemplate(MessageTemplateChannel.EMAIL, MessageTemplateType.STUDENT_ORGANISATION_INVITATION);
             if (emailTemplate != null) {
-                String subject = MessageTemplateUtils.resolveLkInvitationMessageTemplate(studentEmail, SessionContext.getLoggedInUser(), emailTemplate.getSubject());
-                String body = MessageTemplateUtils.resolveLkInvitationMessageTemplate(studentEmail, SessionContext.getLoggedInUser(), emailTemplate.getBody());
+                String subject = MessageTemplateUtils.resolveLkInvitationMessageTemplate(studentEmail, SessionContext.getLoggedInUser(),organisation.getName(), emailTemplate.getSubject());
+                String body = MessageTemplateUtils.resolveLkInvitationMessageTemplate(studentEmail, SessionContext.getLoggedInUser(),organisation.getName(), emailTemplate.getBody());
                 ApplicationContextProvider.getBean(MailService.class).sendEmail(studentEmail, subject, body);
             }
         }

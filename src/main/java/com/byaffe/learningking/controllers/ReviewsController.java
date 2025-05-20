@@ -101,7 +101,7 @@ public class  ReviewsController {
         if (byMe != null) {
             search.addFilterEqual("createdById", Objects.requireNonNull(SessionContext.getLoggedInUser()).id);
         }
-        if (SessionContext.getLoggedInStudent()!=null) {
+        if (!SessionContext.isSuperAdmin()) {
             search.addFilterEqual("publicationStatus", PublicationStatus.ACTIVE);
         }
         List<Review> reviews = ApplicationContextProvider.getBean(CourseRatingService.class).getInstances(search, offset, limit);

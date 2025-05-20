@@ -32,8 +32,8 @@ public class EventRequestDTO {
     @JsonFormat(shape = JsonFormat.Shape.STRING , pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
     @JsonDeserialize(using = UtcLocalDateTimeDeserializer.class)
     private LocalDateTime endDate;
-    private boolean featured=false;
-    private boolean isPaidFor=false;
+    private Boolean featured=false;
+    private Boolean isPaidFor=false;
     private Double originalPrice=0.0;
     private Double discountedPrice=0.0;
     private Long maximumAttendees;

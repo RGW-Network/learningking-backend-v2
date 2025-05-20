@@ -90,19 +90,19 @@ public class PaymentServiceImpl extends GenericServiceImpl<AggregatorTransaction
     }
 
     @Override
-    public AggregatorTransaction initiateCoursePayment(long courseId, long studentId) throws IOException, OperationFailedException, ValidationFailedException {
+    public AggregatorTransaction initiateCoursePayment(long courseId, long studentId, String callBackUrl) throws IOException, OperationFailedException, ValidationFailedException {
         Course course = ApplicationContextProvider.getBean(CourseService.class).getInstanceByID(courseId);
         Student student = ApplicationContextProvider.getBean(StudentService.class).getInstanceByID(studentId);
         CourseEnrollment memberCourse = ApplicationContextProvider.getBean(CourseEnrollmentService.class).getSerieSubscription(student, course);
         if (memberCourse != null) {
             throw new ValidationFailedException("You already purchased this course. Go to My-Courses to view your course.");
         }
-        return initiatePayment(course.getDiscountedPrice() > 0 ? course.getDiscountedPrice() : course.getPrice(), student, "Course (" + course.getTitle() + ")", course.id, TransactionType.COURSE_PAYMENT);
+        return initiatePayment(course.getDiscountedPrice() > 0 ? course.getDiscountedPrice() : course.getPrice(), student, "Course (" + course.getTitle() + ")", course.id, TransactionType.COURSE_PAYMENT,callBackUrl);
 
     }
 
     @Override
-    public AggregatorTransaction initiateBulkCoursePayment(long courseId, long studentId, long groupId) throws IOException, OperationFailedException, ValidationFailedException {
+    public AggregatorTransaction initiateBulkCoursePayment(long courseId, long studentId, long groupId, String callBackUrl) throws IOException, OperationFailedException, ValidationFailedException {
         Course course = ApplicationContextProvider.getBean(CourseService.class).getInstanceByID(courseId);
         Student loggedInStudent = ApplicationContextProvider.getBean(StudentService.class).getInstanceByID(studentId);
         OrganisationGroup group = ApplicationContextProvider.getBean(OrganisationGroupService.class).getInstanceById(groupId);
@@ -128,20 +128,20 @@ public class PaymentServiceImpl extends GenericServiceImpl<AggregatorTransaction
         }
 
         double totalCost = course.getDiscountedPrice() > 0 ? course.getDiscountedPrice() * userCount : course.getPrice() * userCount;
-        return initiateBulkPayment(totalCost, loggedInStudent, "Bulk Course (" + course.getTitle() + ")", course.id, group, errors, TransactionType.BULK_COURSE_PAYMENT,entryIds);
+        return initiateBulkPayment(totalCost, loggedInStudent, "Bulk Course (" + course.getTitle() + ")", course.id, group, errors, TransactionType.BULK_COURSE_PAYMENT,entryIds,callBackUrl);
 
     }
 
-    public AggregatorTransaction initiateSubscriptionPlanPayment(long subscriptionPlanId, long studentId) throws IOException, OperationFailedException, ValidationFailedException {
+    public AggregatorTransaction initiateSubscriptionPlanPayment(long subscriptionPlanId, long studentId, String callBackUrl) throws IOException, OperationFailedException, ValidationFailedException {
 
         SubscriptionPlan subscriptionPlan = ApplicationContextProvider.getBean(SubscriptionPlanService.class).getInstanceByID(subscriptionPlanId);
         Student student = ApplicationContextProvider.getBean(StudentService.class).getInstanceByID(studentId);
-        return initiatePayment(subscriptionPlan.getCostPerYear(), student, "Subscription Plan (" + subscriptionPlan.getName() + ")", subscriptionPlan.id, TransactionType.SUBSCRIPTION_PAYMENT);
+        return initiatePayment(subscriptionPlan.getCostPerYear(), student, "Subscription Plan (" + subscriptionPlan.getName() + ")", subscriptionPlan.id, TransactionType.SUBSCRIPTION_PAYMENT,callBackUrl);
 
     }
 
     @Override
-    public AggregatorTransaction initiateBulkSubscriptionPlanPayment(long subscriptionPlanId, long studentId, long groupId) throws IOException, OperationFailedException, ValidationFailedException {
+    public AggregatorTransaction initiateBulkSubscriptionPlanPayment(long subscriptionPlanId, long studentId, long groupId, String callBackUrl) throws IOException, OperationFailedException, ValidationFailedException {
         SubscriptionPlan subscriptionPlan = ApplicationContextProvider.getBean(SubscriptionPlanService.class).getInstanceByID(subscriptionPlanId);
         Student loggedInStudent = ApplicationContextProvider.getBean(StudentService.class).getInstanceByID(studentId);
         OrganisationGroup group = ApplicationContextProvider.getBean(OrganisationGroupService.class).getInstanceById(groupId);
@@ -171,20 +171,20 @@ public class PaymentServiceImpl extends GenericServiceImpl<AggregatorTransaction
             }
         }
 
-        return initiateBulkPayment(totalCost, loggedInStudent, "Bulk Course (" + subscriptionPlan.getName() + ")", subscriptionPlan.id, group, errors, TransactionType.BULK_SUBSCRIPTION_PAYMENT,entryIds);
+        return initiateBulkPayment(totalCost, loggedInStudent, "Bulk Course (" + subscriptionPlan.getName() + ")", subscriptionPlan.id, group, errors, TransactionType.BULK_SUBSCRIPTION_PAYMENT,entryIds,callBackUrl);
 
     }
 
-    public AggregatorTransaction initiateEventPayment(long subscriptionPlanId, long studentId) throws IOException, OperationFailedException, ValidationFailedException {
+    public AggregatorTransaction initiateEventPayment(long subscriptionPlanId, long studentId, String callBackUrl) throws IOException, OperationFailedException, ValidationFailedException {
         Event event = ApplicationContextProvider.getBean(EventService.class).getInstanceByID(subscriptionPlanId);
         Student student = ApplicationContextProvider.getBean(StudentService.class).getInstanceByID(studentId);
         ApplicationContextProvider.getBean(EventAttendanceService.class).validateEventAttendance(event, student);
-        return initiatePayment(event.getDiscountedPrice() > 0 ? event.getDiscountedPrice() : event.getOriginalPrice(), student, "Event (" + event.getTitle() + ")", event.id, TransactionType.EVENT_PAYMENT);
+        return initiatePayment(event.getDiscountedPrice() > 0 ? event.getDiscountedPrice() : event.getOriginalPrice(), student, "Event (" + event.getTitle() + ")", event.id, TransactionType.EVENT_PAYMENT,callBackUrl);
 
     }
 
     @Override
-    public AggregatorTransaction initiateBulkEventPayment(long eventId, long studentId, long organisationId) throws IOException, OperationFailedException, ValidationFailedException {
+    public AggregatorTransaction initiateBulkEventPayment(long eventId, long studentId, long organisationId, String callBackUrl) throws IOException, OperationFailedException, ValidationFailedException {
         Event event = ApplicationContextProvider.getBean(EventService.class).getInstanceByID(eventId);
         Student loggedInStudent = ApplicationContextProvider.getBean(StudentService.class).getInstanceByID(studentId);
         OrganisationGroup group = ApplicationContextProvider.getBean(OrganisationGroupService.class).getInstanceById(organisationId);
@@ -204,12 +204,12 @@ public class PaymentServiceImpl extends GenericServiceImpl<AggregatorTransaction
         }
 
         double totalCost = event.getDiscountedPrice() > 0 ? event.getDiscountedPrice() * userCount : event.getOriginalPrice() * userCount;
-        return initiateBulkPayment(totalCost, loggedInStudent, "Bulk Event (" + event.getTitle() + ")", event.id, group, errors, TransactionType.BULK_EVENT_PAYMENT,entryIds);
+        return initiateBulkPayment(totalCost, loggedInStudent, "Bulk Event (" + event.getTitle() + ")", event.id, group, errors, TransactionType.BULK_EVENT_PAYMENT,entryIds,callBackUrl);
 
     }
 
     // Common method to initiate payments
-    private AggregatorTransaction initiatePayment(double amount, Student student, String description, long referenceRecordId, TransactionType transactionType) throws IOException, OperationFailedException {
+    private AggregatorTransaction initiatePayment(double amount, Student student, String description, long referenceRecordId, TransactionType transactionType, String callBackUrl) throws IOException, OperationFailedException {
         AggregatorTransaction newPayment = new AggregatorTransaction();
         newPayment.setStudent(student);
         newPayment.setType(transactionType);
@@ -217,6 +217,7 @@ public class PaymentServiceImpl extends GenericServiceImpl<AggregatorTransaction
         newPayment.setReferenceRecordId(referenceRecordId);
         newPayment.setDescription("Payment For " + description);
         newPayment.setAmountInitiated(amount);
+        newPayment.setRedirectUrl(callBackUrl);
         newPayment.setAmountChargedFromUser(amount);
         newPayment = super.save(newPayment);
         newPayment.generateInternalReference();
@@ -236,7 +237,7 @@ public class PaymentServiceImpl extends GenericServiceImpl<AggregatorTransaction
         return saveInstance(newPayment);
     }
 
-    private AggregatorTransaction initiateBulkPayment(double amount, Student student, String description, long referenceRecordId, OrganisationGroup organisationGroup, String bulkExceptions, TransactionType transactionType, Set<Long> entryIds) throws IOException, OperationFailedException {
+    private AggregatorTransaction initiateBulkPayment(double amount, Student student, String description, long referenceRecordId, OrganisationGroup organisationGroup, String bulkExceptions, TransactionType transactionType, Set<Long> entryIds,String callBackUrl) throws IOException, OperationFailedException {
         AggregatorTransaction newPayment = new AggregatorTransaction();
         newPayment.setStudent(student);
         newPayment.setType(transactionType);
@@ -244,6 +245,7 @@ public class PaymentServiceImpl extends GenericServiceImpl<AggregatorTransaction
         newPayment.setReferenceRecordId(referenceRecordId);
         newPayment.setDescription("Bulk Payment For " + description + " on " + organisationGroup.getName());
         newPayment.setAmountInitiated(amount);
+        newPayment.setRedirectUrl(callBackUrl);
         newPayment.setReferenceBulkRecordId(organisationGroup.getId());
         newPayment.setAmountChargedFromUser(amount);
         newPayment.setBulkExceptions(bulkExceptions);

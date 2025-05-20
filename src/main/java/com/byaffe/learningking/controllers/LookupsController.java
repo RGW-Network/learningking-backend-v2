@@ -29,13 +29,13 @@ public class LookupsController {
 
     @GetMapping("/genders")
     public ResponseEntity<ResponseList<LookupDTO>> getGenders() {
-        List<LookupDTO> genders = Arrays.stream(Gender.values()).map(r -> new LookupDTO(r.getId(), r.getUiName())).collect(Collectors.toList());
+        List<LookupDTO> genders = Arrays.stream(Gender.values()).map(r -> new LookupDTO(r.name(), r.getUiName())).collect(Collectors.toList());
         return ResponseEntity.ok().body(new ResponseList<>(genders, genders.size(), 0, 0));
     }
 
     @GetMapping("/lookup-types")
     public ResponseEntity<ResponseList<LookupDTO>> getLookupType() {
-        List<LookupDTO> lookupTypes = Arrays.stream(LookupType.values()).map(r -> new LookupDTO(r.getId(), r.getUiName())).collect(Collectors.toList());
+        List<LookupDTO> lookupTypes = Arrays.stream(LookupType.values()).map(r -> new LookupDTO(r.name(), r.getUiName())).collect(Collectors.toList());
         return ResponseEntity.ok().body(new ResponseList<>(lookupTypes, lookupTypes.size(), 0, 0));
     }
 

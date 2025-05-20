@@ -44,7 +44,6 @@ public class FlutterWaveService {
 
     private final RestTemplate restTemplate;
     private final Gson gson;
-    private static final String redirectUrl = "https://leearningking.academy/success-payment";
 
     public FlutterWaveService() {
         this.restTemplate = new RestTemplate();
@@ -126,7 +125,7 @@ public class FlutterWaveService {
         fluterwaveRequest.setTx_ref(payment.getInternalReference());
         fluterwaveRequest.setAmount(String.valueOf(payment.getAmountChargedFromUser()));
         fluterwaveRequest.setCurrency(payment.getCurrency().getPgwCode());
-        fluterwaveRequest.setRedirect_url(redirectUrl);
+        fluterwaveRequest.setRedirect_url(payment.getRedirectUrl());
 
         CustomerDTO customerDTO = new CustomerDTO();
         customerDTO.setEmail(payment.getStudent().getUserAccount().getEmailAddress());

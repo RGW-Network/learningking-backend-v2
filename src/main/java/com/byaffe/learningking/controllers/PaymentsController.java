@@ -66,26 +66,26 @@ public class  PaymentsController {
     }
 
     @PostMapping("/pay/{type}/{recordId}")
-    public ResponseEntity<ResponseObject<AggregatorTransaction>> save(@PathVariable(name = "type", required = true) TransactionType type, @PathVariable(name = "recordId", required = true) Long recordId, @RequestBody(required = false) BulkPaymentRequestDTO dto) throws ValidationFailedException, IOException {
+    public ResponseEntity<ResponseObject<AggregatorTransaction>> save(@PathVariable(name = "type", required = true) TransactionType type, @PathVariable(name = "recordId", required = true) Long recordId, @RequestBody(required = true) BulkPaymentRequestDTO dto) throws ValidationFailedException, IOException {
         AggregatorTransaction response = null;
         if (type.equals(TransactionType.COURSE_PAYMENT)) {
-            response = paymentService.initiateCoursePayment(recordId, Objects.requireNonNull(SessionContext.getLoggedInStudent()).getId());
+            response = paymentService.initiateCoursePayment(recordId, Objects.requireNonNull(SessionContext.getLoggedInStudent()).getId(), dto.getCallBackUrl());
         } else if (type.equals(TransactionType.SUBSCRIPTION_PAYMENT)) {
-            response = paymentService.initiateSubscriptionPlanPayment(recordId, Objects.requireNonNull(SessionContext.getLoggedInStudent()).getId());
+            response = paymentService.initiateSubscriptionPlanPayment(recordId, Objects.requireNonNull(SessionContext.getLoggedInStudent()).getId(), dto.getCallBackUrl());
         } else if (type.equals(TransactionType.EVENT_PAYMENT)) {
-            response = paymentService.initiateEventPayment(recordId, Objects.requireNonNull(SessionContext.getLoggedInStudent()).getId());
+            response = paymentService.initiateEventPayment(recordId, Objects.requireNonNull(SessionContext.getLoggedInStudent()).getId(), dto.getCallBackUrl());
         }
         else if (type.equals(TransactionType.BULK_EVENT_PAYMENT)) {
             if(dto==null||dto.getOrganisationGroupId()==null) throw  new ValidationFailedException("Missing Group Id for bulk purchase.");
-            response = paymentService.initiateBulkEventPayment(recordId, Objects.requireNonNull(SessionContext.getLoggedInStudent()).getId(),dto.getOrganisationGroupId());
+            response = paymentService.initiateBulkEventPayment(recordId, Objects.requireNonNull(SessionContext.getLoggedInStudent()).getId(),dto.getOrganisationGroupId(), dto.getCallBackUrl());
         }
         else if (type.equals(TransactionType.BULK_SUBSCRIPTION_PAYMENT)) {
             if(dto==null||dto.getOrganisationGroupId()==null) throw  new ValidationFailedException("Missing Group Id for bulk purchase.");
-            response = paymentService.initiateBulkSubscriptionPlanPayment(recordId, Objects.requireNonNull(SessionContext.getLoggedInStudent()).getId(),dto.getOrganisationGroupId());
+            response = paymentService.initiateBulkSubscriptionPlanPayment(recordId, Objects.requireNonNull(SessionContext.getLoggedInStudent()).getId(),dto.getOrganisationGroupId(), dto.getCallBackUrl());
         }
         else if (type.equals(TransactionType.BULK_COURSE_PAYMENT)) {
             if(dto==null||dto.getOrganisationGroupId()==null) throw  new ValidationFailedException("Missing Group Id for bulk purchase.");
-            response = paymentService.initiateBulkCoursePayment(recordId, Objects.requireNonNull(SessionContext.getLoggedInStudent()).getId(),dto.getOrganisationGroupId());
+            response = paymentService.initiateBulkCoursePayment(recordId, Objects.requireNonNull(SessionContext.getLoggedInStudent()).getId(),dto.getOrganisationGroupId(), dto.getCallBackUrl());
         }
 
         return ResponseEntity.ok().body(new ResponseObject<>(response));

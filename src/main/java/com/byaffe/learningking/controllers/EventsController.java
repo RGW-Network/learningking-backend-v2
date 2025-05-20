@@ -2,12 +2,14 @@ package com.byaffe.learningking.controllers;
 
 import com.byaffe.learningking.dtos.EventResponseDto;
 import com.byaffe.learningking.models.Event;
+import com.byaffe.learningking.models.courses.PublicationStatus;
 import com.byaffe.learningking.services.EventAttendanceService;
 import com.byaffe.learningking.services.EventService;
 import com.byaffe.learningking.services.impl.EventServiceImpl;
 import com.byaffe.learningking.shared.api.ResponseList;
 import com.byaffe.learningking.shared.api.ResponseObject;
 import com.byaffe.learningking.shared.constants.RecordStatus;
+import com.byaffe.learningking.shared.security.SessionContext;
 import com.byaffe.learningking.shared.utils.ApplicationContextProvider;
 import com.googlecode.genericdao.search.Search;
 import lombok.extern.slf4j.Slf4j;
@@ -52,6 +54,9 @@ public class EventsController {
         }
         if (sortBy != null) {
             search.addSort(sortBy, sortDescending);
+        }
+        if(!SessionContext.isSuperAdmin()){
+            search.addFilterEqual("publicationStatus", PublicationStatus.ACTIVE);
         }
         List<Event> events = ApplicationContextProvider.getBean(EventService.class).getInstances(search, offset, limit);
         long count = ApplicationContextProvider.getBean(EventService.class).countInstances(search);
