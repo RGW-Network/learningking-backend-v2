@@ -15,6 +15,7 @@ import com.byaffe.learningking.services.impl.InstructorServiceImpl;
 import com.byaffe.learningking.shared.api.BaseResponse;
 import com.byaffe.learningking.shared.api.ResponseList;
 import com.byaffe.learningking.shared.api.ResponseObject;
+import com.byaffe.learningking.shared.constants.PermissionConstant;
 import com.byaffe.learningking.shared.constants.RecordStatus;
 import com.byaffe.learningking.shared.security.SessionContext;
 import com.byaffe.learningking.shared.security.TokenProvider;
@@ -44,7 +45,7 @@ public class InstructorsController {
     InstructorService instructorService;
     @PostMapping("")
     public ResponseEntity<BaseResponse> updateInstructor(@RequestBody InstructorRequestDTO userDTO) throws ValidationException {
-     SessionContext.superAdminProtection();
+        SessionContext.permissionProtection(PermissionConstant.Manage_Instructors);
      instructorService.save(userDTO);
         return ResponseEntity.ok().body(new BaseResponse("Success", true));
     }

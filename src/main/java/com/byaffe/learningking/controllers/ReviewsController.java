@@ -9,6 +9,7 @@ import com.byaffe.learningking.services.impl.CourseRatingServiceImpl;
 import com.byaffe.learningking.shared.api.BaseResponse;
 import com.byaffe.learningking.shared.api.ResponseList;
 import com.byaffe.learningking.shared.api.ResponseObject;
+import com.byaffe.learningking.shared.constants.PermissionConstant;
 import com.byaffe.learningking.shared.security.SessionContext;
 import com.byaffe.learningking.shared.utils.ApplicationContextProvider;
 import com.googlecode.genericdao.search.Search;
@@ -27,54 +28,57 @@ import java.util.Objects;
 @Slf4j
 @RestController
 @RequestMapping("api/v1/reviews")
-public class  ReviewsController {
+public class ReviewsController {
     @Autowired
-    CourseRatingService  ratingService;
+    CourseRatingService ratingService;
 
 
     @PostMapping("")
     public ResponseEntity<ResponseObject<Review>> rateCourse(@RequestBody ReviewRequestDTO reviewRequestDTO) throws JSONException {
-
         return ResponseEntity.ok().body(new ResponseObject<>(ApplicationContextProvider.getBean(CourseRatingService.class).saveInstance(reviewRequestDTO)));
     }
+
     @PostMapping("/{id}/publish")
     public ResponseEntity<BaseResponse> publish(@PathVariable("id") Long id) throws JSONException {
-      if(SessionContext.isSuperAdmin()){
-          ratingService.updateStatus(id, PublicationStatus.ACTIVE);
-      }
+        SessionContext.permissionProtection(PermissionConstant.Manage_Reviews);
+        ratingService.updateStatus(id, PublicationStatus.ACTIVE);
         return ResponseEntity.ok().body(new BaseResponse(true));
-
     }
+
     @DeleteMapping("/{id}/delete")
     public ResponseEntity<BaseResponse> delete(@PathVariable("id") Long id) throws JSONException {
-      Review review=ratingService.getInstanceByID(id);
-       if(Objects.requireNonNull(SessionContext.getLoggedInUser()).getId().equals(review.getCreatedById())){
+        Review review = ratingService.getInstanceByID(id);
+        if (Objects.requireNonNull(SessionContext.getLoggedInUser()).getId().equals(review.getCreatedById())) {
             ratingService.deleteInstance(review);
         }
         return ResponseEntity.ok().body(new BaseResponse(true));
-
     }
+
     @PostMapping("/{id}/unpublish")
     public ResponseEntity<BaseResponse> unPublish(@PathVariable("id") Long id) throws JSONException {
-        if(SessionContext.isSuperAdmin()){
+        SessionContext.permissionProtection(PermissionConstant.Manage_Reviews);
+        if (SessionContext.isSuperAdmin()) {
             ratingService.updateStatus(id, PublicationStatus.INACTIVE);
         }
         return ResponseEntity.ok().body(new BaseResponse(true));
 
     }
+
     @PostMapping("/{id}/feature")
     public ResponseEntity<BaseResponse> feature(@PathVariable("id") Long id) throws JSONException {
-        if(SessionContext.isSuperAdmin()){
+        SessionContext.permissionProtection(PermissionConstant.Manage_Reviews);
+
             ratingService.updateFeatured(id, true);
-        }
+
         return ResponseEntity.ok().body(new BaseResponse(true));
 
     }
+
     @PostMapping("/{id}/unfeature")
     public ResponseEntity<BaseResponse> unFeature(@PathVariable("id") Long id) throws JSONException {
-        if(SessionContext.isSuperAdmin()){
+        SessionContext.permissionProtection(PermissionConstant.Manage_Reviews);
             ratingService.updateFeatured(id, false);
-        }
+
         return ResponseEntity.ok().body(new BaseResponse(true));
 
     }
@@ -109,9 +113,6 @@ public class  ReviewsController {
         return ResponseEntity.ok().body(new ResponseList<>(reviews, count, offset, limit));
 
     }
-
-
-
 
 
 }

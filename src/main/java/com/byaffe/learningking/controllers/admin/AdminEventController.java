@@ -10,7 +10,9 @@ import com.byaffe.learningking.services.impl.EventServiceImpl;
 import com.byaffe.learningking.shared.api.BaseResponse;
 import com.byaffe.learningking.shared.api.ResponseList;
 import com.byaffe.learningking.shared.api.ResponseObject;
+import com.byaffe.learningking.shared.constants.PermissionConstant;
 import com.byaffe.learningking.shared.constants.RecordStatus;
+import com.byaffe.learningking.shared.security.SessionContext;
 import com.byaffe.learningking.shared.utils.ApplicationContextProvider;
 import com.googlecode.genericdao.search.Search;
 import io.swagger.v3.oas.annotations.Hidden;
@@ -38,20 +40,20 @@ public class AdminEventController {
 
     @PostMapping("")
     public ResponseEntity<ResponseObject<Event>> addEvent(@RequestBody EventRequestDTO dto) throws JSONException {
-        Event event = ApplicationContextProvider.getBean(EventService.class).save(dto);
+        SessionContext.permissionProtection(PermissionConstant.Manage_Events);   Event event = ApplicationContextProvider.getBean(EventService.class).save(dto);
         return ResponseEntity.ok().body(new ResponseObject<>(event));
     }
 
     @PostMapping(path = "/multipart", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<BaseResponse> uploadCSV(@RequestPart EventRequestDTO dto, @RequestPart(value = "file", required = false) MultipartFile file) {
-        dto.setCoverImage(file);
+        SessionContext.permissionProtection(PermissionConstant.Manage_Events);   dto.setCoverImage(file);
         ApplicationContextProvider.getBean(EventService.class).save(dto);
         return ResponseEntity.ok().body(new BaseResponse(true));
     }
 
     @PostMapping("/{id}/publish")
     public ResponseEntity<BaseResponse> publishEvent(@PathVariable long id) throws JSONException {
-        Event event = ApplicationContextProvider.getBean(EventService.class).getInstanceByID(id);
+        SessionContext.permissionProtection(PermissionConstant.Manage_Events);   Event event = ApplicationContextProvider.getBean(EventService.class).getInstanceByID(id);
         ApplicationContextProvider.getBean(EventService.class).activate(id);
         return ResponseEntity.ok().body(new BaseResponse(true));
 
@@ -59,7 +61,7 @@ public class AdminEventController {
 
     @PostMapping("/{id}/unpublish")
     public ResponseEntity<BaseResponse> unPublishEvent(@PathVariable long id) throws JSONException {
-        Event event = ApplicationContextProvider.getBean(EventService.class).getInstanceByID(id);
+        SessionContext.permissionProtection(PermissionConstant.Manage_Events);  Event event = ApplicationContextProvider.getBean(EventService.class).getInstanceByID(id);
         ApplicationContextProvider.getBean(EventService.class).deActivate(id);
         return ResponseEntity.ok().body(new BaseResponse(true));
 
@@ -67,14 +69,14 @@ public class AdminEventController {
 
     @GetMapping("/{id}")
     public ResponseEntity<ResponseObject<Event>> getById(@PathVariable(name = "id") long id) throws JSONException {
-        Event event = ApplicationContextProvider.getBean(EventService.class).getById(id);
+        SessionContext.permissionProtection(PermissionConstant.Manage_Events);   Event event = ApplicationContextProvider.getBean(EventService.class).getById(id);
         return ResponseEntity.ok().body(new ResponseObject<>(event));
 
     }
 
     @DeleteMapping("/{id}/delete")
     public ResponseEntity<BaseResponse> deleteEvent(@PathVariable long id) throws JSONException {
-        Event event = ApplicationContextProvider.getBean(EventService.class).getInstanceByID(id);
+        SessionContext.permissionProtection(PermissionConstant.Manage_Events);   Event event = ApplicationContextProvider.getBean(EventService.class).getInstanceByID(id);
         ApplicationContextProvider.getBean(EventService.class).deleteInstance(event);
         return ResponseEntity.ok().body(new BaseResponse(true));
     }
@@ -87,7 +89,7 @@ public class AdminEventController {
             @RequestParam(value = "featured", required = false) Boolean featured,
             @RequestParam(value = "offset", required = true) Integer offset,
             @RequestParam(value = "limit", required = true) Integer limit) throws JSONException {
-        System.out.println("ID=======" + offset);
+        SessionContext.permissionProtection(PermissionConstant.Manage_Events);   System.out.println("ID=======" + offset);
         Search search = EventServiceImpl.generateSearchTermsForEvents(searchTerm);
 
 

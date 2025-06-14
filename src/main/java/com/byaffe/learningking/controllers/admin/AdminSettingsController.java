@@ -6,6 +6,7 @@ import com.byaffe.learningking.services.SystemSettingService;
 import com.byaffe.learningking.shared.api.BaseResponse;
 import com.byaffe.learningking.shared.api.ResponseList;
 import com.byaffe.learningking.shared.api.ResponseObject;
+import com.byaffe.learningking.shared.constants.PermissionConstant;
 import com.byaffe.learningking.shared.exceptions.ValidationFailedException;
 import com.byaffe.learningking.shared.models.MessageTemplate;
 import com.byaffe.learningking.shared.models.MessageTemplateRequestDto;
@@ -45,18 +46,18 @@ public class AdminSettingsController {
 
     @PostMapping("")
     public ResponseEntity<ResponseObject<SystemSetting>> save(@RequestBody SettingsRequestDto dto) throws JSONException {
-        return ResponseEntity.ok().body(new ResponseObject<>(settingService.save(dto)));
+        SessionContext.permissionProtection(PermissionConstant.Manage_System_Settings);    return ResponseEntity.ok().body(new ResponseObject<>(settingService.save(dto)));
     }
 
     @GetMapping("")
     public ResponseEntity<ResponseObject<SystemSetting>> getActiveSettings() throws JSONException {
-        return ResponseEntity.ok().body(new ResponseObject<>(settingService.getAppSetting()));
+        SessionContext.permissionProtection(PermissionConstant.Manage_System_Settings);  return ResponseEntity.ok().body(new ResponseObject<>(settingService.getAppSetting()));
 
     }
 
     @PostMapping("/message-templates")
     public ResponseEntity<MessageTemplate> saveMessageTemplate(@RequestBody MessageTemplateRequestDto userDTO)  {
-        SessionContext.superAdminProtection();
+        SessionContext.permissionProtection(PermissionConstant.Manage_Message_Templates);
         return ResponseEntity.ok().body(messageTemplateService.saveInstance(userDTO));
     }
 
@@ -67,7 +68,7 @@ public class AdminSettingsController {
                                                                              @RequestParam(value = "limit", required = true) Integer limit,
                                                                              @RequestParam(value = "type", required = false) MessageTemplateType type,
                                                                              @RequestParam(value = "channel", required = false) MessageTemplateChannel channel) {
-        SessionContext.superAdminProtection();
+        SessionContext.permissionProtection(PermissionConstant.Manage_Message_Templates);
         Search search = MessageTemplateServiceImpl.composeSearchObject(searchTerm);
 
         if (type != null) {
@@ -88,13 +89,13 @@ public class AdminSettingsController {
 
     @GetMapping("/message-templates/params")
     public ResponseEntity<ResponseList<String>> getMessageTemplates() {
-        SessionContext.superAdminProtection();
+        SessionContext.permissionProtection(PermissionConstant.Manage_Message_Templates);
         return ResponseEntity.ok().body(new ResponseList<>(MessageTemplateUtils.getDisplayNames(),MessageTemplateUtils.getDisplayNames().size(), 0, 0));
     }
 
     @DeleteMapping("/message-templates/{id}")
     public ResponseEntity<BaseResponse> deleteTemplate(@PathVariable(value = "id", required = true) long paymentId) throws ValidationFailedException {
-        SessionContext.superAdminProtection();
+        SessionContext.permissionProtection(PermissionConstant.Manage_Message_Templates);
         messageTemplateService.deleteInstance(paymentId);
         return ResponseEntity.ok().body(new BaseResponse(true));
     }

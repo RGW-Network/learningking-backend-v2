@@ -1,13 +1,15 @@
 package com.byaffe.learningking.services.impl;
 
+import com.byaffe.learningking.dtos.auth.RoleRequestDTO;
 import com.byaffe.learningking.dtos.auth.UserRegistrationRequestDTO;
 import com.byaffe.learningking.models.Student;
+import com.byaffe.learningking.shared.constants.SecurityConstants;
 import com.byaffe.learningking.shared.exceptions.ValidationFailedException;
 import com.byaffe.learningking.shared.utils.MailService;
+import com.byaffe.learningking.utilities.AppUtils;
 import com.googlecode.genericdao.search.Search;
 import com.byaffe.learningking.daos.*;
 import com.byaffe.learningking.dtos.auth.AuthDTO;
-import com.byaffe.learningking.dtos.auth.RoleDTO;
 import com.byaffe.learningking.dtos.auth.UserDTO;
 import com.byaffe.learningking.services.UserService;
 import com.byaffe.learningking.shared.constants.Gender;
@@ -30,6 +32,7 @@ import javax.xml.bind.ValidationException;
 import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 import static com.byaffe.learningking.config.MessageLabels.USER_REGISTRATION_EMAIL_CONTENT;
 import static com.byaffe.learningking.config.MessageLabels.USER_REGISTRATION_EMAIL_SUBJECT;
@@ -70,9 +73,6 @@ public class UserServiceImpl implements UserService {
     @Override
     public User saveUser(UserDTO dto) throws ValidationException {
 
-        if (dto.id!=0) {
-            throw new ValidationException("Editing not allowed on this method");
-        }
         if (StringUtils.isBlank(dto.username)) {
             throw new ValidationException("Missing username");
         }
@@ -84,16 +84,15 @@ public class UserServiceImpl implements UserService {
             throw new ValidationException("Missing lastname");
         }
 
-        if (dto.id==0&&StringUtils.isBlank(dto.initialPassword)) {
+        if (StringUtils.isBlank(dto.initialPassword)) {
             throw new ValidationException("Missing initialPassword");
         }
         User existsWithUsername = getUserByUsername(dto.username);
-        if (existsWithUsername != null && existsWithUsername.getId() != dto.id) {
+        if (existsWithUsername != null ) {
             throw new ValidationException("User with username exists");
         }
 
-        Gender gender= Gender.fromId((int) dto.genderId);
-        if(gender==null){
+         if(dto.gender==null){
             throw new ValidationException("Missing/Invalid Gender Id");
         }
 
@@ -112,7 +111,7 @@ public class UserServiceImpl implements UserService {
         user.setFirstName(dto.firstName);
         user.setLastName(dto.lastName);
         user.setPhoneNumber(dto.phoneNumber);
-        user.setGender(gender);
+        user.setGender(dto.gender);
 
         for (long roleId : dto.roleIds) {
             Role role = roleRepository.getReference(roleId);
@@ -156,7 +155,7 @@ public class UserServiceImpl implements UserService {
         user.setLastName(dto.lastName);
         user.setPhoneNumber(dto.phoneNumber);
 
-        Gender gender= Gender.fromId((int) dto.genderId);
+        Gender gender= dto.gender;
         if(gender==null){
             throw new ValidationException("Missing/Invalid Gender Id");
         }
@@ -219,23 +218,23 @@ public class UserServiceImpl implements UserService {
 
     public UserDTO authenticateUser(AuthDTO authDTO) throws ValidationException {
         if (authDTO == null) {
-            throw new ValidationException("No data specified");
+            throw new ValidationFailedException("No data specified");
         }
         if (StringUtils.isBlank(authDTO.getUsername())) {
-            throw new ValidationException("Missing Username");
+            throw new ValidationFailedException("Missing Username");
         }
 
         if (StringUtils.isBlank(authDTO.getPassword())) {
-            throw new ValidationException("Missing password");
+            throw new ValidationFailedException("Missing password");
         }
 
         User user = getUserByUsername(authDTO.getUsername());
 
         if (user == null) {
-            throw new ValidationException("Unknown credentials");
+            throw new ValidationFailedException("Unknown credentials");
         }
         if (!PassEncTech4.verifyUserPassword(authDTO.getPassword(), user.getPassword())) {
-            throw new ValidationException("Invalid Username or Password");
+            throw new ValidationFailedException("Invalid Username or Password");
         }
         Student student= studentDao.searchUnique(new Search().addFilterEqual("userAccount",user));
 
@@ -380,7 +379,7 @@ return userRepository.save(user);
     }
 
     @Override
-    public Role saveRole(RoleDTO dto) {
+    public Role saveRole(RoleRequestDTO dto) {
 
         if (StringUtils.isBlank(dto.getName())) {
             throw new OperationFailedException("Missing name");
@@ -389,22 +388,22 @@ return userRepository.save(user);
         if (StringUtils.isBlank(dto.getDescription())) {
             throw new OperationFailedException("Missing description");
         }
+
+        Role role = new Role();
+        if(dto.getId()!=null){
+            role=roleRepository.findById(dto.getId()).orElseThrow(()->new ValidationFailedException("Role with id not found"));
+        }
+
         Role existsWithName = getRoleByName(dto.getName());
-        if (existsWithName != null && existsWithName.getId() != dto.getId()) {
+        if (existsWithName != null && !Objects.equals(existsWithName.getId(), role.getId())) {
             throw new OperationFailedException("Role with same name exists");
         }
 
-        Role newRole = new Role();
-        newRole.setId(dto.getId());
-        newRole.setName(dto.getName());
-        newRole.setDescription(dto.getDescription());
+        role.setName(dto.getName());
+        role.setDescription(dto.getDescription());
+        role.setPermissions(dto.getPermissions());
 
-        for (long permissionId : dto.getPermissionIds()) {
-            PermissionConstant permission = PermissionConstant.getById(permissionId);
-            newRole.addPermission(permission);
-        }
-
-        return roleRepository.save(newRole);
+        return roleRepository.save(role);
     }
 
 
@@ -433,13 +432,14 @@ return userRepository.save(user);
 
     public static Search composeSearchObjectForUser(String searchTerm) {
         Search search = CustomSearchUtils.generateSearchTerms(searchTerm,   Arrays.asList("username","lastName", "firstName"));
+
         search.addSortDesc("id");
            return  search;
         }
 
     public static Search composeSearchObjectForRole(String searchTerm) {
         Search search = CustomSearchUtils.generateSearchTerms(searchTerm,   Arrays.asList("name","description"));
-
+search.addFilterNotIn("name",Arrays.asList(SecurityConstants.SUPER_ADMIN_ROLE, AppUtils.INSTRUCTOR_ROLE_NAME,AppUtils.STUDENT_ROLE_NAME));
             return  search;
           }
 

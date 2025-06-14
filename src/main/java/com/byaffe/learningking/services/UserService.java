@@ -1,9 +1,9 @@
 package com.byaffe.learningking.services;
 
+import com.byaffe.learningking.dtos.auth.RoleRequestDTO;
 import com.byaffe.learningking.dtos.auth.UserRegistrationRequestDTO;
 import com.googlecode.genericdao.search.Search;
 import com.byaffe.learningking.dtos.auth.AuthDTO;
-import com.byaffe.learningking.dtos.auth.RoleDTO;
 import com.byaffe.learningking.dtos.auth.UserDTO;
 import com.byaffe.learningking.shared.models.Role;
 import com.byaffe.learningking.shared.models.User;
@@ -64,7 +64,7 @@ public interface UserService {
          * @return
          */
         Role saveRole(Role role);
-        Role saveRole(RoleDTO role);
+        Role saveRole(RoleRequestDTO role);
          User verifyOTP(String email, String otp) ;
         /**
          *

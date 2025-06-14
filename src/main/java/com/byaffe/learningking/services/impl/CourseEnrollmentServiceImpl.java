@@ -245,12 +245,17 @@ public class CourseEnrollmentServiceImpl extends BaseDAOImpl<CourseEnrollment> i
         if (coursePayment == null || !coursePayment.getStatus().equals(TransactionStatus.SUCCESSFUL)) {
             return;
         }
-        Course course = ApplicationContextProvider.getBean(CourseService.class).getInstanceByID(coursePayment.getReferenceRecordId());
-        StudentService studentService = ApplicationContextProvider.getBean(StudentService.class);
-        for (Long studentId : coursePayment.getEntryIds()) {
+       StudentService studentService = ApplicationContextProvider.getBean(StudentService.class);
+        OrganisationPurchase organisationPurchase=ApplicationContextProvider.getBean(OrganisationPurchaseService.class).getInstanceByID(coursePayment.getReferenceRecordId());
+        Course course = ApplicationContextProvider.getBean(CourseService.class).getInstanceByID(organisationPurchase.getRecordId());
+        for (Long studentId : organisationPurchase.getEntryIds()) {
             Student student = studentService.getStudentById(studentId);
             createActualSubscription(student, course);
         }
+        organisationPurchase.setTransaction(coursePayment);
+        organisationPurchase.setRecordStatus(RecordStatus.ACTIVE);
+        ApplicationContextProvider.getBean(OrganisationPurchaseService.class).saveInstance(organisationPurchase);
+
 
     }
 

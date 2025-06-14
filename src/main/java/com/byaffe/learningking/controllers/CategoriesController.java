@@ -6,6 +6,8 @@ import com.byaffe.learningking.services.*;
 import com.byaffe.learningking.services.impl.CategoryServiceImpl;
 import com.byaffe.learningking.shared.api.ResponseList;
 import com.byaffe.learningking.shared.api.ResponseObject;
+import com.byaffe.learningking.shared.constants.PermissionConstant;
+import com.byaffe.learningking.shared.security.SessionContext;
 import com.googlecode.genericdao.search.Search;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -68,6 +70,7 @@ public class CategoriesController {
             , @RequestPart(value = "icon", required = false) MultipartFile icon,
                                                                     @RequestPart(value = "image", required = false) MultipartFile image
     ) throws ValidationException {
+        SessionContext.permissionProtection(PermissionConstant.Manage_Categories);
         dto.setIcon(icon);
         dto.setImage(image);
         return ResponseEntity.ok().body(new ResponseObject<>(categoryService.saveInstance(dto)));

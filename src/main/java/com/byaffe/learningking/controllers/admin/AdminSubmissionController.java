@@ -9,6 +9,8 @@ import com.byaffe.learningking.services.impl.UserSubmissionServiceImpl;
 import com.byaffe.learningking.shared.api.BaseResponse;
 import com.byaffe.learningking.shared.api.ResponseList;
 import com.byaffe.learningking.shared.api.ResponseObject;
+import com.byaffe.learningking.shared.constants.PermissionConstant;
+import com.byaffe.learningking.shared.security.SessionContext;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.googlecode.genericdao.search.Search;
 import io.swagger.v3.oas.annotations.Hidden;
@@ -41,7 +43,7 @@ public class AdminSubmissionController {
 
     @PostMapping("/{id}/resolve")
     public ResponseEntity<BaseResponse> resolve(@PathVariable long id) throws JSONException {
-        userSubmissionService.resolve(id);
+        SessionContext.permissionProtection(PermissionConstant.Manage_Students);    userSubmissionService.resolve(id);
         return ResponseEntity.ok().body(new BaseResponse(true));
     }
 
@@ -62,7 +64,7 @@ public class AdminSubmissionController {
         if (type != null) {
             search.addFilterEqual("type", type);
         }
-
+        SessionContext.permissionProtection(PermissionConstant.Manage_Students);
         List<UserSubmission> events = userSubmissionService.getInstances(search, offset, limit);
         long count = userSubmissionService.countInstances(search);
         return ResponseEntity.ok().body(new ResponseList<>(events, (int) count, offset, limit));

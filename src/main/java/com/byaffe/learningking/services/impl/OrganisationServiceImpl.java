@@ -4,6 +4,7 @@ import com.byaffe.learningking.constants.AccountStatus;
 import com.byaffe.learningking.daos.OrganisationStudentDao;
 import com.byaffe.learningking.dtos.student.CompanyRequestDTO;
 import com.byaffe.learningking.models.LookupType;
+import com.byaffe.learningking.models.LookupValue;
 import com.byaffe.learningking.models.Student;
 import com.byaffe.learningking.models.courses.*;
 import com.byaffe.learningking.services.*;
@@ -79,12 +80,14 @@ public class OrganisationServiceImpl extends GenericServiceImpl<Organisation> im
         }
 
         modelMapper.map(dto, model);
+
         if (model.isNew() || StringUtils.isEmpty(model.getTrainingMandate())) {
             model.setTrainingMandate(settingService.getAppSetting().getDefaultTrainingMandate());
         }
         model.setCountry(lookupValueService.getCountryById(dto.getCountryId()));
-        model.setAreaOfBusiness(lookupValueService.getByType(LookupType.PROFESSIONS, dto.getAreaOfBusinessId()));
-        model = saveInstance(model);
+        LookupValue lookupValue=lookupValueService.getByType(LookupType.PROFESSIONS, dto.getAreaOfBusinessId());
+        model.setAreaOfBusiness(lookupValue);
+        model = save(model);
 
         if (dto.getCoverImage() != null) {
             String imageUrl = imageStorageService.uploadImage(dto.getCoverImage(), "companies/cover-images/" + model.getId());

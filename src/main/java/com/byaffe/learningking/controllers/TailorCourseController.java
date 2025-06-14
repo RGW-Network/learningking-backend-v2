@@ -34,20 +34,21 @@ import java.util.List;
 public class TailorCourseController {
     @Autowired
     ModelMapper modelMapper;
-@Autowired
+    @Autowired
     CourseCustomisationRequestService courseCustomisationRequestService;
+
     @PostMapping(path = "")
     public ResponseEntity<ResponseObject<BaseResponse>> add(@RequestBody CustomCourseRequestDTO dto) {
-courseCustomisationRequestService.save(dto);
+        courseCustomisationRequestService.save(dto);
         return ResponseEntity.ok().body(new ResponseObject<>(new BaseResponse(true)));
     }
 
     @GetMapping("")
     public ResponseEntity<ResponseList<CourseCustomisationRequest>> get(@RequestParam(value = "searchTerm", required = false) String searchTerm,
-                                                                                @RequestParam(value = "offset", required = true) Integer offset,
-                                                                                @RequestParam(value = "limit", required = true) Integer limit,
-                                                                                @RequestParam(value = "sortBy", required = false) String sortBy,
-                                                                                @RequestParam(value = "sortDescending", required = false) Boolean sortDescending) throws JSONException {
+                                                                        @RequestParam(value = "offset", required = true) Integer offset,
+                                                                        @RequestParam(value = "limit", required = true) Integer limit,
+                                                                        @RequestParam(value = "sortBy", required = false) String sortBy,
+                                                                        @RequestParam(value = "sortDescending", required = false) Boolean sortDescending) throws JSONException {
 
         Search search = CustomisationRequestServiceImpl.generateSearchObjectForArticles(searchTerm).addFilterEqual("recordStatus", RecordStatus.ACTIVE);
 
@@ -58,8 +59,6 @@ courseCustomisationRequestService.save(dto);
         long count = courseCustomisationRequestService.countInstances(search);
         return ResponseEntity.ok().body(new ResponseList<>(articles, (int) count, offset, limit));
     }
-
-
 
 
 }

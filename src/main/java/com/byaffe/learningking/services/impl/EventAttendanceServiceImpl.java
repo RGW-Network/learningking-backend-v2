@@ -5,6 +5,7 @@ import com.byaffe.learningking.dtos.articles.EventRequestDTO;
 import com.byaffe.learningking.models.*;
 import com.byaffe.learningking.models.courses.Course;
 import com.byaffe.learningking.models.courses.CourseEnrollment;
+import com.byaffe.learningking.models.courses.OrganisationPurchase;
 import com.byaffe.learningking.models.courses.PublicationStatus;
 import com.byaffe.learningking.models.payments.AggregatorTransaction;
 import com.byaffe.learningking.services.*;
@@ -134,10 +135,10 @@ public class EventAttendanceServiceImpl extends GenericServiceImpl<EventAttendan
             return;
         }
         StudentService studentService = ApplicationContextProvider.getBean(StudentService.class);
-
-        for (Long studentId : aggregatorTransaction.getEntryIds()) {
+        OrganisationPurchase organisationPurchase=ApplicationContextProvider.getBean(OrganisationPurchaseService.class).getInstanceByID(aggregatorTransaction.getReferenceRecordId());
+        for (Long studentId : organisationPurchase.getEntryIds()) {
             Student student = studentService.getStudentById(studentId);
-            Event event = eventService.getById(aggregatorTransaction.getReferenceRecordId());
+            Event event = eventService.getById(organisationPurchase.getRecordId());
             EventAttendance eventAttendance = new EventAttendance();
             eventAttendance.setStatus(EventAttendanceStatus.ATTENDING);
             eventAttendance.setStudent(student);
@@ -145,6 +146,10 @@ public class EventAttendanceServiceImpl extends GenericServiceImpl<EventAttendan
             eventAttendance.setAggregatorTransaction(aggregatorTransaction);
             saveInstance(eventAttendance);
         }
+        organisationPurchase.setTransaction(aggregatorTransaction);
+        organisationPurchase.setRecordStatus(RecordStatus.ACTIVE);
+        ApplicationContextProvider.getBean(OrganisationPurchaseService.class).saveInstance(organisationPurchase);
+
     }
 
     @Override

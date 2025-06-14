@@ -1,46 +1,28 @@
 package com.byaffe.learningking.shared.constants;
 
+import lombok.Getter;
+
+@Getter
 public enum PermissionConstant {
-    ADD_USERS(1,"Create/Update Users",PermissionModule.USERS),
-    ADD_ROLE(2,"Create/Update Roles",PermissionModule.USERS),
-    ADD_SHOP_MANAGER(3,"Create/Update Shop Managers",PermissionModule.SHOP_MANAGERS),
-    ADD_SHOP(4,"Create/Update Any Shop",PermissionModule.SHOPS),
-
-    MANAGE_MY_SHOP(5,"Create/Update My Shop Details",PermissionModule.SHOPS),
-    MANAGE_MY_SHOP_ATTENDANTS(6,"Create/Update My Shop Attendants",PermissionModule.SHOPS),
-    MANAGE_MY_SHOP_STOCK(7,"Create/Update My Shop Details",PermissionModule.SHOPS),
-    REGISTER_SHOP_SALES(8,"Register Shop Sales",PermissionModule.SHOPS),
-
-
+    Manage_Lookups("Manage Lookups"),
+    Manage_Users("Manage Admin Users"),
+    Manage_Categories("Manage Course Categories"),
+    Manage_Courses("Manage Courses"),
+    Manage_Students("Manage Students"),
+    Manage_Instructors("Manage Instructors"),
+    Manage_Events("Manage Events"),
+    Manage_Articles("Manage Article"),
+    Manage_Reviews("Manage Reviews"),
+    Manage_Message_Templates("Manage Message Templates"),
+    Manage_System_Settings("Manage System Settings"),
+    Manage_Subscription_Plans("Manage Subscription Plans"),
+    Manage_Organisations("Manage Organisations"),
     ;
     private String name;
-    private long id;
-    private PermissionModule permissionModule;
 
-    PermissionConstant(long id,String name, PermissionModule permissionModule) {
-        this.id=id;
+    PermissionConstant(String name) {
         this.name = name;
-        this.permissionModule = permissionModule;
     }
 
-    public String getName() {
-        return name;
-    }
 
-    public long getId() {
-        return id;
-    }
-
-    public PermissionModule getPermissionModule() {
-        return permissionModule;
-    }
-
-    public static PermissionConstant getById(long id){
-        for(PermissionConstant permissionConstant:PermissionConstant.values()){
-            if(permissionConstant.id==id){
-                return permissionConstant;
-            }
-        }
-        return null;
-    }
 }

@@ -107,7 +107,6 @@ public class LookupServiceImpl implements LookupValueService {
 
         if(lookupType==null||id==null){
             return null;
-
         }
         Search search= new Search();
         search.addFilterEqual("type",lookupType)

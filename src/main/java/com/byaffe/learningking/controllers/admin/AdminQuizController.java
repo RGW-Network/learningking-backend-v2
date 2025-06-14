@@ -11,7 +11,9 @@ import com.byaffe.learningking.services.impl.QuizServiceImpl;
 import com.byaffe.learningking.shared.api.BaseResponse;
 import com.byaffe.learningking.shared.api.ResponseList;
 import com.byaffe.learningking.shared.api.ResponseObject;
+import com.byaffe.learningking.shared.constants.PermissionConstant;
 import com.byaffe.learningking.shared.constants.RecordStatus;
+import com.byaffe.learningking.shared.security.SessionContext;
 import com.byaffe.learningking.shared.utils.ApplicationContextProvider;
 import com.googlecode.genericdao.search.Search;
 import io.swagger.v3.oas.annotations.Hidden;
@@ -41,19 +43,19 @@ public class AdminQuizController {
 
     @PostMapping("")
     public ResponseEntity<ResponseObject<Quiz>> addArticle(@RequestBody QuizRequestDTO dto) throws JSONException {
-        Quiz Article = quizService.saveQuiz(dto);
+        SessionContext.permissionProtection(PermissionConstant.Manage_Courses);   Quiz Article = quizService.saveQuiz(dto);
         return ResponseEntity.ok().body(new ResponseObject<>(Article));
     }
     @PostMapping("/question")
     public ResponseEntity<ResponseObject<Question>> addQuestion(@RequestBody QuizQuestionRequestDTO dto) throws JSONException {
-        Question model = quizService.saveQuizQuestion(dto);
+        SessionContext.permissionProtection(PermissionConstant.Manage_Courses); Question model = quizService.saveQuizQuestion(dto);
         return ResponseEntity.ok().body(new ResponseObject<>(model));
     }
 
 
     @GetMapping("/{id}")
     public ResponseEntity<ResponseObject<Quiz>> getById(@PathVariable(name = "id") long id) throws JSONException {
-        Quiz quiz = quizService.getById(id);
+        SessionContext.permissionProtection(PermissionConstant.Manage_Courses);  Quiz quiz = quizService.getById(id);
         return ResponseEntity.ok().body(new ResponseObject<>(quiz));
 
     }
@@ -65,7 +67,7 @@ public class AdminQuizController {
                                                                @RequestParam(value = "sortBy", required = false) String sortBy,
                                                                @RequestParam(value = "sortDescending", required = false) Boolean sortDescending,
                                                                @RequestParam(value = "quizId", required = false) Long quizId) throws JSONException {
-        Search search = QuizServiceImpl.generateSearchTermsForQuizes(searchTerm)
+        SessionContext.permissionProtection(PermissionConstant.Manage_Courses);  Search search = QuizServiceImpl.generateSearchTermsForQuizes(searchTerm)
                 .addFilterEqual("recordStatus", RecordStatus.ACTIVE);
         if (quizId != null) {
             search.addFilterEqual("quiz.id", quizId);
@@ -82,7 +84,7 @@ public class AdminQuizController {
 
     @DeleteMapping("/{id}/delete")
     public ResponseEntity<BaseResponse> deleteArticle(@PathVariable long id) throws JSONException {
-        Article Article = ApplicationContextProvider.getBean(ArticleService.class).getInstanceByID(id);
+        SessionContext.permissionProtection(PermissionConstant.Manage_Courses);     Article Article = ApplicationContextProvider.getBean(ArticleService.class).getInstanceByID(id);
         ApplicationContextProvider.getBean(ArticleService.class).deleteInstance(Article);
         return ResponseEntity.ok().body(new BaseResponse(true));
     }
@@ -96,7 +98,7 @@ public class AdminQuizController {
                                                         @RequestParam(value = "lectureId", required = false) Long lectureId,
                                                         @RequestParam(value = "courseId", required = false) Long courseId) throws JSONException {
 
-        Search search = QuizServiceImpl.generateSearchTermsForQuizes(searchTerm)
+        SessionContext.permissionProtection(PermissionConstant.Manage_Courses);  Search search = QuizServiceImpl.generateSearchTermsForQuizes(searchTerm)
                 .addFilterEqual("recordStatus", RecordStatus.ACTIVE);
         if (lectureId != null) {
             search.addFilterEqual("courseLecture.id", lectureId);
@@ -117,7 +119,7 @@ public class AdminQuizController {
 
     @GetMapping("/v2/{id}")
     public ResponseEntity<ResponseObject<Article>> getArticleById(@PathVariable("id") Long id) throws JSONException {
-        Article article = ApplicationContextProvider.getBean(ArticleService.class).getInstanceByID(id);
+        SessionContext.permissionProtection(PermissionConstant.Manage_Courses);  Article article = ApplicationContextProvider.getBean(ArticleService.class).getInstanceByID(id);
 
         return ResponseEntity.ok().body(new ResponseObject<>(article));
     }

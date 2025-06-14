@@ -8,6 +8,8 @@ import com.byaffe.learningking.services.impl.StudentServiceImpl;
 import com.byaffe.learningking.shared.api.BaseResponse;
 import com.byaffe.learningking.shared.api.ResponseList;
 import com.byaffe.learningking.shared.api.ResponseObject;
+import com.byaffe.learningking.shared.constants.PermissionConstant;
+import com.byaffe.learningking.shared.security.SessionContext;
 import com.byaffe.learningking.shared.utils.ApplicationContextProvider;
 import com.googlecode.genericdao.search.Search;
 import io.swagger.v3.oas.annotations.Hidden;
@@ -35,13 +37,13 @@ public class AdminStudentController {
 
     @GetMapping("/{id}")
     public ResponseEntity<ResponseObject<Student>> getById(@PathVariable(name = "id") long id) throws JSONException {
-       Student student=ApplicationContextProvider.getBean(StudentService.class).getStudentById(id);
+        SessionContext.permissionProtection(PermissionConstant.Manage_Students);  Student student=ApplicationContextProvider.getBean(StudentService.class).getStudentById(id);
         return ResponseEntity.ok().body(new ResponseObject<>(student));
 
     }
     @DeleteMapping("/{id}/delete")
     public ResponseEntity<BaseResponse> deleteStudent(@PathVariable long id) throws JSONException {
-        Student student=ApplicationContextProvider.getBean(StudentService.class).getInstanceByID(id);
+        SessionContext.permissionProtection(PermissionConstant.Manage_Students);   Student student=ApplicationContextProvider.getBean(StudentService.class).getInstanceByID(id);
         ApplicationContextProvider.getBean(StudentService.class).deleteInstance(student);
         return ResponseEntity.ok().body(new BaseResponse(true));
     }
@@ -51,7 +53,7 @@ public class AdminStudentController {
             @RequestParam(value = "status", required = false) AccountStatus status,
             @RequestParam(value = "offset", required = true) Integer offset,
             @RequestParam(value = "limit", required = true) Integer limit) throws JSONException {
-
+        SessionContext.permissionProtection(PermissionConstant.Manage_Students);
         Search search = StudentServiceImpl.generateSearchTermsForStudents(searchTerm);
 
         if (status != null) {

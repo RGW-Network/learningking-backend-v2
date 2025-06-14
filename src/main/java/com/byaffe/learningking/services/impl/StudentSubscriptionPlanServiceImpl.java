@@ -3,6 +3,7 @@ package com.byaffe.learningking.services.impl;
 import com.byaffe.learningking.models.Student;
 import com.byaffe.learningking.models.courses.Course;
 import com.byaffe.learningking.models.courses.CourseEnrollment;
+import com.byaffe.learningking.models.courses.OrganisationPurchase;
 import com.byaffe.learningking.models.payments.*;
 import com.byaffe.learningking.services.*;
 import com.byaffe.learningking.shared.constants.RecordStatus;
@@ -66,22 +67,27 @@ SubscriptionPlan subscriptionPlan= ApplicationContextProvider.getBean(Subscripti
     }
 
     @Override
-    public void bulkActivate(AggregatorTransaction subscriptionPlanPayment) throws ValidationFailedException {
-        SubscriptionPlan subscriptionPlan= ApplicationContextProvider.getBean(SubscriptionPlanService.class).getInstanceByID(subscriptionPlanPayment.getReferenceRecordId());
+    public void bulkActivate(AggregatorTransaction transaction) throws ValidationFailedException {
 
         StudentService studentService=ApplicationContextProvider.getBean(StudentService.class);
-        for(Long studentId : subscriptionPlanPayment.getEntryIds()) {
+        OrganisationPurchase organisationPurchase=ApplicationContextProvider.getBean(OrganisationPurchaseService.class).getInstanceByID(transaction.getReferenceRecordId());
+        SubscriptionPlan subscriptionPlan= ApplicationContextProvider.getBean(SubscriptionPlanService.class).getInstanceByID(organisationPurchase.getRecordId());
+
+        for(Long studentId : organisationPurchase.getEntryIds()) {
             Student student=studentService.getStudentById(studentId);
             StudentSubscriptionPlan memberSubscriptionPlan = new StudentSubscriptionPlan();
             memberSubscriptionPlan.setSubscriptionPlan(subscriptionPlan);
             memberSubscriptionPlan.setStudent(student);
             memberSubscriptionPlan.setActivatedOn(LocalDateTime.now());
             memberSubscriptionPlan.setDurationInMonths(subscriptionPlan.getDurationInMonths());
-            memberSubscriptionPlan.setCost(subscriptionPlanPayment.getAmountInitiated());
+            memberSubscriptionPlan.setCost(transaction.getAmountInitiated());
             memberSubscriptionPlan.setStatus(SubscriptionPlanStatus.ACTIVE);
-
              super.save(memberSubscriptionPlan);
         }
+        organisationPurchase.setTransaction(transaction);
+        organisationPurchase.setRecordStatus(RecordStatus.ACTIVE);
+        ApplicationContextProvider.getBean(OrganisationPurchaseService.class).saveInstance(organisationPurchase);
+
     }
 
     @Override

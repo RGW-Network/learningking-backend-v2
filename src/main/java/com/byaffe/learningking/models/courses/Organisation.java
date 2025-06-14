@@ -27,7 +27,6 @@ public class Organisation extends BaseEntity {
     @JoinColumn(name = "country_id")
     private Country country;
 
-    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "area_of_business_id")
     private LookupValue areaOfBusiness;
@@ -40,6 +39,7 @@ public class Organisation extends BaseEntity {
     private String trainingMandate;
 
     private String lastVerificationCode;
+
     @Transient
     public Long getAreaOfBusinessId() {
         return areaOfBusiness!=null?areaOfBusiness.getId():null;
@@ -47,7 +47,6 @@ public class Organisation extends BaseEntity {
 
     @Transient
     public String getCountryName() {
-
         return country!=null? country.getName():null;
     }
     @Transient
@@ -57,7 +56,6 @@ public class Organisation extends BaseEntity {
 
     @Transient
     public String getAreaOfBusinessName() {
-
         return areaOfBusiness!=null? areaOfBusiness.getValue():null;
     }
 

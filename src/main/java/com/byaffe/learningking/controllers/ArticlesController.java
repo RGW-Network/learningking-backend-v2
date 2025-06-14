@@ -6,7 +6,9 @@ import com.byaffe.learningking.services.ArticleService;
 import com.byaffe.learningking.services.impl.ArticleServiceImpl;
 import com.byaffe.learningking.shared.api.ResponseList;
 import com.byaffe.learningking.shared.api.ResponseObject;
+import com.byaffe.learningking.shared.constants.PermissionConstant;
 import com.byaffe.learningking.shared.constants.RecordStatus;
+import com.byaffe.learningking.shared.security.SessionContext;
 import com.byaffe.learningking.shared.utils.ApplicationContextProvider;
 import com.googlecode.genericdao.search.Search;
 import lombok.extern.slf4j.Slf4j;
@@ -32,6 +34,7 @@ public class ArticlesController {
 
     @GetMapping("/{id}")
     public ResponseEntity<ResponseObject<Article>> getById(@PathVariable(name = "id") long id) throws JSONException {
+        SessionContext.permissionProtection(PermissionConstant.Manage_Articles);
         Article article=ApplicationContextProvider.getBean(ArticleService.class).getInstanceByID(id);
         return ResponseEntity.ok().body(new ResponseObject<>(article));
     }

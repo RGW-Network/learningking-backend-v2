@@ -14,10 +14,6 @@ import java.io.IOException;
  */
 public interface PaymentService extends GenericService<AggregatorTransaction> {
 
-    
-
-    AggregatorTransaction createNewPaymentInstanceWithTransactionId(AggregatorTransaction payment);
-
     AggregatorTransaction initiateCoursePayment(long course, long student, String callBackUrl)throws IOException, OperationFailedException, ValidationFailedException;
     AggregatorTransaction initiateBulkCoursePayment(long course, long student, long groupId, String callBackUrl)throws IOException, OperationFailedException, ValidationFailedException;
 

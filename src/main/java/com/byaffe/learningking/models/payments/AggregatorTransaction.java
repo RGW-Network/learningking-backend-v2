@@ -45,26 +45,13 @@ public class AggregatorTransaction extends BaseEntity {
     private String description;
     private String phoneNumber;
     private String redirectUrl;
-    private Long referenceRecordId;// event, course, subscription,
-    private Long referenceBulkRecordId;//company groupId
-    @Column(name = "comma_separated_bulk_entry_ids", columnDefinition = "TEXT")
-    private String commaSeparatedBulkEntryIds;//organisation student ids
-    private String bulkExceptions;
+    private Long referenceRecordId;// event, course, subscription,bulk-purchase
 
-    public List<Long> getEntryIds() {
-        if (StringUtils.isNotEmpty(this.commaSeparatedBulkEntryIds)) {
-            return Arrays.stream(this.commaSeparatedBulkEntryIds.split(","))
-                    .map(Long::valueOf)
-                    .collect(Collectors.toList());
-        } else {
-            return Collections.emptyList(); // More efficient than new ArrayList<>()
-        }
-    }
 
     @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "student_id")
-    private Student student;
+    private Student student;//person buying
 
     //Json data fields
     @Column(name = "last_aggregator_response", columnDefinition = "JSON")
@@ -128,7 +115,5 @@ public class AggregatorTransaction extends BaseEntity {
         this.chargeRate = charge.getChargeRate();
         this.chargeType = charge.getChargeType();
         this.amountChargedFromUser = this.amountInitiated + this.chargeAmount;
-
-
     }
 }

@@ -8,7 +8,9 @@ import com.byaffe.learningking.services.impl.CourseServiceImpl;
 import com.byaffe.learningking.shared.api.BaseResponse;
 import com.byaffe.learningking.shared.api.ResponseList;
 import com.byaffe.learningking.shared.api.ResponseObject;
+import com.byaffe.learningking.shared.constants.PermissionConstant;
 import com.byaffe.learningking.shared.constants.RecordStatus;
+import com.byaffe.learningking.shared.security.SessionContext;
 import com.byaffe.learningking.shared.utils.ApplicationContextProvider;
 import com.googlecode.genericdao.search.Search;
 import io.swagger.v3.oas.annotations.Hidden;
@@ -37,12 +39,12 @@ public class AdminCoursesController {
     ModelMapper modelMapper;
     @PostMapping("")
     public ResponseEntity<ResponseObject<Course>> addCourse(@RequestBody CourseRequestDTO dto) throws JSONException {
-Course course=ApplicationContextProvider.getBean(CourseService.class).saveInstance(dto);
+        SessionContext.permissionProtection(PermissionConstant.Manage_Courses);Course course=ApplicationContextProvider.getBean(CourseService.class).saveInstance(dto);
         return ResponseEntity.ok().body(new ResponseObject<>(course));
     }
     @PostMapping(path = "/multipart", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<BaseResponse> uploadCSV(@RequestPart  CourseRequestDTO dto, @RequestPart(value = "file",required = false) MultipartFile file)  {
-     if(file!=null) {
+        SessionContext.permissionProtection(PermissionConstant.Manage_Courses);if(file!=null) {
          dto.setCoverImage(file);
      }
          ApplicationContextProvider.getBean(CourseService.class).saveInstance(dto);
@@ -50,14 +52,14 @@ Course course=ApplicationContextProvider.getBean(CourseService.class).saveInstan
     }
     @PostMapping("/{id}/publish")
     public ResponseEntity<BaseResponse> publishCourse(@PathVariable long id) throws JSONException {
-        Course course=ApplicationContextProvider.getBean(CourseService.class).getInstanceByID(id);
+        SessionContext.permissionProtection(PermissionConstant.Manage_Courses);  Course course=ApplicationContextProvider.getBean(CourseService.class).getInstanceByID(id);
         ApplicationContextProvider.getBean(CourseService.class).activatePlan(course);
         return ResponseEntity.ok().body(new BaseResponse(true));
 
     }
     @PostMapping("/{id}/unpublish")
     public ResponseEntity<BaseResponse> unPublishCourse(@PathVariable long id) throws JSONException {
-        Course course=ApplicationContextProvider.getBean(CourseService.class).getInstanceByID(id);
+        SessionContext.permissionProtection(PermissionConstant.Manage_Courses);  Course course=ApplicationContextProvider.getBean(CourseService.class).getInstanceByID(id);
         ApplicationContextProvider.getBean(CourseService.class).deActivatePlan(course);
         return ResponseEntity.ok().body(new BaseResponse(true));
 
@@ -65,20 +67,20 @@ Course course=ApplicationContextProvider.getBean(CourseService.class).saveInstan
 
     @GetMapping("/{id}")
     public ResponseEntity<ResponseObject<CourseResponseDTO>> getById(@PathVariable(name = "id") long id) throws JSONException {
-       System.out.println("ID======="+id);
+        SessionContext.permissionProtection(PermissionConstant.Manage_Courses); System.out.println("ID======="+id);
         Course course=ApplicationContextProvider.getBean(CourseService.class).getInstanceByID(id);
         return ResponseEntity.ok().body(new ResponseObject<>(modelMapper.map(course, CourseResponseDTO.class)));
 
     }
     @DeleteMapping("/{id}/delete")
     public ResponseEntity<BaseResponse> deleteCourse(@PathVariable long id) throws JSONException {
-        Course course=ApplicationContextProvider.getBean(CourseService.class).getInstanceByID(id);
+        SessionContext.permissionProtection(PermissionConstant.Manage_Courses);   Course course=ApplicationContextProvider.getBean(CourseService.class).getInstanceByID(id);
         ApplicationContextProvider.getBean(CourseService.class).deleteInstance(course);
         return ResponseEntity.ok().body(new BaseResponse(true));
     }
     @GetMapping("")
     public ResponseEntity<ResponseList<Course>> getCourses(ArticlesFilterDTO queryParamModel) throws JSONException {
-
+        SessionContext.permissionProtection(PermissionConstant.Manage_Courses);
         Search search = CourseServiceImpl.generateSearchObjectForCourses(queryParamModel.getSearchTerm())
                 .addFilterEqual("recordStatus", RecordStatus.ACTIVE);
         if (queryParamModel.getCategoryId() != null) {
@@ -102,7 +104,7 @@ Course course=ApplicationContextProvider.getBean(CourseService.class).saveInstan
 
     @GetMapping("/v2/{id}")
     public ResponseEntity<ResponseObject<CourseDetailsResponseDTO>> getCourseById(@PathVariable("id") Long id) throws JSONException {
-         Course course = ApplicationContextProvider.getBean(CourseService.class).getInstanceByID(id);
+        SessionContext.permissionProtection(PermissionConstant.Manage_Courses); Course course = ApplicationContextProvider.getBean(CourseService.class).getInstanceByID(id);
         CourseDetailsResponseDTO responseDTO = new CourseDetailsResponseDTO();
         CourseResponseDTO courseObj = (CourseResponseDTO) course;
         List<CourseLesson> lessons = ApplicationContextProvider.getBean(CourseLessonService.class).getInstances(new Search()
