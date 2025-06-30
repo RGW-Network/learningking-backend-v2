@@ -37,10 +37,10 @@ public class MessageTemplateUtils {
     public static String resolveLkInvitationMessageTemplate(String  userEmail,User invitor,String companyName, String templateString) {
         String result=templateString;
         result=result.replace(MessageTemplateParams.USERNAME.getDisplayName(),invitor.getUsername());
-        result=result.replace(MessageTemplateParams.FIRST_NAME.getDisplayName(),invitor.getFirstName());
-        result=result.replace(MessageTemplateParams.EMAIL_ADDRESS.getDisplayName(),userEmail);
-        result=result.replace(MessageTemplateParams.COMPANY_NAME.getDisplayName(),companyName);
         result=result.replace(MessageTemplateParams.LAST_NAME.getDisplayName(),invitor.getLastName());
+        result=result.replace(MessageTemplateParams.FIRST_NAME.getDisplayName(),invitor.getFirstName());
+        result=result.replace(MessageTemplateParams.EMAIL_ADDRESS.getDisplayName(),invitor.getUsername());
+        result=result.replace(MessageTemplateParams.COMPANY_NAME.getDisplayName(),companyName);
         return result;
 
     }

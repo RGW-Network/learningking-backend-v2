@@ -361,6 +361,7 @@ MessageTemplateService  messageTemplateService;
         user.addRole(ApplicationContextProvider.getBean(UserService.class).getRoleByName(AppUtils.STUDENT_ROLE_NAME));
         user.setApiPassword(student.getPassKey());
         student.setPassKey(null);
+        student.setAccountStatus(AccountStatus.Active);
         student.setUserAccount(ApplicationContextProvider.getBean(UserService.class).saveUser(user));
         return student;
 
