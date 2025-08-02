@@ -17,5 +17,5 @@ public class StudentDashboardDto {
     private Integer activeCorporateCourses=0;
     private Integer completedCorporateCourses=0;
 
-
+    private Integer certificatesEarned =0;
 }

@@ -46,6 +46,7 @@ public class Student extends BaseEntity {
     private String bioInformation;
     private String twitterHandle;
     private String facebookUsername;
+    private String instagramHandle;
     private String website;
 
     @JsonIncludeProperties({"value","id"})

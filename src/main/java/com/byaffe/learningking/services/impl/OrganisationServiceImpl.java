@@ -78,31 +78,33 @@ public class OrganisationServiceImpl extends GenericServiceImpl<Organisation> im
         if (dto.getId() != null && dto.getId() > 0) {
             model = getInstanceByID(dto.getId());
         }
-
-        modelMapper.map(dto, model);
+        model.setName(dto.getName());
+        model.setDescription(dto.getDescription());
+        model.setWebsite(dto.getWebsite());
+        model.setMobileNumber(dto.getMobileNumber());
+        model.setTelephoneNumber(dto.getTelephoneNumber());
+        model.setEmailAddress(dto.getEmailAddress());
 
         if (model.isNew() || StringUtils.isEmpty(model.getTrainingMandate())) {
             model.setTrainingMandate(settingService.getAppSetting().getDefaultTrainingMandate());
         }
         model.setCountry(lookupValueService.getCountryById(dto.getCountryId()));
-        LookupValue lookupValue=lookupValueService.getByType(LookupType.PROFESSIONS, dto.getAreaOfBusinessId());
-        model.setAreaOfBusiness(lookupValue);
+        model.setAreaOfBusiness(lookupValueService.getByType(LookupType.PROFESSIONS, dto.getAreaOfBusinessId()));
         model = save(model);
 
         if (dto.getCoverImage() != null) {
             String imageUrl = imageStorageService.uploadImage(dto.getCoverImage(), "companies/cover-images/" + model.getId());
             model.setCoverImageUrl(imageUrl);
-            model = super.save(model);
+            model = save(model);
         }
         if (dto.getLogoImage() != null) {
             String imageUrl = imageStorageService.uploadImage(dto.getLogoImage(), "companies/logos/" + model.getId());
             model.setLogoImageUrl(imageUrl);
-            model = super.save(model);
+            model = save(model);
         }
         {
             //add creator to company
             OrganisationStudent existsOnCompany = ApplicationContextProvider.getBean(OrganisationStudentService.class).getCompanyStudent(model, SessionContext.getLoggedInStudent());
-
             if (existsOnCompany == null) {
                 OrganisationStudent organisationStudent = new OrganisationStudent();
                 organisationStudent.setStudent(SessionContext.getLoggedInStudent());

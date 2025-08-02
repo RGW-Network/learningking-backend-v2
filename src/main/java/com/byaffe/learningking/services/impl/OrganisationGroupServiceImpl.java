@@ -4,6 +4,7 @@ import com.byaffe.learningking.daos.*;
 import com.byaffe.learningking.dtos.courses.OrganisationGroupRequestDTO;
 import com.byaffe.learningking.models.courses.*;
 import com.byaffe.learningking.services.*;
+import com.byaffe.learningking.shared.constants.RecordStatus;
 import com.byaffe.learningking.shared.exceptions.ValidationFailedException;
 import com.byaffe.learningking.shared.utils.ApplicationContextProvider;
 import com.byaffe.learningking.shared.utils.CustomSearchUtils;
@@ -57,6 +58,7 @@ public class OrganisationGroupServiceImpl implements OrganisationGroupService {
     public OrganisationGroup getGroupById(long id) {
         return organisationGroupDao.findById(id).orElseThrow(() -> new ValidationFailedException("Group With Id not found"));
     }
+
     public OrganisationGroup getInstanceById(Long id) {
         return organisationGroupDao.findById(id).orElseThrow(() -> new ValidationFailedException("Group With Id not found"));
     }
@@ -74,17 +76,25 @@ public class OrganisationGroupServiceImpl implements OrganisationGroupService {
     public OrganisationGroupStudent addGroupStudent(long groupId, long organisationStudentId) throws ValidationFailedException {
         OrganisationStudent organisationStudent = ApplicationContextProvider.getBean(OrganisationStudentService.class).getInstanceByID(organisationStudentId);
         OrganisationGroup organisationGroup = getGroupById(groupId);
-        return addGroupStudent(organisationGroup, organisationStudent);
+        OrganisationGroupStudent saved = addGroupStudent(organisationGroup, organisationStudent);
+
+
+        return saved;
     }
 
     private OrganisationGroupStudent addGroupStudent(OrganisationGroup group, OrganisationStudent organisationStudent) throws ValidationFailedException {
-        OrganisationGroupStudent exists = organisationGroupStudentDao.searchUnique(new Search().addFilterEqual("organisationGroup", organisationStudent).addFilterEqual("organisationGroup", group));
-        if (exists != null) {
+        OrganisationGroupStudent exists = organisationGroupStudentDao.searchUnique(new Search().addFilterEqual("organisationStudent", organisationStudent).addFilterEqual("organisationGroup", group));
+        if (exists == null) {
             OrganisationGroupStudent groupStudent = new OrganisationGroupStudent();
             groupStudent.setOrganisationGroup(group);
             groupStudent.setOrganisationStudent(organisationStudent);
+
             exists = organisationGroupStudentDao.save(groupStudent);
+
+            group.incrementStudentCount();
+            organisationGroupDao.save(group);
         }
+
         return exists;
     }
 
@@ -95,7 +105,7 @@ public class OrganisationGroupServiceImpl implements OrganisationGroupService {
         for (OrganisationStudent student : students) {
             addGroupStudent(group, student);
         }
-        return getGroupById(groupId);
+        return group;
     }
 
     @Override
@@ -104,9 +114,18 @@ public class OrganisationGroupServiceImpl implements OrganisationGroupService {
     }
 
     @Override
-    public void deleteGroupStudent(Long id) {
-        organisationGroupStudentDao.removeById(id);
+    public int countGroupStudents(Search search) {
+        return organisationGroupStudentDao.count(search);
+    }
 
+    @Override
+    public void deleteGroupStudent(Long id) {
+        OrganisationGroupStudent groupStudent = organisationGroupStudentDao.findById(id).orElseThrow(() -> new ValidationFailedException("Student Not Found with Supplied Id"));
+        groupStudent.setRecordStatus(RecordStatus.DELETED);
+        organisationGroupStudentDao.save(groupStudent);
+        OrganisationGroup group=groupStudent.getOrganisationGroup();
+        group.decrementStudentCount();
+        organisationGroupDao.save(group);
     }
 
     @Override

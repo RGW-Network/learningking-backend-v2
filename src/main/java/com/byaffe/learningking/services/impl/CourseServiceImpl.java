@@ -155,7 +155,7 @@ public class CourseServiceImpl extends GenericServiceImpl<Course> implements Cou
                         .addFilterEqual("courseTopic", firstTopic)
                         .addSortAsc("position"), 0, 1);
         if (subTopics.isEmpty()) {
-            throw new ValidationFailedException("No lectures in first Course lesson topic");
+            throw new ValidationFailedException("No lectures in first Course lesson topic "+firstTopic.getTitle());
         }
 
         return subTopics.get(0);

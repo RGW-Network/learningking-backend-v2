@@ -5,6 +5,7 @@ import com.byaffe.learningking.dtos.courses.OrganisationGroupCourseRequestDTO;
 import com.byaffe.learningking.dtos.courses.OrganisationGroupRequestDTO;
 import com.byaffe.learningking.dtos.courses.OrganisationGroupStudentRequestDTO;
 import com.byaffe.learningking.dtos.student.CompanyRequestDTO;
+import com.byaffe.learningking.models.InvitationStatus;
 import com.byaffe.learningking.models.courses.*;
 import com.byaffe.learningking.services.*;
 import com.byaffe.learningking.services.impl.GroupPurchaseServiceImpl;
@@ -62,8 +63,7 @@ public class CompanyController {
                                                                             @RequestParam(value = "sortDescending", required = false) Boolean sortDescending,
                                                                             @RequestParam(value = "featured", required = false) Boolean featured) throws JSONException {
 
-        Search search = OrganisationStudentServiceImpl.generateSearchTerms(searchTerm)
-                .addFilterEqual("recordStatus", RecordStatus.ACTIVE);
+        Search search = OrganisationStudentServiceImpl.generateSearchTerms(searchTerm).addFilterEqual("recordStatus", RecordStatus.ACTIVE);
         search.addFilterEqual("student", SessionContext.getLoggedInStudent());
         search.addFilterEqual("organisation.recordStatus", RecordStatus.ACTIVE);
         if (sortBy != null) {
@@ -128,55 +128,28 @@ public class CompanyController {
         organisationService.deleteInstance(organisation);
         return ResponseEntity.ok().body(new BaseResponse(true));
     }
-
-    @PostMapping(path = "/groups")
-    public ResponseEntity<ResponseObject<OrganisationGroup>> createGroup(@RequestBody OrganisationGroupRequestDTO dto) {
-        return ResponseEntity.ok().body(new ResponseObject<>(organisationGroupService.createGroup(dto)));
+    @DeleteMapping(path = "/student/{organisationStudentId}")
+    public ResponseEntity<BaseResponse> deleteStudent(@PathVariable Long organisationStudentId) {
+        OrganisationStudent organisation = organisationStudentService.getInstanceByID(organisationStudentId);
+        organisationService.deActivate(organisation);
+        return ResponseEntity.ok().body(new BaseResponse(true));
     }
 
-    @GetMapping("/groups")
-    public ResponseEntity<ResponseList<OrganisationGroup>> getGroups(@RequestParam(value = "searchTerm", required = false) String searchTerm,
-                                                                     @RequestParam(value = "offset", required = true) Integer offset,
-                                                                     @RequestParam(value = "limit", required = true) Integer limit,
-                                                                     @RequestParam(value = "organisationId", required = false) Long organisationId,
-                                                                     @RequestParam(value = "sortBy", required = false) String sortBy) throws JSONException {
-        long count = 0;
-        Search search = OrganisationGroupServiceImpl.generateSearchTermsForGroup(searchTerm).addFilterEqual("recordStatus", RecordStatus.ACTIVE);
-
-        if (!Objects.requireNonNull(SessionContext.getLoggedInUser()).hasAdministrativePrivileges()) {
-            search.addFilterEqual("organisation.createdById", SessionContext.getLoggedInUser().getId());
-        }
-
-        if (sortBy != null) search.addSortDesc(sortBy);
-
-        List<OrganisationGroup> organisations = organisationGroupService.getGroups(search, offset, limit);
-
-        return ResponseEntity.ok().body(new ResponseList<>(organisations, (int) count, offset, limit));
-    }
-
-    @PostMapping(path = "/groups/students")
-    public ResponseEntity<ResponseObject<OrganisationGroupStudent>> createGroupStudents(@RequestBody OrganisationGroupStudentRequestDTO dto) {
-
-        return ResponseEntity.ok().body(new ResponseObject<>(organisationGroupService.addGroupStudent(dto.getOrganisationGroupId(), dto.getOrganisationStudentId())));
-    }
-
-    @PostMapping(path = "/groups/{groupId}/add-all-students")
-    public ResponseEntity<ResponseObject<OrganisationGroup>> addAllStudentsToGroup(@RequestParam(value = "groupId") Long groupId) {
-
-        return ResponseEntity.ok().body(new ResponseObject<>(organisationGroupService.addAllStudentsToGroup(groupId)));
-    }
 
     @GetMapping("/students")
     public ResponseEntity<ResponseList<OrganisationStudent>> getOrgStudents(@RequestParam(value = "searchTerm", required = false) String searchTerm,
                                                                             @RequestParam(value = "offset", required = true) Integer offset,
                                                                             @RequestParam(value = "limit", required = true) Integer limit,
+                                                                            @RequestParam(value = "invitationStatus", required = false) InvitationStatus invitationStatus,
                                                                             @RequestParam(value = "sortBy", required = false) String sortBy,
                                                                             @RequestParam(value = "organisationId", required = false) Long organisationId,
                                                                             @RequestParam(value = "groupId", required = false) Long groupId) throws JSONException {
         long count = 0;
         Search search = OrganisationStudentServiceImpl.generateSearchTerms(searchTerm).addFilterEqual("recordStatus", RecordStatus.ACTIVE);
         if (organisationId != null) search.addFilterEqual("organisation.id", organisationId);
-        //if (groupId != null) search.addFilterIn("organisationGroup.id", groupId);
+        if (invitationStatus != null) {
+            search.addFilterIn("invitationStatus", invitationStatus);
+        }
         List<OrganisationStudent> organisations = organisationStudentService.getInstances(search, offset, limit);
         count = organisationStudentService.countInstances(search);
         return ResponseEntity.ok().body(new ResponseList<>(organisations, (int) count, offset, limit));
@@ -186,7 +159,7 @@ public class CompanyController {
     public ResponseEntity<ResponseList<GroupPurchaseResponseDto>> getPurchasedCourses(@RequestParam(value = "searchTerm", required = false) String searchTerm,
                                                                                       @RequestParam(value = "offset", required = true) Integer offset,
                                                                                       @RequestParam(value = "limit", required = true) Integer limit,
-                                                                                      @RequestParam(value = "sortBy", required = true) CategoryType recordType,
+                                                                                      @RequestParam(value = "recordType", required = true) CategoryType recordType,
                                                                                       @RequestParam(value = "sortBy", required = false) String sortBy,
                                                                                       @RequestParam(value = "organisationId", required = false) Long organisationId,
                                                                                       @RequestParam(value = "groupId", required = false) Long groupId) throws JSONException {

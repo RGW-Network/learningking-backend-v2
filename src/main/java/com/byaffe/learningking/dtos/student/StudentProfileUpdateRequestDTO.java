@@ -22,11 +22,11 @@ public class StudentProfileUpdateRequestDTO {
     private Long professionId;
     private Set<String> interestNames;
 
+    private String instagramHandle;
     @JsonIgnore
     private MultipartFile coverImage;
     @JsonIgnore
     private MultipartFile profileImage;
-
 
 
 }

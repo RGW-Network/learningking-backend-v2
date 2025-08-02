@@ -19,6 +19,18 @@ public class OrganisationGroup extends BaseEntity {
     @JoinColumn(name = "organisation_id")
     private Organisation organisation;
 
+public void incrementStudentCount(){
+    if(memberCount==null){
+        this.memberCount= 1L;
+    }
+    this.memberCount=this.memberCount+1;
+}
+    public void decrementStudentCount(){
+        if(memberCount==null){
+            this.memberCount= 1L;
+        }
+        this.memberCount=this.memberCount-1;
+    }
 
     @Override
     public boolean equals(Object object) {

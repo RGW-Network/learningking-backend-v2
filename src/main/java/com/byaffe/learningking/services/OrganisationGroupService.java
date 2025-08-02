@@ -28,6 +28,7 @@ public interface OrganisationGroupService {
     OrganisationGroup addAllStudentsToGroup(long groupId) throws ValidationFailedException;
 
     List<OrganisationGroupStudent> getGroupStudents(Search search, int offset, int limit);
+  int countGroupStudents(Search search);
 
     void deleteGroupStudent(Long id);
 

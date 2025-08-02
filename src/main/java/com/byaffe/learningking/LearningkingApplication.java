@@ -18,6 +18,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -25,6 +26,7 @@ import java.util.logging.Logger;
 
 @SpringBootApplication
 @OpenAPIDefinition(info = @Info(title = "Learningking Backend", version = "2.0", description = "Learningking E-Learning Platform"))
+@EnableScheduling
 public class LearningkingApplication {
 
     public static void main(String[] args) {

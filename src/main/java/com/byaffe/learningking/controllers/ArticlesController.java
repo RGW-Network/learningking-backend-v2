@@ -34,7 +34,6 @@ public class ArticlesController {
 
     @GetMapping("/{id}")
     public ResponseEntity<ResponseObject<Article>> getById(@PathVariable(name = "id") long id) throws JSONException {
-        SessionContext.permissionProtection(PermissionConstant.Manage_Articles);
         Article article=ApplicationContextProvider.getBean(ArticleService.class).getInstanceByID(id);
         return ResponseEntity.ok().body(new ResponseObject<>(article));
     }

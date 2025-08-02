@@ -12,6 +12,7 @@ import javax.persistence.*;
 @Entity
 @Table(name = "question_answer_options")
 public class AnswerOption extends BaseEntity {
+    @Column(name = "name" ,length = 1000)
     private String name;
     private Boolean correct;
 

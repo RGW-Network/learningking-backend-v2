@@ -345,6 +345,9 @@ CourseRatingService ratingService;
         if (status != null) {
             search.addFilterEqual("readStatus", status);
         }
+        if(!SessionContext.isSuperAdmin()){
+            search.addFilterEqual("student",SessionContext.getLoggedInStudent());
+        }
         List<CourseResponseDTO> courses = new ArrayList<>();
         for (CourseEnrollment course : ApplicationContextProvider.getBean(CourseEnrollmentService.class).getInstances(search, offset, limit)) {
             CourseResponseDTO dto = modelMapper.map(course.getCourse(), CourseResponseDTO.class);

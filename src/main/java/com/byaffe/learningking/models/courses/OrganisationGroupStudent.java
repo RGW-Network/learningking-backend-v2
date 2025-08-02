@@ -4,10 +4,7 @@ import com.byaffe.learningking.shared.models.BaseEntity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 
-import javax.persistence.Entity;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 @Data
 @Entity
@@ -22,6 +19,31 @@ public class OrganisationGroupStudent extends BaseEntity {
     @ManyToOne
     @JoinColumn(name = "organisation_group_id")
     private OrganisationGroup organisationGroup;
+
+    @Transient
+    public String getStudentName(){
+        return organisationStudent.getStudent().getFullName();
+    }
+
+    @Transient
+    public String getStudentEmail(){
+        return organisationStudent.getStudent().getEmailAddress();
+    }
+    @Transient
+    public String getStudentSerialNumber(){
+        return organisationStudent.getStudent().getSerialNumber();
+    }
+
+    @Transient
+    public String getStudentImageUrl(){
+        return organisationStudent.getStudent().getProfileImageUrl();
+    }
+
+    @Transient
+    public String getGroupName(){
+        return organisationGroup.getName();
+    }
+
 
     @Override
     public boolean equals(Object object) {

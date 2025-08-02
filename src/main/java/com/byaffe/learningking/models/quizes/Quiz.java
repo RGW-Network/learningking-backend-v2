@@ -20,10 +20,6 @@ public class Quiz extends BaseEntity {
     private Long durationInMinutes=5L;
     private String description;
 
-    @JsonIgnore
-    @ManyToOne
-    @JoinColumn(name = "lecture_id")
-    private CourseLecture courseLecture;
 
     @OneToMany(mappedBy = "quiz", cascade = CascadeType.ALL)
     private List<Question> questions;
@@ -32,13 +28,5 @@ public class Quiz extends BaseEntity {
     @Column(name = "publication_status", nullable = true)
     private PublicationStatus publicationStatus= PublicationStatus.ACTIVE;
 
-    @Transient
-    public String getLectureName(){
-        return courseLecture.getTitle();
-    }
-    @Transient
-    public Long getLectureId(){
-        return courseLecture.getId();
-    }
 
 }

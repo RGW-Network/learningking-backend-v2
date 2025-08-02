@@ -17,6 +17,7 @@ import com.byaffe.learningking.shared.exceptions.OperationFailedException;
 import com.byaffe.learningking.shared.exceptions.ValidationFailedException;
 import com.byaffe.learningking.shared.utils.ApplicationContextProvider;
 import com.byaffe.learningking.shared.utils.CustomSearchUtils;
+import com.byaffe.learningking.shared.utils.DatabaseTransactionalService;
 import com.google.gson.Gson;
 import com.googlecode.genericdao.search.Search;
 import lombok.extern.slf4j.Slf4j;
@@ -42,7 +43,10 @@ public class PaymentServiceImpl extends GenericServiceImpl<AggregatorTransaction
     FlutterWaveService flutterWaveService;
     private float eventPricing;
 
+    @Autowired
+    DatabaseTransactionalService databaseTransactionalService;
 
+    @Transactional
     @Override
     public AggregatorTransaction saveInstance(AggregatorTransaction payment) throws ValidationFailedException, OperationFailedException {
 
@@ -50,7 +54,7 @@ public class PaymentServiceImpl extends GenericServiceImpl<AggregatorTransaction
     }
 
 
-
+    @Transactional
     @Override
     public AggregatorTransaction updatePayment(String transactionid, String raveId) throws ValidationFailedException {
         AggregatorTransaction AggregatorTransaction = getPaymentByTransactionId(transactionid);
@@ -93,6 +97,9 @@ public class PaymentServiceImpl extends GenericServiceImpl<AggregatorTransaction
         if (memberCourse != null) {
             throw new ValidationFailedException("You already purchased this course. Go to My-Courses to view your course.");
         }
+
+     ApplicationContextProvider.getBean(CourseService.class).getFirstSubTopic(course);
+
         return initiatePayment(course.getDiscountedPrice() > 0 ? course.getDiscountedPrice() : course.getPrice(), student, "Course (" + course.getTitle() + ")", course.id, TransactionType.COURSE_PAYMENT, callBackUrl);
 
     }
@@ -132,9 +139,9 @@ public class PaymentServiceImpl extends GenericServiceImpl<AggregatorTransaction
         organisationPurchase.setBulkExceptions(errors);
         organisationPurchase.setCommaSeparatedBulkEntryIds(convertToCommaSeparatedString(entryIds));
         organisationPurchase.setSize(userCount);
-        organisationPurchase=ApplicationContextProvider.getBean(OrganisationPurchaseService.class).saveInstance(organisationPurchase);
+        organisationPurchase = ApplicationContextProvider.getBean(OrganisationPurchaseService.class).saveInstance(organisationPurchase);
         double totalCost = course.getDiscountedPrice() > 0 ? course.getDiscountedPrice() * userCount : course.getPrice() * userCount;
-        return initiateBulkPayment(totalCost, loggedInStudent, "Bulk Course (" + course.getTitle() + ")",  organisationPurchase.getId(), TransactionType.BULK_COURSE_PAYMENT, callBackUrl);
+        return initiateBulkPayment(totalCost, loggedInStudent, "Bulk Course (" + course.getTitle() + ")", organisationPurchase.getId(), TransactionType.BULK_COURSE_PAYMENT, callBackUrl);
 
     }
 
@@ -152,6 +159,9 @@ public class PaymentServiceImpl extends GenericServiceImpl<AggregatorTransaction
         Student loggedInStudent = ApplicationContextProvider.getBean(StudentService.class).getInstanceByID(studentId);
         OrganisationGroup group = ApplicationContextProvider.getBean(OrganisationGroupService.class).getInstanceById(groupId);
         List<OrganisationGroupStudent> students = ApplicationContextProvider.getBean(OrganisationGroupService.class).getGroupStudents(new Search().addFilterEqual("organisationGroup", group).addFilterEqual("recordStatus", RecordStatus.ACTIVE), 0, 0);
+        if (students.isEmpty()) {
+            throw new ValidationFailedException("No students found in group");
+        }
         long userCount = students.size();
         String errors = "";
         Set<Long> entryIds = new HashSet<>();
@@ -185,9 +195,9 @@ public class PaymentServiceImpl extends GenericServiceImpl<AggregatorTransaction
         organisationPurchase.setBulkExceptions(errors);
         organisationPurchase.setCommaSeparatedBulkEntryIds(convertToCommaSeparatedString(entryIds));
         organisationPurchase.setSize(userCount);
-        organisationPurchase=ApplicationContextProvider.getBean(OrganisationPurchaseService.class).saveInstance(organisationPurchase);
+        organisationPurchase = ApplicationContextProvider.getBean(OrganisationPurchaseService.class).saveInstance(organisationPurchase);
 
-        return initiateBulkPayment(totalCost, loggedInStudent, "Bulk Course (" + subscriptionPlan.getName() + ")",  organisationPurchase.getId(), TransactionType.BULK_SUBSCRIPTION_PAYMENT, callBackUrl);
+        return initiateBulkPayment(totalCost, loggedInStudent, "Bulk Course (" + subscriptionPlan.getName() + ")", organisationPurchase.getId(), TransactionType.BULK_SUBSCRIPTION_PAYMENT, callBackUrl);
 
     }
 
@@ -205,6 +215,9 @@ public class PaymentServiceImpl extends GenericServiceImpl<AggregatorTransaction
         Student loggedInStudent = ApplicationContextProvider.getBean(StudentService.class).getInstanceByID(studentId);
         OrganisationGroup group = ApplicationContextProvider.getBean(OrganisationGroupService.class).getInstanceById(organisationId);
         List<OrganisationGroupStudent> students = ApplicationContextProvider.getBean(OrganisationGroupService.class).getGroupStudents(new Search().addFilterEqual("organisationGroup", group).addFilterEqual("recordStatus", RecordStatus.ACTIVE), 0, 0);
+        if (students.isEmpty()) {
+            throw new ValidationFailedException("No students found in group");
+        }
         long userCount = 0;
         String errors = "";
         Set<Long> entryIds = new HashSet<>();
@@ -230,13 +243,13 @@ public class PaymentServiceImpl extends GenericServiceImpl<AggregatorTransaction
         organisationPurchase.setBulkExceptions(errors);
         organisationPurchase.setCommaSeparatedBulkEntryIds(convertToCommaSeparatedString(entryIds));
         organisationPurchase.setSize(userCount);
-        organisationPurchase=ApplicationContextProvider.getBean(OrganisationPurchaseService.class).saveInstance(organisationPurchase);
+        organisationPurchase = ApplicationContextProvider.getBean(OrganisationPurchaseService.class).saveInstance(organisationPurchase);
 
-        return initiateBulkPayment(totalCost, loggedInStudent, "Bulk Event (" + event.getTitle() + ")", organisationPurchase.getId(),  TransactionType.BULK_EVENT_PAYMENT, callBackUrl);
+        return initiateBulkPayment(totalCost, loggedInStudent, "Bulk Event (" + event.getTitle() + ")", organisationPurchase.getId(), TransactionType.BULK_EVENT_PAYMENT, callBackUrl);
 
     }
 
-    // Common method to initiate payments
+    @Transactional
     private AggregatorTransaction initiatePayment(double amount, Student student, String description, long referenceRecordId, TransactionType transactionType, String callBackUrl) throws IOException, OperationFailedException {
         AggregatorTransaction newPayment = new AggregatorTransaction();
         newPayment.setStudent(student);
@@ -265,6 +278,7 @@ public class PaymentServiceImpl extends GenericServiceImpl<AggregatorTransaction
         return saveInstance(newPayment);
     }
 
+    @Transactional
     private AggregatorTransaction initiateBulkPayment(double amount, Student student, String description, long referenceRecordId, TransactionType transactionType, String callBackUrl) throws IOException, OperationFailedException {
         AggregatorTransaction newPayment = new AggregatorTransaction();
         newPayment.setStudent(student);
@@ -300,9 +314,7 @@ public class PaymentServiceImpl extends GenericServiceImpl<AggregatorTransaction
     }
 
     public void updatePaymentStatus() {
-        Search paymentSearch = new Search();
-        log.debug("Started Payment Update job at " + LocalDateTime.now());
-        paymentSearch.addFilterEqual("status", TransactionStatus.PENDING);
+        Search paymentSearch = new Search().addFilterEqual("status", TransactionStatus.PENDING).setMaxResults(100).addSortDesc("id");
 
         List<AggregatorTransaction> fetchedBookPayments = super.search(paymentSearch);
         for (AggregatorTransaction payment : fetchedBookPayments) {
@@ -315,8 +327,8 @@ public class PaymentServiceImpl extends GenericServiceImpl<AggregatorTransaction
         }
     }
 
-
-    private AggregatorTransaction updateStatus(FlutterReponse flutterResponse, AggregatorTransaction payment) {
+    @Transactional
+    private void updateStatus(FlutterReponse flutterResponse, AggregatorTransaction payment) {
         payment.setLastAggregatorResponse(new Gson().toJson(flutterResponse));
         payment.setDateChanged(LocalDateTime.now());
 
@@ -344,26 +356,27 @@ public class PaymentServiceImpl extends GenericServiceImpl<AggregatorTransaction
                 payment.setStatus(TransactionStatus.PENDING);
             }
         }
-        payment = super.save(payment);
-        if (payment.getStatus().equals(TransactionStatus.SUCCESSFUL)) {
-            if (payment.getType().equals(TransactionType.COURSE_PAYMENT)) {
-                ApplicationContextProvider.getBean(CourseEnrollmentService.class).createSubscription(payment);
-            } else if (payment.getType().equals(TransactionType.SUBSCRIPTION_PAYMENT)) {
-                ApplicationContextProvider.getBean(StudentSubscriptionPlanService.class).activate(payment);
-            } else if (payment.getType().equals(TransactionType.EVENT_PAYMENT)) {
-                ApplicationContextProvider.getBean(EventAttendanceService.class).attendPaidEvent(payment);
-            } else if (payment.getType().equals(TransactionType.BULK_EVENT_PAYMENT)) {
-                ApplicationContextProvider.getBean(EventAttendanceService.class).bulkAttend(payment);
-            } else if (payment.getType().equals(TransactionType.BULK_SUBSCRIPTION_PAYMENT)) {
-                ApplicationContextProvider.getBean(StudentSubscriptionPlanService.class).bulkActivate(payment);
-            } else if (payment.getType().equals(TransactionType.BULK_COURSE_PAYMENT)) {
-                ApplicationContextProvider.getBean(CourseEnrollmentService.class).createBulkSubscriptions(payment);
+        databaseTransactionalService.executeInTransaction(() -> {
+            super.save(payment);
+            if (payment.getStatus().equals(TransactionStatus.SUCCESSFUL)) {
+                if (payment.getType().equals(TransactionType.COURSE_PAYMENT)) {
+                    ApplicationContextProvider.getBean(CourseEnrollmentService.class).createSubscription(payment);
+                } else if (payment.getType().equals(TransactionType.SUBSCRIPTION_PAYMENT)) {
+                    ApplicationContextProvider.getBean(StudentSubscriptionPlanService.class).activate(payment);
+                } else if (payment.getType().equals(TransactionType.EVENT_PAYMENT)) {
+                    ApplicationContextProvider.getBean(EventAttendanceService.class).attendPaidEvent(payment);
+                } else if (payment.getType().equals(TransactionType.BULK_EVENT_PAYMENT)) {
+                    ApplicationContextProvider.getBean(EventAttendanceService.class).bulkAttend(payment);
+                } else if (payment.getType().equals(TransactionType.BULK_SUBSCRIPTION_PAYMENT)) {
+                    ApplicationContextProvider.getBean(StudentSubscriptionPlanService.class).bulkActivate(payment);
+                } else if (payment.getType().equals(TransactionType.BULK_COURSE_PAYMENT)) {
+                    ApplicationContextProvider.getBean(CourseEnrollmentService.class).createBulkSubscriptions(payment);
+                }
+
             }
+            return true;
+        });
 
-        }
-
-
-        return payment;
     }
 
     public static Search composeSearchObject(String searchTerm) {

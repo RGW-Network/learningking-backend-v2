@@ -52,7 +52,6 @@ public class QuizServiceImpl implements QuizService {
             throw new ValidationFailedException("Missing description");
         }
         Quiz quiz = modelMapper.map(dto, Quiz.class);
-        quiz.setCourseLecture(lectureService.getInstanceByID(dto.getLectureId()));
 
         return quizDao.save(quiz);
     }
@@ -78,19 +77,28 @@ public class QuizServiceImpl implements QuizService {
         if (StringUtils.isEmpty(dto.getName())) {
             throw new ValidationFailedException("Missing title");
         }
-        if (dto.getQuizId()==null) {
+        if (dto.getQuizId() == null) {
             throw new ValidationFailedException("Missing quiz id");
         }
-        Question quiz = modelMapper.map(dto, Question.class);
-        quiz.setQuiz(getById(dto.getQuizId()));
+        Question question = new Question();
+        if (dto.getId() != null) {
+            question = getQuestionById(dto.getId());
+        }
+        modelMapper.map(dto, question);
+        question.setQuiz(getById(dto.getQuizId()));
         //todo some position reorganisation
-        quiz=questionDao.save(quiz);
-        for(QuizQuestionRequestDTO.AnswerRequestDTO answerDTO:dto.getAnswerOptions()){
-            AnswerOption answerOption = modelMapper.map(answerDTO, AnswerOption.class);
-            answerOption.setQuestion(quiz);
+        question = questionDao.save(question);
+        for (QuizQuestionRequestDTO.AnswerRequestDTO answerDTO : dto.getAnswerOptions()) {
+            AnswerOption answerOption  = new AnswerOption();
+            if (answerDTO.getId() != null) {
+                answerOption = getAnswerOptionById(dto.getId());
+            }
+             modelMapper.map(answerDTO, answerOption);
+            answerOption.setQuestion(question);
             answerDao.save(answerOption);
         }
-        return questionDao.findById(quiz.getId()).orElse(null);
+
+        return question;
     }
 
 
@@ -108,7 +116,9 @@ public class QuizServiceImpl implements QuizService {
     public Question getQuestionById(Long id) throws ValidationFailedException {
         return questionDao.findById(id).orElseThrow(() -> new ValidationFailedException("Record Not Found"));
     }
-
+    public AnswerOption getAnswerOptionById(Long id) throws ValidationFailedException {
+        return answerDao.findById(id).orElseThrow(() -> new ValidationFailedException("Record Not Found"));
+    }
 
 
 }
