@@ -7,7 +7,9 @@ import com.byaffe.learningking.services.LookupValueService;
 import com.byaffe.learningking.services.impl.LookupServiceImpl;
 import com.byaffe.learningking.shared.api.ResponseList;
 import com.byaffe.learningking.shared.constants.Gender;
+import com.byaffe.learningking.shared.constants.PermissionConstant;
 import com.byaffe.learningking.shared.models.Country;
+import com.byaffe.learningking.shared.security.SessionContext;
 import com.googlecode.genericdao.search.Search;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,13 +31,13 @@ public class LookupsController {
 
     @GetMapping("/genders")
     public ResponseEntity<ResponseList<LookupDTO>> getGenders() {
-        List<LookupDTO> genders = Arrays.stream(Gender.values()).map(r -> new LookupDTO(r.getId(), r.getUiName())).collect(Collectors.toList());
+        List<LookupDTO> genders = Arrays.stream(Gender.values()).map(r -> new LookupDTO(r.name(), r.getUiName())).collect(Collectors.toList());
         return ResponseEntity.ok().body(new ResponseList<>(genders, genders.size(), 0, 0));
     }
 
     @GetMapping("/lookup-types")
     public ResponseEntity<ResponseList<LookupDTO>> getLookupType() {
-        List<LookupDTO> lookupTypes = Arrays.stream(LookupType.values()).map(r -> new LookupDTO(r.getId(), r.getUiName())).collect(Collectors.toList());
+        List<LookupDTO> lookupTypes = Arrays.stream(LookupType.values()).map(r -> new LookupDTO(r.name(), r.getUiName())).collect(Collectors.toList());
         return ResponseEntity.ok().body(new ResponseList<>(lookupTypes, lookupTypes.size(), 0, 0));
     }
 
@@ -67,6 +69,7 @@ public class LookupsController {
 
     @PostMapping("/lookup-values")
     public ResponseEntity<LookupValue> saveLookupValue(@RequestBody LookupValue lookupValue) throws ValidationException {
+        SessionContext.permissionProtection(PermissionConstant.Manage_Lookups);
         return ResponseEntity.ok().body(lookupService.save(lookupValue));
     }
 

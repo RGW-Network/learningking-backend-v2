@@ -8,19 +8,19 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 import com.byaffe.learningking.shared.models.BaseEntity;
+import lombok.Data;
+import lombok.Setter;
 
+@Data
 @Entity
-@Table(name = "member_pending_notifications")
+@Table(name = "pending_notifications")
 @Inheritance(strategy = InheritanceType.JOINED)
 public class StudentPendingNotification extends BaseEntity {
-
-    /**
-     *
-     */
-    private static final long serialVersionUID = 1L;
-
+    @ManyToOne
+    @JoinColumn(name = "student_id")
     private Student student;
-
+    @ManyToOne
+    @JoinColumn(name = "notification_id")
     private Notification notification;
 
     public StudentPendingNotification() {
@@ -31,25 +31,7 @@ public class StudentPendingNotification extends BaseEntity {
         this.notification = notification;
     }
 
-    @ManyToOne
-    @JoinColumn(name = "member_id")
-    public Student getStudent() {
-        return student;
-    }
 
-    public void setStudent(Student student) {
-        this.student = student;
-    }
-
-    @ManyToOne
-    @JoinColumn(name = "notification_id")
-    public Notification getNotification() {
-        return notification;
-    }
-
-    public void setNotification(Notification notification) {
-        this.notification = notification;
-    }
 
     @Override
     public boolean equals(Object object) {

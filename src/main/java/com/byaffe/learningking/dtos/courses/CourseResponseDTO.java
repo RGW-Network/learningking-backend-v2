@@ -15,13 +15,13 @@ public class CourseResponseDTO extends Course {
 
 
     private boolean enrolled;
-    private Set<Testimonial> testimonials =new HashSet<>();
-    private List<LessonResponseDTO> lessons =new ArrayList<>();
+    private Set<Testimonial> testimonials = new HashSet<>();
+    private List<LessonResponseDTO> lessons = new ArrayList<>();
     private int numberOfLessons;
     private int numberOfTopics;
     private double averageRating;
     private int ratingsCount;
-
-    private CourseEnrollment  subscription;
+    private Boolean wishListed;
+    private CourseEnrollment subscription;
 
 }

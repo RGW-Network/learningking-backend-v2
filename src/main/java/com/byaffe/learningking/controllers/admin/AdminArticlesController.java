@@ -8,9 +8,12 @@ import com.byaffe.learningking.services.impl.ArticleServiceImpl;
 import com.byaffe.learningking.shared.api.BaseResponse;
 import com.byaffe.learningking.shared.api.ResponseList;
 import com.byaffe.learningking.shared.api.ResponseObject;
+import com.byaffe.learningking.shared.constants.PermissionConstant;
 import com.byaffe.learningking.shared.constants.RecordStatus;
+import com.byaffe.learningking.shared.security.SessionContext;
 import com.byaffe.learningking.shared.utils.ApplicationContextProvider;
 import com.googlecode.genericdao.search.Search;
+import io.swagger.v3.oas.annotations.Hidden;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONException;
 import org.modelmapper.ModelMapper;
@@ -27,50 +30,52 @@ import java.util.List;
  */
 @Slf4j
 @RestController
+@Hidden
 @RequestMapping("api/v1/admin/articles")
 public class AdminArticlesController {
 @Autowired
     ModelMapper modelMapper;
     @PostMapping("")
     public ResponseEntity<ResponseObject<Article>> addArticle(@RequestBody ArticleRequestDTO dto) throws JSONException {
-Article Article=ApplicationContextProvider.getBean(ArticleService.class).save(dto);
+        SessionContext.permissionProtection(PermissionConstant.Article_Create);
+        Article Article=ApplicationContextProvider.getBean(ArticleService.class).save(dto);
         return ResponseEntity.ok().body(new ResponseObject<>(Article));
     }
 
     @PostMapping(path = "/multipart", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<BaseResponse> uploadCSV(@RequestPart  ArticleRequestDTO dto, @RequestPart(value = "file",required = false) MultipartFile file)  {
-      dto.setCoverImage(file);
+        SessionContext.permissionProtection(PermissionConstant.Article_Create); dto.setCoverImage(file);
          ApplicationContextProvider.getBean(ArticleService.class).save(dto);
         return ResponseEntity.ok().body(new BaseResponse(true));
     }
     @PostMapping("/{id}/publish")
     public ResponseEntity<BaseResponse> publishArticle(@PathVariable long id) throws JSONException {
-        ApplicationContextProvider.getBean(ArticleService.class).activate(id);
+        SessionContext.permissionProtection(PermissionConstant.Article_Publish_All);  ApplicationContextProvider.getBean(ArticleService.class).activate(id);
         return ResponseEntity.ok().body(new BaseResponse(true));
 
     }
     @PostMapping("/{id}/unpublish")
     public ResponseEntity<BaseResponse> unPublishArticle(@PathVariable long id) throws JSONException {
-        ApplicationContextProvider.getBean(ArticleService.class).deActivate(id);
+        SessionContext.permissionProtection(PermissionConstant.Article_Publish_All); ApplicationContextProvider.getBean(ArticleService.class).deActivate(id);
         return ResponseEntity.ok().body(new BaseResponse(true));
 
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<ResponseObject<Article>> getById(@PathVariable(name = "id") long id) throws JSONException {
-        Article article=ApplicationContextProvider.getBean(ArticleService.class).getInstanceByID(id);
+        SessionContext.permissionProtection(PermissionConstant.Article_View_All);  Article article=ApplicationContextProvider.getBean(ArticleService.class).getInstanceByID(id);
         return ResponseEntity.ok().body(new ResponseObject<>(article));
 
     }
     @DeleteMapping("/{id}/delete")
     public ResponseEntity<BaseResponse> deleteArticle(@PathVariable long id) throws JSONException {
-        Article Article=ApplicationContextProvider.getBean(ArticleService.class).getInstanceByID(id);
+        SessionContext.permissionProtection(PermissionConstant.Article_Delete_All);  Article Article=ApplicationContextProvider.getBean(ArticleService.class).getInstanceByID(id);
         ApplicationContextProvider.getBean(ArticleService.class).deleteInstance(Article);
         return ResponseEntity.ok().body(new BaseResponse(true));
     }
     @GetMapping("")
     public ResponseEntity<ResponseList<Article>> getArticles(ArticlesFilterDTO queryParamModel) throws JSONException {
-
+        SessionContext.permissionProtection(PermissionConstant.Article_View_Own);
         Search search = ArticleServiceImpl.generateSearchTermsForArticles(queryParamModel.getSearchTerm())
                 .addFilterEqual("recordStatus", RecordStatus.ACTIVE);
         if (queryParamModel.getCategoryId() != null) {
@@ -94,7 +99,7 @@ Article Article=ApplicationContextProvider.getBean(ArticleService.class).save(dt
 
     @GetMapping("/v2/{id}")
     public ResponseEntity<ResponseObject<Article>> getArticleById(@PathVariable("id") Long id) throws JSONException {
-         Article article = ApplicationContextProvider.getBean(ArticleService.class).getInstanceByID(id);
+        SessionContext.permissionProtection(PermissionConstant.Article_View_All);  Article article = ApplicationContextProvider.getBean(ArticleService.class).getInstanceByID(id);
 
         return ResponseEntity.ok().body(new ResponseObject<>(article));
     }

@@ -11,12 +11,16 @@ import com.byaffe.learningking.shared.exceptions.OperationFailedException;
 import com.byaffe.learningking.shared.exceptions.ValidationFailedException;
 import com.byaffe.learningking.shared.models.Country;
 import com.byaffe.learningking.shared.models.User;
+import com.byaffe.learningking.shared.services.MessageTemplateService;
+import com.byaffe.learningking.shared.utils.ApplicationContextProvider;
 import com.byaffe.learningking.shared.utils.CustomSearchUtils;
 import com.byaffe.learningking.shared.utils.MailService;
 import com.byaffe.learningking.shared.utils.PassEncTech4;
 import com.byaffe.learningking.utilities.AppUtils;
+import com.byaffe.learningking.utilities.ImageStorageService;
 import com.googlecode.genericdao.search.Search;
 import org.apache.commons.lang3.StringUtils;
+import org.modelmapper.ModelMapper;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -41,6 +45,9 @@ public class InstructorServiceImpl extends GenericServiceImpl<CourseInstructor> 
     private RoleDao roleDao;
 
     @Autowired
+    ModelMapper modelMapper;
+
+    @Autowired
     private UserService userService;
 
     @Autowired
@@ -53,7 +60,7 @@ public class InstructorServiceImpl extends GenericServiceImpl<CourseInstructor> 
     private SystemSettingService settingService;
 
     @Autowired
-    private EmailTemplateService emailTemplateService;
+    private MessageTemplateService emailTemplateService;
 
     @Override
     public CourseInstructor sendOTP(String email) {
@@ -83,14 +90,52 @@ public class InstructorServiceImpl extends GenericServiceImpl<CourseInstructor> 
         if (existingWithEmail != null && !existingWithEmail.getId().equals(courseInstructor.getId())) {
             throw new ValidationFailedException("A member with the same email already exists!");
         }
-
         return super.merge(courseInstructor);
     }
 
+    public CourseInstructor save(InstructorRequestDTO dto) throws ValidationFailedException {
+
+        validateUserRegistrationRequest(dto);
+
+        Country country = countryDao.getReference(dto.getCountryId());
+        if (country == null) {
+            throw new ValidationFailedException("Invalid country");
+        }
+
+        CourseInstructor courseInstructor= new CourseInstructor();
+
+        if(dto.getId()!=null){
+            courseInstructor= getInstanceByID(dto.getId());
+        }
+
+        CourseInstructor existsWithEmail = getCourseInstructorByEmail(dto.getEmailAddress());
+        if (existsWithEmail != null&& !existsWithEmail.equals(courseInstructor)) {
+            throw new ValidationFailedException("Instructor with email exists");
+        }
+
+        modelMapper.map(dto,courseInstructor);
+        courseInstructor.setCountry(country);
+        courseInstructor.setUsername(dto.getEmailAddress());
+        courseInstructor= super.save(courseInstructor);
+
+        if (dto.getCoverImage() != null) {
+            String imageUrl = ApplicationContextProvider.getBean(ImageStorageService.class).uploadImage(dto.getCoverImage(), "instructors/cover-images/" + courseInstructor.getId());
+            courseInstructor.setCoverImageUrl(imageUrl);
+            courseInstructor = super.save(courseInstructor);
+        }
+
+        if (dto.getProfileImage() != null) {
+            String imageUrl = ApplicationContextProvider.getBean(ImageStorageService.class).uploadImage(dto.getProfileImage(), "instructors/profile-images/" + courseInstructor.getId());
+            courseInstructor.setImageUrl(imageUrl);
+            courseInstructor = super.save(courseInstructor);
+        }
+
+        return courseInstructor;
+    }
     public CourseInstructor doRegister(InstructorRequestDTO dto) throws ValidationFailedException {
         validateUserRegistrationRequest(dto);
 
-        Country country = countryDao.getReference(dto.countryId);
+        Country country = countryDao.getReference(dto.getCountryId());
         if (country == null) {
             throw new ValidationFailedException("Invalid country");
         }
@@ -105,15 +150,14 @@ public class InstructorServiceImpl extends GenericServiceImpl<CourseInstructor> 
             courseInstructor = new CourseInstructor();
         }
 
-        courseInstructor.setFirstName(dto.firstName);
-        courseInstructor.setLastName(dto.lastName);
-        courseInstructor.setEmailAddress(dto.emailAddress);
-        courseInstructor.setUsername(dto.emailAddress);
-        courseInstructor.setPhoneNumber(dto.phoneNumber);
+        courseInstructor.setFirstName(dto.getFirstName());
+        courseInstructor.setLastName(dto.getLastName());
+        courseInstructor.setEmailAddress(dto.getEmailAddress());
+        courseInstructor.setUsername(dto.getEmailAddress());
+        courseInstructor.setPhoneNumber(dto.getPhoneNumber());
         courseInstructor.setCountry(country);
         courseInstructor.setAccountStatus(AccountStatus.PendingActivation);
         courseInstructor.setLastVerificationCode(PassEncTech4.generateOTP(6));
-
         courseInstructor = save(courseInstructor);
 
         User user = createUserAccount(courseInstructor);
@@ -140,16 +184,16 @@ public class InstructorServiceImpl extends GenericServiceImpl<CourseInstructor> 
         if (StringUtils.isBlank(dto.getEmailAddress())) {
             throw new ValidationFailedException("Missing email address");
         }
-        if (StringUtils.isBlank(dto.firstName)) {
+        if (StringUtils.isBlank(dto.getFirstName())) {
             throw new ValidationFailedException("Missing first name");
         }
-        if (StringUtils.isBlank(dto.lastName)) {
+        if (StringUtils.isBlank(dto.getLastName())) {
             throw new ValidationFailedException("Missing last name");
         }
-        if (StringUtils.isBlank(dto.phoneNumber)) {
+        if (StringUtils.isBlank(dto.getPhoneNumber())) {
             throw new ValidationFailedException("Missing last name");
         }
-        if (dto.countryId==null) {
+        if (dto.getCountryId()==null) {
             throw new ValidationFailedException("Missing country");
         }
     }
@@ -214,8 +258,8 @@ public class InstructorServiceImpl extends GenericServiceImpl<CourseInstructor> 
     public int countCourseInstructors(Search search) {
         return count(search);
     }
-    public static Search generateSearchObjectForCourses(String searchTerm) {
 
+    public static Search generateSearchObjectForCourses(String searchTerm) {
         return CustomSearchUtils.generateSearchTerms(searchTerm,
                 Arrays.asList("firstName", "lastName"));
     }
@@ -251,7 +295,7 @@ public class InstructorServiceImpl extends GenericServiceImpl<CourseInstructor> 
     }
 
     @Override
-    public CourseInstructor activateCourseInstructorAccount(String username, String code) throws Exception {
+    public CourseInstructor activateCourseInstructorAccount(String username, String code)  {
         if (StringUtils.isEmpty(code)) {
             throw new ValidationFailedException("Missing code");
         }

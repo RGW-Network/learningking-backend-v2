@@ -39,6 +39,9 @@ public class CourseServiceImpl extends GenericServiceImpl<Course> implements Cou
     @Autowired
     InstructorService instructorService;
 
+    @Autowired
+    CertificateTemplateService certificateTemplateService;
+
     public static Search generateSearchObjectForCourses(String searchTerm) {
         Search search = CustomSearchUtils.generateSearchTerms(searchTerm,
                 Arrays.asList("title", "description"));
@@ -63,6 +66,16 @@ public class CourseServiceImpl extends GenericServiceImpl<Course> implements Cou
         course.setCategory(categoryService.getInstanceByID(plan.getCategoryId()));
         course.setCommaSeparatedTags(plan.getCommaSeparatedTags());
         course.setInstructor(instructorService.getInstanceByID(plan.getInstructorId()));
+        if (plan.getOffersCertificate()!=null&& (plan.getOffersCertificate())) {
+            if (plan.getCertificateTemplateId() == null||plan.getCertificateTemplateId() == 0) {
+                throw new ValidationFailedException("Missing certificate template");
+            }
+            course.setOffersCertificate(true);
+            course.setCertificateTemplate(certificateTemplateService.getInstanceByID(plan.getCertificateTemplateId()));
+        }
+
+        course.setDescription(plan.getDescription().replaceAll("[^\\p{ASCII}]", ""));
+       course.setFullDescription(plan.getFullDescription());
         course = saveInstance(course);
 
         if (plan.getCoverImage() != null) {
@@ -113,7 +126,7 @@ public class CourseServiceImpl extends GenericServiceImpl<Course> implements Cou
             return 0;
         }
         int currentPosition = allSubTopics.indexOf(currentSubTopic) + 1;//the +1 caters for zero based indexing
-        return currentPosition * 100 / allSubTopics.size();
+        return (float) (currentPosition * 100) / allSubTopics.size();
 
     }
 
@@ -142,8 +155,7 @@ public class CourseServiceImpl extends GenericServiceImpl<Course> implements Cou
                         .addFilterEqual("courseTopic", firstTopic)
                         .addSortAsc("position"), 0, 1);
         if (subTopics.isEmpty()) {
-            throw new ValidationFailedException("No lectures in first Course lesson topic");
-
+            throw new ValidationFailedException("No lectures in first Course lesson topic "+firstTopic.getTitle());
         }
 
         return subTopics.get(0);

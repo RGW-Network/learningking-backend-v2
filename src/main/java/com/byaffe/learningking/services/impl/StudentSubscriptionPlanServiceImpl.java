@@ -3,6 +3,7 @@ package com.byaffe.learningking.services.impl;
 import com.byaffe.learningking.models.Student;
 import com.byaffe.learningking.models.courses.Course;
 import com.byaffe.learningking.models.courses.CourseEnrollment;
+import com.byaffe.learningking.models.courses.OrganisationPurchase;
 import com.byaffe.learningking.models.payments.*;
 import com.byaffe.learningking.services.*;
 import com.byaffe.learningking.shared.constants.RecordStatus;
@@ -14,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Service
@@ -56,12 +58,36 @@ SubscriptionPlan subscriptionPlan= ApplicationContextProvider.getBean(Subscripti
         StudentSubscriptionPlan memberSubscriptionPlan = new StudentSubscriptionPlan();
         memberSubscriptionPlan.setSubscriptionPlan(subscriptionPlan);
         memberSubscriptionPlan.setStudent(planPayment.getStudent());
-        memberSubscriptionPlan.setActivatedOn(new Date());
+        memberSubscriptionPlan.setActivatedOn(LocalDateTime.now());
         memberSubscriptionPlan.setDurationInMonths(subscriptionPlan.getDurationInMonths());
         memberSubscriptionPlan.setCost(planPayment.getAmountInitiated());
         memberSubscriptionPlan.setStatus(SubscriptionPlanStatus.ACTIVE);
 
         return super.save(memberSubscriptionPlan);
+    }
+
+    @Override
+    public void bulkActivate(AggregatorTransaction transaction) throws ValidationFailedException {
+
+        StudentService studentService=ApplicationContextProvider.getBean(StudentService.class);
+        OrganisationPurchase organisationPurchase=ApplicationContextProvider.getBean(OrganisationPurchaseService.class).getInstanceByID(transaction.getReferenceRecordId());
+        SubscriptionPlan subscriptionPlan= ApplicationContextProvider.getBean(SubscriptionPlanService.class).getInstanceByID(organisationPurchase.getRecordId());
+
+        for(Long studentId : organisationPurchase.getEntryIds()) {
+            Student student=studentService.getStudentById(studentId);
+            StudentSubscriptionPlan memberSubscriptionPlan = new StudentSubscriptionPlan();
+            memberSubscriptionPlan.setSubscriptionPlan(subscriptionPlan);
+            memberSubscriptionPlan.setStudent(student);
+            memberSubscriptionPlan.setActivatedOn(LocalDateTime.now());
+            memberSubscriptionPlan.setDurationInMonths(subscriptionPlan.getDurationInMonths());
+            memberSubscriptionPlan.setCost(transaction.getAmountInitiated());
+            memberSubscriptionPlan.setStatus(SubscriptionPlanStatus.ACTIVE);
+             super.save(memberSubscriptionPlan);
+        }
+        organisationPurchase.setTransaction(transaction);
+        organisationPurchase.setRecordStatus(RecordStatus.ACTIVE);
+        ApplicationContextProvider.getBean(OrganisationPurchaseService.class).saveInstance(organisationPurchase);
+
     }
 
     @Override
@@ -85,14 +111,14 @@ SubscriptionPlan subscriptionPlan= ApplicationContextProvider.getBean(Subscripti
 
     @Override
     public StudentSubscriptionPlan expire(StudentSubscriptionPlan plan) {
-        plan.setExpiredOn(new Date());
+        plan.setExpiredOn(LocalDateTime.now());
         plan.setStatus(SubscriptionPlanStatus.EXPIRED);
         return super.save(plan);
     }
 
     @Override
     public StudentSubscriptionPlan deplete(StudentSubscriptionPlan plan) {
-        plan.setDepletedOn(new Date());
+        plan.setDepletedOn(LocalDateTime.now());
         plan.setStatus(SubscriptionPlanStatus.DEPLETED);
         return super.save(plan);
     }

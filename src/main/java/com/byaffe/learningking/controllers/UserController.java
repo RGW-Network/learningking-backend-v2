@@ -1,14 +1,21 @@
 package com.byaffe.learningking.controllers;
 
+import com.byaffe.learningking.dtos.auth.RoleRequestDTO;
+import com.byaffe.learningking.shared.constants.PermissionConstant;
+import com.byaffe.learningking.shared.constants.SecurityConstants;
+import com.byaffe.learningking.shared.models.Role;
+import com.byaffe.learningking.shared.security.SessionContext;
+import com.byaffe.learningking.utilities.AppUtils;
+import com.googlecode.genericdao.search.Filter;
 import com.googlecode.genericdao.search.Search;
 import com.byaffe.learningking.dtos.auth.PermissionDTO;
-import com.byaffe.learningking.dtos.auth.RoleDTO;
 import com.byaffe.learningking.dtos.auth.UserDTO;
 import com.byaffe.learningking.services.UserService;
 import com.byaffe.learningking.services.impl.UserServiceImpl;
 import com.byaffe.learningking.shared.api.BaseResponse;
 import com.byaffe.learningking.shared.api.ResponseList;
 import com.byaffe.learningking.shared.models.User;
+import io.swagger.v3.oas.annotations.Hidden;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.modelmapper.ModelMapper;
@@ -17,12 +24,15 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.xml.bind.ValidationException;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Slf4j
 @RestController
 @RequestMapping("/api/v1/users")
+@Hidden
 public class UserController {
 
     @Autowired
@@ -39,7 +49,7 @@ public class UserController {
      */
     @PostMapping("")
     public ResponseEntity<UserDTO> saveUser(@RequestBody UserDTO userDTO) throws ValidationException {
-
+        SessionContext.permissionProtection(PermissionConstant.Manage_Users);
         User user = userService.saveUser(userDTO);
         return ResponseEntity.ok().body(UserDTO.fromModel(user));
 
@@ -48,7 +58,7 @@ public class UserController {
 
     @GetMapping("/{id}")
     public ResponseEntity<UserDTO> userById(@PathVariable(value = "id") long id) throws ValidationException {
-       // creditService.updateUserCredit(id);
+        SessionContext.permissionProtection(PermissionConstant.Manage_Users);
         User user = userService.getUserById(id);
 
         return ResponseEntity.ok().body(UserDTO.fromModel(user));
@@ -59,6 +69,7 @@ public class UserController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<BaseResponse> deleteUser(@PathVariable(value = "id", required = true) long id) throws ValidationException {
+        SessionContext.permissionProtection(PermissionConstant.Manage_Users);
         userService.deleteUser(id);
         return ResponseEntity.ok().body(new BaseResponse(true));
     }
@@ -72,14 +83,16 @@ public class UserController {
                                                        @RequestParam(value = "sortBy", required = false) String sortBy
 
     ) {
-
+        SessionContext.permissionProtection(PermissionConstant.Manage_Users);
         Search search = UserServiceImpl.composeSearchObjectForUser(searchTerm);
 
         if (StringUtils.isNotEmpty(sortBy)) {
             search.addSort(sortBy, sortDescending != null ? sortDescending : true);
         }
+        search.addFilterSome("roles", Filter.notEqual("name", AppUtils.STUDENT_ROLE_NAME));
 
         List<User> users = userService.getAllUsers(search, offset, limit);
+
         long totalRecords = userService.countAllUsers(search);
         return ResponseEntity.ok().body(new ResponseList<>(users, (int) totalRecords, offset, limit));
 
@@ -87,28 +100,32 @@ public class UserController {
 
     //Get Roles
     @GetMapping("/roles")
-    public ResponseEntity<ResponseList<RoleDTO>> getRoles(@RequestParam(value = "searchTerm", required = false) String searchTerm,
+    public ResponseEntity<ResponseList<Role>> getRoles(@RequestParam(value = "searchTerm", required = false) String searchTerm,
                                                           @RequestParam("offset") int offset,
                                                           @RequestParam("limit") int limit) {
-
+        SessionContext.permissionProtection(PermissionConstant.Manage_Users);
         Search search = UserServiceImpl.composeSearchObjectForRole(searchTerm);
+       search.addFilterNotEqual("name",AppUtils.STUDENT_ROLE_NAME);
 
-        List<RoleDTO> roles = userService.getAllRoles(search, offset, limit).stream().map(RoleDTO::fromRole).collect(Collectors.toList());
-        return ResponseEntity.ok().body(new ResponseList<>(roles, 10, offset, limit));
+        List<Role> roles = userService.getAllRoles(search, offset, limit);
+        long count = userService.countRoles(search);
+        return ResponseEntity.ok().body(new ResponseList<>(roles, count, offset, limit));
     }
 
 
     @DeleteMapping("/roles/{id}")
     public ResponseEntity<BaseResponse> deleteRole(@PathVariable(value = "id", required = true) long id) throws ValidationException {
+        SessionContext.permissionProtection(PermissionConstant.Manage_Users);
         userService.deleteRole(id);
         return ResponseEntity.ok().body(new BaseResponse(true));
     }
 
     //Get permissions
     @GetMapping("/permissions")
-    public ResponseEntity<List<PermissionDTO>> getPermissions() {
-        List<PermissionDTO> users = PermissionDTO.getOrderedPermissions();
-        return ResponseEntity.ok().body(users);
+    public ResponseEntity<ResponseList<PermissionDTO.PermissionLookup>> getPermissions() {
+        SessionContext.permissionProtection(PermissionConstant.Manage_Users);
+        List<PermissionDTO.PermissionLookup> users = PermissionDTO.getOrderedPermissions();
+        return ResponseEntity.ok().body(new ResponseList<>(users,users.size(),0,0));
     }
 
     /**
@@ -118,7 +135,8 @@ public class UserController {
      * @return
      */
     @PostMapping("/roles")
-    public ResponseEntity<RoleDTO> saveRoles(@RequestBody RoleDTO role) {
-        return ResponseEntity.ok().body(RoleDTO.fromRole(userService.saveRole(role)));
+    public ResponseEntity<Role> saveRoles(@RequestBody RoleRequestDTO role) {
+        SessionContext.permissionProtection(PermissionConstant.Manage_Users);
+        return ResponseEntity.ok().body(userService.saveRole(role));
     }
 }

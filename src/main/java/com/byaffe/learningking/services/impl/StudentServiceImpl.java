@@ -1,20 +1,21 @@
 package com.byaffe.learningking.services.impl;
 
 import com.byaffe.learningking.constants.AccountStatus;
-import com.byaffe.learningking.constants.TemplateType;
 import com.byaffe.learningking.daos.CountryDao;
 import com.byaffe.learningking.dtos.student.StudentProfileUpdateRequestDTO;
 import com.byaffe.learningking.dtos.auth.UserRegistrationRequestDTO;
-import com.byaffe.learningking.models.EmailTemplate;
 import com.byaffe.learningking.models.LookupType;
 import com.byaffe.learningking.models.Student;
 import com.byaffe.learningking.services.*;
 import com.byaffe.learningking.shared.constants.RecordStatus;
 import com.byaffe.learningking.shared.exceptions.OperationFailedException;
 import com.byaffe.learningking.shared.exceptions.ValidationFailedException;
-import com.byaffe.learningking.shared.models.Country;
-import com.byaffe.learningking.shared.models.User;
+import com.byaffe.learningking.shared.models.*;
+import com.byaffe.learningking.shared.security.SessionContext;
+import com.byaffe.learningking.shared.services.MessageTemplateService;
+import com.byaffe.learningking.shared.services.MessageTemplateUtils;
 import com.byaffe.learningking.shared.utils.ApplicationContextProvider;
+import com.byaffe.learningking.shared.utils.CustomSearchUtils;
 import com.byaffe.learningking.shared.utils.MailService;
 import com.byaffe.learningking.shared.utils.PassEncTech4;
 import com.byaffe.learningking.utilities.AppUtils;
@@ -49,9 +50,17 @@ public class StudentServiceImpl extends GenericServiceImpl<Student> implements S
     MailService mailService;
     @Autowired
     CountryDao countryDao;
-
+@Autowired
+MessageTemplateService  messageTemplateService;
     @Autowired
     SystemSettingService settingService;
+
+    public static Search generateSearchTermsForStudents(String searchTerm) {
+        Search search = CustomSearchUtils.generateSearchTerms(searchTerm,
+                Arrays.asList("firstName", "lastName","username","emailAddress","phoneNumber"));
+
+        return search;
+    }
 
     public Student sendOTP(String email) {
         Student user = super.searchUnique(new Search()
@@ -91,47 +100,49 @@ public class StudentServiceImpl extends GenericServiceImpl<Student> implements S
 
         return super.merge(student);
     }
-   public Student updateProfile(StudentProfileUpdateRequestDTO dto) throws ValidationFailedException{
-       if (StringUtils.isBlank(dto.getPhoneNumber())) {
-           throw new ValidationFailedException("Missing phone number");
-       }
 
-       if (StringUtils.isBlank(dto.getFirstName())) {
-           throw new ValidationFailedException("Missing first name");
-       }
+    public Student updateProfile(StudentProfileUpdateRequestDTO dto) throws ValidationFailedException {
+        if (StringUtils.isBlank(dto.getPhoneNumber())) {
+            throw new ValidationFailedException("Missing phone number");
+        }
 
-       if (StringUtils.isBlank(dto.getLastName())) {
-           throw new ValidationFailedException("Missing last name");
-       }
-       if (StringUtils.isBlank(dto.getBioInformation())) {
-           throw new ValidationFailedException("Missing bio information");
-       }
+        if (StringUtils.isBlank(dto.getFirstName())) {
+            throw new ValidationFailedException("Missing first name");
+        }
 
-Student student= getInstanceByID(dto.getStudentId());
-       if(student==null){
-           throw new ValidationFailedException("Student not found wiith id");
-       }
+        if (StringUtils.isBlank(dto.getLastName())) {
+            throw new ValidationFailedException("Missing last name");
+        }
+        if (StringUtils.isBlank(dto.getBioInformation())) {
+            throw new ValidationFailedException("Missing bio information");
+        }
 
-       student.setFirstName(dto.getFirstName());
-       student.setLastName(dto.getLastName());
-       student.setPhoneNumber(dto.getPhoneNumber());
-       student.setCountry(countryDao.getReference(dto.getCountryId()));
-       student.setLocation(dto.getLocation());
-       student.setBioInformation(dto.getBioInformation());
-       student.setTwitterHandle(dto.getTwitterHandle());
-       student.setFacebookUsername(dto.getFacebookUsername());
-       student.setWebsite(dto.getWebsite());
-       student.setProfession(ApplicationContextProvider.getBean(LookupValueService.class).getByType(LookupType.PROFESSIONS,dto.getProfessionId()));
-       student.setInterestNames(dto.getInterestNames());
-       if(dto.getCoverImage()!=null) {
-           String imageUrl=   imageStorageService.uploadImage(dto.getCoverImage(), "students/profile-images/" + student.getId());
-           student.setCoverImageUrl(imageUrl);
-       }
-       if(dto.getProfileImage()!=null) {
-           String imageUrl=   imageStorageService.uploadImage(dto.getProfileImage(), "students/cover-images/" + student.getId());
-           student.setProfileImageUrl(imageUrl);
-       }
- return   super.save(student);
+        Student student = getInstanceByID(dto.getStudentId());
+        if (student == null) {
+            throw new ValidationFailedException("Student not found wiith id");
+        }
+
+        student.setFirstName(dto.getFirstName());
+        student.setLastName(dto.getLastName());
+        student.setPhoneNumber(dto.getPhoneNumber());
+        student.setCountry(countryDao.getReference(dto.getCountryId()));
+        student.setLocation(dto.getLocation());
+        student.setBioInformation(dto.getBioInformation());
+        student.setTwitterHandle(dto.getTwitterHandle());
+        student.setInstagramHandle(dto.getInstagramHandle());
+        student.setFacebookUsername(dto.getFacebookUsername());
+        student.setWebsite(dto.getWebsite());
+        student.setProfession(ApplicationContextProvider.getBean(LookupValueService.class).getByType(LookupType.PROFESSIONS, dto.getProfessionId()));
+        student.setInterestNames(dto.getInterestNames());
+        if (dto.getCoverImage() != null) {
+            String imageUrl = imageStorageService.uploadImage(dto.getCoverImage(), "students/profile-images/" + student.getId());
+            student.setCoverImageUrl(imageUrl);
+        }
+        if (dto.getProfileImage() != null) {
+            String imageUrl = imageStorageService.uploadImage(dto.getProfileImage(), "students/cover-images/" + student.getId());
+            student.setProfileImageUrl(imageUrl);
+        }
+        return super.save(student);
     }
 
     public Student saveStudent(UserRegistrationRequestDTO dto) throws ValidationFailedException {
@@ -147,26 +158,26 @@ Student student= getInstanceByID(dto.getStudentId());
         if (StringUtils.isBlank(dto.lastName)) {
             throw new ValidationFailedException("Missing last name");
         }
-        if (StringUtils.isBlank(dto.confirmPassword)||StringUtils.isBlank(dto.password)) {
+        if (StringUtils.isBlank(dto.confirmPassword) || StringUtils.isBlank(dto.password)) {
             throw new ValidationFailedException("Passwords don't match");
         }
         if (!dto.confirmPassword.equals(dto.password)) {
             throw new ValidationFailedException("Passwords don't match");
         }
-        if (dto.getCountryId()==null) {
+        if (dto.getCountryId() == null) {
             throw new ValidationFailedException("Missing country");
         }
-        Country country= countryDao.findById(dto.countryId).orElseThrow(()->new ValidationFailedException("Invalid Country"));
-        if (country==null) {
+        Country country = countryDao.findById(dto.countryId).orElseThrow(() -> new ValidationFailedException("Invalid Country"));
+        if (country == null) {
             throw new ValidationFailedException("Invalid country");
         }
 
         Student existingInactive = getUnregisteredStudentByEmail(dto.getEmailAddress());
-Student student= new Student();
-        if (existingInactive !=null) {
-            student=existingInactive;
+        Student student = new Student();
+        if (existingInactive != null) {
+            student = existingInactive;
         }
-        User existEWithUserName=userService.getUserByUsername(dto.getEmailAddress());
+        User existEWithUserName = userService.getUserByUsername(dto.getEmailAddress());
         if (existEWithUserName != null && !Objects.equals(existEWithUserName.getId(), student.getId())) {
             throw new OperationFailedException("Active User with email exists");
 
@@ -176,23 +187,24 @@ Student student= new Student();
         student.setEmailAddress(dto.emailAddress);
         student.setUsername(dto.emailAddress);
         student.setCountry(country);
+        student.setPhoneNumber(dto.getPhoneNumber());
         student.setPassKey(dto.password);
-student.setAccountStatus(AccountStatus.PendingActivation);
+        student.setAccountStatus(AccountStatus.PendingActivation);
         student.setLastEmailVerificationCode(PassEncTech4.generateOTP(6));
-        student= super.save(student);
+        student = super.save(student);
 
         Student finalStudent = student;
         new Thread(() -> {
             try {
-                mailService.sendEmail(
-                        finalStudent.getEmailAddress(),
-                        USER_REGISTRATION_EMAIL_SUBJECT,
-                        MessageFormat.format(USER_REGISTRATION_EMAIL_CONTENT, finalStudent.getLastEmailVerificationCode())
-                );
 
+                MessageTemplate messageTemplate=messageTemplateService.getActiveTemplate(MessageTemplateChannel.EMAIL, MessageTemplateType.NEW_STUDENT_SIGNUP_OTP);
+                if(messageTemplate!=null) {
+                    String subject = MessageTemplateUtils.resolveOTPMessageTemplate(finalStudent, messageTemplate.getSubject());
+                    String body = MessageTemplateUtils.resolveOTPMessageTemplate(finalStudent,messageTemplate.getBody());
+                    mailService.sendEmail( finalStudent.getEmailAddress(),  subject,body);
+                }
             } catch (Exception e) {
                 e.printStackTrace();
-                throw new RuntimeException(e);
             }
         }).run();
 
@@ -236,84 +248,7 @@ student.setAccountStatus(AccountStatus.PendingActivation);
         return super.searchUnique(search);
     }
 
-    @Override
-    public Student doLogin(String username, String password) throws ValidationFailedException {
 
-        User userAccount = ApplicationContextProvider.getBean(UserService.class)
-                .authenticateUser(username, password);
-
-        if (userAccount == null) {
-            throw new ValidationFailedException("User not found or bad credentials");
-        }
-        Student student = getStudentByUserAccount(userAccount);
-
-        if (student == null || !student.getAccountStatus().equals(AccountStatus.Active)) {
-            throw new ValidationFailedException("Student account not found or account inactive");
-        }
-
-        return student;
-
-    }
-
-    @Override
-    public Student doRegister(String firstName, String lastName, String username, String password) throws ValidationFailedException {
-
-        try {
-            Student newStudent = new Student();
-            Student withSameEmail = getStudentByEmail(username);
-            if (withSameEmail != null && !withSameEmail.getAccountStatus().equals(AccountStatus.PendingActivation)) {
-                throw new ValidationFailedException("Student with same email exists");
-            }
-            if (withSameEmail != null) {
-                newStudent = withSameEmail;
-            }
-            Student withSameUsername = getStudentByUsername(username);
-            if (withSameUsername != null && !withSameUsername.getAccountStatus().equals(AccountStatus.PendingActivation)) {
-                throw new ValidationFailedException("Student with same username");
-            }
-            if (withSameUsername != null) {
-                newStudent = withSameUsername;
-            }
-            EmailTemplateService emailTemplateService = ApplicationContextProvider.getBean(EmailTemplateService.class);
-
-            newStudent.setFirstName(firstName);
-            newStudent.setLastName(lastName);
-            newStudent.setEmailAddress(username);
-            newStudent.setUsername(username);
-            newStudent.setCountry(null);
-            newStudent.setPassKey(password);
-            newStudent.setDeviceId(null);
-            newStudent.setAccountStatus(AccountStatus.PendingActivation);
-            String code = new AppUtils().generateVerificationCode();
-            newStudent.setLastEmailVerificationCode(code);
-
-            newStudent = super.save(newStudent);
-
-            if (settingService.getAppSetting() != null && newStudent != null) {
-                EmailTemplate emailTemplate = emailTemplateService
-                        .getEmailTemplateByType(TemplateType.USERACCOUNT_REGISTRATION);
-
-                if (emailTemplate != null) {
-                    String html = emailTemplate.getTemplate();
-
-                    html = html.replace("{fullName}", newStudent.getFirstName());
-                    html = html.replace("{code}", newStudent.getLastEmailVerificationCode());
-
-
-                    ApplicationContextProvider.getBean(MailService.class).sendEmail(newStudent.getEmailAddress(), "Learningking Email Verification",
-                            html);
-
-                } else {
-                    ApplicationContextProvider.getBean(MailService.class).sendEmail(newStudent.getEmailAddress(), "Learningking Email Verification",
-                            "<p>Verify your Learningking Email address with this code</p><h1><strong>" + newStudent.getLastEmailVerificationCode() + "</strong></h1>");
-                }
-            }
-            return newStudent;
-        } catch (Exception ex) {
-            throw new ValidationFailedException(ex.getMessage());
-        }
-
-    }
 
     @Override
     public Student getStudentByUserAccount(User user) {
@@ -425,53 +360,15 @@ student.setAccountStatus(AccountStatus.PendingActivation);
         user.setLastName(student.getLastName());
         user.setEmailAddress(student.getEmailAddress());
         user.setPassword(student.getPassKey());
-        user.addRole(ApplicationContextProvider.getBean(UserService.class).getRoleByName(AppUtils.NORMAL_USER_ROLE_NAME));
+        user.addRole(ApplicationContextProvider.getBean(UserService.class).getRoleByName(AppUtils.STUDENT_ROLE_NAME));
         user.setApiPassword(student.getPassKey());
         student.setPassKey(null);
+        student.setAccountStatus(AccountStatus.Active);
         student.setUserAccount(ApplicationContextProvider.getBean(UserService.class).saveUser(user));
         return student;
 
     }
 
-    private User createDefaultUser(Student student, String password) throws ValidationFailedException {
-        System.out.println("Creating user account...");
-
-        User user = new User();
-        user.setUsername(student.getEmailAddress());
-        user.setFirstName(student.getFirstName());
-        user.setLastName(student.getLastName());
-        user.setEmailAddress(student.getEmailAddress());
-        user.setPassword(password);
-        UserService userService = ApplicationContextProvider.getBean(UserService.class);
-        user.addRole(userService.getRoleByName(AppUtils.STUDENT_ROLE_NAME));
-
-        return ApplicationContextProvider.getBean(UserService.class).saveUser(user);
-
-    }
-
-    private User blockUser(User user) throws ValidationFailedException {
-        System.out.println("Bolcking user account...");
-
-        user.setRecordStatus(RecordStatus.ACTIVE_LOCKED);
-
-        UserService userService = ApplicationContextProvider.getBean(UserService.class);
-        user.removeRole(userService.getRoleByName(AppUtils.STUDENT_ROLE_NAME));
-
-        return userService.saveUser(user);
-
-    }
-
-    private User unBlockUser(User user) throws ValidationFailedException {
-        System.out.println("Unblocking user account...");
-
-        user.setRecordStatus(RecordStatus.ACTIVE);
-
-        UserService userService = ApplicationContextProvider.getBean(UserService.class);
-        user.addRole(userService.getRoleByName(AppUtils.STUDENT_ROLE_NAME));
-
-        return userService.saveUser(user);
-
-    }
 
     @Override
     public Student quickSave(Student student) throws ValidationFailedException {

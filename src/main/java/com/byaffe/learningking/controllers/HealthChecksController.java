@@ -14,7 +14,7 @@ public class HealthChecksController {
 
     private static final Logger LOGGER = Logger.getLogger(HealthChecksController.class.getName());
 
-    @GetMapping("/")
+    @GetMapping("")
     public ResponseEntity<BaseResponse> isAppAlive() {
         return ResponseEntity.ok().body(new BaseResponse(true));
     }

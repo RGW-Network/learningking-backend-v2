@@ -1,6 +1,7 @@
 package com.byaffe.learningking.shared.security;
 
 import com.auth0.jwt.exceptions.JWTVerificationException;
+import com.byaffe.learningking.shared.exceptions.PermissionDeniedException;
 import com.byaffe.learningking.shared.exceptions.ValidationFailedException;
 import com.byaffe.learningking.shared.api.BaseResponse;
 import org.springframework.core.Ordered;
@@ -50,7 +51,12 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
         return buildResponseEntity(new BaseResponse(exception.getMessage(),false),HttpStatus.BAD_REQUEST);
     }
 
-
+    //Handles ValidationFailedException
+    @ExceptionHandler(PermissionDeniedException.class)
+    protected ResponseEntity<Object> handlePermissionDeniedException(ValidationFailedException exception) {
+        exception.printStackTrace();
+        return buildResponseEntity(new BaseResponse(exception.getMessage(),false),HttpStatus.FORBIDDEN);
+    }
 
     //Maps exception to response entity
     private ResponseEntity<Object> buildResponseEntity(BaseResponse responseObject,HttpStatus status) {

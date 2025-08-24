@@ -26,6 +26,8 @@ public class CourseInstructor extends BaseEntity {
     private String username;
     @Column(name = "email_address", length = 50)
     private String emailAddress;
+    @Column(name = "designation")
+    private String designation;
     @Column(name = "phone_number", length = 20)
     private String phoneNumber;
     @Enumerated(EnumType.STRING)
@@ -43,7 +45,7 @@ public class CourseInstructor extends BaseEntity {
     @Column(name = "cover_image_url", length = 500)
     private String coverImageUrl;
     @Enumerated(EnumType.STRING)
-    @Column(name = "gender")
+    @Column(name = "gender_value")
     private Gender gender;
     @Column(name = "number_of_contributions", length = 20)
     private int numberOfContributions;
@@ -54,6 +56,17 @@ public class CourseInstructor extends BaseEntity {
     @OneToOne
     @JoinColumn(name = "user_id")
     private User userAccount;
+
+    @Transient
+    public String  getCountryName(){
+        return this.country!=null?country.getName():null;
+    }
+
+    @Transient
+    public Long  getCountryId(){
+        return this.country!=null?country.getId():null;
+    }
+
     @Override
     public String toString() {
         return firstName+" "+lastName + " (" + emailAddress + ")";

@@ -1,6 +1,9 @@
 package com.byaffe.learningking.shared.utils;
 
 import com.byaffe.learningking.config.EnvironmentConstants;
+import com.byaffe.learningking.models.SystemSetting;
+import com.byaffe.learningking.services.SystemSettingService;
+import com.google.gson.Gson;
 import io.vertx.core.Vertx;
 import io.vertx.ext.mail.MailClient;
 import io.vertx.ext.mail.MailConfig;
@@ -9,11 +12,13 @@ import io.vertx.ext.mail.StartTLSOptions;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 
 /**
@@ -22,31 +27,41 @@ import java.util.List;
 
 @Service
 @Slf4j
-public class VertxMailServiceImpl implements MailService{
+public class VertxMailServiceImpl implements MailService {
 
     private static final Logger logger = LoggerFactory.getLogger(VertxMailServiceImpl.class);
     private static MailConfig MAIL_CONFIG;
+    private static String FROM_ADDRESS;
+    @Autowired
+    private SystemSettingService settingService;
 
-    static void initMailOptions() {
+    private void initMailOptions() {
+        if (MAIL_CONFIG != null) {
+            log.info("Re-using existing mail settings...");
+        } else {
+            log.info("Initialising new mail settings...");
+            SystemSetting systemSetting = settingService.getAppSetting();
 
-        if (MAIL_CONFIG == null) {
-            log.info("Initialising mail settings...");
             MAIL_CONFIG = new MailConfig();
-            MAIL_CONFIG.setHostname("smtp.gmail.com");
-            MAIL_CONFIG.setPort(587);
+            MAIL_CONFIG.setHostname(systemSetting.getSmtpHost());
+            MAIL_CONFIG.setPort(Integer.parseInt(systemSetting.getSmtpPort()));
+            MAIL_CONFIG.setUsername(systemSetting.getSmtpUsername());
+            MAIL_CONFIG.setPassword(systemSetting.getSmtpPassword());
             MAIL_CONFIG.setStarttls(StartTLSOptions.REQUIRED);
-            MAIL_CONFIG.setUsername(System.getenv(EnvironmentConstants.MAIL_SENDER_EMAIL));
-            MAIL_CONFIG.setPassword(System.getenv(EnvironmentConstants.MAIL_SENDER_PASS_KEY));
+            MAIL_CONFIG.setSsl(false);
+            FROM_ADDRESS=systemSetting.getSmtpAddress();
+
+            log.info("Mail Config>>>>>>>: " + new Gson().toJson(MAIL_CONFIG));
         }
 
     }
 
-    public static void sendEmail(String toAddress, String subject, String body, List<String> cc) {
+    public void sendEmail(String toAddress, String subject, String body, List<String> cc) {
         initMailOptions();
         MailClient mailClient = MailClient.create(Vertx.vertx(), MAIL_CONFIG);
 
         MailMessage message = new MailMessage();
-        message.setFrom(System.getenv(EnvironmentConstants.MAIL_SENDER_EMAIL));
+        message.setFrom(FROM_ADDRESS);
         message.setTo(toAddress);
         message.setCc(cc);
         message.setSubject(subject);
@@ -64,57 +79,53 @@ public class VertxMailServiceImpl implements MailService{
 
     }
 
-    private  MailSendResponse send(List<String> toAddresses, String subject, String body, List<String> cc) {
+    private MailSendResponse send(List<String> toAddresses, String subject, String body, List<String> cc) {
 
         try {
             initMailOptions();
             MailClient mailClient = MailClient.create(Vertx.vertx(), MAIL_CONFIG);
 
             MailMessage message = new MailMessage();
-            message.setFrom(System.getenv(EnvironmentConstants.MAIL_SENDER_EMAIL));
+            message.setFrom(FROM_ADDRESS);
             message.setTo(toAddresses);
             message.setCc(cc);
             message.setBcc(System.getenv(EnvironmentConstants.DEFAULT_BCC_EMAIL));
             message.setSubject(subject);
-            message.setHtml(EmailTemplate.buildTeplatedEmail(subject, body));
-
+            message.setHtml(body);
+            AtomicBoolean success = new AtomicBoolean(false);
             mailClient.sendMail(message, result -> {
                 if (result.succeeded()) {
                     System.out.println(result.result());
                     System.out.println("Mail sent");
-
+                    success.set(true);
                 } else {
                     System.out.println("got exception");
                     result.cause().printStackTrace();
+                    success.set(false);
                 }
             });
-            return new MailSendResponse(true);
-        }catch (Exception exception){
+            return new MailSendResponse(success.get());
+        } catch (Exception exception) {
             logger.warn(exception.getMessage());
-            return new MailSendResponse(exception.getMessage(),false);
+            return new MailSendResponse(exception.getMessage(), false);
         }
-    }
-
-    public static void main(String[] args) {
-
-        //Testing it out
-        sendEmail("mutebiraymond695@gmail.com","DALL·E 2 is a new AI system ", EmailTemplate.buildTeplatedEmail("Success email sent", "<h4>DALL·E 2 is a new AI system that can create realistic images and art from a description in natural language.</h4>"), null);
     }
 
 
     public MailSendResponse sendEmail(String[] recievers, String subject, String bodyContent, String[] cc) throws IOException {
         //Create personalisation
 
-        return send(Arrays.asList(recievers),subject,bodyContent,Arrays.asList(cc));
+        return send(Arrays.asList(recievers), subject, bodyContent, Arrays.asList(cc));
     }
 
     public MailSendResponse sendEmail(String[] recievers, String subject, String bodyContent) throws IOException {
 
-        return send(Arrays.asList(recievers),subject,bodyContent,null);
+        return send(Arrays.asList(recievers), subject, bodyContent, null);
     }
+
     public MailSendResponse sendEmail(String reciever, String subject, String bodyContent) {
         //Create personalisation
-       return send(Arrays.asList(reciever),subject,bodyContent,null);
+        return send(Arrays.asList(reciever), subject, bodyContent, null);
     }
 
 }

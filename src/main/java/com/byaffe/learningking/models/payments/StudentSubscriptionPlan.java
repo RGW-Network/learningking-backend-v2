@@ -5,6 +5,7 @@
  */
 package com.byaffe.learningking.models.payments;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 import javax.persistence.*;
 
@@ -21,28 +22,25 @@ import lombok.Data;
 @Table(name = "student_subscription_plans")
 public class StudentSubscriptionPlan extends BaseEntity {
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "student_id", nullable = false)
     private Student student;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "subscription_plan_id", nullable = false)
     private SubscriptionPlan subscriptionPlan;
 
-    @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "activated_on", nullable = false)
-    private Date activatedOn;
+    @Column(name = "activated_on", nullable = true)
+    private LocalDateTime activatedOn;
 
-    @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "depleted_on")
-    private Date depletedOn;
+    private LocalDateTime depletedOn;
 
-    @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "expired_on")
-    private Date expiredOn;
+    private LocalDateTime expiredOn;
 
     @Column(name = "duration_in_months", nullable = false)
-    private int durationInMonths = 1;
+    private Integer durationInMonths = 1;
 
     @Column(name = "cost", nullable = false)
     private Double cost;

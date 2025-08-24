@@ -177,9 +177,7 @@ public class ArticleServiceImpl extends GenericServiceImpl<Article> implements A
 
     public static Search generateSearchTermsForArticles(String searchTerm) {
         com.googlecode.genericdao.search.Search search = CustomSearchUtils.generateSearchTerms(searchTerm,
-                Arrays.asList("title",
-                        "description"));
-
+                Arrays.asList("title", "description"));
         return search;
     }
 

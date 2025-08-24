@@ -4,7 +4,7 @@
 package com.byaffe.learningking.services.impl;
 
 import com.byaffe.learningking.shared.exceptions.ValidationFailedException;
-import com.byaffe.learningking.shared.security.UserDetailsContext;
+import com.byaffe.learningking.shared.security.SessionContext;
 import com.byaffe.learningking.services.GenericService;
 import com.byaffe.learningking.shared.constants.RecordStatus;
 import com.byaffe.learningking.shared.dao.BaseDAOImpl;
@@ -50,7 +50,7 @@ public abstract class GenericServiceImpl<T extends BaseEntity> extends BaseDAOIm
 	 */
 	private void changeStatusToDeleted(T arg0) {
 
-		arg0.setChangedById(UserDetailsContext.getLoggedInUser().getId());
+		arg0.setChangedById(SessionContext.getLoggedInUser().getId());
 		arg0.setDateChanged(LocalDateTime.now());
 		arg0.setRecordStatus(RecordStatus.DELETED);
 		super.save(arg0);

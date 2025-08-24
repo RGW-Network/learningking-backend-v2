@@ -9,43 +9,38 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Data
-public class PermissionDTO  extends BaseDTO {
+public class PermissionDTO extends BaseDTO {
 
     public String module;
     public List<PermissionLookup> permissions;
-    void addPermission(PermissionLookup permission){
-        if(this.permissions==null){
-            permissions= new ArrayList<>();
+
+    void addPermission(PermissionLookup permission) {
+        if (this.permissions == null) {
+            permissions = new ArrayList<>();
         }
         permissions.add(permission);
     }
 
-   public static List<PermissionDTO> getOrderedPermissions(){
-        List<PermissionDTO>  list= new ArrayList<>();
-        for(PermissionModule permissionModule:PermissionModule.values()){
-            PermissionDTO permissionDTO= new PermissionDTO();
-            permissionDTO.module=permissionModule.getDisplayName();
-            for(PermissionConstant permissionConstant: PermissionConstant.values()){
-                if(permissionConstant.getPermissionModule()==permissionModule) {
-                    permissionDTO.addPermission(new PermissionLookup(permissionConstant));
-                }
-            }
-            list.add(permissionDTO);
+    public static List<PermissionLookup> getOrderedPermissions() {
+        List<PermissionLookup> list = new ArrayList<>();
+        for (PermissionConstant permissionConstant : PermissionConstant.values()) {
+            list.add(new PermissionLookup(permissionConstant));
+
         }
         return list;
     }
-  public   static class PermissionLookup{
-        public long id;
+
+    public static class PermissionLookup {
+        public String id;
         public String name;
-        public String moduleName;
+        public String module;
 
         public PermissionLookup(PermissionConstant permissionConstant) {
-            this.id = permissionConstant.getId();
+            this.id = permissionConstant.name();
             this.name = permissionConstant.getName();
-            this.moduleName=permissionConstant.getPermissionModule().getDisplayName();
+            this.module=permissionConstant.getModule();
         }
     }
-
 
 
 }

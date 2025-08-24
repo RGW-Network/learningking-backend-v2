@@ -1,6 +1,8 @@
 package com.byaffe.learningking.models.courses;
 
+import com.byaffe.learningking.models.CertificateTemplate;
 import com.byaffe.learningking.shared.models.BaseEntity;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.ToString;
 import org.apache.commons.lang3.StringUtils;
@@ -21,6 +23,9 @@ public class Course extends BaseEntity {
     private String title;
     @Column(columnDefinition = "TEXT")
     private String description;
+
+    @Column(columnDefinition = "TEXT")
+    private String fullDescription;
     private String coverImageUrl;
     private String welcomeVideoUrl;
     private Boolean offersCertificate = false;
@@ -34,8 +39,7 @@ public class Course extends BaseEntity {
     private List<String> whatYouWillLearn;//new
     private String guidelineVideoUrl;
     private String welcomeRemarks;
-    @Column(name = "certificate_template", columnDefinition = "BIGTEXT")
-    private String certificateTemplate;
+
     @Enumerated(EnumType.STRING)
     private PublicationStatus publicationStatus = PublicationStatus.ACTIVE;
     private LocalDate discountStartDate;//new
@@ -54,6 +58,7 @@ public class Course extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private CourseAcademyType academy;
     private Boolean isFeatured;
+    private Boolean isAdvertised;
     private Boolean isPaid;
     private Double price;
     private Double discountedPrice;
@@ -62,12 +67,30 @@ public class Course extends BaseEntity {
     @JoinTable(name = "course_testimonials", joinColumns = @JoinColumn(name = "course_id"), inverseJoinColumns = @JoinColumn(name = "testimonial_id"))
     private Set<Testimonial> testimonials;
 
+    @JsonIgnore
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "certificate_template_id")
+    private CertificateTemplate certificateTemplate;
     public long getDaysToEndOfDiscount(){
         if(this.discountEndDate!=null){
             return ChronoUnit.DAYS.between(this.discountEndDate,LocalDate.now());
         }
 
         return 0;
+    }
+
+    public Long getCertificateTemplateId(){
+        if(this.certificateTemplate!=null){
+            return this.certificateTemplate.getId();
+        }
+        return  null;
+    }
+
+    public String getCertificateTemplateName(){
+        if(this.certificateTemplate!=null){
+            return this.certificateTemplate.getTitle();
+        }
+        return  null;
     }
 
     public void addTestimonial(Testimonial testimonial) {

@@ -5,10 +5,13 @@
  */
 package com.byaffe.learningking.services.flutterwave;
 
+import lombok.Data;
+
 /**
  *
  * @author Ray Gdhrt
  */
+@Data
 public class FlutterReponse{
     
     /**
@@ -18,7 +21,7 @@ public class FlutterReponse{
     public String message;
     public MainDataLoad data;
 
-    public class CardDetails {
+    public static class CardDetails {
 
         public String first_6digits;
         public String last_4digits;
@@ -29,7 +32,7 @@ public class FlutterReponse{
         public String expiry;
     }
 
-    public class CustomerDetails {
+    public static class CustomerDetails {
 
         public int id;
         public String name;
@@ -45,7 +48,7 @@ public class FlutterReponse{
         
     }
 
-    public class MainDataLoad {
+    public static class MainDataLoad {
 
         public int id;
         public String tx_ref;

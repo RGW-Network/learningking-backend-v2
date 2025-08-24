@@ -1,9 +1,7 @@
 package com.byaffe.learningking.services;
 
-import com.byaffe.learningking.dtos.courses.CourseRatingDTO;
-import com.byaffe.learningking.models.courses.Course;
-import com.byaffe.learningking.models.courses.Category;
-import com.byaffe.learningking.models.courses.CourseRating;
+import com.byaffe.learningking.dtos.courses.ReviewRequestDTO;
+import com.byaffe.learningking.models.courses.*;
 import com.byaffe.learningking.shared.exceptions.ValidationFailedException;
 
 import java.util.List;
@@ -16,17 +14,17 @@ import java.util.List;
  * @author RayGdhrt
  *
  */
-public interface CourseRatingService  extends GenericService<CourseRating> {
+public interface CourseRatingService  extends GenericService<Review> {
 
-    public CourseRating saveInstance(CourseRatingDTO dto);
-    public CourseRating activate(CourseRating plan) throws ValidationFailedException;
+    public Review saveInstance(ReviewRequestDTO dto);
+    public Review updateStatus(long id, PublicationStatus publicationStatus);
 
-    public CourseRating deActivate(CourseRating plan);
+    public Review updateFeatured(long id,boolean isFeatured);
     
-     public List<CourseRating> getCourseRatings(Course course);
+     public List<Review> getCourseRatings(ReviewType type, Long recordId);
      
-      public double getTotalCourseRatings(Course course);
-      public int getRatingsCount(Course course);
+      public double getTotalCourseRatings(ReviewType type, Long recordId);
+      public int getRatingsCount(ReviewType type, Long recordId);
    
 
 }

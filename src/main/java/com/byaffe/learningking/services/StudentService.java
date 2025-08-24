@@ -107,16 +107,5 @@ public interface StudentService extends GenericService<Student> {
      * @return
      */
     Student getStudentByEmail(String email);
-    
-     Student doRegister(String firstName, String lastName, String username, String password) throws ValidationFailedException ;
 
-    
-    /**
-     * 
-     * @param username
-     * @param password
-     * @return
-     * @throws ValidationFailedException 
-     */
-     Student doLogin(String username, String password) throws ValidationFailedException ;
-}
+    }

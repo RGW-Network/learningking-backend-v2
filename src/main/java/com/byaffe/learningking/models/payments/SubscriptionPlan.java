@@ -27,9 +27,17 @@ public class SubscriptionPlan extends BaseEntity {
     private Integer maximumNumberOfStudents = 1;
     private Integer maximumNumberOfWealthyMindsCertifications = 1;
     private Integer maximumNumberOfCorporateCertifications = 1;
-    private Integer durationInMonths = 1;
+    private Integer durationInMonths = 12;
     private Double costPerYear;
-    private Double costPerMonth;
+
+    //for discount computations
+    private Boolean supportsBulkDiscount=false;
+    private Integer minimumStudentsForDiscount=1;//apply discount if students exceed this number
+    private  Double bulkDiscountPercentage=0.0;//
+
+
+
+   // private Double costPerMonth;
     @Enumerated(EnumType.STRING)
     private PublicationStatus publicationStatus = PublicationStatus.INACTIVE;
 

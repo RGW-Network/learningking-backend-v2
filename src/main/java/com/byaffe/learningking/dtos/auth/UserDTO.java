@@ -2,24 +2,27 @@ package com.byaffe.learningking.dtos.auth;
 
 import com.byaffe.learningking.models.Student;
 import com.byaffe.learningking.shared.api.BaseDTO;
+import com.byaffe.learningking.shared.constants.Gender;
 import com.byaffe.learningking.shared.constants.PermissionConstant;
+import com.byaffe.learningking.shared.models.Role;
 import com.byaffe.learningking.shared.models.User;
 import lombok.Data;
 
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Data
 public class UserDTO extends BaseDTO {
-    public long id;
+    public Long id;
     public String username;
-    public List<RoleDTO> roles;
+    public Set<Role> roles;
     public long[] roleIds;
     public String emailAddress;
     public String lastName;
     public String firstName;
-    public String gender;
-    public long genderId;
+    public Gender gender;
+    public String genderId;
     public String phoneNumber;
     public String initialPassword;
     public String countryName;
@@ -38,7 +41,7 @@ public class UserDTO extends BaseDTO {
         dto.firstName = model.getFirstName();
         dto.phoneNumber = model.getPhoneNumber();
         dto.lastName = model.getLastName();
-        dto.roles = model.getRoles().stream().map(r->RoleDTO.fromRole(r)).collect(Collectors.toList());
+        dto.roles = model.getRoles();
 
         dto.isSuperAdmin = (model.hasAdministrativePrivileges());
 
@@ -67,7 +70,7 @@ public class UserDTO extends BaseDTO {
         dto.firstName = model.getFirstName();
         dto.phoneNumber = model.getPhoneNumber();
         dto.lastName = model.getLastName();
-        dto.roles = model.getRoles().stream().map(r->RoleDTO.fromRole(r)).collect(Collectors.toList());
+        dto.roles = model.getRoles();
         dto.isSuperAdmin = (model.hasAdministrativePrivileges());
 dto.setBalance(model.getBalance());
 

@@ -6,10 +6,12 @@ import org.springframework.web.multipart.MultipartFile;
 
 @Data
 public class CompanyRequestDTO  {
-    public Long id;
-    public String name;
-    public String description;
+    private Long id;
+    private String name;
+    private String description;
     private String website;
+    private String mobileNumber;
+    private String telephoneNumber;
     private Long countryId;
     private Long areaOfBusinessId;
     private String emailAddress;

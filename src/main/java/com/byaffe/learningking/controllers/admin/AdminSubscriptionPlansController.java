@@ -8,8 +8,11 @@ import com.byaffe.learningking.services.SubscriptionPlanService;
 import com.byaffe.learningking.services.impl.CategoryServiceImpl;
 import com.byaffe.learningking.shared.api.ResponseList;
 import com.byaffe.learningking.shared.api.ResponseObject;
+import com.byaffe.learningking.shared.constants.PermissionConstant;
 import com.byaffe.learningking.shared.exceptions.ValidationFailedException;
+import com.byaffe.learningking.shared.security.SessionContext;
 import com.googlecode.genericdao.search.Search;
+import io.swagger.v3.oas.annotations.Hidden;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.modelmapper.ModelMapper;
@@ -23,6 +26,7 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @RestController
+@Hidden
 @RequestMapping("/api/v1/admin/subscription-plans")
 public class AdminSubscriptionPlansController {
 
@@ -39,7 +43,7 @@ public class AdminSubscriptionPlansController {
                                                                          @RequestParam("limit") int limit,
                                                                          @RequestParam(required = false, value = "commaSeparatedTypes") String commaSeparatedTypes,
                                                                          @RequestParam(required = false, value = "commaSeparatedAcademies") String commaSeparatedAcademies){
-        Search search = CategoryServiceImpl.composeSearchObject(searchTerm);
+        SessionContext.permissionProtection(PermissionConstant.Manage_Subscription_Plans);    Search search = CategoryServiceImpl.composeSearchObject(searchTerm);
         if(StringUtils.isNotEmpty(commaSeparatedTypes)){
             String[] list = commaSeparatedTypes.split(",");
             List<CategoryType> lookupTypes= Arrays.stream(list).map(CategoryType::valueOf).collect(Collectors.toList());
@@ -56,7 +60,7 @@ public class AdminSubscriptionPlansController {
 
     @PostMapping("")
     public ResponseEntity<ResponseObject<SubscriptionPlan>> save(@RequestBody SubscriptionPlanRequestDTO dto) throws ValidationFailedException  {
-        return ResponseEntity.ok().body(new ResponseObject<>( subscriptionPlanService.saveInstance(dto)));
+        SessionContext.permissionProtection(PermissionConstant.Manage_Subscription_Plans);   return ResponseEntity.ok().body(new ResponseObject<>( subscriptionPlanService.saveInstance(dto)));
     }
 
 

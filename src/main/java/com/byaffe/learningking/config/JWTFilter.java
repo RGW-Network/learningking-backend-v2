@@ -1,7 +1,7 @@
 package com.byaffe.learningking.config;
 
 import com.byaffe.learningking.shared.security.TokenProvider;
-import com.byaffe.learningking.shared.security.UserDetailsContext;
+import com.byaffe.learningking.shared.security.SessionContext;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -33,7 +33,6 @@ public class JWTFilter extends GenericFilterBean {
         try {
             HttpServletRequest httpServletRequest = (HttpServletRequest) servletRequest;
             HttpServletResponse httpServletResponse = (HttpServletResponse) servletResponse;
-            System.out.println("Endpoint hit on >>>" + httpServletRequest.getRequestURI());
             httpServletResponse.setHeader("Access-Control-Allow-Origin", "*");
             httpServletResponse.setHeader("Access-Control-Allow-Credentials", "true");
             httpServletResponse.setHeader("Access-Control-Allow-Methods", "POST, GET,PUT, OPTIONS, DELETE");
@@ -61,7 +60,7 @@ public class JWTFilter extends GenericFilterBean {
             }
 
         } finally {
-            UserDetailsContext.clear();
+            SessionContext.clear();
         }
     }
 
@@ -80,7 +79,7 @@ public class JWTFilter extends GenericFilterBean {
                     tokenProvider.validateToken(accessToken);
                 }
             } catch (Exception e) {
-                e.printStackTrace();
+               // e.printStackTrace();
             }
     }
 

@@ -1,5 +1,6 @@
 package com.byaffe.learningking.services;
 
+import com.byaffe.learningking.dtos.SettingsRequestDto;
 import com.byaffe.learningking.models.SystemSetting;
 import com.byaffe.learningking.shared.exceptions.ValidationFailedException;
 import com.byaffe.learningking.shared.models.Country;
@@ -19,7 +20,7 @@ public interface SystemSettingService extends GenericService<SystemSetting>{
 	 * @throws ValidationFailedException if the following attributes are blank:
 	 *               appName, serviceCode
 	 */
-	SystemSetting save(SystemSetting appSetting) throws ValidationFailedException;
+	SystemSetting save(SettingsRequestDto appSetting) throws ValidationFailedException;
 
 	/**
 	 * Gets mail settings

@@ -9,10 +9,16 @@ import com.byaffe.learningking.models.Student;
 import com.byaffe.learningking.shared.models.BaseEntity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.persistence.*;
 import java.text.DecimalFormat;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Data
 @NoArgsConstructor
@@ -28,7 +34,7 @@ public class AggregatorTransaction extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private TransactionStatus status;
     @Enumerated(EnumType.STRING)
-    private CurrencyEnum currency=CurrencyEnum.USD;
+    private CurrencyEnum currency = CurrencyEnum.USD;
     private Double amountInitiated;
     private Double amountChargedFromUser;
     private Double chargeAmount;
@@ -39,12 +45,13 @@ public class AggregatorTransaction extends BaseEntity {
     private String description;
     private String phoneNumber;
     private String redirectUrl;
-    private Long referenceRecordId;
+    private Long referenceRecordId;// event, course, subscription,bulk-purchase
+
 
     @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "student_id")
-    private Student student;
+    private Student student;//person buying
 
     //Json data fields
     @Column(name = "last_aggregator_response", columnDefinition = "JSON")
@@ -57,24 +64,27 @@ public class AggregatorTransaction extends BaseEntity {
     public void generateInternalReference() {
         generateSerialNumber();
     }
+
     @Transient
     public String getStudentName() {
-        if(student==null){
-            return  null;
+        if (student == null) {
+            return null;
         }
         return student.getFullName();
     }
+
     @Transient
     public String getStudentEmail() {
-        if(student==null){
-            return  null;
+        if (student == null) {
+            return null;
         }
         return student.getEmailAddress();
     }
+
     @Transient
     public Long getStudentId() {
-        if(student==null){
-            return  null;
+        if (student == null) {
+            return null;
         }
         return student.getId();
     }
@@ -105,7 +115,5 @@ public class AggregatorTransaction extends BaseEntity {
         this.chargeRate = charge.getChargeRate();
         this.chargeType = charge.getChargeType();
         this.amountChargedFromUser = this.amountInitiated + this.chargeAmount;
-
-
     }
 }

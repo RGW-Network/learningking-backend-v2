@@ -4,6 +4,8 @@
  */
 package com.byaffe.learningking.shared.models;
 
+import com.byaffe.learningking.dtos.auth.PermissionDTO;
+import com.byaffe.learningking.dtos.auth.RoleRequestDTO;
 import com.byaffe.learningking.shared.constants.PermissionConstant;
 import com.byaffe.learningking.shared.constants.SecurityConstants;
 import lombok.Data;
@@ -12,6 +14,7 @@ import lombok.NoArgsConstructor;
 import javax.persistence.*;
 import java.util.HashSet;
 import java.util.Set;
+
 @Data
 @NoArgsConstructor
 @Entity
@@ -21,9 +24,9 @@ public class Role extends BaseEntity {
 
     @Column(name = "role_name", nullable = false)
     private String name;
-    @Column(name = "description", nullable = false,columnDefinition = "TEXT")
+    @Column(name = "description", nullable = false, columnDefinition = "TEXT")
     private String description;
-    @ElementCollection( targetClass = PermissionConstant.class)
+    @ElementCollection(targetClass = PermissionConstant.class,fetch = FetchType.EAGER)
     @JoinTable(name = "role_permissions", joinColumns = @JoinColumn(name = "role_id"))
     @Column(name = "permissions", nullable = false)
     @Enumerated(EnumType.STRING)
@@ -45,8 +48,8 @@ public class Role extends BaseEntity {
 
 
     public void addPermission(final PermissionConstant permission) {
-        if(this.permissions==null){
-            this.permissions= new HashSet<>();
+        if (this.permissions == null) {
+            this.permissions = new HashSet<>();
         }
         this.getPermissions().add(permission);
     }
@@ -58,10 +61,17 @@ public class Role extends BaseEntity {
     }
 
 
-
-
     public boolean checkIfDefaultAdminRole() {
         return this.getName().equals(SecurityConstants.SUPER_ADMIN_ROLE);
+    }
+
+    @Transient
+    public Set<PermissionDTO.PermissionLookup> getPermissionIds() {
+        Set<PermissionDTO.PermissionLookup> dto = new HashSet<>();
+        for (PermissionConstant permissionConstant : this.permissions) {
+            dto.add(new PermissionDTO.PermissionLookup(permissionConstant));
+        }
+        return dto;
     }
 
     @Override
@@ -74,7 +84,7 @@ public class Role extends BaseEntity {
 
     @Override
     public boolean equals(final Object other) {
-        return (other instanceof Role && this.getId() != 0) ? this.getId() ==(((Role) other).getId()) : (other == this);
+        return (other instanceof Role && this.getId() != 0) ? this.getId() == (((Role) other).getId()) : (other == this);
     }
 
     @Override

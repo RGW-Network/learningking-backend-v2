@@ -1,38 +1,37 @@
 package com.byaffe.learningking.controllers;
 
-import com.byaffe.learningking.controllers.constants.ApiUtils;
-import com.byaffe.learningking.dtos.articles.ArticlesFilterDTO;
 import com.byaffe.learningking.dtos.courses.*;
 import com.byaffe.learningking.dtos.instructor.*;
 import com.byaffe.learningking.dtos.courses.CourseResponseDTO;
 import com.byaffe.learningking.dtos.courses.CourseTopicResponseDTO;
 import com.byaffe.learningking.dtos.courses.LessonResponseDTO;
+import com.byaffe.learningking.models.ReadStatus;
 import com.byaffe.learningking.models.Student;
 import com.byaffe.learningking.models.courses.*;
 import com.byaffe.learningking.services.*;
+import com.byaffe.learningking.services.impl.CourseEnrollmentServiceImpl;
 import com.byaffe.learningking.services.impl.CourseServiceImpl;
 import com.byaffe.learningking.services.impl.InstructorServiceImpl;
 import com.byaffe.learningking.shared.api.ResponseList;
 import com.byaffe.learningking.shared.api.ResponseObject;
 import com.byaffe.learningking.shared.constants.RecordStatus;
 import com.byaffe.learningking.shared.exceptions.ValidationFailedException;
-import com.byaffe.learningking.shared.security.UserDetailsContext;
+import com.byaffe.learningking.shared.security.SessionContext;
 import com.byaffe.learningking.shared.utils.ApplicationContextProvider;
 import com.googlecode.genericdao.search.Search;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
-import org.json.JSONArray;
 import org.json.JSONException;
-import org.json.JSONObject;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+
 
 /**
  * @author Ray Gdhrt
@@ -47,6 +46,11 @@ public class CoursesController {
     @Autowired
     CourseEnrollmentService subscriptionService;
 
+    @Autowired
+    WishListService wishListService;
+
+@Autowired
+CourseRatingService ratingService;
     @GetMapping("")
     public ResponseEntity<ResponseList<CourseResponseDTO>> getCourses(@RequestParam(value = "searchTerm", required = false) String searchTerm,
                                                                       @RequestParam(value = "offset", required = true) Integer offset,
@@ -54,14 +58,18 @@ public class CoursesController {
                                                                       @RequestParam(value = "sortBy", required = false) String sortBy,
                                                                       @RequestParam(value = "sortDescending", required = false) Boolean sortDescending,
                                                                       @RequestParam(value = "featured", required = false) Boolean featured,
+                                                                      @RequestParam(value = "advertised", required = false) Boolean advertised,
                                                                       @RequestParam(value = "categoryId", required = false) Long categoryId,
                                                                       @RequestParam(value = "authorId", required = false) Long authorId
 
     ) throws JSONException {
 
         Search search = CourseServiceImpl.generateSearchObjectForCourses(searchTerm)
-                .addFilterEqual("recordStatus", RecordStatus.ACTIVE)
-                .addFilterEqual("publicationStatus", PublicationStatus.ACTIVE);
+                .addFilterEqual("recordStatus", RecordStatus.ACTIVE);
+
+        if(!SessionContext.isSuperAdmin()){
+            search.addFilterEqual("publicationStatus", PublicationStatus.ACTIVE);
+        }
         if (categoryId != null) {
             search.addFilterEqual("category.id", categoryId);
         }
@@ -72,7 +80,9 @@ public class CoursesController {
         if (featured != null) {
             search.addFilterEqual("isFeatured", featured);
         }
-
+        if (advertised != null) {
+            search.addFilterEqual("isAdvertised", advertised);
+        }
         if (sortBy != null) {
             search.addSort(sortBy, sortDescending);
         }
@@ -89,19 +99,19 @@ public class CoursesController {
             double rattings = 0;
 
             try {
-                rattings = ApplicationContextProvider.getBean(CourseRatingService.class).getTotalCourseRatings(course) / 5;
+                rattings = ratingService.getTotalCourseRatings(ReviewType.COURSE, course.getId()) / 5;
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            if (UserDetailsContext.getLoggedInStudent() != null) {
-                CourseEnrollment subscription = ApplicationContextProvider.getBean(CourseEnrollmentService.class).getSerieSubscription(UserDetailsContext.getLoggedInStudent(), course);
+            if (SessionContext.getLoggedInStudent() != null) {
+                CourseEnrollment subscription =subscriptionService.getSerieSubscription(SessionContext.getLoggedInStudent(), course);
 
                 dto.setEnrolled(subscription != null);
             }
             dto.setNumberOfLessons(lessonsCount);
             dto.setAverageRating((rattings / 5));
-            dto.setRatingsCount(ApplicationContextProvider.getBean(CourseRatingService.class).getRatingsCount(course));
-
+            dto.setRatingsCount(ratingService.getRatingsCount(ReviewType.COURSE, course.getId()));
+            dto.setWishListed(wishListService.getByCourse(course.getId()) != null);
             courses.add(dto);
         }
         return ResponseEntity.ok().body(new ResponseList<>(courses, count, offset, limit));
@@ -130,15 +140,15 @@ public class CoursesController {
                         .countInstances(new Search().addFilterEqual("course", course).addFilterEqual("recordStatus", RecordStatus.ACTIVE));
                 double rattings = 0;
                 try {
-                    rattings = ApplicationContextProvider.getBean(CourseRatingService.class).getTotalCourseRatings(course) / 5;
+                    rattings = ApplicationContextProvider.getBean(CourseRatingService.class).getTotalCourseRatings(ReviewType.COURSE, course.getId()) / 5;
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-                CourseEnrollment subscription = ApplicationContextProvider.getBean(CourseEnrollmentService.class).getSerieSubscription(UserDetailsContext.getLoggedInStudent(), course);
+                CourseEnrollment subscription = ApplicationContextProvider.getBean(CourseEnrollmentService.class).getSerieSubscription(SessionContext.getLoggedInStudent(), course);
                 dto.setEnrolled(subscription != null);
                 dto.setNumberOfLessons(lessonsCount);
                 dto.setAverageRating((rattings / 5));
-                dto.setRatingsCount(ApplicationContextProvider.getBean(CourseRatingService.class).getRatingsCount(course));
+                dto.setRatingsCount(ApplicationContextProvider.getBean(CourseRatingService.class).getRatingsCount(ReviewType.COURSE, course.getId()));
                 dtos.add(dto);
             }
             courseByTopicResponseDTO.setCourses(dtos);
@@ -151,7 +161,7 @@ public class CoursesController {
 
     @GetMapping("/{id}")
     public ResponseEntity<ResponseObject<CourseDetailsResponseDTO>> getCourseDetails(@PathVariable("id") Long id) throws JSONException {
-        Student member = UserDetailsContext.getLoggedInStudent();
+        Student member = SessionContext.getLoggedInStudent();
         CourseService courseService = ApplicationContextProvider.getBean(CourseService.class);
         Course course = courseService.getInstanceByID(id);
         CourseDetailsResponseDTO responseDTO = new CourseDetailsResponseDTO();
@@ -186,7 +196,7 @@ public class CoursesController {
 
         double rattings = 1;
         try {
-            rattings = ApplicationContextProvider.getBean(CourseRatingService.class).getTotalCourseRatings(course) / 5;
+            rattings = ApplicationContextProvider.getBean(CourseRatingService.class).getTotalCourseRatings(ReviewType.COURSE, course.getId()) / 5;
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -223,7 +233,7 @@ public class CoursesController {
                 .addFilterEqual("recordStatus", RecordStatus.ACTIVE)
                 .addFilterEqual("courseLesson", lesson)
                 .addSortAsc("position"), 0, 0);
-        CourseEnrollment subscription = ApplicationContextProvider.getBean(CourseEnrollmentService.class).getSerieSubscription(UserDetailsContext.getLoggedInStudent(), lesson.getCourse());
+        CourseEnrollment subscription = ApplicationContextProvider.getBean(CourseEnrollmentService.class).getSerieSubscription(SessionContext.getLoggedInStudent(), lesson.getCourse());
 
         for (CourseTopic topic : topics) {
             CourseTopicResponseDTO topicJSONObject = modelMapper.map(topic, CourseTopicResponseDTO.class);
@@ -248,7 +258,7 @@ public class CoursesController {
     @GetMapping("/topic/{id}")
     public ResponseEntity<ResponseObject<CourseTopicResponseDTO>> getTopicById(@PathVariable("id") Long id) throws JSONException {
         CourseTopicResponseDTO result = new CourseTopicResponseDTO();
-        Student member = UserDetailsContext.getLoggedInStudent();
+        Student member = SessionContext.getLoggedInStudent();
 
         CourseTopic topic = ApplicationContextProvider.getBean(CourseTopicService.class).getInstanceByID(id);
         if (topic == null) {
@@ -264,6 +274,7 @@ public class CoursesController {
 
         for (CourseLecture subTopic : subTopics) {
             LectureResponseDTO jSONObject = modelMapper.map(subTopic, LectureResponseDTO.class);
+            jSONObject.setQuizes(ApplicationContextProvider.getBean(QuizService.class).getQuizes(new Search().addFilterEqual("lecture.id", subTopic.getId()).addFilterEqual("recordStatus", RecordStatus.ACTIVE), 0, 0));
             result.getLectures().add(jSONObject);
         }
         result.setSubscription(subscription);
@@ -274,7 +285,7 @@ public class CoursesController {
 
     @PostMapping("/enroll/{id}")
     public ResponseEntity<ResponseObject<CourseEnrollment>> enroll(@PathVariable("id") Long id) throws JSONException {
-        Student member = UserDetailsContext.getLoggedInStudent();
+        Student member = SessionContext.getLoggedInStudent();
         assert member != null;
         CourseEnrollment courseEnrollment = subscriptionService.enrolForFreeCourse(member.getId(), id);
         return ResponseEntity.ok().body(new ResponseObject<>(courseEnrollment));
@@ -283,53 +294,16 @@ public class CoursesController {
 
     @PostMapping("/start/{id}")
     public ResponseEntity<ResponseObject<CourseEnrollment>> start(@PathVariable("id") Long id) throws JSONException {
-        Student member = UserDetailsContext.getLoggedInStudent();
+        Student member = SessionContext.getLoggedInStudent();
         assert member != null;
-        CourseEnrollment courseEnrollment = subscriptionService.enrolForFreeCourse(member.getId(), id);
+        CourseEnrollment courseEnrollment = subscriptionService.startCourse(member.getId(), id);
         return ResponseEntity.ok().body(new ResponseObject<>(courseEnrollment));
     }
 
 
-    @PostMapping("/rating")
-    public ResponseEntity<ResponseObject<CourseRating>> rateCourse(@RequestBody CourseRatingDTO courseRatingDTO) throws JSONException {
-        Student member = UserDetailsContext.getLoggedInStudent();
-        if (member == null) {
-            throw new ValidationFailedException("Student Not Found");
-        }
-        return ResponseEntity.ok().body(new ResponseObject<>(ApplicationContextProvider.getBean(CourseRatingService.class).saveInstance(courseRatingDTO)));
-    }
-
-
-    @GetMapping("/ratings")
-    public ResponseEntity<ResponseList<CourseRatingResponseDTO>> getRatings(@RequestParam(value = "courseId", required = false) Long courseId,
-                                                                            @RequestParam(value = "offset", required = true) Integer offset,
-                                                                            @RequestParam(value = "limit", required = true) Integer limit) throws JSONException {
-        Search search = new Search().addFilterEqual("recordStatus", RecordStatus.ACTIVE).addFilterEqual("publicationStatus", PublicationStatus.ACTIVE);
-
-        if (courseId != null) {
-            search.addFilterEqual("course.id", courseId);
-        }
-
-        List<CourseRating> courseRatings = ApplicationContextProvider.getBean(CourseRatingService.class).getInstances(search, offset, limit);
-
-        List<CourseRatingResponseDTO> ratings = new ArrayList<>();
-        for (CourseRating courseRating : courseRatings) {
-            CourseRatingResponseDTO dto = new CourseRatingResponseDTO();
-            dto.setStars(courseRating.getStarsCount());
-            dto.setDateCreated(ApiUtils.ENGLISH_DATE_FORMAT.format(courseRating.getDateCreated()));
-            dto.setStudentFullName(courseRating.getStudent().getFullName());
-            dto.setRatingText(courseRating.getReviewText());
-            ratings.add(dto);
-
-        }
-        return ResponseEntity.ok().body(new ResponseList<>(ratings, 0, offset, limit));
-
-    }
-
-
     @PostMapping("/lectures/complete/{id}")
-    public ResponseEntity<CourseEnrollment> completeSubTopic(@PathVariable("id") Long id) throws JSONException {
-        Student member = UserDetailsContext.getLoggedInStudent();
+    public ResponseEntity<ResponseObject<CourseEnrollment>> completeSubTopic(@PathVariable("id") Long id) throws JSONException {
+        Student member = SessionContext.getLoggedInStudent();
         if (member == null) {
             throw new ValidationFailedException("Student Not Found");
         }
@@ -339,7 +313,17 @@ public class CoursesController {
         }
         CourseEnrollment courseEnrollment = ApplicationContextProvider.getBean(CourseEnrollmentService.class).completeSubTopic(member, topic);
 
-        return ResponseEntity.ok().body(courseEnrollment);
+        return ResponseEntity.ok().body(new ResponseObject<>(courseEnrollment));
+    }
+
+    @GetMapping("/enrollments/{enrollmentId}/download-certificate")
+    public ResponseEntity<String> generateCertificate(@PathVariable("enrollmentId") Long enrollmentId) {
+
+        String htmlStringTemplate = ApplicationContextProvider.getBean(CourseEnrollmentService.class).generateHtmlCertificate(enrollmentId);
+        // Return HTML content as a response
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.TEXT_HTML_VALUE)
+                .body(htmlStringTemplate);
     }
 
 
@@ -349,14 +333,20 @@ public class CoursesController {
                                                                              @RequestParam(value = "limit", required = true) Integer limit,
                                                                              @RequestParam(value = "sortBy", required = false) String sortBy,
                                                                              @RequestParam(value = "sortDescending", required = false) Boolean sortDescending,
-                                                                             @RequestParam(value = "featured", required = false) Boolean featured) throws JSONException {
+                                                                             @RequestParam(value = "status", required = false) ReadStatus status) throws JSONException {
 
-        Search search = CourseServiceImpl.generateSearchObjectForCourses(searchTerm)
+        Search search = CourseEnrollmentServiceImpl.generateSearchObjectForEnrollments(searchTerm)
                 .addFilterEqual("recordStatus", RecordStatus.ACTIVE);
 
         long totalRecords = ApplicationContextProvider.getBean(CourseEnrollmentService.class).countInstances(search);
         if (sortBy != null) {
             search.addSort(sortBy, sortDescending);
+        }
+        if (status != null) {
+            search.addFilterEqual("readStatus", status);
+        }
+        if(!SessionContext.isSuperAdmin()){
+            search.addFilterEqual("student",SessionContext.getLoggedInStudent());
         }
         List<CourseResponseDTO> courses = new ArrayList<>();
         for (CourseEnrollment course : ApplicationContextProvider.getBean(CourseEnrollmentService.class).getInstances(search, offset, limit)) {
@@ -367,16 +357,16 @@ public class CoursesController {
                             .addFilterEqual("recordStatus", RecordStatus.ACTIVE));
             double rattings = 0;
             try {
-                rattings = ApplicationContextProvider.getBean(CourseRatingService.class).getTotalCourseRatings(course.getCourse()) / 5;
+                rattings = ApplicationContextProvider.getBean(CourseRatingService.class).getTotalCourseRatings(ReviewType.COURSE, course.getCourse().getId()) / 5;
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            CourseEnrollment subscription = ApplicationContextProvider.getBean(CourseEnrollmentService.class).getSerieSubscription(UserDetailsContext.getLoggedInStudent(), course.getCourse());
+            CourseEnrollment subscription = ApplicationContextProvider.getBean(CourseEnrollmentService.class).getSerieSubscription(SessionContext.getLoggedInStudent(), course.getCourse());
             dto.setEnrolled(subscription != null);
             dto.setNumberOfLessons(lessonsCount);
             dto.setSubscription(subscription);
             dto.setAverageRating((rattings / 5));
-            dto.setRatingsCount(ApplicationContextProvider.getBean(CourseRatingService.class).getRatingsCount(course.getCourse()));
+            dto.setRatingsCount(ApplicationContextProvider.getBean(CourseRatingService.class).getRatingsCount(ReviewType.COURSE, course.getCourse().getId()));
             courses.add(dto);
         }
         return ResponseEntity.ok().body(new ResponseList<>(courses, totalRecords, offset, limit));

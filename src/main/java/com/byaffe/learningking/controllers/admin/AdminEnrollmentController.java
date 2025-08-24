@@ -6,8 +6,11 @@ import com.byaffe.learningking.services.impl.CourseServiceImpl;
 import com.byaffe.learningking.shared.api.BaseResponse;
 import com.byaffe.learningking.shared.api.ResponseList;
 import com.byaffe.learningking.shared.api.ResponseObject;
+import com.byaffe.learningking.shared.constants.PermissionConstant;
 import com.byaffe.learningking.shared.constants.RecordStatus;
+import com.byaffe.learningking.shared.security.SessionContext;
 import com.googlecode.genericdao.search.Search;
+import io.swagger.v3.oas.annotations.Hidden;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONException;
 import org.modelmapper.ModelMapper;
@@ -22,6 +25,7 @@ import java.util.List;
  */
 @Slf4j
 @RestController
+@Hidden
 @RequestMapping("api/v1/admin/enrollments")
 public class AdminEnrollmentController {
 @Autowired
@@ -32,13 +36,13 @@ CourseEnrollmentService modelService;
 
     @GetMapping("/{id}")
     public ResponseEntity<ResponseObject<CourseEnrollment>> getById(@PathVariable(name = "id") long id) throws JSONException {
-        CourseEnrollment course=modelService.getInstanceByID(id);
+        SessionContext.permissionProtection(PermissionConstant.Course_Create); CourseEnrollment course=modelService.getInstanceByID(id);
         return ResponseEntity.ok().body(new ResponseObject<>(course));
 
     }
     @DeleteMapping("/{id}/delete")
     public ResponseEntity<BaseResponse> deleteCourse(@PathVariable long id) throws JSONException {
-        CourseEnrollment courseEnrollment=modelService.getInstanceByID(id);
+        SessionContext.permissionProtection(PermissionConstant.Course_Create);   CourseEnrollment courseEnrollment=modelService.getInstanceByID(id);
         modelService.deleteInstance(courseEnrollment);
         return ResponseEntity.ok().body(new BaseResponse(true));
     }
@@ -50,7 +54,7 @@ CourseEnrollmentService modelService;
                                                                      @RequestParam(value = "studentId", required = false) Integer studentId
 
     ) throws JSONException {
-
+        SessionContext.permissionProtection(PermissionConstant.Course_Create);
         Search search = CourseServiceImpl.generateSearchObjectForCourses(searchTerm)
                 .addFilterEqual("recordStatus", RecordStatus.ACTIVE);
       
