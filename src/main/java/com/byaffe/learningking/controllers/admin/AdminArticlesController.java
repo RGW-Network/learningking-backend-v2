@@ -37,45 +37,45 @@ public class AdminArticlesController {
     ModelMapper modelMapper;
     @PostMapping("")
     public ResponseEntity<ResponseObject<Article>> addArticle(@RequestBody ArticleRequestDTO dto) throws JSONException {
-        SessionContext.permissionProtection(PermissionConstant.Manage_Articles);
+        SessionContext.permissionProtection(PermissionConstant.Article_Create);
         Article Article=ApplicationContextProvider.getBean(ArticleService.class).save(dto);
         return ResponseEntity.ok().body(new ResponseObject<>(Article));
     }
 
     @PostMapping(path = "/multipart", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<BaseResponse> uploadCSV(@RequestPart  ArticleRequestDTO dto, @RequestPart(value = "file",required = false) MultipartFile file)  {
-        SessionContext.permissionProtection(PermissionConstant.Manage_Articles); dto.setCoverImage(file);
+        SessionContext.permissionProtection(PermissionConstant.Article_Create); dto.setCoverImage(file);
          ApplicationContextProvider.getBean(ArticleService.class).save(dto);
         return ResponseEntity.ok().body(new BaseResponse(true));
     }
     @PostMapping("/{id}/publish")
     public ResponseEntity<BaseResponse> publishArticle(@PathVariable long id) throws JSONException {
-        SessionContext.permissionProtection(PermissionConstant.Manage_Articles);  ApplicationContextProvider.getBean(ArticleService.class).activate(id);
+        SessionContext.permissionProtection(PermissionConstant.Article_Publish_All);  ApplicationContextProvider.getBean(ArticleService.class).activate(id);
         return ResponseEntity.ok().body(new BaseResponse(true));
 
     }
     @PostMapping("/{id}/unpublish")
     public ResponseEntity<BaseResponse> unPublishArticle(@PathVariable long id) throws JSONException {
-        SessionContext.permissionProtection(PermissionConstant.Manage_Articles); ApplicationContextProvider.getBean(ArticleService.class).deActivate(id);
+        SessionContext.permissionProtection(PermissionConstant.Article_Publish_All); ApplicationContextProvider.getBean(ArticleService.class).deActivate(id);
         return ResponseEntity.ok().body(new BaseResponse(true));
 
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<ResponseObject<Article>> getById(@PathVariable(name = "id") long id) throws JSONException {
-        SessionContext.permissionProtection(PermissionConstant.Manage_Articles);  Article article=ApplicationContextProvider.getBean(ArticleService.class).getInstanceByID(id);
+        SessionContext.permissionProtection(PermissionConstant.Article_View_All);  Article article=ApplicationContextProvider.getBean(ArticleService.class).getInstanceByID(id);
         return ResponseEntity.ok().body(new ResponseObject<>(article));
 
     }
     @DeleteMapping("/{id}/delete")
     public ResponseEntity<BaseResponse> deleteArticle(@PathVariable long id) throws JSONException {
-        SessionContext.permissionProtection(PermissionConstant.Manage_Articles);  Article Article=ApplicationContextProvider.getBean(ArticleService.class).getInstanceByID(id);
+        SessionContext.permissionProtection(PermissionConstant.Article_Delete_All);  Article Article=ApplicationContextProvider.getBean(ArticleService.class).getInstanceByID(id);
         ApplicationContextProvider.getBean(ArticleService.class).deleteInstance(Article);
         return ResponseEntity.ok().body(new BaseResponse(true));
     }
     @GetMapping("")
     public ResponseEntity<ResponseList<Article>> getArticles(ArticlesFilterDTO queryParamModel) throws JSONException {
-        SessionContext.permissionProtection(PermissionConstant.Manage_Articles);
+        SessionContext.permissionProtection(PermissionConstant.Article_View_Own);
         Search search = ArticleServiceImpl.generateSearchTermsForArticles(queryParamModel.getSearchTerm())
                 .addFilterEqual("recordStatus", RecordStatus.ACTIVE);
         if (queryParamModel.getCategoryId() != null) {
@@ -99,7 +99,7 @@ public class AdminArticlesController {
 
     @GetMapping("/v2/{id}")
     public ResponseEntity<ResponseObject<Article>> getArticleById(@PathVariable("id") Long id) throws JSONException {
-        SessionContext.permissionProtection(PermissionConstant.Manage_Articles);  Article article = ApplicationContextProvider.getBean(ArticleService.class).getInstanceByID(id);
+        SessionContext.permissionProtection(PermissionConstant.Article_View_All);  Article article = ApplicationContextProvider.getBean(ArticleService.class).getInstanceByID(id);
 
         return ResponseEntity.ok().body(new ResponseObject<>(article));
     }

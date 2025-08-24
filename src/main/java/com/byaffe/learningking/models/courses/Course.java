@@ -79,6 +79,20 @@ public class Course extends BaseEntity {
         return 0;
     }
 
+    public Long getCertificateTemplateId(){
+        if(this.certificateTemplate!=null){
+            return this.certificateTemplate.getId();
+        }
+        return  null;
+    }
+
+    public String getCertificateTemplateName(){
+        if(this.certificateTemplate!=null){
+            return this.certificateTemplate.getTitle();
+        }
+        return  null;
+    }
+
     public void addTestimonial(Testimonial testimonial) {
         if (this.testimonials == null) {
             this.testimonials = new HashSet<>();

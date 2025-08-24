@@ -36,13 +36,13 @@ CourseEnrollmentService modelService;
 
     @GetMapping("/{id}")
     public ResponseEntity<ResponseObject<CourseEnrollment>> getById(@PathVariable(name = "id") long id) throws JSONException {
-        SessionContext.permissionProtection(PermissionConstant.Manage_Courses); CourseEnrollment course=modelService.getInstanceByID(id);
+        SessionContext.permissionProtection(PermissionConstant.Course_Create); CourseEnrollment course=modelService.getInstanceByID(id);
         return ResponseEntity.ok().body(new ResponseObject<>(course));
 
     }
     @DeleteMapping("/{id}/delete")
     public ResponseEntity<BaseResponse> deleteCourse(@PathVariable long id) throws JSONException {
-        SessionContext.permissionProtection(PermissionConstant.Manage_Courses);   CourseEnrollment courseEnrollment=modelService.getInstanceByID(id);
+        SessionContext.permissionProtection(PermissionConstant.Course_Create);   CourseEnrollment courseEnrollment=modelService.getInstanceByID(id);
         modelService.deleteInstance(courseEnrollment);
         return ResponseEntity.ok().body(new BaseResponse(true));
     }
@@ -54,7 +54,7 @@ CourseEnrollmentService modelService;
                                                                      @RequestParam(value = "studentId", required = false) Integer studentId
 
     ) throws JSONException {
-        SessionContext.permissionProtection(PermissionConstant.Manage_Courses);
+        SessionContext.permissionProtection(PermissionConstant.Course_Create);
         Search search = CourseServiceImpl.generateSearchObjectForCourses(searchTerm)
                 .addFilterEqual("recordStatus", RecordStatus.ACTIVE);
       

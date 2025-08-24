@@ -40,20 +40,20 @@ public class AdminEventController {
 
     @PostMapping("")
     public ResponseEntity<ResponseObject<Event>> addEvent(@RequestBody EventRequestDTO dto) throws JSONException {
-        SessionContext.permissionProtection(PermissionConstant.Manage_Events);   Event event = ApplicationContextProvider.getBean(EventService.class).save(dto);
+        SessionContext.permissionProtection(PermissionConstant.Event_Create);   Event event = ApplicationContextProvider.getBean(EventService.class).save(dto);
         return ResponseEntity.ok().body(new ResponseObject<>(event));
     }
 
     @PostMapping(path = "/multipart", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<BaseResponse> uploadCSV(@RequestPart EventRequestDTO dto, @RequestPart(value = "file", required = false) MultipartFile file) {
-        SessionContext.permissionProtection(PermissionConstant.Manage_Events);   dto.setCoverImage(file);
+        SessionContext.permissionProtection(PermissionConstant.Event_Create);   dto.setCoverImage(file);
         ApplicationContextProvider.getBean(EventService.class).save(dto);
         return ResponseEntity.ok().body(new BaseResponse(true));
     }
 
     @PostMapping("/{id}/publish")
     public ResponseEntity<BaseResponse> publishEvent(@PathVariable long id) throws JSONException {
-        SessionContext.permissionProtection(PermissionConstant.Manage_Events);   Event event = ApplicationContextProvider.getBean(EventService.class).getInstanceByID(id);
+        SessionContext.permissionProtection(PermissionConstant.Event_Create);   Event event = ApplicationContextProvider.getBean(EventService.class).getInstanceByID(id);
         ApplicationContextProvider.getBean(EventService.class).activate(id);
         return ResponseEntity.ok().body(new BaseResponse(true));
 
@@ -61,7 +61,7 @@ public class AdminEventController {
 
     @PostMapping("/{id}/unpublish")
     public ResponseEntity<BaseResponse> unPublishEvent(@PathVariable long id) throws JSONException {
-        SessionContext.permissionProtection(PermissionConstant.Manage_Events);  Event event = ApplicationContextProvider.getBean(EventService.class).getInstanceByID(id);
+        SessionContext.permissionProtection(PermissionConstant.Event_Create);  Event event = ApplicationContextProvider.getBean(EventService.class).getInstanceByID(id);
         ApplicationContextProvider.getBean(EventService.class).deActivate(id);
         return ResponseEntity.ok().body(new BaseResponse(true));
 
@@ -69,14 +69,14 @@ public class AdminEventController {
 
     @GetMapping("/{id}")
     public ResponseEntity<ResponseObject<Event>> getById(@PathVariable(name = "id") long id) throws JSONException {
-        SessionContext.permissionProtection(PermissionConstant.Manage_Events);   Event event = ApplicationContextProvider.getBean(EventService.class).getById(id);
+        SessionContext.permissionProtection(PermissionConstant.Event_Create);   Event event = ApplicationContextProvider.getBean(EventService.class).getById(id);
         return ResponseEntity.ok().body(new ResponseObject<>(event));
 
     }
 
     @DeleteMapping("/{id}/delete")
     public ResponseEntity<BaseResponse> deleteEvent(@PathVariable long id) throws JSONException {
-        SessionContext.permissionProtection(PermissionConstant.Manage_Events);   Event event = ApplicationContextProvider.getBean(EventService.class).getInstanceByID(id);
+        SessionContext.permissionProtection(PermissionConstant.Event_Create);   Event event = ApplicationContextProvider.getBean(EventService.class).getInstanceByID(id);
         ApplicationContextProvider.getBean(EventService.class).deleteInstance(event);
         return ResponseEntity.ok().body(new BaseResponse(true));
     }
@@ -89,7 +89,7 @@ public class AdminEventController {
             @RequestParam(value = "featured", required = false) Boolean featured,
             @RequestParam(value = "offset", required = true) Integer offset,
             @RequestParam(value = "limit", required = true) Integer limit) throws JSONException {
-        SessionContext.permissionProtection(PermissionConstant.Manage_Events);   System.out.println("ID=======" + offset);
+        SessionContext.permissionProtection(PermissionConstant.Event_Create);   System.out.println("ID=======" + offset);
         Search search = EventServiceImpl.generateSearchTermsForEvents(searchTerm);
 
 

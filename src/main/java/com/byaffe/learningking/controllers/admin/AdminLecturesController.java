@@ -42,12 +42,12 @@ CourseLectureService modelService;
 
     @PostMapping("")
     public ResponseEntity<BaseResponse> saveAndUpdate(@RequestBody LectureRequestDTO dto) throws JSONException {
-        SessionContext.permissionProtection(PermissionConstant.Manage_Courses);   modelService.saveInstance(dto);
+        SessionContext.permissionProtection(PermissionConstant.Course_Create);   modelService.saveInstance(dto);
         return ResponseEntity.ok().body(new BaseResponse(true));
     }
     @PostMapping(path = "/multipart", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<BaseResponse> saveAndUpdateV2(@RequestPart @Valid LectureRequestDTO dto, @RequestPart(value = "file",required = false) MultipartFile file) throws JSONException {
-        SessionContext.permissionProtection(PermissionConstant.Manage_Courses);if(file!=null) {
+        SessionContext.permissionProtection(PermissionConstant.Course_Create);if(file!=null) {
           dto.setCoverImage(file);
       }
         modelService.saveInstance(dto);
@@ -56,13 +56,13 @@ CourseLectureService modelService;
 
     @GetMapping("/{id}")
     public ResponseEntity<ResponseObject<LectureResponseDTO>> getById(@PathVariable(name = "id") long id) throws JSONException {
-        SessionContext.permissionProtection(PermissionConstant.Manage_Courses);   CourseLecture course=modelService.getInstanceByID(id);
+        SessionContext.permissionProtection(PermissionConstant.Course_Create);   CourseLecture course=modelService.getInstanceByID(id);
         return ResponseEntity.ok().body(new ResponseObject<>(modelMapper.map(course, LectureResponseDTO.class)));
     }
 
     @DeleteMapping("/{id}/delete")
     public ResponseEntity<BaseResponse> deleteCourse(@PathVariable long id) throws JSONException {
-        SessionContext.permissionProtection(PermissionConstant.Manage_Courses);   CourseLecture course=modelService.getInstanceByID(id);
+        SessionContext.permissionProtection(PermissionConstant.Course_Create);   CourseLecture course=modelService.getInstanceByID(id);
         modelService.deleteInstance(course);
         return ResponseEntity.ok().body(new BaseResponse(true));
     }
@@ -74,7 +74,7 @@ CourseLectureService modelService;
                                                                        @RequestParam(value = "courseId", required = false) Long courseId
 
     ) throws JSONException {
-        SessionContext.permissionProtection(PermissionConstant.Manage_Courses);    Search search = CourseServiceImpl.generateSearchObjectForCourses(searchTerm)
+        SessionContext.permissionProtection(PermissionConstant.Course_Create);    Search search = CourseServiceImpl.generateSearchObjectForCourses(searchTerm)
                 .addFilterEqual("recordStatus", RecordStatus.ACTIVE)
                 .addSortAsc("position");
         if (topicId!= null) {
@@ -90,7 +90,7 @@ CourseLectureService modelService;
 
     @GetMapping("/v2/{id}")
     public ResponseEntity<ResponseObject<LectureResponseDTO>> getById(@PathVariable("id") Long id) throws JSONException {
-        SessionContext.permissionProtection(PermissionConstant.Manage_Courses);   CourseLecture course = modelService.getInstanceByID(id);
+        SessionContext.permissionProtection(PermissionConstant.Course_Create);   CourseLecture course = modelService.getInstanceByID(id);
         return ResponseEntity.ok().body(new ResponseObject<>(modelMapper.map(course, LectureResponseDTO.class)));
     }
 

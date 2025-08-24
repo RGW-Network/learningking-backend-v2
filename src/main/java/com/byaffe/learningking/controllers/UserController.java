@@ -6,6 +6,7 @@ import com.byaffe.learningking.shared.constants.SecurityConstants;
 import com.byaffe.learningking.shared.models.Role;
 import com.byaffe.learningking.shared.security.SessionContext;
 import com.byaffe.learningking.utilities.AppUtils;
+import com.googlecode.genericdao.search.Filter;
 import com.googlecode.genericdao.search.Search;
 import com.byaffe.learningking.dtos.auth.PermissionDTO;
 import com.byaffe.learningking.dtos.auth.UserDTO;
@@ -23,6 +24,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.xml.bind.ValidationException;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -86,8 +89,9 @@ public class UserController {
         if (StringUtils.isNotEmpty(sortBy)) {
             search.addSort(sortBy, sortDescending != null ? sortDescending : true);
         }
+        search.addFilterSome("roles", Filter.notEqual("name", AppUtils.STUDENT_ROLE_NAME));
 
-        List<User> users = userService.getAllUsers(search, offset, limit).stream().filter((r)->!r.hasRole(SecurityConstants.SUPER_ADMIN_ROLE) &&!r.hasRole(AppUtils.INSTRUCTOR_ROLE_NAME) &&!r.hasRole(AppUtils.STUDENT_ROLE_NAME)).collect(Collectors.toList());
+        List<User> users = userService.getAllUsers(search, offset, limit);
 
         long totalRecords = userService.countAllUsers(search);
         return ResponseEntity.ok().body(new ResponseList<>(users, (int) totalRecords, offset, limit));
@@ -101,6 +105,8 @@ public class UserController {
                                                           @RequestParam("limit") int limit) {
         SessionContext.permissionProtection(PermissionConstant.Manage_Users);
         Search search = UserServiceImpl.composeSearchObjectForRole(searchTerm);
+       search.addFilterNotEqual("name",AppUtils.STUDENT_ROLE_NAME);
+
         List<Role> roles = userService.getAllRoles(search, offset, limit);
         long count = userService.countRoles(search);
         return ResponseEntity.ok().body(new ResponseList<>(roles, count, offset, limit));

@@ -43,13 +43,13 @@ public class AdminQuizController {
 
     @PostMapping("")
     public ResponseEntity<ResponseObject<Quiz>> addArticle(@RequestBody QuizRequestDTO dto) throws JSONException {
-        SessionContext.permissionProtection(PermissionConstant.Manage_Courses);
+        SessionContext.permissionProtection(PermissionConstant.Course_Create);
         Quiz Article = quizService.saveQuiz(dto);
         return ResponseEntity.ok().body(new ResponseObject<>(Article));
     }
     @PostMapping("/question")
     public ResponseEntity<ResponseObject<Question>> addQuestion(@RequestBody QuizQuestionRequestDTO dto) throws JSONException {
-        SessionContext.permissionProtection(PermissionConstant.Manage_Courses);
+        SessionContext.permissionProtection(PermissionConstant.Course_Create);
         Question model = quizService.saveQuizQuestion(dto);
         return ResponseEntity.ok().body(new ResponseObject<>(model));
     }
@@ -57,7 +57,7 @@ public class AdminQuizController {
 
     @GetMapping("/{id}")
     public ResponseEntity<ResponseObject<Quiz>> getById(@PathVariable(name = "id") long id) throws JSONException {
-        SessionContext.permissionProtection(PermissionConstant.Manage_Courses);  Quiz quiz = quizService.getById(id);
+        SessionContext.permissionProtection(PermissionConstant.Course_Create);  Quiz quiz = quizService.getById(id);
         return ResponseEntity.ok().body(new ResponseObject<>(quiz));
 
     }
@@ -69,7 +69,7 @@ public class AdminQuizController {
                                                                @RequestParam(value = "sortBy", required = false) String sortBy,
                                                                @RequestParam(value = "sortDescending", required = false) Boolean sortDescending,
                                                                @RequestParam(value = "quizId", required = false) Long quizId) throws JSONException {
-        SessionContext.permissionProtection(PermissionConstant.Manage_Courses);
+        SessionContext.permissionProtection(PermissionConstant.Course_Create);
         Search search = QuizServiceImpl.generateSearchTermsForQuizes(searchTerm)
                 .addFilterEqual("recordStatus", RecordStatus.ACTIVE);
         if (quizId != null) {
@@ -87,7 +87,7 @@ public class AdminQuizController {
 
     @DeleteMapping("/{id}/delete")
     public ResponseEntity<BaseResponse> deleteArticle(@PathVariable long id) throws JSONException {
-        SessionContext.permissionProtection(PermissionConstant.Manage_Courses);     Article Article = ApplicationContextProvider.getBean(ArticleService.class).getInstanceByID(id);
+        SessionContext.permissionProtection(PermissionConstant.Course_Create);     Article Article = ApplicationContextProvider.getBean(ArticleService.class).getInstanceByID(id);
         ApplicationContextProvider.getBean(ArticleService.class).deleteInstance(Article);
         return ResponseEntity.ok().body(new BaseResponse(true));
     }
@@ -101,7 +101,7 @@ public class AdminQuizController {
                                                         @RequestParam(value = "lectureId", required = false) Long lectureId,
                                                         @RequestParam(value = "courseId", required = false) Long courseId) throws JSONException {
 
-        SessionContext.permissionProtection(PermissionConstant.Manage_Courses);  Search search = QuizServiceImpl.generateSearchTermsForQuizes(searchTerm)
+        SessionContext.permissionProtection(PermissionConstant.Course_Create);  Search search = QuizServiceImpl.generateSearchTermsForQuizes(searchTerm)
                 .addFilterEqual("recordStatus", RecordStatus.ACTIVE);
         if (lectureId != null) {
             search.addFilterEqual("courseLecture.id", lectureId);
@@ -122,7 +122,7 @@ public class AdminQuizController {
 
     @GetMapping("/v2/{id}")
     public ResponseEntity<ResponseObject<Article>> getArticleById(@PathVariable("id") Long id) throws JSONException {
-        SessionContext.permissionProtection(PermissionConstant.Manage_Courses);  Article article = ApplicationContextProvider.getBean(ArticleService.class).getInstanceByID(id);
+        SessionContext.permissionProtection(PermissionConstant.Course_Create);  Article article = ApplicationContextProvider.getBean(ArticleService.class).getInstanceByID(id);
 
         return ResponseEntity.ok().body(new ResponseObject<>(article));
     }

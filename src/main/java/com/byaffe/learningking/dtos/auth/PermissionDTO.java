@@ -33,10 +33,12 @@ public class PermissionDTO extends BaseDTO {
     public static class PermissionLookup {
         public String id;
         public String name;
+        public String module;
 
         public PermissionLookup(PermissionConstant permissionConstant) {
             this.id = permissionConstant.name();
             this.name = permissionConstant.getName();
+            this.module=permissionConstant.getModule();
         }
     }
 
