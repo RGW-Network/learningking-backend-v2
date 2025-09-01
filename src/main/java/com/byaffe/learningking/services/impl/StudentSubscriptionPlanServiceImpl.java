@@ -16,7 +16,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 
 @Service
 @Transactional
@@ -33,6 +35,11 @@ public class StudentSubscriptionPlanServiceImpl extends GenericServiceImpl<Stude
     @Override
     public boolean isDeletable(StudentSubscriptionPlan entity) throws OperationFailedException {
         return true;
+    }
+
+    @Override
+    public List<String> getStringFilterFields() {
+        return Collections.emptyList();
     }
 
     @Override

@@ -14,12 +14,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 
-/**
- * @author Mzee Sr.
- *
- */
+
 @Service
 @Transactional
 public class CurrencyConversionRateServiceImpl extends GenericServiceImpl<CurrencyConversionRate>
@@ -28,33 +27,6 @@ public class CurrencyConversionRateServiceImpl extends GenericServiceImpl<Curren
 	@Autowired
 	SystemSettingService systemSettingService;
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * org.pahappa.systems.akinamama.utils.backend.core.services.GenericService#
-	 * saveInstance(java.lang.Object)
-	 */
-	@Override
-	public CurrencyConversionRate saveInstance(CurrencyConversionRate instance)
-			throws ValidationFailedException, OperationFailedException {
-		if (instance.getFromCurency() == null)
-			throw new ValidationFailedException("Missing a from currency.");
-
-		if (instance.getToBaseCurrency() <= 0)
-			throw new ValidationFailedException("Conversion rate must be greater than ZERO(0).");
-
-		SystemSetting activeSettings = systemSettingService.getAppSetting();
-
-		if (activeSettings.getBaseCurrency() == null)
-			throw new OperationFailedException("First set the base currency under System Settings and try again.");
-
-		if (activeSettings.getBaseCurrency().equals(instance.getFromCurency()))
-			throw new ValidationFailedException("The currency specified is he same as the base currency.");
-
-		instance.setStatus(CurrencyConversionRateStatus.New);
-		return super.save(instance);
-	}
 
 	/*
 	 * (non-Javadoc)
@@ -114,7 +86,12 @@ public class CurrencyConversionRateServiceImpl extends GenericServiceImpl<Curren
 		throw new OperationFailedException("Rates are simply deactivated.");
 	}
 
-	/*
+    @Override
+    public List<String> getStringFilterFields() {
+        return Collections.emptyList();
+    }
+
+    /*
 	 * (non-Javadoc)
 	 * 
 	 * @see org.pahappa.systems.akinamama.utils.backend.core.services.

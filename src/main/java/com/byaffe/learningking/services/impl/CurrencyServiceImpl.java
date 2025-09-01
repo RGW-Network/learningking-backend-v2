@@ -12,6 +12,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collections;
+import java.util.List;
+
 /**
  * @author Mzee Sr.
  *
@@ -20,13 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class CurrencyServiceImpl extends GenericServiceImpl<Currency> implements CurrencyService {
 
-    /*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * org.pahappa.systems.core.services.GenericService#
-	 * saveInstance(java.lang.Object)
-     */
+
     @Override
     public Currency saveInstance(Currency instance) throws ValidationFailedException, OperationFailedException {
         if (StringUtils.isBlank(instance.getName())) {
@@ -84,15 +81,11 @@ public class CurrencyServiceImpl extends GenericServiceImpl<Currency> implements
         return super.searchUniqueByPropertyEqual("symbol", symbol);
     }
 
-    /*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.pahappa.systems.akinamama.utils.backend.core.services.impl.
-	 * GenericServiceImpl#isDeletable(org.sers.webutils.model.BaseEntity)
-     */
+
+
     @Override
-    public boolean isDeletable(Currency entity) throws OperationFailedException {
-        return true;
+    public List<String> getStringFilterFields() {
+        return Collections.emptyList();
     }
 
     @Override

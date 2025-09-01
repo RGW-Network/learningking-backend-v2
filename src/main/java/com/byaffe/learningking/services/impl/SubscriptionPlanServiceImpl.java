@@ -15,6 +15,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collections;
+import java.util.List;
+
 @Service
 @Transactional
 public class SubscriptionPlanServiceImpl extends GenericServiceImpl<SubscriptionPlan> implements SubscriptionPlanService {
@@ -23,17 +26,14 @@ public class SubscriptionPlanServiceImpl extends GenericServiceImpl<Subscription
     SubscriptionPlanToCourseMapperService subscriptionPlanToCourseMapperService;
     @Autowired
     ModelMapper modelMapper;
-    @Override
-    public boolean isDeletable(SubscriptionPlan entity) throws OperationFailedException {
-        return true;
-    }
+
 
     @Override
-    public SubscriptionPlan saveInstance(SubscriptionPlan instance) throws ValidationFailedException, OperationFailedException {
-
-        return super.save(instance);
-
+    public List<String> getStringFilterFields() {
+        return Collections.emptyList();
     }
+
+
     public SubscriptionPlan saveInstance(SubscriptionPlanRequestDTO instance) throws ValidationFailedException, OperationFailedException {
         if (instance == null) {
             throw new ValidationFailedException("Null object");
@@ -59,7 +59,7 @@ public class SubscriptionPlanServiceImpl extends GenericServiceImpl<Subscription
         }
         SubscriptionPlan article=modelMapper.map(instance,SubscriptionPlan.class);
         article.setCommaSeparatedWhatYouGet(instance.getCommaSeparatedWhatYouGet());
-        article= saveInstance(article);
+        article= save(article);
         return article;
 
     }

@@ -63,33 +63,7 @@ public class EventAttendanceServiceImpl extends GenericServiceImpl<EventAttendan
 
     }
 
-    @Override
-    public int countInstances(Search search) {
-        return super.count(search);
-    }
 
-    @Override
-    public void deleteInstance(EventAttendance event) {
-        event.setRecordStatus(RecordStatus.DELETED);
-        super.save(event);
-
-    }
-
-
-    @Override
-    public List<EventAttendance> getInstances(Search search, int offset, int limit) {
-        if (search == null) {
-            search = new Search();
-        }
-        search.setMaxResults(limit);
-        search.setFirstResult(offset);
-        return super.search(search);
-    }
-
-    @Override
-    public EventAttendance getInstanceByID(Long event_id) {
-        return super.getInstanceByID(event_id);
-    }
 
     public EventAttendance getAttendance(Event event, Student student) {
         return super.searchUnique(new Search().addFilterEqual("event", event).addFilterEqual("student", student).addFilterIn("status", Arrays.asList(EventAttendanceStatus.ATTENDING, EventAttendanceStatus.COMPLETED)));
@@ -189,8 +163,8 @@ public class EventAttendanceServiceImpl extends GenericServiceImpl<EventAttendan
 
 
     @Override
-    public boolean isDeletable(EventAttendance entity) throws OperationFailedException {
-        return true; // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    public List<String> getStringFilterFields() {
+        return Collections.emptyList();
     }
 
 

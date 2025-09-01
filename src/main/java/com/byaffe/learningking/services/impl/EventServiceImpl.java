@@ -20,10 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -184,6 +181,11 @@ public class EventServiceImpl extends GenericServiceImpl<Event> implements Event
     @Override
     public boolean isDeletable(Event entity) throws OperationFailedException {
         return true; // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+
+    @Override
+    public List<String> getStringFilterFields() {
+        return Collections.emptyList();
     }
 
 

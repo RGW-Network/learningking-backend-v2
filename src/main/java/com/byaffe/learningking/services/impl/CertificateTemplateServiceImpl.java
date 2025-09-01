@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 
 @Service
 @Transactional
@@ -84,6 +85,11 @@ public class CertificateTemplateServiceImpl extends GenericServiceImpl<Certifica
     @Override
     public boolean isDeletable(CertificateTemplate entity) throws OperationFailedException {
         return true; // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+
+    @Override
+    public List<String> getStringFilterFields() {
+        return Collections.emptyList();
     }
 
 

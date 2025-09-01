@@ -20,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -135,9 +136,10 @@ public class NotificationServiceImpl extends GenericServiceImpl<Notification> im
     }
 
     @Override
-    public Notification saveInstance(Notification instance) throws ValidationFailedException, OperationFailedException {
-        return super.save(instance);
+    public List<String> getStringFilterFields() {
+        return Collections.emptyList();
     }
+
 
     public void deleteAll() {
         for (Notification notification : super.findAll()) {

@@ -8,6 +8,9 @@ import lombok.Data;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.List;
+import java.util.ArrayList;
+import com.byaffe.learningking.models.quizes.Quiz;
 
 @Data
 @Entity
@@ -57,6 +60,11 @@ private ContentType contentType;
     @JoinColumn(name = "course_topic_id")
     private CourseTopic courseTopic;
 
+    // Bidirectional mapping to LectureQuiz
+    @JsonIgnore
+    @OneToMany(mappedBy = "lecture", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<LectureQuiz> lectureQuizzes = new ArrayList<>();
+
 
 
     public void addExternalLink(ExternalResource link) {
@@ -75,6 +83,54 @@ private ContentType contentType;
 
     public void removeLink(ExternalResource link) {
         this.externalLinks.remove(link);
+    }
+
+    // Helper methods for managing lecture quizzes
+    public void addLectureQuiz(LectureQuiz lectureQuiz) {
+        if (this.lectureQuizzes == null) {
+            this.lectureQuizzes = new ArrayList<>();
+        }
+        lectureQuiz.setLecture(this);
+        this.lectureQuizzes.add(lectureQuiz);
+    }
+
+    public void removeLectureQuiz(LectureQuiz lectureQuiz) {
+        if (this.lectureQuizzes != null) {
+            this.lectureQuizzes.remove(lectureQuiz);
+            lectureQuiz.setLecture(null);
+        }
+    }
+
+    /**
+     * Get all quizzes associated with this lecture
+     */
+    public List<Quiz> getQuizzes() {
+        List<Quiz> quizzes = new ArrayList<>();
+        if (this.lectureQuizzes != null) {
+            for (LectureQuiz lectureQuiz : this.lectureQuizzes) {
+                if (lectureQuiz.getQuiz() != null) {
+                    quizzes.add(lectureQuiz.getQuiz());
+                }
+            }
+        }
+        return quizzes;
+    }
+
+    /**
+     * Get active quizzes for this lecture
+     */
+    public List<Quiz> getActiveQuizzes() {
+        List<Quiz> activeQuizzes = new ArrayList<>();
+        if (this.lectureQuizzes != null) {
+            for (LectureQuiz lectureQuiz : this.lectureQuizzes) {
+                if (lectureQuiz.getQuiz() != null && 
+                    lectureQuiz.getPublicationStatus() == PublicationStatus.ACTIVE &&
+                    lectureQuiz.getQuiz().getPublicationStatus() == PublicationStatus.ACTIVE) {
+                    activeQuizzes.add(lectureQuiz.getQuiz());
+                }
+            }
+        }
+        return activeQuizzes;
     }
 
     @Override

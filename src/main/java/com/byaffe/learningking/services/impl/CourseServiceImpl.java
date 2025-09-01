@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -63,20 +64,20 @@ public class CourseServiceImpl extends GenericServiceImpl<Course> implements Cou
             throw new ValidationFailedException("Missing Description");
         }
         Course course = modelMapper.map(plan, Course.class);
-        course.setCategory(categoryService.getInstanceByID(plan.getCategoryId()));
+        course.setCategory(categoryService.getInstanceByIDOrNull(plan.getCategoryId()));
         course.setCommaSeparatedTags(plan.getCommaSeparatedTags());
-        course.setInstructor(instructorService.getInstanceByID(plan.getInstructorId()));
+        course.setInstructor(instructorService.getInstanceByIDOrNull(plan.getInstructorId()));
         if (plan.getOffersCertificate()!=null&& (plan.getOffersCertificate())) {
             if (plan.getCertificateTemplateId() == null||plan.getCertificateTemplateId() == 0) {
                 throw new ValidationFailedException("Missing certificate template");
             }
             course.setOffersCertificate(true);
-            course.setCertificateTemplate(certificateTemplateService.getInstanceByID(plan.getCertificateTemplateId()));
+            course.setCertificateTemplate(certificateTemplateService.getInstanceByIDOrNull(plan.getCertificateTemplateId()));
         }
 
         course.setDescription(plan.getDescription().replaceAll("[^\\p{ASCII}]", ""));
        course.setFullDescription(plan.getFullDescription());
-        course = saveInstance(course);
+        course = save(course);
 
         if (plan.getCoverImage() != null) {
             String imageUrl = imageStorageService.uploadImage(plan.getCoverImage(), "courses/" + course.getId());
@@ -86,31 +87,6 @@ public class CourseServiceImpl extends GenericServiceImpl<Course> implements Cou
         return course;
     }
 
-    @Override
-    public Course saveInstance(Course plan) throws ValidationFailedException {
-
-        if (plan.getCategory() == null) {
-            throw new ValidationFailedException("Missing course Type");
-        }
-
-        if (StringUtils.isBlank(plan.getTitle())) {
-            throw new ValidationFailedException("Missing Title");
-        }
-
-        if (StringUtils.isBlank(plan.getDescription())) {
-            throw new ValidationFailedException("Missing Description");
-        }
-
-        Course existingWithTitle = getPlanByTitle(plan.getTitle());
-
-        if (existingWithTitle != null && !existingWithTitle.getId().equals(plan.getId())) {
-            throw new ValidationFailedException("A course with the same title already exists!");
-        }
-        plan.setPublicationStatus(PublicationStatus.INACTIVE);
-
-        return super.merge(plan);
-
-    }
 
     @Override
     public float getProgress(CourseLecture currentSubTopic) {
@@ -184,10 +160,6 @@ public class CourseServiceImpl extends GenericServiceImpl<Course> implements Cou
     }
 
 
-    @Override
-    public Course getInstanceByID(Long id) {
-        return super.findById(id).orElseThrow(() -> new ValidationFailedException(String.format("Course with ID %d not found", id)));
-    }
 
     @Override
     public Course activatePlan(Course plan) throws ValidationFailedException {
@@ -232,6 +204,11 @@ public class CourseServiceImpl extends GenericServiceImpl<Course> implements Cou
     @Override
     public boolean isDeletable(Course entity) throws OperationFailedException {
         throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+
+    @Override
+    public List<String> getStringFilterFields() {
+        return Collections.emptyList();
     }
 
 }

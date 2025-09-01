@@ -47,7 +47,7 @@ public class  PaymentsController {
     public ResponseEntity<ResponseList<SubscriptionPlan>> getPlans(@RequestParam(required = false, value = "searchTerm") String searchTerm,
                                                                    @RequestParam("offset") int offset,
                                                                    @RequestParam("limit") int limit) {
-        Search search = CategoryServiceImpl.composeSearchObject(searchTerm);
+        Search search = subscriptionPlanService.composeSearchObject(searchTerm);
         search.addFilterIn("publicationStatus", PublicationStatus.ACTIVE);
         long totalRecords = subscriptionPlanService.countInstances(search);
         return ResponseEntity.ok().body(new ResponseList<>(subscriptionPlanService.getInstances(search, offset, limit), totalRecords, offset, limit));
@@ -56,7 +56,7 @@ public class  PaymentsController {
     public ResponseEntity<ResponseList<AggregatorTransaction>> getPayments(@RequestParam(required = false, value = "searchTerm") String searchTerm,
                                                                    @RequestParam("offset") int offset,
                                                                    @RequestParam("limit") int limit) {
-        Search search = PaymentServiceImpl.composeSearchObject(searchTerm);
+        Search search = paymentService.composeSearchObject(searchTerm);
         if(!Objects.requireNonNull(SessionContext.getLoggedInUser()).hasAdministrativePrivileges()) {
             search.addFilterEqual("student.id", Objects.requireNonNull(SessionContext.getLoggedInStudent()).getId());
             search.addFilterEqual("status", TransactionStatus.SUCCESSFUL);

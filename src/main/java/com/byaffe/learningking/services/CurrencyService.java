@@ -10,6 +10,7 @@ import com.byaffe.learningking.shared.models.Country;
  */
 public interface CurrencyService extends GenericService<Currency> {
 
+
 	/**
 	 * Gets a {@link Currency} by the specified name.
 	 * 

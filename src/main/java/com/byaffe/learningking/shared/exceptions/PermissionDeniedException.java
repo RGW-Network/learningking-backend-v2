@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 public class PermissionDeniedException extends RuntimeException {
 
     public PermissionDeniedException() {
-        super("Action Not Authorised");
+        super("You Don't Have The Required Permissions");
     }
 
 

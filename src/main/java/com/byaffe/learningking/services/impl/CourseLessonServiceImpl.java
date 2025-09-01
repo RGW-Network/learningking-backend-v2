@@ -20,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collections;
 import java.util.List;
 @Transactional
 @Repository
@@ -53,21 +54,6 @@ public class CourseLessonServiceImpl extends GenericServiceImpl<CourseLesson> im
         }
         return courseLesson;
     }
-    @Override
-    public CourseLesson saveInstance(CourseLesson seriesPart) throws ValidationFailedException {
-
-        if (seriesPart.getCourse() == null) {
-            throw new ValidationFailedException("Missing empowerment serie");
-        }
-
-        if (seriesPart.getPosition() == 0) {
-            int seriesInPart = countInstances(new Search().addFilterEqual("empowermentSerie", seriesPart.getCourse()).addFilterEqual("recordStatus", RecordStatus.ACTIVE));
-            seriesPart.setPosition(seriesInPart + 1);
-        }
-
-        return super.merge(seriesPart);
-
-    }
 
     @Override
     public float getProgress(CourseLecture currentSubTopic) {
@@ -89,30 +75,7 @@ public class CourseLessonServiceImpl extends GenericServiceImpl<CourseLesson> im
 
     }
 
-    @Override
-    public List<CourseLesson> getInstances(Search search, int offset, int limit) {
-        if (search == null) {
-            search = new Search();
-        }
-        search.setMaxResults(limit);
-        search.setFirstResult(offset);
-        search.addSortAsc("position");
-        return super.search(search);
-    }
 
-    @Override
-    public int countInstances(Search search) {
-        if (search == null) {
-            search = new Search();
-        }
-        search.addFilterEqual("recordStatus", RecordStatus.ACTIVE);
-        return super.countInstances(search);
-    }
-
-    @Override
-    public CourseLesson getInstanceByID(Long id) {
-        return super.searchUniqueByPropertyEqual("id", id, RecordStatus.ACTIVE);
-    }
 
 
     public CourseLesson getFirstLesson(Course course) {
@@ -126,9 +89,10 @@ public class CourseLessonServiceImpl extends GenericServiceImpl<CourseLesson> im
 
     }
 
+
     @Override
-    public boolean isDeletable(CourseLesson entity) throws OperationFailedException {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    public List<String> getStringFilterFields() {
+        return Collections.emptyList();
     }
 
 }

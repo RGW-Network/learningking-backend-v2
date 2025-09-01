@@ -19,6 +19,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -45,21 +46,6 @@ public class CourseTopicServiceImpl extends GenericServiceImpl<CourseTopic> impl
         courseLesson.setCourseLesson(course);
 
         return super.save(courseLesson);
-    }
-    @Override
-    public CourseTopic saveInstance(CourseTopic seriesPart) throws ValidationFailedException {
-
-        if (seriesPart.getCourseLesson() == null) {
-            throw new ValidationFailedException("Missing empowerment serie");
-        }
-
-        if (seriesPart.getPosition() == 0) {
-            int seriesInPart = countInstances(new Search().addFilterEqual("courseLesson", seriesPart.getCourseLesson()).addFilterEqual("recordStatus", RecordStatus.ACTIVE));
-            seriesPart.setPosition(seriesInPart + 1);
-        }
-
-        return super.merge(seriesPart);
-
     }
 
     @Override
@@ -131,6 +117,11 @@ if (allSubTopics.isEmpty()) {
     @Override
     public boolean isDeletable(CourseTopic entity) throws OperationFailedException {
         return true;
+    }
+
+    @Override
+    public List<String> getStringFilterFields() {
+        return Collections.emptyList();
     }
 
 }

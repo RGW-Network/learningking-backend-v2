@@ -20,6 +20,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -77,6 +79,11 @@ public class PasswordResetServiceImpl extends GenericServiceImpl<PasswordResetTo
     @Override
     public boolean isDeletable(PasswordResetToken entity) throws OperationFailedException {
         return false;
+    }
+
+    @Override
+    public List<String> getStringFilterFields() {
+        return Collections.emptyList();
     }
 
     @Override

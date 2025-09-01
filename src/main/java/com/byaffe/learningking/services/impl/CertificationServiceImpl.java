@@ -19,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -29,7 +30,10 @@ public class CertificationServiceImpl extends GenericServiceImpl<Certification> 
 
     @Autowired
     CertificationCourseDao certificationCourseDao;
-
+    @Override
+    public List<String> getStringFilterFields() {
+        return Collections.emptyList();
+    }
     @Override
     public Certification saveInstance(Certification instance) throws ValidationFailedException, OperationFailedException {
 

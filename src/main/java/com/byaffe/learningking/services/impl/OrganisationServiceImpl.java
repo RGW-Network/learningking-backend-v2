@@ -30,6 +30,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -115,25 +116,6 @@ public class OrganisationServiceImpl extends GenericServiceImpl<Organisation> im
         return model;
     }
 
-    @Override
-    public Organisation saveInstance(Organisation instance) throws ValidationFailedException, OperationFailedException {
-
-        if (StringUtils.isBlank(instance.getName())) {
-            throw new ValidationFailedException("Missing Name");
-        }
-
-        if (instance.getAreaOfBusiness() == null) {
-            throw new ValidationFailedException("Missing Area Of Business");
-        }
-
-        if (StringUtils.isBlank(instance.getDescription())) {
-            throw new ValidationFailedException("Missing About details");
-        }
-
-        return save(instance);
-
-    }
-
 
     public Organisation verifyEmail(String verificationCode) {
         Organisation organisation = searchUnique(new Search().addFilterEqual("lastVerificationCode", verificationCode).setMaxResults(1));
@@ -161,6 +143,11 @@ public class OrganisationServiceImpl extends GenericServiceImpl<Organisation> im
     @Override
     public boolean isDeletable(Organisation entity) throws OperationFailedException {
         return true;
+    }
+
+    @Override
+    public List<String> getStringFilterFields() {
+        return Collections.emptyList();
     }
 
 

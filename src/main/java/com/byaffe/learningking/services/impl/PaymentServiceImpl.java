@@ -90,6 +90,11 @@ public class PaymentServiceImpl extends GenericServiceImpl<AggregatorTransaction
     }
 
     @Override
+    public List<String> getStringFilterFields() {
+        return Collections.emptyList();
+    }
+
+    @Override
     public AggregatorTransaction initiateCoursePayment(long courseId, long studentId, String callBackUrl) throws IOException, OperationFailedException, ValidationFailedException {
         Course course = ApplicationContextProvider.getBean(CourseService.class).getInstanceByID(courseId);
         Student student = ApplicationContextProvider.getBean(StudentService.class).getInstanceByID(studentId);
@@ -379,10 +384,4 @@ public class PaymentServiceImpl extends GenericServiceImpl<AggregatorTransaction
 
     }
 
-    public static Search composeSearchObject(String searchTerm) {
-        com.googlecode.genericdao.search.Search search = CustomSearchUtils.generateSearchTerms(searchTerm,
-                Arrays.asList("serialNumber", "description"));
-
-        return search;
-    }
 }

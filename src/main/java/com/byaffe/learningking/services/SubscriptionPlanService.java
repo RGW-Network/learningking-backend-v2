@@ -2,6 +2,7 @@ package com.byaffe.learningking.services;
 
 import com.byaffe.learningking.dtos.SubscriptionPlanRequestDTO;
 import com.byaffe.learningking.models.payments.SubscriptionPlan;
+import com.byaffe.learningking.shared.exceptions.OperationFailedException;
 import com.byaffe.learningking.shared.exceptions.ValidationFailedException;
 
 /**

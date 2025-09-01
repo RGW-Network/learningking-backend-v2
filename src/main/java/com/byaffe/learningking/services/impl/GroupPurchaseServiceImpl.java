@@ -17,6 +17,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * @author Mzee Sr.
@@ -47,5 +49,10 @@ public class GroupPurchaseServiceImpl extends GenericServiceImpl<OrganisationPur
     @Override
     public boolean isDeletable(OrganisationPurchase entity) throws OperationFailedException {
         return false;
+    }
+
+    @Override
+    public List<String> getStringFilterFields() {
+        return Collections.emptyList();
     }
 }

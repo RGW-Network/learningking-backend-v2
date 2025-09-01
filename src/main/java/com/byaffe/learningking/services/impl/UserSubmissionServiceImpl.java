@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -116,5 +117,10 @@ public class UserSubmissionServiceImpl extends GenericServiceImpl<UserSubmission
         return true; // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
 
-    
+    @Override
+    public List<String> getStringFilterFields() {
+        return Collections.emptyList();
+    }
+
+
 }

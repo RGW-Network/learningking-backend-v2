@@ -11,6 +11,7 @@ import com.googlecode.genericdao.search.Search;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -21,7 +22,12 @@ public class SubscriptionPlanToCategoryMapperServiceImpl extends GenericServiceI
     public boolean isDeletable(SubscriptionPlanToCategoryMapper entity) throws OperationFailedException {
         return true;
     }
-    
+
+    @Override
+    public List<String> getStringFilterFields() {
+        return Collections.emptyList();
+    }
+
     @Override
     public SubscriptionPlanToCategoryMapper saveInstance(SubscriptionPlanToCategoryMapper instance) throws ValidationFailedException, OperationFailedException {
         if (instance == null) {

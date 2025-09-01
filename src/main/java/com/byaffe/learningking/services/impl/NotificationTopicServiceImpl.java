@@ -9,6 +9,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collections;
+import java.util.List;
+
 @Service
 @Transactional
 public class NotificationTopicServiceImpl extends GenericServiceImpl<NotificationTopic> implements NotificationTopicService {
@@ -54,9 +57,11 @@ public class NotificationTopicServiceImpl extends GenericServiceImpl<Notificatio
     }
 
     @Override
-    public NotificationTopic saveInstance(NotificationTopic instance) throws ValidationFailedException, OperationFailedException {
-        return super.save(instance);
+    public List<String> getStringFilterFields() {
+        return Collections.emptyList();
     }
+
+
 
     @Override
     public void subscribeToTopic(String deviceId, String topicName) throws ValidationFailedException, OperationFailedException {
@@ -66,7 +71,7 @@ public class NotificationTopicServiceImpl extends GenericServiceImpl<Notificatio
                 notificationTopic = saveNotificationTopic(new NotificationTopic(topicName));
             }
             notificationTopic.addSubscriber(deviceId);
-            saveInstance(notificationTopic);
+            save(notificationTopic);
         }
 
     }
@@ -77,7 +82,7 @@ public class NotificationTopicServiceImpl extends GenericServiceImpl<Notificatio
             NotificationTopic notificationTopic = getTopicByName(topicName);
             if (notificationTopic != null) {
                 notificationTopic.removeSubscriber(deviceId);
-                saveInstance(notificationTopic);
+                save(notificationTopic);
 
             }
         }

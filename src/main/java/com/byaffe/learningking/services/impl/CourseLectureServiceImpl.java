@@ -15,6 +15,9 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
+import java.util.Collections;
+import java.util.List;
+
 @Repository
 public class CourseLectureServiceImpl
         extends GenericServiceImpl<CourseLecture> implements CourseLectureService {
@@ -35,8 +38,8 @@ public class CourseLectureServiceImpl
     }
 
     @Override
-    public CourseLecture saveInstance(CourseLecture instance) throws ValidationFailedException, OperationFailedException {
-        return super.save(instance);
+    public List<String> getStringFilterFields() {
+        return Collections.emptyList();
     }
 
     @Override

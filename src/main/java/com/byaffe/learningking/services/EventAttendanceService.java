@@ -22,7 +22,7 @@ public interface EventAttendanceService extends GenericService<EventAttendance> 
     EventAttendance attendFreeEvent(long eventId,long studentId);
     EventAttendance attendPaidEvent( AggregatorTransaction aggregatorTransaction);
     void bulkAttend( AggregatorTransaction aggregatorTransaction);
-
+     EventAttendance saveInstance(EventAttendance eventAttendance) throws ValidationFailedException ;
     EventAttendance getByUser(long eventId,long studentId);
 
     EventAttendance cancel(long eventId,String cancellationNotes);

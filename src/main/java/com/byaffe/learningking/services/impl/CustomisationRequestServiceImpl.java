@@ -23,6 +23,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -120,6 +122,11 @@ public class CustomisationRequestServiceImpl extends GenericServiceImpl<CourseCu
     @Override
     public boolean isDeletable(CourseCustomisationRequest entity) throws OperationFailedException {
         return true;
+    }
+
+    @Override
+    public List<String> getStringFilterFields() {
+        return Collections.emptyList();
     }
 
     @Override

@@ -36,7 +36,7 @@ public class EventsController {
     EventAttendanceService  attendanceService;
     @GetMapping("/{id}")
     public ResponseEntity<ResponseObject<EventResponseDto>> getById(@PathVariable(name = "id") long id) throws JSONException {
-       Event event=ApplicationContextProvider.getBean(EventService.class).getInstanceByID(id);
+       Event event=ApplicationContextProvider.getBean(EventService.class).getInstanceByIDOrThrow(id);
         return ResponseEntity.ok().body(new ResponseObject<>(new EventResponseDto().fromModel(event,attendanceService)));
 
     }

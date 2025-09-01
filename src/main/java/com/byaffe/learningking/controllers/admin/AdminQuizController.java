@@ -1,11 +1,14 @@
 package com.byaffe.learningking.controllers.admin;
 
+import com.byaffe.learningking.dtos.quiz.LectureQuizRequestDTO;
 import com.byaffe.learningking.dtos.quiz.QuizQuestionRequestDTO;
 import com.byaffe.learningking.dtos.quiz.QuizRequestDTO;
 import com.byaffe.learningking.models.Article;
+import com.byaffe.learningking.models.courses.LectureQuiz;
 import com.byaffe.learningking.models.quizes.Question;
 import com.byaffe.learningking.models.quizes.Quiz;
 import com.byaffe.learningking.services.ArticleService;
+import com.byaffe.learningking.services.LectureQuizService;
 import com.byaffe.learningking.services.QuizService;
 import com.byaffe.learningking.services.impl.QuizServiceImpl;
 import com.byaffe.learningking.shared.api.BaseResponse;
@@ -39,6 +42,9 @@ public class AdminQuizController {
     QuizService quizService;
 
     @Autowired
+    LectureQuizService lectureQuizService;
+
+    @Autowired
     ModelMapper modelMapper;
 
     @PostMapping("")
@@ -53,6 +59,8 @@ public class AdminQuizController {
         Question model = quizService.saveQuizQuestion(dto);
         return ResponseEntity.ok().body(new ResponseObject<>(model));
     }
+
+
 
 
     @GetMapping("/{id}")
@@ -86,9 +94,9 @@ public class AdminQuizController {
     }
 
     @DeleteMapping("/{id}/delete")
-    public ResponseEntity<BaseResponse> deleteArticle(@PathVariable long id) throws JSONException {
-        SessionContext.permissionProtection(PermissionConstant.Course_Create);     Article Article = ApplicationContextProvider.getBean(ArticleService.class).getInstanceByID(id);
-        ApplicationContextProvider.getBean(ArticleService.class).deleteInstance(Article);
+    public ResponseEntity<BaseResponse> deleteQuiz(@PathVariable long id) throws JSONException {
+        SessionContext.permissionProtection(PermissionConstant.Course_Create);
+       // quizService.
         return ResponseEntity.ok().body(new BaseResponse(true));
     }
 
@@ -119,12 +127,40 @@ public class AdminQuizController {
         return ResponseEntity.ok().body(new ResponseList<>(models, (int) count, offset, limit));
 
     }
+    @PostMapping("/lecture-quiz")
+    public ResponseEntity<ResponseObject<LectureQuiz>> addQuizeToLecture(@RequestBody LectureQuizRequestDTO dto) throws JSONException {
+        SessionContext.permissionProtection(PermissionConstant.Course_Create);
+        LectureQuiz lectureQuiz = lectureQuizService.save(dto);
+        return ResponseEntity.ok().body(new ResponseObject<>(lectureQuiz));
+    }
+    @GetMapping("lecture-quiz")
+    public ResponseEntity<ResponseList<LectureQuiz>> getLectureQuizes(@RequestParam(value = "searchTerm", required = false) String searchTerm,
+                                                        @RequestParam(value = "offset", required = true) Integer offset,
+                                                        @RequestParam(value = "limit", required = true) Integer limit,
+                                                        @RequestParam(value = "sortBy", required = false) String sortBy,
+                                                        @RequestParam(value = "sortDescending", required = false) Boolean sortDescending,
+                                                        @RequestParam(value = "lectureId", required = false) Long lectureId) throws JSONException {
 
+        SessionContext.permissionProtection(PermissionConstant.Course_Create);  Search search = QuizServiceImpl.generateSearchTermsForQuizes(searchTerm)
+                .addFilterEqual("recordStatus", RecordStatus.ACTIVE);
+        if (lectureId != null) {
+            search.addFilterEqual("lecture.id", lectureId);
+        }
+
+
+        if (StringUtils.isNotEmpty(sortBy)) {
+            search.addSort(sortBy, sortDescending);
+        }
+        List<LectureQuiz> models = lectureQuizService.getInstances(search, offset, limit);
+        long count = lectureQuizService.countInstances(search);
+        return ResponseEntity.ok().body(new ResponseList<>(models, (int) count, offset, limit));
+
+    }
     @GetMapping("/v2/{id}")
-    public ResponseEntity<ResponseObject<Article>> getArticleById(@PathVariable("id") Long id) throws JSONException {
-        SessionContext.permissionProtection(PermissionConstant.Course_Create);  Article article = ApplicationContextProvider.getBean(ArticleService.class).getInstanceByID(id);
+    public ResponseEntity<ResponseObject<Quiz>> getQuizById(@PathVariable("id") Long id) throws JSONException {
+        SessionContext.permissionProtection(PermissionConstant.Course_Create);
 
-        return ResponseEntity.ok().body(new ResponseObject<>(article));
+        return ResponseEntity.ok().body(new ResponseObject<>(quizService.getById(id)));
     }
 
 

@@ -22,11 +22,12 @@ import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 @Transactional
 @Repository
-public class CourseEnrollmentServiceImpl extends BaseDAOImpl<CourseEnrollment> implements CourseEnrollmentService {
+public class CourseEnrollmentServiceImpl extends GenericServiceImpl<CourseEnrollment> implements CourseEnrollmentService {
 
 
     @Autowired
@@ -274,13 +275,8 @@ public class CourseEnrollmentServiceImpl extends BaseDAOImpl<CourseEnrollment> i
     }
 
     @Override
-    public int countInstances(Search search) {
-        return super.count(search);
-    }
-
-    @Override
-    public void deleteInstances(Search search) throws OperationFailedException {
-        // super.delete(entity);
+    public List<String> getStringFilterFields() {
+        return Collections.emptyList();
     }
 
     @Override

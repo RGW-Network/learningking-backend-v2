@@ -163,7 +163,7 @@ CourseRatingService ratingService;
     public ResponseEntity<ResponseObject<CourseDetailsResponseDTO>> getCourseDetails(@PathVariable("id") Long id) throws JSONException {
         Student member = SessionContext.getLoggedInStudent();
         CourseService courseService = ApplicationContextProvider.getBean(CourseService.class);
-        Course course = courseService.getInstanceByID(id);
+        Course course = courseService.getInstanceByIDOrNull(id);
         CourseDetailsResponseDTO responseDTO = new CourseDetailsResponseDTO();
         CourseResponseDTO courseObj = modelMapper.map(course, CourseResponseDTO.class);
         List<CourseLesson> lessons = ApplicationContextProvider.getBean(CourseLessonService.class).getInstances(new Search()
@@ -223,7 +223,7 @@ CourseRatingService ratingService;
     public ResponseEntity<ResponseObject<LessonResponseDTO>> getLessons(@PathVariable("id") Long id) throws JSONException {
         LessonResponseDTO result = new LessonResponseDTO();
 
-        CourseLesson lesson = ApplicationContextProvider.getBean(CourseLessonService.class).getInstanceByID(id);
+        CourseLesson lesson = ApplicationContextProvider.getBean(CourseLessonService.class).getInstanceByIDOrThrow(id);
         if (lesson == null) {
             throw new ValidationFailedException("Lesson not found");
         }
@@ -260,7 +260,7 @@ CourseRatingService ratingService;
         CourseTopicResponseDTO result = new CourseTopicResponseDTO();
         Student member = SessionContext.getLoggedInStudent();
 
-        CourseTopic topic = ApplicationContextProvider.getBean(CourseTopicService.class).getInstanceByID(id);
+        CourseTopic topic = ApplicationContextProvider.getBean(CourseTopicService.class).getInstanceByIDOrNull(id);
         if (topic == null) {
             throw new ValidationFailedException("Topic not found");
         }
@@ -307,7 +307,7 @@ CourseRatingService ratingService;
         if (member == null) {
             throw new ValidationFailedException("Student Not Found");
         }
-        CourseLecture topic = ApplicationContextProvider.getBean(CourseLectureService.class).getInstanceByID(id);
+        CourseLecture topic = ApplicationContextProvider.getBean(CourseLectureService.class).getInstanceByIDOrNull(id);
         if (topic == null) {
             throw new ValidationFailedException("Topic  Not Found");
         }

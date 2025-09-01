@@ -16,6 +16,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 @Repository
 public class CategoryServiceImpl
@@ -27,26 +29,10 @@ public class CategoryServiceImpl
     ImageStorageService   imageStorageService;
 
     @Override
-    public boolean isDeletable(Category entity) throws OperationFailedException {
-        return true;
+    public List<String> getStringFilterFields() {
+        return Collections.emptyList();
     }
 
-    @Override
-    public Category saveInstance(Category instance) throws ValidationFailedException, OperationFailedException {
-        if (StringUtils.isBlank(instance.getName())) {
-            throw new ValidationFailedException("Missing name");
-        }
-
-        if (instance.getType() == null) {
-            throw new ValidationFailedException("Missing type");
-        }
-        Category existsWithType = getCategoryByNameAndType(instance.getName(), instance.getType());
-        if (existsWithType != null && !existsWithType.getId().equals(instance.getId())) {
-            throw new ValidationFailedException("Category With Same name and type exists");
-        }
-
-        return super.save(instance);
-    }
 
     public Category saveInstance(CourseCategoryRequestDTO dto) throws ValidationFailedException, OperationFailedException {
         if (StringUtils.isBlank(dto.getName())) {
@@ -84,10 +70,4 @@ public class CategoryServiceImpl
         return super.searchUnique(search);
     }
 
-    public static Search composeSearchObject(String searchTerm) {
-        com.googlecode.genericdao.search.Search search = CustomSearchUtils.generateSearchTerms(searchTerm,
-                Arrays.asList("name","description"));
-
-        return search;
-    }
 }

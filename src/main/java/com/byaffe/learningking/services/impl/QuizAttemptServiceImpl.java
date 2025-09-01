@@ -53,7 +53,7 @@ public class QuizAttemptServiceImpl implements QuizAttemptService {
             throw new ValidationFailedException("Missing enrollment id");
         }
         QuizAttempt quiz = modelMapper.map(dto, QuizAttempt.class);
-        quiz.setEnrollment(courseEnrollmentService.getInstanceByID(dto.getEnrollmentId()));
+        quiz.setEnrollment(courseEnrollmentService.getInstanceByIDOrNull(dto.getEnrollmentId()));
         quiz.setQuiz(quizDao.getReference(dto.getQuizId()));
 
         return quizAttemptDao.save(quiz);
@@ -63,7 +63,7 @@ public class QuizAttemptServiceImpl implements QuizAttemptService {
     public QuizAttempt init(long quizId, long enrollmentId) throws ValidationFailedException {
         QuizAttempt quizAttempt= new QuizAttempt();
         quizAttempt.setQuiz(quizDao.findById(quizId).orElseThrow(()->new ValidationFailedException("Quize not found")));
-        quizAttempt.setEnrollment(courseEnrollmentService.getInstanceByID(enrollmentId));
+        quizAttempt.setEnrollment(courseEnrollmentService.getInstanceByIDOrNull(enrollmentId));
         return quizAttemptDao.save(quizAttempt);
     }
 

@@ -10,6 +10,7 @@ import com.googlecode.genericdao.search.Search;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collections;
 import java.util.List;
 
 
@@ -20,6 +21,11 @@ public class PendingNotificationServiceImpl extends GenericServiceImpl<StudentPe
     @Override
     public boolean isDeletable(StudentPendingNotification entity) throws OperationFailedException {
      return true;
+    }
+
+    @Override
+    public List<String> getStringFilterFields() {
+        return Collections.emptyList();
     }
 
     @Override

@@ -28,6 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.text.MessageFormat;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -276,6 +277,11 @@ public class InstructorServiceImpl extends GenericServiceImpl<CourseInstructor> 
     @Override
     public boolean isDeletable(CourseInstructor entity) throws OperationFailedException {
         return true;
+    }
+
+    @Override
+    public List<String> getStringFilterFields() {
+        return Collections.emptyList();
     }
 
     @Override

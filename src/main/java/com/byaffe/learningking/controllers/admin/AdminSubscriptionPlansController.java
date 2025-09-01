@@ -43,7 +43,8 @@ public class AdminSubscriptionPlansController {
                                                                          @RequestParam("limit") int limit,
                                                                          @RequestParam(required = false, value = "commaSeparatedTypes") String commaSeparatedTypes,
                                                                          @RequestParam(required = false, value = "commaSeparatedAcademies") String commaSeparatedAcademies){
-        SessionContext.permissionProtection(PermissionConstant.Manage_Subscription_Plans);    Search search = CategoryServiceImpl.composeSearchObject(searchTerm);
+        SessionContext.permissionProtection(PermissionConstant.Manage_Subscription_Plans);
+        Search search = subscriptionPlanService.composeSearchObject(searchTerm);
         if(StringUtils.isNotEmpty(commaSeparatedTypes)){
             String[] list = commaSeparatedTypes.split(",");
             List<CategoryType> lookupTypes= Arrays.stream(list).map(CategoryType::valueOf).collect(Collectors.toList());

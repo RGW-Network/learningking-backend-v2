@@ -28,12 +28,12 @@ public class CertificationSubscriptionServiceImpl extends BaseDAOImpl<Certificat
     @Autowired
     CertificationCourseDao certificationCourseDao;
 
-    @Override
+
     public CertificationSubscription getInstanceByID(Long id) {
         return null;
     }
 
-    @Override
+
     public CertificationSubscription saveInstance(CertificationSubscription subscription) throws ValidationFailedException {
         CertificationSubscription exists = getSubscription(subscription.getStudent(), subscription.getCertification());
 
@@ -67,6 +67,16 @@ public class CertificationSubscriptionServiceImpl extends BaseDAOImpl<Certificat
     }
 
     @Override
+    public CertificationSubscription getInstanceByIDOrThrow(Long id) {
+        return null;
+    }
+
+    @Override
+    public CertificationSubscription getInstanceByIDOrNull(Long arg0) {
+        return null;
+    }
+
+    @Override
     public List<CertificationSubscription> getInstances(Search search, int offset, int limit) {
         if (search == null) {
             search = new Search();
@@ -78,6 +88,11 @@ public class CertificationSubscriptionServiceImpl extends BaseDAOImpl<Certificat
     public void deleteInstance(CertificationSubscription memberPlan) {
         memberPlan.setRecordStatus(RecordStatus.DELETED);
         super.save(memberPlan);//To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public Search composeSearchObject(String searchTerm) {
+        return null;
     }
 
 
@@ -132,6 +147,11 @@ public class CertificationSubscriptionServiceImpl extends BaseDAOImpl<Certificat
     @Override
     public void deleteInstances(Search search) throws OperationFailedException {
         // super.delete(entity);
+    }
+
+    @Override
+    public void deleteInstance(long id) {
+
     }
 
     @Override

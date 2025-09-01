@@ -11,6 +11,7 @@ import com.googlecode.genericdao.search.Search;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -21,24 +22,13 @@ public class SubscriptionPlanToCourseMapperServiceImpl extends GenericServiceImp
     public boolean isDeletable(SubscriptionPlanToCourseMapper entity) throws OperationFailedException {
         return true;
     }
-    
+
     @Override
-    public SubscriptionPlanToCourseMapper saveInstance(SubscriptionPlanToCourseMapper instance) throws ValidationFailedException, OperationFailedException {
-        if (instance == null) {
-            throw new ValidationFailedException("Null object");
-        }
-        
-        if (instance.getCourse() == null) {
-            throw new ValidationFailedException("Missing Course");
-        }
-        if (instance.getSubscriptionPlan() == null) {
-            throw new ValidationFailedException("Missing Plan");
-        }
-        
-        return super.save(instance);
-        
+    public List<String> getStringFilterFields() {
+        return Collections.emptyList();
     }
-    
+
+
     @Override
     public SubscriptionPlanToCourseMapper saveInstance(SubscriptionPlan plan, Course course) throws ValidationFailedException, OperationFailedException {
         
@@ -46,7 +36,7 @@ public class SubscriptionPlanToCourseMapperServiceImpl extends GenericServiceImp
         instance.setCourse(course);
         instance.setSubscriptionPlan(plan);
         
-        return saveInstance(instance);
+        return save(instance);
         
     }
     

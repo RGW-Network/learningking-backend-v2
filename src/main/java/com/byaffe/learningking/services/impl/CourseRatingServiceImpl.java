@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -29,13 +30,6 @@ public class CourseRatingServiceImpl extends GenericServiceImpl<Review> implemen
     CourseService courseService;
 
 
-    @Override
-    public Review saveInstance(Review instance) throws ValidationFailedException, OperationFailedException {
-
-
-        return super.save(instance);
-
-    }
 
     public Review saveInstance(ReviewRequestDTO dto) {
         if (!dto.getType().equals(ReviewType.GENERAL) && dto.getRecordId() == null) {
@@ -131,6 +125,11 @@ public class CourseRatingServiceImpl extends GenericServiceImpl<Review> implemen
     @Override
     public boolean isDeletable(Review entity) throws OperationFailedException {
         return true;
+    }
+
+    @Override
+    public List<String> getStringFilterFields() {
+        return Collections.emptyList();
     }
 
     @Override

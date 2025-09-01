@@ -45,7 +45,7 @@ public class CategoriesController {
 
                                                                 @RequestParam(required = false, value = "commaSeparatedTypes") String commaSeparatedTypes,
                                                                 @RequestParam(required = false, value = "commaSeparatedAcademies") String commaSeparatedAcademies) {
-        Search search = CategoryServiceImpl.composeSearchObject(searchTerm);
+        Search search = categoryService.composeSearchObject(searchTerm);
         if (StringUtils.isNotEmpty(commaSeparatedTypes)) {
             String[] list = commaSeparatedTypes.split(",");
             List<CategoryType> lookupTypes = Arrays.stream(list).map(CategoryType::valueOf).collect(Collectors.toList());

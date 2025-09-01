@@ -5,10 +5,12 @@ import com.byaffe.learningking.daos.QuestionDao;
 import com.byaffe.learningking.daos.QuizDao;
 import com.byaffe.learningking.dtos.quiz.QuizQuestionRequestDTO;
 import com.byaffe.learningking.dtos.quiz.QuizRequestDTO;
+import com.byaffe.learningking.models.courses.PublicationStatus;
 import com.byaffe.learningking.models.quizes.AnswerOption;
 import com.byaffe.learningking.models.quizes.Question;
 import com.byaffe.learningking.models.quizes.Quiz;
 import com.byaffe.learningking.services.*;
+import com.byaffe.learningking.shared.constants.RecordStatus;
 import com.byaffe.learningking.shared.exceptions.ValidationFailedException;
 import com.byaffe.learningking.shared.utils.CustomSearchUtils;
 import com.googlecode.genericdao.search.Search;
@@ -118,6 +120,54 @@ public class QuizServiceImpl implements QuizService {
     }
     public AnswerOption getAnswerOptionById(Long id) throws ValidationFailedException {
         return answerDao.findById(id).orElseThrow(() -> new ValidationFailedException("Record Not Found"));
+    }
+
+    /**
+     * Get all quizzes that are associated with lectures in a specific course
+     * Demonstrates the use of bidirectional mapping for filtering
+     */
+    public List<Quiz> getQuizzesForCourse(Long courseId) {
+        Search search = new Search();
+        search.addFilterEqual("lectureQuizzes.lecture.courseTopic.courseLesson.course.id", courseId);
+        search.addFilterEqual("recordStatus", RecordStatus.ACTIVE);
+        search.addFilterEqual("publicationStatus", PublicationStatus.ACTIVE);
+        
+        // Add fetch joins for better performance
+        search.addFetch("lectureQuizzes");
+        search.addFetch("lectureQuizzes.lecture");
+        search.addFetch("lectureQuizzes.lecture.courseTopic");
+        search.addFetch("lectureQuizzes.lecture.courseTopic.courseLesson");
+        search.addFetch("lectureQuizzes.lecture.courseTopic.courseLesson.course");
+        
+        return quizDao.search(search);
+    }
+
+    /**
+     * Get all quizzes that are not associated with any lecture
+     */
+    public List<Quiz> getUnassignedQuizzes() {
+        Search search = new Search();
+        search.addFilterEmpty("lectureQuizzes");
+        search.addFilterEqual("recordStatus", RecordStatus.ACTIVE);
+        search.addFilterEqual("publicationStatus", PublicationStatus.ACTIVE);
+        
+        return quizDao.search(search);
+    }
+
+    /**
+     * Get all quizzes with their associated lectures
+     */
+    public List<Quiz> getQuizzesWithLectures() {
+        Search search = new Search();
+        search.addFilterNotEmpty("lectureQuizzes");
+        search.addFilterEqual("recordStatus", RecordStatus.ACTIVE);
+        search.addFilterEqual("publicationStatus", PublicationStatus.ACTIVE);
+        
+        // Add fetch joins for better performance
+        search.addFetch("lectureQuizzes");
+        search.addFetch("lectureQuizzes.lecture");
+        
+        return quizDao.search(search);
     }
 
 
