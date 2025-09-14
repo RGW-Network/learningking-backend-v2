@@ -3,6 +3,7 @@ package com.byaffe.learningking.services.impl;
 import com.byaffe.learningking.dtos.auth.RoleRequestDTO;
 import com.byaffe.learningking.dtos.auth.UserRegistrationRequestDTO;
 import com.byaffe.learningking.models.Student;
+import com.byaffe.learningking.models.courses.CourseInstructor;
 import com.byaffe.learningking.shared.constants.SecurityConstants;
 import com.byaffe.learningking.shared.exceptions.ValidationFailedException;
 import com.byaffe.learningking.shared.utils.MailService;
@@ -54,6 +55,9 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     CountryDao countryDao;
+
+    @Autowired
+    InstructorDao instructorDao;
 
     @Override
     public User saveUser(User user) {
@@ -243,8 +247,8 @@ public class UserServiceImpl implements UserService {
             throw new ValidationFailedException("Invalid Username or Password");
         }
         Student student = studentDao.searchUnique(new Search().addFilterEqual("userAccount", user));
-
-        return UserDTO.fromModel(user, student, null);
+        CourseInstructor instructor=instructorDao.searchUnique(new Search().addFilterEqual("userAccount",user));
+        return UserDTO.fromModel(user, student, instructor);
     }
 
     @Override

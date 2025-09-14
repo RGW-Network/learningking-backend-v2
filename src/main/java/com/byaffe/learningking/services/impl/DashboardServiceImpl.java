@@ -80,7 +80,7 @@ DashboardRepository dashboardRepository;
         dto.setUsersSignedUp(studentDao.count(new Search()));
         dto.setActiveEnrollments(courseEnrollmentService.countInstances(enrollmentSearch));
         dto.setPublishedCourses(courseDao.count(courseSearch));
-        dto.setMonthlyRevenue(courseEnrollmentService.se);
+        dto.setMonthlyRevenue(courseEnrollmentService.computeRevenue(enrollmentSearch));
         return dto;
     }
 

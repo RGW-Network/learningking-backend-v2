@@ -1,6 +1,7 @@
 package com.byaffe.learningking.dtos.auth;
 
 import com.byaffe.learningking.models.Student;
+import com.byaffe.learningking.models.courses.CourseInstructor;
 import com.byaffe.learningking.shared.api.BaseDTO;
 import com.byaffe.learningking.shared.constants.Gender;
 import com.byaffe.learningking.shared.constants.PermissionConstant;
@@ -31,9 +32,11 @@ public class UserDTO extends BaseDTO {
     public boolean isStudent;
     public Student studentDetails;
     public boolean isInstructor;
+    private String imageUrl;
+    private CourseInstructor instructorDetails;
     public List<PermissionConstant> permissions;
     public Double balance;
-    public static UserDTO fromModel(User model, Student student, Student instructor) {
+    public static UserDTO fromModel(User model, Student student, CourseInstructor instructor) {
         UserDTO dto = new UserDTO();
         //Attributes to be set here
         dto.username = model.getUsername();
@@ -42,12 +45,19 @@ public class UserDTO extends BaseDTO {
         dto.phoneNumber = model.getPhoneNumber();
         dto.lastName = model.getLastName();
         dto.roles = model.getRoles();
-
+dto.imageUrl=model.getProfileImageUrl();
         dto.isSuperAdmin = (model.hasAdministrativePrivileges());
 
         if(student!=null){
             dto.setStudent(true);
             dto.setStudentDetails(student);
+            dto.imageUrl=student.getProfileImageUrl();
+        }
+
+        if(instructor!=null){
+            dto.setInstructor(true);
+            dto.setInstructorDetails(instructor);
+            dto.setImageUrl(instructor.getImageUrl());
         }
 
 
