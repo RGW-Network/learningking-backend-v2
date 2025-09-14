@@ -105,7 +105,7 @@ public class UserController {
                                                           @RequestParam("limit") int limit) {
         SessionContext.permissionProtection(PermissionConstant.Manage_Users);
         Search search = UserServiceImpl.composeSearchObjectForRole(searchTerm);
-       search.addFilterNotEqual("name",AppUtils.STUDENT_ROLE_NAME);
+       //search.addFilterNotEqual("name",AppUtils.STUDENT_ROLE_NAME);
 
         List<Role> roles = userService.getAllRoles(search, offset, limit);
         long count = userService.countRoles(search);

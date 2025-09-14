@@ -5,6 +5,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.Set;
+
 @Data
 public class InstructorRequestDTO {
     private Long id;
@@ -21,4 +23,6 @@ public class InstructorRequestDTO {
     private String imageUrl;
     private String biography;
     private Gender gender;
+    private boolean createUserAccount=false;
+    private Set<Long> userAccountRoles;
 }

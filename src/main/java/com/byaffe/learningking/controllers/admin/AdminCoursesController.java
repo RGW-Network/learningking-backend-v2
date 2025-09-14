@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -39,7 +40,8 @@ public class AdminCoursesController {
     ModelMapper modelMapper;
     @PostMapping("")
     public ResponseEntity<ResponseObject<Course>> addCourse(@RequestBody CourseRequestDTO dto) throws JSONException {
-        SessionContext.permissionProtection(PermissionConstant.Course_Create);Course course=ApplicationContextProvider.getBean(CourseService.class).saveInstance(dto);
+        SessionContext.permissionProtection(PermissionConstant.Course_Create);
+        Course course=ApplicationContextProvider.getBean(CourseService.class).saveInstance(dto);
         return ResponseEntity.ok().body(new ResponseObject<>(course));
     }
     @PostMapping(path = "/multipart", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
@@ -52,14 +54,14 @@ public class AdminCoursesController {
     }
     @PostMapping("/{id}/publish")
     public ResponseEntity<BaseResponse> publishCourse(@PathVariable long id) throws JSONException {
-        SessionContext.permissionProtection(PermissionConstant.Course_Create);  Course course=ApplicationContextProvider.getBean(CourseService.class).getInstanceByID(id);
+        SessionContext.permissionProtection(PermissionConstant.Course_Publish_Own);  Course course=ApplicationContextProvider.getBean(CourseService.class).getInstanceByID(id);
         ApplicationContextProvider.getBean(CourseService.class).activatePlan(course);
         return ResponseEntity.ok().body(new BaseResponse(true));
 
     }
     @PostMapping("/{id}/unpublish")
     public ResponseEntity<BaseResponse> unPublishCourse(@PathVariable long id) throws JSONException {
-        SessionContext.permissionProtection(PermissionConstant.Course_Create);  Course course=ApplicationContextProvider.getBean(CourseService.class).getInstanceByID(id);
+        SessionContext.permissionProtection(PermissionConstant.Course_Publish_Own);  Course course=ApplicationContextProvider.getBean(CourseService.class).getInstanceByID(id);
         ApplicationContextProvider.getBean(CourseService.class).deActivatePlan(course);
         return ResponseEntity.ok().body(new BaseResponse(true));
 
@@ -67,50 +69,69 @@ public class AdminCoursesController {
 
     @GetMapping("/{id}")
     public ResponseEntity<ResponseObject<CourseResponseDTO>> getById(@PathVariable(name = "id") long id) throws JSONException {
-        SessionContext.permissionProtection(PermissionConstant.Course_Create); System.out.println("ID======="+id);
+       SessionContext.permissionProtection(PermissionConstant.Course_View_Own);
+        System.out.println("ID======="+id);
         Course course=ApplicationContextProvider.getBean(CourseService.class).getInstanceByID(id);
         return ResponseEntity.ok().body(new ResponseObject<>(modelMapper.map(course, CourseResponseDTO.class)));
 
     }
     @DeleteMapping("/{id}/delete")
     public ResponseEntity<BaseResponse> deleteCourse(@PathVariable long id) throws JSONException {
-        SessionContext.permissionProtection(PermissionConstant.Course_Create);   Course course=ApplicationContextProvider.getBean(CourseService.class).getInstanceByID(id);
+        SessionContext.permissionProtection(PermissionConstant.Course_Delete_All);
+        Course course=ApplicationContextProvider.getBean(CourseService.class).getInstanceByID(id);
         ApplicationContextProvider.getBean(CourseService.class).deleteInstance(course);
         return ResponseEntity.ok().body(new BaseResponse(true));
     }
     @GetMapping("")
-    public ResponseEntity<ResponseList<Course>> getCourses(ArticlesFilterDTO queryParamModel) throws JSONException {
-        SessionContext.permissionProtection(PermissionConstant.Course_Create);
-        Search search = CourseServiceImpl.generateSearchObjectForCourses(queryParamModel.getSearchTerm())
+    public ResponseEntity<ResponseList<Course>> getCourses(@RequestParam(value = "searchTerm", required = false) String searchTerm,
+                                                           @RequestParam(value = "offset", required = true) Integer offset,
+                                                           @RequestParam(value = "limit", required = true) Integer limit,
+                                                           @RequestParam(value = "sortBy", required = false) String sortBy,
+                                                           @RequestParam(value = "sortDescending", required = false) Boolean sortDescending,
+                                                           @RequestParam(value = "academyType", required = false) CourseAcademyType academyType,
+                                                           @RequestParam(value = "categories", required = false) String commaSeparatedCategories ,
+                                                           @RequestParam(value = "publicationStatus", required = false) PublicationStatus publicationStatus,
+                                                           @RequestParam(value = "instructors", required = false) String commaSeparatedInstructors) throws JSONException {
+        //SessionContext.permissionProtection(PermissionConstant.Course_Create);
+        Search search = CourseServiceImpl.generateSearchObjectForCourses(searchTerm)
                 .addFilterEqual("recordStatus", RecordStatus.ACTIVE);
-        if (queryParamModel.getCategoryId() != null) {
-            search.addFilterEqual("category.id", queryParamModel.getCategoryId());
+        if (commaSeparatedCategories!= null) {
+           List<Long> ids= Arrays.stream(commaSeparatedCategories.split(",")).map(Long::parseLong).collect(Collectors.toList());
+            search.addFilterIn("category.id", ids);
+        }
+        if (commaSeparatedInstructors!= null) {
+            List<Long> ids= Arrays.stream(commaSeparatedInstructors.split(",")).map(Long::parseLong).collect(Collectors.toList());
+            search.addFilterIn("instructor.id", ids);
         }
 
-        if (queryParamModel.getFeatured() != null) {
-            search.addFilterEqual("isFeatured", queryParamModel.getFeatured());
+        if (publicationStatus != null) {
+            search.addFilterEqual("publicationStatus",publicationStatus);
         }
 
-        if (queryParamModel.getSortBy() != null) {
-            search.addSort(queryParamModel.getSortBy(), queryParamModel.getSortDescending());
+        if (academyType != null) {
+            search.addFilterEqual("academy",academyType);
         }
-        List<Course> courses = ApplicationContextProvider.getBean(CourseService.class).getInstances(search, queryParamModel.getOffset(), queryParamModel.getLimit());
+
+        if(!SessionContext.isSuperAdmin()){
+            search.addFilterEqual("instructor.userAccount.id",SessionContext.getLoggedInUser().getId());
+        }
+        List<Course> courses = ApplicationContextProvider.getBean(CourseService.class).getInstances(search, offset, limit);
         long count = ApplicationContextProvider.getBean(CourseService.class).countInstances(search);
 
 
-        return ResponseEntity.ok().body(new ResponseList<>(courses, (int) count, queryParamModel.getOffset(), queryParamModel.getLimit()));
+        return ResponseEntity.ok().body(new ResponseList<>(courses, (int) count, offset, limit));
 
     }
 
     @GetMapping("/v2/{id}")
     public ResponseEntity<ResponseObject<CourseDetailsResponseDTO>> getCourseById(@PathVariable("id") Long id) throws JSONException {
-        SessionContext.permissionProtection(PermissionConstant.Course_Create); Course course = ApplicationContextProvider.getBean(CourseService.class).getInstanceByID(id);
+        SessionContext.permissionProtection(PermissionConstant.Course_View_Own);
+        Course course = ApplicationContextProvider.getBean(CourseService.class).getInstanceByID(id);
         CourseDetailsResponseDTO responseDTO = new CourseDetailsResponseDTO();
         CourseResponseDTO courseObj = (CourseResponseDTO) course;
         List<CourseLesson> lessons = ApplicationContextProvider.getBean(CourseLessonService.class).getInstances(new Search()
                 .addFilterEqual("course", course)
                 .addFilterEqual("recordStatus", RecordStatus.ACTIVE), 0, 0);
-        log.info("Lessons got: {}", lessons.stream().map(r->r.id).toArray());
 
         double rattings = 1;
         try {

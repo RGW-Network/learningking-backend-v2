@@ -73,6 +73,13 @@ public class CourseEnrollmentServiceImpl extends GenericServiceImpl<CourseEnroll
     }
 
     @Override
+    public Double computeRevenue(Search search) {
+
+
+        return searchUnique(search.addFilterEqual("recordStatus",RecordStatus.ACTIVE).addField(""));
+    }
+
+    @Override
     public List<CourseEnrollment> getPlansForStudent(Student member) {
         return super.searchByPropertyEqual("student", member, RecordStatus.ACTIVE); //To change body of generated methods, choose Tools | Templates.
     }

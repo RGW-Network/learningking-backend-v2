@@ -8,6 +8,7 @@ import com.byaffe.learningking.shared.constants.Gender;
 import com.byaffe.learningking.shared.constants.PermissionConstant;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonIncludeProperties;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -48,7 +49,7 @@ public class User extends BaseEntity {
     private LocalDate dateOfBirth;
     @Column(name = "balance")
     private Double balance=0.0;
-    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+    @JsonIncludeProperties({"id", "name"})
     @ManyToOne
     @JoinColumn(name = "country_id", nullable = true)
     private Country country;
@@ -64,6 +65,7 @@ public class User extends BaseEntity {
     @Column(name = "last_verification_code")
     private String lastVerificationCode;
 
+    @JsonIncludeProperties({"id", "role_name"})
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "role_users", joinColumns = {
             @JoinColumn(name = "user_id")}, inverseJoinColumns = {
@@ -110,9 +112,7 @@ public class User extends BaseEntity {
         if (this.roles == null) {
             this.roles = new HashSet<Role>();
         }
-        if (!this.roles.contains(role)) {
-            this.roles.add(role);
-        }
+        this.roles.add(role);
     }
 
     public void removeRole(final Role role) {

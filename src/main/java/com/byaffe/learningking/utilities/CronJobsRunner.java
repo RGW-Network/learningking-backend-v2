@@ -19,9 +19,7 @@ PaymentService paymentService;
    
     @Scheduled(fixedDelay = 5000)//Every 5 seconds
     public void updateTransactionStatusTask() {
-        System.out.println("Cron job to update course transaction statuses at "+new Date());
         paymentService.updatePaymentStatus();
-        System.out.println("Finished Cron job to update course transaction statuses at "+new Date());
     }
 
 

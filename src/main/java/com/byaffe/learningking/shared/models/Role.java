@@ -33,6 +33,14 @@ public class Role extends BaseEntity {
     private Set<PermissionConstant> permissions;
 
 
+
+    private Boolean systemManaged=false;
+
+    @Transient
+public boolean isEditable(){
+    return (systemManaged==null||!systemManaged||isNew());
+}
+
     public Role(final String name, final String description, final Set<PermissionConstant> permissions) {
         this.name = name;
         this.description = description;

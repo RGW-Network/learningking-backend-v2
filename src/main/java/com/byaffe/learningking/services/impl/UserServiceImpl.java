@@ -57,16 +57,14 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User saveUser(User user) {
-        User existEWithUserName=getUserByUsername(user.getUsername());
+        User existEWithUserName = getUserByUsername(user.getUsername());
         if (existEWithUserName != null && user.isNew()) {
             throw new OperationFailedException("User with username exists");
         }
-        log.info("Saving new user {} to DB", user.getUsername());
-
         if (user.isNew()) {
             user.setPassword(PassEncTech4.generateSecurePassword(user.getPassword()));
         }
-        return userRepository.save(user);
+        return userRepository.merge(user);
 
     }
 
@@ -88,26 +86,30 @@ public class UserServiceImpl implements UserService {
             throw new ValidationException("Missing initialPassword");
         }
         User existsWithUsername = getUserByUsername(dto.username);
-        if (existsWithUsername != null ) {
+        if (existsWithUsername != null && !Objects.equals(existsWithUsername.getId(), dto.getId())) {
             throw new ValidationException("User with username exists");
         }
 
-         if(dto.gender==null){
+        if (dto.gender == null) {
             throw new ValidationException("Missing/Invalid Gender Id");
         }
 
         User user = new User();
-        if(dto.countryId!=0){
-            Country country=countryDao.getReference(dto.countryId);
-            if(country==null){
+        if (existsWithUsername != null) {
+            user = existsWithUsername;
+        }
+        if (dto.countryId != 0) {
+            Country country = countryDao.getReference(dto.countryId);
+            if (country == null) {
                 throw new ValidationException("Missing Country");
             }
             user.setCountry(country);
         }
-
-        user.setPassword(PassEncTech4.generateSecurePassword(dto.initialPassword));
-        user.setUsername(dto.username);
-        user.setEmailAddress(dto.emailAddress);
+        if (user.isNew()) {
+            user.setPassword(PassEncTech4.generateSecurePassword(dto.initialPassword));
+            user.setUsername(dto.username);
+            user.setEmailAddress(dto.emailAddress);
+        }
         user.setFirstName(dto.firstName);
         user.setLastName(dto.lastName);
         user.setPhoneNumber(dto.phoneNumber);
@@ -124,12 +126,12 @@ public class UserServiceImpl implements UserService {
     @Override
     public User updateUser(UserDTO dto) throws ValidationException {
 
-        if (dto.id==0) {
+        if (dto.id == 0) {
             throw new ValidationException("Missing Id");
         }
 
         User user = getUserById(dto.id);
-        if (user== null) {
+        if (user == null) {
             throw new ValidationException("User with id not found");
         }
 
@@ -142,10 +144,10 @@ public class UserServiceImpl implements UserService {
             throw new ValidationException("Missing lastname");
         }
 
-        if(dto.countryId!=0){
-            Country country=countryDao.getReference(dto.countryId);
+        if (dto.countryId != 0) {
+            Country country = countryDao.getReference(dto.countryId);
 
-            if(country==null){
+            if (country == null) {
                 throw new ValidationException("Missing Country");
             }
             user.setCountry(country);
@@ -155,8 +157,8 @@ public class UserServiceImpl implements UserService {
         user.setLastName(dto.lastName);
         user.setPhoneNumber(dto.phoneNumber);
 
-        Gender gender= dto.gender;
-        if(gender==null){
+        Gender gender = dto.gender;
+        if (gender == null) {
             throw new ValidationException("Missing/Invalid Gender Id");
         }
         user.setGender(gender);
@@ -171,7 +173,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void deleteUser(long userId) throws ValidationException {
-        if (userId==0) {
+        if (userId == 0) {
             throw new ValidationException("Missing Id");
         }
 
@@ -187,7 +189,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void deleteRole(long userId) throws ValidationException {
-        if (userId==0) {
+        if (userId == 0) {
             throw new ValidationException("Missing Id");
         }
 
@@ -195,7 +197,9 @@ public class UserServiceImpl implements UserService {
         if (existsWithId == null) {
             throw new ValidationException("Role with id not found");
         }
-
+        if(!existsWithId.isEditable()){
+            throw new ValidationFailedException("Role Not Editable");
+        }
         existsWithId.setRecordStatus(RecordStatus.DELETED);
         roleRepository.save(existsWithId);
 
@@ -208,9 +212,11 @@ public class UserServiceImpl implements UserService {
         search.setFirstResult(offset);
         return userRepository.search(search);
     }
-    public long countAllUsers(Search search){
+
+    public long countAllUsers(Search search) {
         return userRepository.count(search);
     }
+
     @Override
     public User getUserById(long id) {
         return userRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("User", "id", id));
@@ -236,9 +242,9 @@ public class UserServiceImpl implements UserService {
         if (!PassEncTech4.verifyUserPassword(authDTO.getPassword(), user.getPassword())) {
             throw new ValidationFailedException("Invalid Username or Password");
         }
-        Student student= studentDao.searchUnique(new Search().addFilterEqual("userAccount",user));
+        Student student = studentDao.searchUnique(new Search().addFilterEqual("userAccount", user));
 
-        return UserDTO.fromModel(user,student,null);
+        return UserDTO.fromModel(user, student, null);
     }
 
     @Override
@@ -255,33 +261,33 @@ public class UserServiceImpl implements UserService {
         }
 
 
-        if (StringUtils.isBlank(dto.confirmPassword)||StringUtils.isBlank(dto.password)) {
+        if (StringUtils.isBlank(dto.confirmPassword) || StringUtils.isBlank(dto.password)) {
             throw new ValidationException("Passwords don't match");
         }
         if (!dto.confirmPassword.equals(dto.password)) {
             throw new ValidationException("Passwords don't match");
         }
 
-        if (dto.countryId==null||dto.countryId>0) {
+        if (dto.countryId == null || dto.countryId > 0) {
             throw new ValidationException("Missing country");
         }
-        Country country= countryDao.getReference(dto.countryId);
-        if (country==null) {
+        Country country = countryDao.getReference(dto.countryId);
+        if (country == null) {
             throw new ValidationException("Invalid country");
         }
-        User existEWithUserName=getUserByUsername(dto.getEmailAddress());
+        User existEWithUserName = getUserByUsername(dto.getEmailAddress());
         if (existEWithUserName != null) {
-            if(existEWithUserName.getRecordStatus().equals(RecordStatus.ACTIVE_LOCKED)) {
-             return    sendOTP(dto.emailAddress);
-            }else{
+            if (existEWithUserName.getRecordStatus().equals(RecordStatus.ACTIVE_LOCKED)) {
+                return sendOTP(dto.emailAddress);
+            } else {
                 throw new OperationFailedException("User with email exists");
             }
         }
-        User existEWithEmail=getUserByEmail(dto.getEmailAddress());
+        User existEWithEmail = getUserByEmail(dto.getEmailAddress());
         if (existEWithEmail != null) {
-            if(existEWithEmail.getRecordStatus().equals(RecordStatus.ACTIVE_LOCKED)) {
-                return    sendOTP(dto.emailAddress);
-            }else{
+            if (existEWithEmail.getRecordStatus().equals(RecordStatus.ACTIVE_LOCKED)) {
+                return sendOTP(dto.emailAddress);
+            } else {
                 throw new OperationFailedException("User with email exists");
             }
         }
@@ -291,13 +297,13 @@ public class UserServiceImpl implements UserService {
         user.setEmailAddress(dto.getEmailAddress());
         user.setFirstName(dto.getFirstName());
         user.setLastName(dto.getLastName());
-       // user.setCountry(country);
+        // user.setCountry(country);
         user.setRecordStatus(RecordStatus.ACTIVE_LOCKED);
 
         user.setUsername(dto.getEmailAddress());
         user.setPassword(dto.getConfirmPassword());
         user.setLastVerificationCode(PassEncTech4.generateOTP(6));
-      User  savedUser= saveUser(user);
+        User savedUser = saveUser(user);
         new Thread(() -> {
             try {
                 mailService.sendEmail(
@@ -316,12 +322,12 @@ public class UserServiceImpl implements UserService {
     }
 
     public User sendOTP(String email) {
-        User user= userRepository.searchUnique(new Search()
-                .addFilterEqual("recordStatus",RecordStatus.ACTIVE_LOCKED)
-                .addFilterEqual("username",email)
-                .setMaxResults(1) );
+        User user = userRepository.searchUnique(new Search()
+                .addFilterEqual("recordStatus", RecordStatus.ACTIVE_LOCKED)
+                .addFilterEqual("username", email)
+                .setMaxResults(1));
 
-        if(user == null){
+        if (user == null) {
             throw new ValidationFailedException("User not found or already active");
         }
         try {
@@ -331,7 +337,7 @@ public class UserServiceImpl implements UserService {
                     USER_REGISTRATION_EMAIL_SUBJECT,
                     MessageFormat.format(USER_REGISTRATION_EMAIL_CONTENT, user.getLastVerificationCode())
             );
-return userRepository.save(user);
+            return userRepository.save(user);
         } catch (Exception e) {
             e.printStackTrace();
             throw new RuntimeException(e);
@@ -340,7 +346,7 @@ return userRepository.save(user);
 
     @Override
     public User authenticateUser(String username, String password) {
-        AuthDTO authDTO =new AuthDTO();
+        AuthDTO authDTO = new AuthDTO();
         authDTO.setPassword(password);
         authDTO.setPassword(password);
         authDTO.setRememberMe(false);
@@ -349,31 +355,36 @@ return userRepository.save(user);
 
     @Override
     public User getUserByUsername(String username) {
-        return userRepository.searchUnique(new Search().addFilterEqual("username",username).setMaxResults(1));
+        return userRepository.searchUnique(new Search().addFilterEqual("username", username).setMaxResults(1));
     }
 
     public User getUserByEmail(String email) {
-        return userRepository.searchUnique(new Search().addFilterEqual("emailAddress",email).setMaxResults(1));
+        return userRepository.searchUnique(new Search().addFilterEqual("emailAddress", email).setMaxResults(1));
     }
 
     public User verifyOTP(String email, String otp) {
-       User user= userRepository.searchUnique(new Search()
-               .addFilterEqual("recordStatus",RecordStatus.ACTIVE_LOCKED)
-               .addFilterEqual("username",email)
-               .addFilterEqual("lastVerificationCode",otp)
-               .setMaxResults(1) );
+        User user = userRepository.searchUnique(new Search()
+                .addFilterEqual("recordStatus", RecordStatus.ACTIVE_LOCKED)
+                .addFilterEqual("username", email)
+                .addFilterEqual("lastVerificationCode", otp)
+                .setMaxResults(1));
 
-       if(user == null){
-           throw new ValidationFailedException("Invalid OTP");
-       }
-       user.setRecordStatus(RecordStatus.ACTIVE);
+        if (user == null) {
+            throw new ValidationFailedException("Invalid OTP");
+        }
+        user.setRecordStatus(RecordStatus.ACTIVE);
 
-       return  userRepository.save(user);
+        return userRepository.save(user);
     }
+
     @Override
     public Role saveRole(Role role) {
-        if (getRoleByName(role.getName()) != null) {
-            throw new OperationFailedException("Role with same name exists");
+        if(!role.isEditable()){
+            throw new ValidationFailedException("Role Not Editable");
+        }
+        Role existsByName=getRoleByName(role.getName());
+        if (existsByName != null&& !Objects.equals(existsByName.getId(), role.getId())) {
+            throw new ValidationFailedException("Role with same name exists");
         }
         return roleRepository.save(role);
     }
@@ -390,8 +401,11 @@ return userRepository.save(user);
         }
 
         Role role = new Role();
-        if(dto.getId()!=null){
-            role=roleRepository.findById(dto.getId()).orElseThrow(()->new ValidationFailedException("Role with id not found"));
+        if (dto.getId() != null) {
+            role = roleRepository.findById(dto.getId()).orElseThrow(() -> new ValidationFailedException("Role with id not found"));
+        }
+        if(!role.isEditable()){
+            throw new ValidationFailedException("Role Not Editable");
         }
 
         Role existsWithName = getRoleByName(dto.getName());
@@ -413,13 +427,19 @@ return userRepository.save(user);
         search.setMaxResults(limit);
         return roleRepository.search(search);
     }
-    public long countRoles(Search search){
-       return  roleRepository.count(search);
+
+    public long countRoles(Search search) {
+        return roleRepository.count(search);
     }
 
     @Override
     public Role getRoleByName(String roleName) {
-        return roleRepository.searchUnique(new Search().addFilterEqual("name",roleName));
+        return roleRepository.searchUnique(new Search().addFilterEqual("name", roleName));
+    }
+
+    @Override
+    public Role getRoleById(long id) {
+        return roleRepository.findById(id).orElseThrow(()->new ValidationFailedException(String.format("Role with id %d not found", id)));
     }
 
     @Override
@@ -431,17 +451,16 @@ return userRepository.save(user);
     }
 
     public static Search composeSearchObjectForUser(String searchTerm) {
-        Search search = CustomSearchUtils.generateSearchTerms(searchTerm,   Arrays.asList("username","lastName", "firstName"));
+        Search search = CustomSearchUtils.generateSearchTerms(searchTerm, Arrays.asList("username", "lastName", "firstName"));
 
         search.addSortDesc("id");
-           return  search;
-        }
+        return search;
+    }
 
     public static Search composeSearchObjectForRole(String searchTerm) {
-        Search search = CustomSearchUtils.generateSearchTerms(searchTerm,   Arrays.asList("name","description"));
-search.addFilterNotIn("name",Arrays.asList(SecurityConstants.SUPER_ADMIN_ROLE, AppUtils.INSTRUCTOR_ROLE_NAME,AppUtils.STUDENT_ROLE_NAME));
-            return  search;
-          }
+        //search.addFilterNotIn("name", Arrays.asList(SecurityConstants.SUPER_ADMIN_ROLE, AppUtils.INSTRUCTOR_ROLE_NAME, AppUtils.STUDENT_ROLE_NAME));
+        return CustomSearchUtils.generateSearchTerms(searchTerm, Arrays.asList("name", "description"));
+    }
 
 }
 

@@ -93,4 +93,6 @@ public interface UserService {
 
 
         User authenticateUser(String username, String password);
+
+    Role getRoleById(long id);
 }

@@ -10,6 +10,7 @@ import com.byaffe.learningking.shared.constants.RecordStatus;
 import com.byaffe.learningking.shared.exceptions.OperationFailedException;
 import com.byaffe.learningking.shared.exceptions.ValidationFailedException;
 import com.byaffe.learningking.shared.models.Country;
+import com.byaffe.learningking.shared.models.Role;
 import com.byaffe.learningking.shared.models.User;
 import com.byaffe.learningking.shared.services.MessageTemplateService;
 import com.byaffe.learningking.shared.utils.ApplicationContextProvider;
@@ -20,6 +21,7 @@ import com.byaffe.learningking.utilities.AppUtils;
 import com.byaffe.learningking.utilities.ImageStorageService;
 import com.googlecode.genericdao.search.Search;
 import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.NotNull;
 import org.modelmapper.ModelMapper;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,9 +29,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.text.MessageFormat;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -75,7 +75,7 @@ public class InstructorServiceImpl extends GenericServiceImpl<CourseInstructor> 
 
         try {
             user.setLastVerificationCode(PassEncTech4.generateOTP(6));
-            sendEmail(user.getEmailAddress(), USER_REGISTRATION_EMAIL_SUBJECT,MessageFormat.format(USER_REGISTRATION_EMAIL_CONTENT, user.getLastVerificationCode()));
+            sendEmail(user.getEmailAddress(), USER_REGISTRATION_EMAIL_SUBJECT, MessageFormat.format(USER_REGISTRATION_EMAIL_CONTENT, user.getLastVerificationCode()));
             return save(user);
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Error sending OTP", e);
@@ -103,21 +103,54 @@ public class InstructorServiceImpl extends GenericServiceImpl<CourseInstructor> 
             throw new ValidationFailedException("Invalid country");
         }
 
-        CourseInstructor courseInstructor= new CourseInstructor();
+        CourseInstructor courseInstructor = new CourseInstructor();
 
-        if(dto.getId()!=null){
-            courseInstructor= getInstanceByID(dto.getId());
+        if (dto.getId() != null) {
+            courseInstructor = getInstanceByID(dto.getId());
+        }
+        courseInstructor.setBiography(dto.getBiography());
+        courseInstructor.setDesignation(dto.getDesignation());
+        courseInstructor.setFirstName(dto.getFirstName());
+        courseInstructor.setLastName(dto.getLastName());
+        courseInstructor.setPhoneNumber(dto.getPhoneNumber());
+        courseInstructor.setEmailAddress(dto.getEmailAddress());
+
+        if ((courseInstructor.isNew() || courseInstructor.getUserAccount() == null) && dto.isCreateUserAccount()) {
+            courseInstructor.setUserAccount(createUserAccount(courseInstructor, dto.getUserAccountRoles()));
+        } else if (courseInstructor.getUserAccount() != null) {
+            User user = courseInstructor.getUserAccount();
+            user.setUsername(dto.getEmailAddress());
+            user.setFirstName(dto.getFirstName());
+            user.setLastName(dto.getLastName());
+            user.setGender(dto.getGender());
+            for (long id : dto.getUserAccountRoles()) {
+                user.addRole(userService.getRoleById(id));
+            }
+            //detach roles not in ids
+            for (Role role : user.getRoles()) {
+                if (!dto.getUserAccountRoles().contains(role.getId())) {
+                    user.removeRole(role);
+                } else {
+                    log.info("Preserved Role:{}", role.getName());
+                }
+            }
+            user = userService.saveUser(user);
+            courseInstructor.setUserAccount(user);
         }
 
         CourseInstructor existsWithEmail = getCourseInstructorByEmail(dto.getEmailAddress());
-        if (existsWithEmail != null&& !existsWithEmail.equals(courseInstructor)) {
+        if (existsWithEmail != null && !existsWithEmail.equals(courseInstructor)) {
             throw new ValidationFailedException("Instructor with email exists");
         }
+        User user = courseInstructor.getUserAccount();
 
-        modelMapper.map(dto,courseInstructor);
+        if (courseInstructor.getUserAccount() != null) {
+            courseInstructor.setAccountStatus(AccountStatus.Active);
+        }
+        courseInstructor.setUserAccount(user);
         courseInstructor.setCountry(country);
         courseInstructor.setUsername(dto.getEmailAddress());
-        courseInstructor= super.save(courseInstructor);
+        courseInstructor = super.save(courseInstructor);
 
         if (dto.getCoverImage() != null) {
             String imageUrl = ApplicationContextProvider.getBean(ImageStorageService.class).uploadImage(dto.getCoverImage(), "instructors/cover-images/" + courseInstructor.getId());
@@ -131,8 +164,10 @@ public class InstructorServiceImpl extends GenericServiceImpl<CourseInstructor> 
             courseInstructor = super.save(courseInstructor);
         }
 
+
         return courseInstructor;
     }
+
     public CourseInstructor doRegister(InstructorRequestDTO dto) throws ValidationFailedException {
         validateUserRegistrationRequest(dto);
 
@@ -161,16 +196,17 @@ public class InstructorServiceImpl extends GenericServiceImpl<CourseInstructor> 
         courseInstructor.setLastVerificationCode(PassEncTech4.generateOTP(6));
         courseInstructor = save(courseInstructor);
 
-        User user = createUserAccount(courseInstructor);
+        User user = createUserAccount(courseInstructor, dto.getUserAccountRoles());
         courseInstructor.setUserAccount(user);
-        new Thread(() -> {   try {
-            mailService.sendEmail(
-                    user.getEmailAddress(),
-                    INSTRUCTOR_REGISTRATION_EMAIL_SUBJECT, INSTRUCTOR_REGISTRATION_EMAIL_CONTENT
-            );
-        }catch (Exception e){
-            log.warn("Error on instructor registration email: {}", e.getMessage());
-        }
+        new Thread(() -> {
+            try {
+                mailService.sendEmail(
+                        user.getEmailAddress(),
+                        INSTRUCTOR_REGISTRATION_EMAIL_SUBJECT, INSTRUCTOR_REGISTRATION_EMAIL_CONTENT
+                );
+            } catch (Exception e) {
+                log.warn("Error on instructor registration email: {}", e.getMessage());
+            }
         }).start();
         return courseInstructor;
     }
@@ -194,7 +230,7 @@ public class InstructorServiceImpl extends GenericServiceImpl<CourseInstructor> 
         if (StringUtils.isBlank(dto.getPhoneNumber())) {
             throw new ValidationFailedException("Missing last name");
         }
-        if (dto.getCountryId()==null) {
+        if (dto.getCountryId() == null) {
             throw new ValidationFailedException("Missing country");
         }
     }
@@ -264,6 +300,7 @@ public class InstructorServiceImpl extends GenericServiceImpl<CourseInstructor> 
         return CustomSearchUtils.generateSearchTerms(searchTerm,
                 Arrays.asList("firstName", "lastName"));
     }
+
     @Override
     public CourseInstructor getCourseInstructorById(String memberId) {
         return searchUniqueByPropertyEqual("id", memberId, RecordStatus.ACTIVE);
@@ -301,7 +338,7 @@ public class InstructorServiceImpl extends GenericServiceImpl<CourseInstructor> 
     }
 
     @Override
-    public CourseInstructor activateCourseInstructorAccount(String username, String code)  {
+    public CourseInstructor activateCourseInstructorAccount(String username, String code) {
         if (StringUtils.isEmpty(code)) {
             throw new ValidationFailedException("Missing code");
         }
@@ -317,16 +354,17 @@ public class InstructorServiceImpl extends GenericServiceImpl<CourseInstructor> 
             throw new ValidationFailedException("Invalid code");
         }
 
-        User user = createUserAccount(courseInstructor);
+        User user = createUserAccount(courseInstructor, new HashSet<>());
         courseInstructor.setUserAccount(user);
         return courseInstructor;
     }
+
     @Override
     public CourseInstructor getInstanceByID(Long instructorId) {
         return super.findById(instructorId).orElseThrow(() -> new ValidationFailedException(String.format("Instructor with ID %d not found", instructorId)));
     }
 
-    private User createUserAccount(CourseInstructor courseInstructor) throws ValidationFailedException {
+    private User createUserAccount(CourseInstructor courseInstructor, Set<Long> roleIds) throws ValidationFailedException {
         User user = new User();
         user.setUsername(courseInstructor.getUsername());
         user.setFirstName(courseInstructor.getFirstName());
@@ -334,6 +372,10 @@ public class InstructorServiceImpl extends GenericServiceImpl<CourseInstructor> 
         user.setEmailAddress(courseInstructor.getEmailAddress());
         user.setPassword(courseInstructor.getPhoneNumber());
         user.addRole(userService.getRoleByName(AppUtils.INSTRUCTOR_ROLE_NAME));
+
+        for (long id : roleIds) {
+            user.addRole(userService.getRoleById(id));
+        }
         return userService.saveUser(user);
     }
 

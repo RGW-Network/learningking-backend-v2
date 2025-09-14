@@ -53,7 +53,7 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
 
     //Handles ValidationFailedException
     @ExceptionHandler(PermissionDeniedException.class)
-    protected ResponseEntity<Object> handlePermissionDeniedException(ValidationFailedException exception) {
+    protected ResponseEntity<Object> handlePermissionDeniedException(PermissionDeniedException exception) {
         exception.printStackTrace();
         return buildResponseEntity(new BaseResponse(exception.getMessage(),false),HttpStatus.FORBIDDEN);
     }

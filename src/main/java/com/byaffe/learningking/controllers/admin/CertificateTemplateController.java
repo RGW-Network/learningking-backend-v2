@@ -46,7 +46,8 @@ public class CertificateTemplateController {
                                                          @RequestParam(value = "offset", required = true) Integer offset,
                                                          @RequestParam(value = "limit", required = true) Integer limit) throws JSONException {
 
-        SessionContext.permissionProtection(PermissionConstant.Course_Create);    Search search = CertificateTemplateServiceImpl.generateSearchTermsForCertificateTemplates(searchTerm);
+        SessionContext.permissionProtection(PermissionConstant.Course_Create);
+        Search search = CertificateTemplateServiceImpl.generateSearchTermsForCertificateTemplates(searchTerm);
 
         List<CertificateTemplate> certificateTemplates = ApplicationContextProvider.getBean(CertificateTemplateService.class).getInstances(search, offset, limit);
         long count = ApplicationContextProvider.getBean(CertificateTemplateService.class).countInstances(search);

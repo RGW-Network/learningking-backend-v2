@@ -14,6 +14,7 @@ import com.byaffe.learningking.services.*;
 import com.byaffe.learningking.shared.constants.RecordStatus;
 import com.byaffe.learningking.shared.exceptions.OperationFailedException;
 import com.byaffe.learningking.shared.exceptions.ValidationFailedException;
+import com.byaffe.learningking.shared.security.SessionContext;
 import com.byaffe.learningking.shared.utils.ApplicationContextProvider;
 import com.byaffe.learningking.shared.utils.CustomSearchUtils;
 import com.byaffe.learningking.utilities.ImageStorageService;
@@ -45,6 +46,8 @@ public class DashboardServiceImpl  implements DashboardService {
 @Autowired
 CourseEnrollmentService courseEnrollmentService;
 
+
+
 @Autowired
 DashboardRepository dashboardRepository;
 
@@ -65,12 +68,19 @@ DashboardRepository dashboardRepository;
     @Override
     public DashboardDto getSummaries() {
         DashboardDto dto= new DashboardDto();
-        int enrollments=courseEnrollmentService.countInstances(new Search());
-        int completions = courseEnrollmentService.countInstances(new Search().addFilterEqual("readStatus", ReadStatus.Completed));
+        Search  enrollmentSearch=new Search().addFilterEqual("recordStatus",RecordStatus.ACTIVE);
+        Search  courseSearch=new Search().addFilterEqual("recordStatus",RecordStatus.ACTIVE);
+
+        if(!SessionContext.isSuperAdmin()) {
+            enrollmentSearch.addFilterEqual("course.instructor.userAccount.id", SessionContext.getLoggedInUser().getId());
+            courseSearch.addFilterEqual("instructor.userAccount.id", SessionContext.getLoggedInUser().getId());
+        }
+        int enrollments=courseEnrollmentService.countInstances(enrollmentSearch);
+        int completions = courseEnrollmentService.countInstances(enrollmentSearch.copy().addFilterEqual("readStatus", ReadStatus.Completed));
         dto.setUsersSignedUp(studentDao.count(new Search()));
-        dto.setActiveEnrollments(courseEnrollmentService.countInstances(new Search()));
-        dto.setPublishedCourses(courseDao.count(new Search()));
-        dto.setCompletionRate((double) completions / enrollments);
+        dto.setActiveEnrollments(courseEnrollmentService.countInstances(enrollmentSearch));
+        dto.setPublishedCourses(courseDao.count(courseSearch));
+        dto.setMonthlyRevenue(courseEnrollmentService.se);
         return dto;
     }
 

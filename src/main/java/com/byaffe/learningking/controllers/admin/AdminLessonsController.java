@@ -42,7 +42,8 @@ CourseLessonService modelService;
 
     @PostMapping("")
     public ResponseEntity<BaseResponse> saveAndUpdate(@RequestBody LessonRequestDTO dto) throws JSONException {
-        SessionContext.permissionProtection(PermissionConstant.Course_Create);  modelService.saveInstance(dto);
+        SessionContext.permissionProtection(PermissionConstant.Course_Create);
+        modelService.saveInstance(dto);
         return ResponseEntity.ok().body(new BaseResponse(true));
     }
     @PostMapping(path = "/multipart", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})

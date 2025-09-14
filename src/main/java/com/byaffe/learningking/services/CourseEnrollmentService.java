@@ -8,6 +8,7 @@ import com.byaffe.learningking.models.courses.CourseEnrollment;
 import com.byaffe.learningking.models.payments.AggregatorTransaction;
 import com.byaffe.learningking.models.payments.StudentSubscriptionPlan;
 import com.byaffe.learningking.shared.exceptions.ValidationFailedException;
+import com.googlecode.genericdao.search.Search;
 
 public interface CourseEnrollmentService extends GenericService<CourseEnrollment> {
 
@@ -45,7 +46,7 @@ public interface CourseEnrollmentService extends GenericService<CourseEnrollment
  List<CourseEnrollment> getPlansForStudent(Student member);
  
    CourseEnrollment createSubscription(Course course, Student member) ;
-   
+   Double computeRevenue(Search search);
   CourseEnrollment createActualSubscription(Course course, StudentSubscriptionPlan memberSubscriptionPlan) throws ValidationFailedException ;
     
 }
