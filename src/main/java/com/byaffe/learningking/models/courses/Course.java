@@ -71,6 +71,12 @@ public class Course extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "certificate_template_id")
     private CertificateTemplate certificateTemplate;
+
+    @Transient
+    public  String getAcademyName(){
+        return  academy!=null?academy.getDisplayName():null;
+    }
+
     public long getDaysToEndOfDiscount(){
         if(this.discountEndDate!=null){
             return ChronoUnit.DAYS.between(this.discountEndDate,LocalDate.now());

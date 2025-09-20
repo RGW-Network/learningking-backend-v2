@@ -13,7 +13,7 @@ import org.apache.commons.lang3.StringUtils;
  * @author Ray Gdhrt
  */
 public enum CourseAcademyType {
-    PROFFESSIONAL("Proffessional",0),
+    PROFFESSIONAL("Professional",0),
     WEALTHY_MINDS("Wealthy Minds",1);
     
     

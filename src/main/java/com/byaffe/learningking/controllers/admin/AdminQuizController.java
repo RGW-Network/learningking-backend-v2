@@ -53,6 +53,7 @@ public class AdminQuizController {
         Quiz Article = quizService.saveQuiz(dto);
         return ResponseEntity.ok().body(new ResponseObject<>(Article));
     }
+
     @PostMapping("/question")
     public ResponseEntity<ResponseObject<Question>> addQuestion(@RequestBody QuizQuestionRequestDTO dto) throws JSONException {
         SessionContext.permissionProtection(PermissionConstant.Course_Create);
@@ -61,11 +62,10 @@ public class AdminQuizController {
     }
 
 
-
-
     @GetMapping("/{id}")
     public ResponseEntity<ResponseObject<Quiz>> getById(@PathVariable(name = "id") long id) throws JSONException {
-        SessionContext.permissionProtection(PermissionConstant.Course_Create);  Quiz quiz = quizService.getById(id);
+        SessionContext.permissionProtection(PermissionConstant.Course_Create);
+        Quiz quiz = quizService.getById(id);
         return ResponseEntity.ok().body(new ResponseObject<>(quiz));
 
     }
@@ -96,7 +96,7 @@ public class AdminQuizController {
     @DeleteMapping("/{id}/delete")
     public ResponseEntity<BaseResponse> deleteQuiz(@PathVariable long id) throws JSONException {
         SessionContext.permissionProtection(PermissionConstant.Course_Create);
-       // quizService.
+        // quizService.
         return ResponseEntity.ok().body(new BaseResponse(true));
     }
 
@@ -109,7 +109,8 @@ public class AdminQuizController {
                                                         @RequestParam(value = "lectureId", required = false) Long lectureId,
                                                         @RequestParam(value = "courseId", required = false) Long courseId) throws JSONException {
 
-        SessionContext.permissionProtection(PermissionConstant.Course_Create);  Search search = QuizServiceImpl.generateSearchTermsForQuizes(searchTerm)
+        SessionContext.permissionProtection(PermissionConstant.Course_Create);
+        Search search = QuizServiceImpl.generateSearchTermsForQuizes(searchTerm)
                 .addFilterEqual("recordStatus", RecordStatus.ACTIVE);
         if (lectureId != null) {
             search.addFilterEqual("courseLecture.id", lectureId);
@@ -127,24 +128,34 @@ public class AdminQuizController {
         return ResponseEntity.ok().body(new ResponseList<>(models, (int) count, offset, limit));
 
     }
+
     @PostMapping("/lecture-quiz")
     public ResponseEntity<ResponseObject<LectureQuiz>> addQuizeToLecture(@RequestBody LectureQuizRequestDTO dto) throws JSONException {
         SessionContext.permissionProtection(PermissionConstant.Course_Create);
         LectureQuiz lectureQuiz = lectureQuizService.save(dto);
         return ResponseEntity.ok().body(new ResponseObject<>(lectureQuiz));
     }
+
     @GetMapping("lecture-quiz")
     public ResponseEntity<ResponseList<LectureQuiz>> getLectureQuizes(@RequestParam(value = "searchTerm", required = false) String searchTerm,
-                                                        @RequestParam(value = "offset", required = true) Integer offset,
-                                                        @RequestParam(value = "limit", required = true) Integer limit,
-                                                        @RequestParam(value = "sortBy", required = false) String sortBy,
-                                                        @RequestParam(value = "sortDescending", required = false) Boolean sortDescending,
-                                                        @RequestParam(value = "lectureId", required = false) Long lectureId) throws JSONException {
+                                                                      @RequestParam(value = "offset", required = true) Integer offset,
+                                                                      @RequestParam(value = "limit", required = true) Integer limit,
+                                                                      @RequestParam(value = "sortBy", required = false) String sortBy,
+                                                                      @RequestParam(value = "sortDescending", required = false) Boolean sortDescending,
+                                                                      @RequestParam(value = "lectureId", required = false) Long lectureId,
+                                                                      @RequestParam(value = "courseId", required = false) Long courseId
 
-        SessionContext.permissionProtection(PermissionConstant.Course_Create);  Search search = QuizServiceImpl.generateSearchTermsForQuizes(searchTerm)
+    ) throws JSONException {
+
+        SessionContext.permissionProtection(PermissionConstant.Course_Create);
+        Search search = QuizServiceImpl.generateSearchTermsForQuizes(searchTerm)
                 .addFilterEqual("recordStatus", RecordStatus.ACTIVE);
         if (lectureId != null) {
             search.addFilterEqual("lecture.id", lectureId);
+        }
+
+        if (courseId != null) {
+            search.addFilterEqual("lecture.courseTopic.courseLesson.course.id", courseId);
         }
 
 
@@ -156,6 +167,7 @@ public class AdminQuizController {
         return ResponseEntity.ok().body(new ResponseList<>(models, (int) count, offset, limit));
 
     }
+
     @GetMapping("/v2/{id}")
     public ResponseEntity<ResponseObject<Quiz>> getQuizById(@PathVariable("id") Long id) throws JSONException {
         SessionContext.permissionProtection(PermissionConstant.Course_Create);

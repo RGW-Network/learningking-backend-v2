@@ -46,7 +46,8 @@ public class CourseEnrollment extends BaseEntity {
 
     @Column(name = "progress")
     private Double progress;
-
+@Column
+private Double purchasePrice;
     @Enumerated(EnumType.STRING)
     @Column(name = "progress_status")
     private ReadStatus readStatus = ReadStatus.NotStarted;

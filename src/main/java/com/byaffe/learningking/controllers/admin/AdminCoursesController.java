@@ -70,7 +70,6 @@ public class AdminCoursesController {
     @GetMapping("/{id}")
     public ResponseEntity<ResponseObject<CourseResponseDTO>> getById(@PathVariable(name = "id") long id) throws JSONException {
        SessionContext.permissionProtection(PermissionConstant.Course_View_Own);
-        System.out.println("ID======="+id);
         Course course=ApplicationContextProvider.getBean(CourseService.class).getInstanceByID(id);
         return ResponseEntity.ok().body(new ResponseObject<>(modelMapper.map(course, CourseResponseDTO.class)));
 

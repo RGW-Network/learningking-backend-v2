@@ -74,9 +74,7 @@ public class CourseEnrollmentServiceImpl extends GenericServiceImpl<CourseEnroll
 
     @Override
     public Double computeRevenue(Search search) {
-
-
-        return searchUnique(search.addFilterEqual("recordStatus",RecordStatus.ACTIVE).addField(""));
+        return searchUnique(search.addFilterEqual("recordStatus",RecordStatus.ACTIVE).addField("purchasePrice"));
     }
 
     @Override

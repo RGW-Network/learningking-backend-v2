@@ -384,7 +384,6 @@ CourseRatingService ratingService;
                 .addFilterEqual("recordStatus", RecordStatus.ACTIVE);
 
         long count = ApplicationContextProvider.getBean(InstructorService.class).countInstances(search);
-        log.info("Instructors Count: {}", count);
         List<CourseInstructor> courses = ApplicationContextProvider.getBean(InstructorService.class).getInstances(search, offset, limit);
         return ResponseEntity.ok().body(new ResponseList<>(courses.stream().map(r -> modelMapper.map(r, InstructorResponseDTO.class)).collect(Collectors.toList()), count, offset, limit));
     }

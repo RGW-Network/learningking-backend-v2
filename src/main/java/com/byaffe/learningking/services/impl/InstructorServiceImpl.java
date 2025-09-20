@@ -114,6 +114,7 @@ public class InstructorServiceImpl extends GenericServiceImpl<CourseInstructor> 
         courseInstructor.setLastName(dto.getLastName());
         courseInstructor.setPhoneNumber(dto.getPhoneNumber());
         courseInstructor.setEmailAddress(dto.getEmailAddress());
+        courseInstructor.setUsername(dto.getEmailAddress());
 
         if ((courseInstructor.isNew() || courseInstructor.getUserAccount() == null) && dto.isCreateUserAccount()) {
             courseInstructor.setUserAccount(createUserAccount(courseInstructor, dto.getUserAccountRoles()));
