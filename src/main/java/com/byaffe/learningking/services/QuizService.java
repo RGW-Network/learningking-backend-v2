@@ -1,13 +1,14 @@
 package com.byaffe.learningking.services;
 
+import com.byaffe.learningking.dtos.quiz.BulkQuizQuestionUploadResponse;
 import com.byaffe.learningking.dtos.quiz.QuizQuestionRequestDTO;
 import com.byaffe.learningking.dtos.quiz.QuizRequestDTO;
 import com.byaffe.learningking.models.Article;
-import com.byaffe.learningking.models.quizes.AnswerOption;
 import com.byaffe.learningking.models.quizes.Question;
 import com.byaffe.learningking.models.quizes.Quiz;
 import com.byaffe.learningking.shared.exceptions.ValidationFailedException;
 import com.googlecode.genericdao.search.Search;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -29,6 +30,7 @@ public interface QuizService  {
     List<Question> getQuizQuestions(Search search, int offset, int limit) ;
     long countQuizQuestions(Search search) ;
 
+    BulkQuizQuestionUploadResponse uploadQuizQuestionsFromCsv(Long quizId, MultipartFile file);
 
 
 }

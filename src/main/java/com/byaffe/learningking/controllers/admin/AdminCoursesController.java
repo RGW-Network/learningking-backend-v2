@@ -46,7 +46,8 @@ public class AdminCoursesController {
     }
     @PostMapping(path = "/multipart", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<BaseResponse> uploadCSV(@RequestPart  CourseRequestDTO dto, @RequestPart(value = "file",required = false) MultipartFile file)  {
-        SessionContext.permissionProtection(PermissionConstant.Course_Create);if(file!=null) {
+        SessionContext.permissionProtection(PermissionConstant.Course_Create);
+        if(file!=null) {
          dto.setCoverImage(file);
      }
          ApplicationContextProvider.getBean(CourseService.class).saveInstance(dto);

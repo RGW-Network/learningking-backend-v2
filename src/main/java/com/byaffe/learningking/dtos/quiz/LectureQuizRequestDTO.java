@@ -9,6 +9,7 @@ public class LectureQuizRequestDTO {
     private Long lectureId;
     private Long quizId;
     private int position;
+    private Double passMark = 50D;
     private PublicationStatus publicationStatus= PublicationStatus.ACTIVE;
 
     //nana-6pm

@@ -1,5 +1,6 @@
 package com.byaffe.learningking.controllers.admin;
 
+import com.byaffe.learningking.dtos.quiz.BulkQuizQuestionUploadResponse;
 import com.byaffe.learningking.dtos.quiz.LectureQuizRequestDTO;
 import com.byaffe.learningking.dtos.quiz.QuizQuestionRequestDTO;
 import com.byaffe.learningking.dtos.quiz.QuizRequestDTO;
@@ -25,8 +26,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.json.JSONException;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -59,6 +62,15 @@ public class AdminQuizController {
         SessionContext.permissionProtection(PermissionConstant.Course_Create);
         Question model = quizService.saveQuizQuestion(dto);
         return ResponseEntity.ok().body(new ResponseObject<>(model));
+    }
+
+    @PostMapping(path = "/{quizId}/questions/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<ResponseObject<BulkQuizQuestionUploadResponse>> uploadQuestions(
+            @PathVariable Long quizId,
+            @RequestPart("file") MultipartFile file) throws JSONException {
+        SessionContext.permissionProtection(PermissionConstant.Course_Create);
+        BulkQuizQuestionUploadResponse response = quizService.uploadQuizQuestionsFromCsv(quizId, file);
+        return ResponseEntity.ok().body(new ResponseObject<>(response));
     }
 
 

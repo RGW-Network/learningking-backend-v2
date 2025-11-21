@@ -16,6 +16,9 @@ public class LectureQuiz extends BaseEntity {
     @Column(name = "position", length = 10)
     private int position = 1;
 
+    @Column(name = "pass_mark")
+    private Double passMark = 50D;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "publication_status", nullable = true)
     private PublicationStatus publicationStatus = PublicationStatus.ACTIVE;

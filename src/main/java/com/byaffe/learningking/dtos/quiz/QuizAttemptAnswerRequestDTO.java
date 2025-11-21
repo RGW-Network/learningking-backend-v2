@@ -5,8 +5,7 @@ import lombok.Data;
 @Data
 public class QuizAttemptAnswerRequestDTO {
     public Long id;
-    private String title;
-    private String description;
-    private Long lectureId;
+    private Long questionId;
+    private Long selectedAnswerId;
 
 }

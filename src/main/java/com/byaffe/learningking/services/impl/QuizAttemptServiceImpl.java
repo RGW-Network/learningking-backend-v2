@@ -7,6 +7,7 @@ import com.byaffe.learningking.daos.QuizDao;
 import com.byaffe.learningking.dtos.quiz.QuizAttemptAnswerRequestDTO;
 import com.byaffe.learningking.dtos.quiz.QuizAttemptRequestDTO;
 import com.byaffe.learningking.models.quizes.QuizAttempt;
+import com.byaffe.learningking.models.quizes.SelectedAnswer;
 import com.byaffe.learningking.services.CourseEnrollmentService;
 import com.byaffe.learningking.services.QuizAttemptService;
 import com.byaffe.learningking.shared.exceptions.ValidationFailedException;
@@ -53,8 +54,27 @@ public class QuizAttemptServiceImpl implements QuizAttemptService {
             throw new ValidationFailedException("Missing enrollment id");
         }
         QuizAttempt quiz = modelMapper.map(dto, QuizAttempt.class);
+        
+        double totalScore = 0;
+        //save the answers 
+        for (QuizAttemptAnswerRequestDTO answer : dto.getAnswers()) {
+            SelectedAnswer selectedAnswer = new SelectedAnswer();
+            selectedAnswer.setQuizAttempt(quiz);
+            selectedAnswer.setQuestion(questionDao.findById(answer.getQuestionId()).orElseThrow(()->new ValidationFailedException("Question not found")));
+            selectedAnswer.setSubmittedResponse(answerDao.findById(answer.getSelectedAnswerId()).orElseThrow(()->new ValidationFailedException("Selected answer not found")).getName());
+            
+            if(selectedAnswer.getQuestion().getAnswerOptions().stream().anyMatch(answerOption -> answerOption.getId() == answer.getSelectedAnswerId())){
+                selectedAnswer.setCorrectlyAnswered(true);
+            }else{
+                selectedAnswer.setCorrectlyAnswered(false);
+            }
+            selectedAnswer.setScore(selectedAnswer.getQuestion().getMarks());
+            totalScore += selectedAnswer.getScore();
+        }
         quiz.setEnrollment(courseEnrollmentService.getInstanceByIDOrNull(dto.getEnrollmentId()));
         quiz.setQuiz(quizDao.getReference(dto.getQuizId()));
+
+        quiz.setScore((int) totalScore);
 
         return quizAttemptDao.save(quiz);
     }

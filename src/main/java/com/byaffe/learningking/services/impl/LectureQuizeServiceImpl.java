@@ -54,10 +54,15 @@ public class LectureQuizeServiceImpl extends GenericServiceImpl<LectureQuiz> imp
         if (dto.getId() != null && dto.getId() > 0) {
             lectureQuiz = getInstanceByIDOrThrow(dto.id);
         }
+        Double passMark = dto.getPassMark() == null ? 50D : dto.getPassMark();
+        if (passMark < 0 || passMark > 100) {
+            throw new ValidationFailedException("Pass mark must be between 0 and 100");
+        }
         lectureQuiz.setPublicationStatus(dto.getPublicationStatus());
         lectureQuiz.setLecture(lecture);
         lectureQuiz.setQuiz(quiz);
         lectureQuiz.setPosition(dto.getPosition());
+        lectureQuiz.setPassMark(passMark);
         return save(lectureQuiz);
 
     }
