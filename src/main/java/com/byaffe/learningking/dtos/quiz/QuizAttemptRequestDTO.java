@@ -9,6 +9,5 @@ import java.util.List;
 public class QuizAttemptRequestDTO {
     private Long enrollmentId;
     private Long quizId;
-    private List<QuizAttemptAnswerRequestDTO> answers;
 
 }

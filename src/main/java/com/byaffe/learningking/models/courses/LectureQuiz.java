@@ -53,4 +53,9 @@ public class LectureQuiz extends BaseEntity {
     public int hashCode() {
         return super.getId() != null ? this.getClass().hashCode() + super.getId().hashCode() : super.hashCode();
     }
+
+    @Transient
+    public String getAttemptStatus(){
+        return "New";
+    }
 }

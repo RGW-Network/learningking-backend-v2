@@ -1,14 +1,14 @@
 package com.byaffe.learningking.controllers;
 
 import com.byaffe.learningking.dtos.InitQuizRequestDTO;
-import com.byaffe.learningking.dtos.quiz.QuizAttemptRequestDTO;
-import com.byaffe.learningking.dtos.quiz.QuizQuestionRequestDTO;
-import com.byaffe.learningking.dtos.quiz.QuizRequestDTO;
+import com.byaffe.learningking.dtos.quiz.*;
 import com.byaffe.learningking.models.Article;
+import com.byaffe.learningking.models.courses.LectureQuiz;
 import com.byaffe.learningking.models.quizes.Question;
 import com.byaffe.learningking.models.quizes.Quiz;
 import com.byaffe.learningking.models.quizes.QuizAttempt;
 import com.byaffe.learningking.services.ArticleService;
+import com.byaffe.learningking.services.LectureQuizService;
 import com.byaffe.learningking.services.QuizAttemptService;
 import com.byaffe.learningking.services.QuizService;
 import com.byaffe.learningking.services.impl.QuizServiceImpl;
@@ -16,6 +16,7 @@ import com.byaffe.learningking.shared.api.BaseResponse;
 import com.byaffe.learningking.shared.api.ResponseList;
 import com.byaffe.learningking.shared.api.ResponseObject;
 import com.byaffe.learningking.shared.constants.RecordStatus;
+import com.byaffe.learningking.shared.security.SessionContext;
 import com.byaffe.learningking.shared.utils.ApplicationContextProvider;
 import com.googlecode.genericdao.search.Search;
 import lombok.extern.slf4j.Slf4j;
@@ -41,11 +42,25 @@ public class QuizController {
     @Autowired
     QuizAttemptService quizAttemptService;
 
+@Autowired
+    LectureQuizService lectureQuizService;
 
+@Autowired
+ModelMapper modelMapper;
 
     @GetMapping("/{id}")
-    public ResponseEntity<ResponseObject<Quiz>> getById(@PathVariable(name = "id") long id) throws JSONException {
-        Quiz quiz = quizService.getById(id);
+    public ResponseEntity<ResponseObject<LectureQuizResponseDTO>> getById(@PathVariable(name = "id") long id) throws JSONException {
+        LectureQuiz quiz = lectureQuizService.getInstanceByIDOrThrow(id);
+        LectureQuizResponseDTO responseDTO=modelMapper.map(quiz,LectureQuizResponseDTO.class);
+        responseDTO.setAttempts(quizAttemptService.getQuizAttempts(new Search().addFilterEqual("lectureQuiz",quiz).addFilterEqual("enrollment.student", SessionContext.getLoggedInStudent()),0,0));
+        responseDTO.setQuestions(quiz.getQuiz().getQuestions());
+        return ResponseEntity.ok().body(new ResponseObject<>(responseDTO));
+
+    }
+
+    @GetMapping("/attempt/{id}")
+    public ResponseEntity<ResponseObject<QuizAttempt>> getById(@PathVariable(name = "id") Long id) throws JSONException {
+        QuizAttempt quiz = quizAttemptService.getById(id);
         return ResponseEntity.ok().body(new ResponseObject<>(quiz));
 
     }
@@ -55,7 +70,7 @@ public class QuizController {
         return ResponseEntity.ok().body(new ResponseObject<>(quiz));
     }
     @PostMapping("/submit")
-    public ResponseEntity<ResponseObject<QuizAttempt>> submitQuizAttempt(@RequestBody QuizAttemptRequestDTO dto) throws JSONException {
+    public ResponseEntity<ResponseObject<QuizAttempt>> submitQuizAttempt(@RequestBody QuizAttemptSSubmissionRequestDTO dto) throws JSONException {
         QuizAttempt quiz = quizAttemptService.saveQuizAttempt(dto);
         return ResponseEntity.ok().body(new ResponseObject<>(quiz));
     }

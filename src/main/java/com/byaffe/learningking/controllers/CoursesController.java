@@ -5,9 +5,11 @@ import com.byaffe.learningking.dtos.instructor.*;
 import com.byaffe.learningking.dtos.courses.CourseResponseDTO;
 import com.byaffe.learningking.dtos.courses.CourseTopicResponseDTO;
 import com.byaffe.learningking.dtos.courses.LessonResponseDTO;
+import com.byaffe.learningking.dtos.quiz.LectureQuizResponseDTO;
 import com.byaffe.learningking.models.ReadStatus;
 import com.byaffe.learningking.models.Student;
 import com.byaffe.learningking.models.courses.*;
+import com.byaffe.learningking.models.quizes.QuizAttempt;
 import com.byaffe.learningking.services.*;
 import com.byaffe.learningking.services.impl.CourseEnrollmentServiceImpl;
 import com.byaffe.learningking.services.impl.CourseServiceImpl;
@@ -49,8 +51,12 @@ public class CoursesController {
     @Autowired
     WishListService wishListService;
 
-@Autowired
-CourseRatingService ratingService;
+    @Autowired
+    CourseRatingService ratingService;
+
+    @Autowired
+    QuizAttemptService quizAttemptService;
+
     @GetMapping("")
     public ResponseEntity<ResponseList<CourseResponseDTO>> getCourses(@RequestParam(value = "searchTerm", required = false) String searchTerm,
                                                                       @RequestParam(value = "offset", required = true) Integer offset,
@@ -67,7 +73,7 @@ CourseRatingService ratingService;
         Search search = CourseServiceImpl.generateSearchObjectForCourses(searchTerm)
                 .addFilterEqual("recordStatus", RecordStatus.ACTIVE);
 
-        if(!SessionContext.isSuperAdmin()){
+        if (!SessionContext.isSuperAdmin()) {
             search.addFilterEqual("publicationStatus", PublicationStatus.ACTIVE);
         }
         if (categoryId != null) {
@@ -104,7 +110,7 @@ CourseRatingService ratingService;
                 e.printStackTrace();
             }
             if (SessionContext.getLoggedInStudent() != null) {
-                CourseEnrollment subscription =subscriptionService.getSerieSubscription(SessionContext.getLoggedInStudent(), course);
+                CourseEnrollment subscription = subscriptionService.getSerieSubscription(SessionContext.getLoggedInStudent(), course);
 
                 dto.setEnrolled(subscription != null);
             }
@@ -243,9 +249,23 @@ CourseRatingService ratingService;
             List<CourseLecture> lectures = ApplicationContextProvider.getBean(CourseLectureService.class).getInstances(new Search()
                     .addFilterEqual("courseTopic", topic)
                     .addFilterEqual("recordStatus", RecordStatus.ACTIVE)
+                    .addFetch("lectureQuizzes")
                     .addSortAsc("position"), 0, 0);
-            topicJSONObject.setLectures(lectures.stream().map(r -> modelMapper.map(r, LectureResponseDTO.class)).collect(Collectors.toList()));
+            for (CourseLecture lecture : lectures) {
+                LectureResponseDTO dto = modelMapper.map(lecture, LectureResponseDTO.class);
+                dto.setLectureQuizzes(new ArrayList<>());
 
+                for (LectureQuiz quiz : lecture.getLectureQuizzes()) {
+                    LectureQuizResponseDTO quizResponseDTO = modelMapper.map(quiz, LectureQuizResponseDTO.class);
+                    List<QuizAttempt> attempts = quizAttemptService.getQuizAttempts(new Search().addFilterEqual("recordStatus", RecordStatus.ACTIVE).addFilterEqual("lectureQuiz", quiz).addFilterEqual("enrollment", subscription).addFilterNotEqual("status", QuizAttempt.QuizAttemptStatus.Ongoing).addSortDesc("id"), 0, 0);
+                    if (!attempts.isEmpty()) {
+                        QuizAttempt lastAttempt = attempts.get(0);
+                        quizResponseDTO.setAttemptStatus(lastAttempt.getStatus().name());
+                    }
+                    dto.getLectureQuizzes().add(quizResponseDTO);
+                }
+                topicJSONObject.getLectures().add(dto);
+            }
 
             result.getTopics().add(topicJSONObject);
         }
@@ -274,7 +294,6 @@ CourseRatingService ratingService;
 
         for (CourseLecture subTopic : subTopics) {
             LectureResponseDTO jSONObject = modelMapper.map(subTopic, LectureResponseDTO.class);
-            jSONObject.setQuizes(ApplicationContextProvider.getBean(QuizService.class).getQuizes(new Search().addFilterEqual("lecture.id", subTopic.getId()).addFilterEqual("recordStatus", RecordStatus.ACTIVE), 0, 0));
             result.getLectures().add(jSONObject);
         }
         result.setSubscription(subscription);
@@ -345,8 +364,8 @@ CourseRatingService ratingService;
         if (status != null) {
             search.addFilterEqual("readStatus", status);
         }
-        if(!SessionContext.isSuperAdmin()){
-            search.addFilterEqual("student",SessionContext.getLoggedInStudent());
+        if (!SessionContext.isSuperAdmin()) {
+            search.addFilterEqual("student", SessionContext.getLoggedInStudent());
         }
         List<CourseResponseDTO> courses = new ArrayList<>();
         for (CourseEnrollment course : ApplicationContextProvider.getBean(CourseEnrollmentService.class).getInstances(search, offset, limit)) {

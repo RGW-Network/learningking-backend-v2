@@ -1,9 +1,6 @@
 package com.byaffe.learningking.services;
 
-import com.byaffe.learningking.dtos.quiz.QuizAttemptAnswerRequestDTO;
-import com.byaffe.learningking.dtos.quiz.QuizAttemptRequestDTO;
-import com.byaffe.learningking.dtos.quiz.QuizQuestionRequestDTO;
-import com.byaffe.learningking.dtos.quiz.QuizRequestDTO;
+import com.byaffe.learningking.dtos.quiz.*;
 import com.byaffe.learningking.models.Article;
 import com.byaffe.learningking.models.quizes.Question;
 import com.byaffe.learningking.models.quizes.Quiz;
@@ -22,7 +19,7 @@ import java.util.List;
 public interface QuizAttemptService {
 
 
-    QuizAttempt saveQuizAttempt(QuizAttemptRequestDTO dto) throws ValidationFailedException;
+    QuizAttempt saveQuizAttempt(QuizAttemptSSubmissionRequestDTO dto) throws ValidationFailedException;
     QuizAttempt init(long quizId, long enrollmentId) throws ValidationFailedException;
     List<QuizAttempt> getQuizAttempts(Search search, int offset, int limit) ;
     long countQuizAttempts(Search search) ;
