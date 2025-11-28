@@ -5,6 +5,7 @@ import com.byaffe.learningking.services.*;
 import com.googlecode.genericdao.search.Search;
 import okhttp3.*;
 import org.json.JSONObject;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,8 +16,8 @@ import java.util.List;
 @Service
 @Transactional
 public class VideoRecordServiceImpl extends GenericServiceImpl<VideoRecord> implements VideoRecordService {
-
-String accessToken="";
+    @Value("${vimeo.access-token}")
+    private String accessToken;
     /**
      * Creates a TUS upload ticket
      */

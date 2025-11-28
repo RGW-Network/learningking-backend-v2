@@ -23,6 +23,7 @@ public class VideoController {
             VideoRecord ticket = vimeoService.createUploadTicket(title);
             return ResponseEntity.ok(ticket); // Contains: vimeoId + uploadLink
         } catch (Exception e) {
+            e.printStackTrace();
             return ResponseEntity.status(500).body("Failed: " + e.getMessage());
         }
     }
