@@ -18,9 +18,9 @@ public class VideoController {
     private final VideoRecordService vimeoService;
 
     @PostMapping("/upload-ticket")
-    public ResponseEntity<?> createTicket(@RequestParam String title) {
+    public ResponseEntity<?> createTicket(@RequestParam String title,@RequestParam long size) {
         try {
-            VideoRecord ticket = vimeoService.createUploadTicket(title);
+            VideoRecord ticket = vimeoService.createUploadTicket(title,size);
             return ResponseEntity.ok(ticket); // Contains: vimeoId + uploadLink
         } catch (Exception e) {
             e.printStackTrace();

@@ -14,7 +14,7 @@ import java.io.IOException;
  *
  */
 public interface VideoRecordService extends GenericService<VideoRecord> {
-     VideoRecord createUploadTicket(String title) throws IOException;
+     VideoRecord createUploadTicket(String title, long size) throws IOException;
 
     void updateVideoReady(String videoId, String thumb);
 }

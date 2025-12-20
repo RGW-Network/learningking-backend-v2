@@ -16,23 +16,24 @@ import java.util.List;
 @Service
 @Transactional
 public class VideoRecordServiceImpl extends GenericServiceImpl<VideoRecord> implements VideoRecordService {
-    @Value("${vimeo.access-token}")
+    @Value("${vimeo.access.token}")
     private String accessToken;
     /**
      * Creates a TUS upload ticket
      */
-    public VideoRecord createUploadTicket(String title) throws IOException {
+    public VideoRecord createUploadTicket(String title,long size) throws IOException {
 
         OkHttpClient client = new OkHttpClient();
 
         RequestBody body = RequestBody.create(
-                "{\"upload\":{\"approach\":\"tus\",\"size\": null}}",
+                "{\"upload\":{\"approach\":\"tus\",\"size\": "+size+"}}",
                 MediaType.parse("application/json")
         );
 
         Request request = new Request.Builder()
                 .url("https://api.vimeo.com/me/videos")
-                .addHeader("Authorization", "Bearer " + accessToken)
+                .addHeader("Authorization", "bearer " + accessToken)
+                .addHeader("Content-Type","application/vnd.vimeo.*+json;version=3.4")
                 .post(body)
                 .build();
 
