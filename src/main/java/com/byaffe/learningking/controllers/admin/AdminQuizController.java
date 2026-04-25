@@ -48,10 +48,10 @@ public class AdminQuizController {
         return ResponseEntity.ok().body(new ResponseObject<>(Article));
     }
     @PostMapping("/question")
-    public ResponseEntity<ResponseObject<Question>> addQuestion(@RequestBody QuizQuestionRequestDTO dto) throws JSONException {
+    public ResponseEntity<BaseResponse> addQuestion(@RequestBody QuizQuestionRequestDTO dto) throws JSONException {
         SessionContext.permissionProtection(PermissionConstant.Course_Create);
-        Question model = quizService.saveQuizQuestion(dto);
-        return ResponseEntity.ok().body(new ResponseObject<>(model));
+         quizService.saveQuizQuestion(dto);
+        return ResponseEntity.ok().body(new BaseResponse(true));
     }
 
 

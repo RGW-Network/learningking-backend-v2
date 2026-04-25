@@ -91,7 +91,7 @@ public class QuizServiceImpl implements QuizService {
         for (QuizQuestionRequestDTO.AnswerRequestDTO answerDTO : dto.getAnswerOptions()) {
             AnswerOption answerOption  = new AnswerOption();
             if (answerDTO.getId() != null) {
-                answerOption = getAnswerOptionById(dto.getId());
+                answerOption = getAnswerOptionById(answerDTO.getId());
             }
              modelMapper.map(answerDTO, answerOption);
             answerOption.setQuestion(question);
