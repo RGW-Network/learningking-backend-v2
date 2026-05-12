@@ -53,11 +53,19 @@ public class AdminQuizController {
          quizService.saveQuizQuestion(dto);
         return ResponseEntity.ok().body(new BaseResponse(true));
     }
+    @PostMapping("/question/{id}/delete")
+    public ResponseEntity<BaseResponse> deleteQuestion(@PathVariable long id) throws JSONException {
+        SessionContext.permissionProtection(PermissionConstant.Course_Create);
+        quizService.deleteQuestion(id);
+        return ResponseEntity.ok().body(new BaseResponse(true));
+    }
+
 
 
     @GetMapping("/{id}")
     public ResponseEntity<ResponseObject<Quiz>> getById(@PathVariable(name = "id") long id) throws JSONException {
-        SessionContext.permissionProtection(PermissionConstant.Course_Create);  Quiz quiz = quizService.getById(id);
+        SessionContext.permissionProtection(PermissionConstant.Course_Create);
+        Quiz quiz = quizService.getById(id);
         return ResponseEntity.ok().body(new ResponseObject<>(quiz));
 
     }
@@ -87,8 +95,8 @@ public class AdminQuizController {
 
     @DeleteMapping("/{id}/delete")
     public ResponseEntity<BaseResponse> deleteArticle(@PathVariable long id) throws JSONException {
-        SessionContext.permissionProtection(PermissionConstant.Course_Create);     Article Article = ApplicationContextProvider.getBean(ArticleService.class).getInstanceByID(id);
-        ApplicationContextProvider.getBean(ArticleService.class).deleteInstance(Article);
+        SessionContext.permissionProtection(PermissionConstant.Course_Create);
+        quizService.deletQuize(id);
         return ResponseEntity.ok().body(new BaseResponse(true));
     }
 

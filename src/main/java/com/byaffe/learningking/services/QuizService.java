@@ -30,5 +30,7 @@ public interface QuizService  {
     long countQuizQuestions(Search search) ;
 
 
+    void deleteQuestion(long id);
 
+    void deletQuize(long id);
 }
