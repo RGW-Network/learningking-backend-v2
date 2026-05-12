@@ -9,6 +9,7 @@ import com.byaffe.learningking.models.quizes.AnswerOption;
 import com.byaffe.learningking.models.quizes.Question;
 import com.byaffe.learningking.models.quizes.Quiz;
 import com.byaffe.learningking.services.*;
+import com.byaffe.learningking.shared.constants.RecordStatus;
 import com.byaffe.learningking.shared.exceptions.ValidationFailedException;
 import com.byaffe.learningking.shared.utils.CustomSearchUtils;
 import com.googlecode.genericdao.search.Search;
@@ -111,6 +112,20 @@ public class QuizServiceImpl implements QuizService {
     @Override
     public long countQuizQuestions(Search search) {
         return questionDao.count(search);
+    }
+
+    @Override
+    public void deleteQuestion(long id) {
+        Question q=getQuestionById(id);
+        q.setRecordStatus(RecordStatus.DELETED);
+        questionDao.save(q);
+    }
+
+    @Override
+    public void deletQuize(long id) {
+        Quiz q= getById(id);
+        q.setRecordStatus(RecordStatus.DELETED);
+        quizDao.save(q);
     }
 
     public Question getQuestionById(Long id) throws ValidationFailedException {

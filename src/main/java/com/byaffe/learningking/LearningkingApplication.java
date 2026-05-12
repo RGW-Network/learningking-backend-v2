@@ -71,7 +71,7 @@ public class LearningkingApplication {
                 user.setLastName("Administrator");
                 userService.saveUser(user);
             } catch (Exception ex) {
-
+ex.printStackTrace();
             }
 
             try {
