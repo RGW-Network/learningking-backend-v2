@@ -23,15 +23,10 @@ public class QuizAttempt extends BaseEntity {
     @JoinColumn(name = "enrollment_id")
     private CourseEnrollment enrollment;
 
-    @JsonIncludeProperties({"id", "title"})
+    @JsonIncludeProperties({"id", "lecture","quiz"})
     @ManyToOne
-    @JoinColumn(name = "lecture_id")
-    private CourseLecture lecture;
-
-    @JsonIncludeProperties({"id", "title"})
-    @ManyToOne
-    @JoinColumn(name = "quiz_id")
-    private Quiz quiz;
+    @JoinColumn(name = "quiz_lecture_mapping_id")
+    private QuizLectureMapping quizLectureMapping;
 
     private Integer score;
     private LocalDateTime startedOnDate;

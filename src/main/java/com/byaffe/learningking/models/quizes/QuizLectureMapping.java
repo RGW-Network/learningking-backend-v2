@@ -37,6 +37,9 @@ public class QuizLectureMapping extends BaseEntity {
         return this.getQuiz()!=null? this.getQuiz().getId():null;
     }
 
-
+    @Transient
+    public Long getLectureId(){
+        return this.getLecture()!=null? this.getLecture().getId():null;
+    }
 
 }

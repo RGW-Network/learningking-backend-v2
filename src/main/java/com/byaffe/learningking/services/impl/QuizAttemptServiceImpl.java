@@ -9,6 +9,7 @@ import com.byaffe.learningking.dtos.quiz.QuizAttemptRequestDTO;
 import com.byaffe.learningking.models.quizes.QuizAttempt;
 import com.byaffe.learningking.services.CourseEnrollmentService;
 import com.byaffe.learningking.services.QuizAttemptService;
+import com.byaffe.learningking.services.QuizLectureMappingService;
 import com.byaffe.learningking.shared.exceptions.ValidationFailedException;
 import com.byaffe.learningking.shared.utils.CustomSearchUtils;
 import com.googlecode.genericdao.search.Search;
@@ -26,6 +27,9 @@ public class QuizAttemptServiceImpl implements QuizAttemptService {
 
     @Autowired
     QuizDao quizDao;
+
+    @Autowired
+    QuizLectureMappingService quizLectureMappingService;
     @Autowired
     QuizAttemptDao quizAttemptDao;
     @Autowired
@@ -54,7 +58,7 @@ public class QuizAttemptServiceImpl implements QuizAttemptService {
         }
         QuizAttempt quiz = modelMapper.map(dto, QuizAttempt.class);
         quiz.setEnrollment(courseEnrollmentService.getInstanceByID(dto.getEnrollmentId()));
-        quiz.setQuiz(quizDao.getReference(dto.getQuizId()));
+        quiz.setQuizLectureMapping(quizLectureMappingService.getInstanceByID(dto.getQuizId()));
 
         return quizAttemptDao.save(quiz);
     }
@@ -62,7 +66,7 @@ public class QuizAttemptServiceImpl implements QuizAttemptService {
     @Override
     public QuizAttempt init(long quizId, long enrollmentId) throws ValidationFailedException {
         QuizAttempt quizAttempt= new QuizAttempt();
-        quizAttempt.setQuiz(quizDao.findById(quizId).orElseThrow(()->new ValidationFailedException("Quize not found")));
+        quizAttempt.setQuizLectureMapping(quizLectureMappingService.getInstanceByID(quizId));
         quizAttempt.setEnrollment(courseEnrollmentService.getInstanceByID(enrollmentId));
         return quizAttemptDao.save(quizAttempt);
     }
