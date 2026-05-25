@@ -2,6 +2,7 @@ package com.byaffe.learningking.models.courses;
 
 import javax.persistence.*;
 
+import com.byaffe.learningking.models.quizes.QuizLectureMapping;
 import com.byaffe.learningking.shared.models.BaseEntity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
@@ -57,6 +58,9 @@ private ContentType contentType;
     @JoinColumn(name = "course_topic_id")
     private CourseTopic courseTopic;
 
+
+    @ManyToMany(fetch = FetchType.EAGER, mappedBy = "lecture")
+    private Set<QuizLectureMapping> quizzes;
 
 
     public void addExternalLink(ExternalResource link) {

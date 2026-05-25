@@ -2,6 +2,7 @@ package com.byaffe.learningking.dtos.courses;
 
 import com.byaffe.learningking.models.courses.*;
 import com.byaffe.learningking.models.quizes.Quiz;
+import com.byaffe.learningking.models.quizes.QuizLectureMapping;
 import lombok.Data;
 
 import javax.persistence.*;
@@ -27,11 +28,7 @@ public class LectureResponseDTO {
     private CourseTopic courseTopic;
     private String publicationStatusName = publicationStatus != null ? publicationStatus.getDisplayName() : null;
     private Integer publicationStatusId = publicationStatus != null ? publicationStatus.getId() : null;
-    private List<Quiz>  quizes = new ArrayList<>();
-
-    public Boolean getHasQuizes(){
-        return (quizes!=null&& !quizes.isEmpty());
-    }
+    private List<QuizLectureMapping>  quizzes = new ArrayList<>();
 
 
 

@@ -272,11 +272,7 @@ CourseRatingService ratingService;
                 .addSortAsc("position"), 0, 0);
         CourseEnrollment subscription = ApplicationContextProvider.getBean(CourseEnrollmentService.class).getSerieSubscription(member, topic.getCourseLesson().getCourse());
 
-        for (CourseLecture subTopic : subTopics) {
-            LectureResponseDTO jSONObject = modelMapper.map(subTopic, LectureResponseDTO.class);
-            jSONObject.setQuizes(ApplicationContextProvider.getBean(QuizService.class).getQuizes(new Search().addFilterEqual("lecture.id", subTopic.getId()).addFilterEqual("recordStatus", RecordStatus.ACTIVE), 0, 0));
-            result.getLectures().add(jSONObject);
-        }
+
         result.setSubscription(subscription);
         return ResponseEntity.ok().body(new ResponseObject<>(result));
 
