@@ -56,6 +56,9 @@ public class CourseRatingServiceImpl extends GenericServiceImpl<Review> implemen
         review.setStarsCount(dto.getStarsCount());
         review.setType(dto.getType());
         review.setRecordId(dto.getRecordId());
+        review.setReviewerName(dto.getReviewerName());
+        review.setReviewerDesignation(dto.getReviewerDesignation());
+        review.setReviewerImageUrl(dto.getReviewerImageUrl());
         review.setRecordName(generateReferenceRecordName(dto.getType(), dto.getRecordId()));
         Student student = SessionContext.getLoggedInStudent();
         if (student != null) {
